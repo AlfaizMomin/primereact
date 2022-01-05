@@ -135,6 +135,17 @@ export default class ObjectUtils {
         return null;
     }
 
+    static combinedRefs(innerRef, forwardRef) {
+        if (innerRef && forwardRef) {
+            if (typeof forwardRef === 'function') {
+                forwardRef(innerRef.current);
+            }
+            else {
+                forwardRef.current = innerRef.current;
+            }
+        }
+    }
+
     static removeAccents(str) {
         if (str && str.search(/[\xC0-\xFF]/g) > -1) {
             str = str

@@ -93,6 +93,7 @@ export declare class ObjectUtils {
     static getJSXElement(obj: any, ...params: any[]): any;
     static getPropValue(obj: any, ...params: any[]): any;
     static getRefElement(ref: any): any;
+    static combinedRefs(innerRef: any, forwardRef: any): void;
     static removeAccents(str: any): string;
     static isEmpty(value: any): boolean;
     static isNotEmpty(value: any): boolean;
