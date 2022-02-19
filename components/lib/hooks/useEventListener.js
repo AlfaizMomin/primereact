@@ -2,20 +2,20 @@ import { useEffect, useRef } from 'react';
 import { DomHandler, ObjectUtils } from '../utils/Utils';
 
 export const useEventListener = (type, listener, target) => {
-    const ref = useRef(null);
-    const node = useRef(null);
+    const listenerRef = useRef(null);
+    const targetRef = useRef(null);
 
     const bind = () => {
-        if (!ref.current) {
-            ref.current = event => listener && listener(event);
-            node.current.addEventListener(type, ref.current);
+        if (!listenerRef.current && targetRef.current) {
+            listenerRef.current = event => listener && listener(event);
+            targetRef.current.addEventListener(type, listenerRef.current);
         }
     }
 
     const unbind = () => {
-        if (ref.current) {
-            node.current.removeEventListener(type, ref.current);
-            ref.current = null;
+        if (listenerRef.current) {
+            targetRef.current.removeEventListener(type, listenerRef.current);
+            listenerRef.current = null;
         }
     }
 
@@ -26,7 +26,7 @@ export const useEventListener = (type, listener, target) => {
             targetEl = DomHandler.isExist(el) ? el : targetEl;
         }
 
-        node.current = targetEl;
+        targetRef.current = targetEl;
 
         return () => {
             unbind();
