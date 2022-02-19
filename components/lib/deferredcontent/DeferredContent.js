@@ -1,56 +1,17 @@
-import React, { Component } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 
-export class DeferredContent extends Component {
+export const DeferredContent = (props) => {
+    const [loaded,setLoaded] = useState(false);
+    const container = useRef(null);
+    const documentScrollListener = useRef(null);
 
-    static defaultProps = {
-        onload: null
-    }
-
-    static propTypes = {
-        onLoad: PropTypes.func
-    }
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            loaded: false
-        };
-    }
-
-    componentDidMount() {
-        if (!this.state.loaded) {
-            if (this.shouldLoad())
-                this.load();
-            else
-                this.bindScrollListener();
-        }
-    }
-
-    bindScrollListener() {
-        this.documentScrollListener = () => {
-            if (this.shouldLoad()) {
-                this.load();
-                this.unbindScrollListener();
-            }
-        };
-
-        window.addEventListener('scroll', this.documentScrollListener);
-    }
-
-    unbindScrollListener() {
-        if (this.documentScrollListener) {
-            window.removeEventListener('scroll', this.documentScrollListener);
-            this.documentScrollListener = null;
-        }
-    }
-
-    shouldLoad() {
-        if (this.state.loaded) {
+    const shouldLoad = () => {
+        if (loaded) {
             return false;
         }
         else {
-            let rect = this.container.getBoundingClientRect();
+            let rect = container.current.getBoundingClientRect();
             let docElement = document.documentElement;
             let winHeight = docElement.clientHeight;
 
@@ -58,24 +19,54 @@ export class DeferredContent extends Component {
         }
     }
 
-    load(event) {
-        this.setState({ loaded: true });
+    const load = () => {
+        setLoaded(true);
 
-        if (this.props.onLoad) {
-            this.props.onLoad(event);
+        if (props.onLoad) {
+            props.onLoad();
         }
     }
 
-    componentWillUnmount() {
-        this.unbindScrollListener();
+    const bindScrollListener = () => {
+        documentScrollListener.current = () => {
+            if (shouldLoad()) {
+                load();
+                unbindScrollListener();
+            }
+        };
+
+        window.addEventListener('scroll', documentScrollListener.current);
     }
 
-    render() {
-        return (
-            <div ref={(el) => this.container = el}>
-                {this.state.loaded ? this.props.children : null}
-            </div>
-        );
+    const unbindScrollListener = () => {
+        if (documentScrollListener.current) {
+            window.removeEventListener('scroll', documentScrollListener.current);
+            documentScrollListener.current = null;
+        }
     }
 
+    useEffect(() => {
+        if (!loaded) {
+            if (shouldLoad())
+                load();
+            else
+                bindScrollListener();
+        }
+
+        return () => unbindScrollListener();
+    }, []);    
+
+    return (
+        <div ref={container}>
+            {loaded ? props.children : null}
+        </div>
+    );
+}
+
+DeferredContent.defaultProps = {
+    onload: null
+}
+
+DeferredContent.propTypes = {
+    onLoad: PropTypes.func
 }
