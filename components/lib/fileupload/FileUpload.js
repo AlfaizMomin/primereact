@@ -148,7 +148,8 @@ export const FileUpload = memo(forwardRef((props, ref) => {
             const message = {
                 severity: 'error',
                 summary: props.invalidFileSizeMessageSummary.replace('{0}', file.name),
-                detail: props.invalidFileSizeMessageDetail.replace('{0}', formatSize(props.maxFileSize))
+                detail: props.invalidFileSizeMessageDetail.replace('{0}', formatSize(props.maxFileSize)),
+                sticky: true
             };
 
             if (props.mode === 'advanced') {
