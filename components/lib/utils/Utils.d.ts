@@ -95,9 +95,11 @@ export declare class ObjectUtils {
     static getJSXElement(obj: any, ...params: any[]): any;
     static getPropValue(obj: any, ...params: any[]): any;
     static getRefElement(ref: any): any;
+    static combinedRefs(innerRef: any, forwardRef: any): void;
     static removeAccents(str: any): string;
     static isEmpty(value: any): boolean;
     static isNotEmpty(value: any): boolean;
+    static sort(value1: any, value2: any, order: number, locale: string | string[]): number;
 }
 
 export declare class IconUtils {
