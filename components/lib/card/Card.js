@@ -40,7 +40,6 @@ export const Card = (props) =>  {
     );
 }
 
-
 Card.defaultProps = {
     id: null,
     header: null,
@@ -49,7 +48,7 @@ Card.defaultProps = {
     subTitle: null,
     style: null,
     className: null
-};
+}
 
 Card.propTypes = {
     id: PropTypes.string,
@@ -59,4 +58,4 @@ Card.propTypes = {
     subTitle: PropTypes.any,
     style: PropTypes.object,
     className: PropTypes.string
-};
+}

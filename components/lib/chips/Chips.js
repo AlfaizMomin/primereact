@@ -33,12 +33,12 @@ export const Chips = memo((props) => {
             props.onChange({
                 originalEvent: event,
                 value: values,
-                stopPropagation : () =>{},
-                preventDefault : () =>{},
+                stopPropagation: () => { },
+                preventDefault: () => { },
                 target: {
                     name: props.name,
                     id: props.id,
-                    value : values
+                    value: values
                 }
             });
         }
@@ -71,20 +71,20 @@ export const Chips = memo((props) => {
         const inputValue = event.target.value;
         const values = props.value || [];
 
-        switch(event.which) {
+        switch (event.which) {
             //backspace
             case 8:
                 if (inputRef.current.value.length === 0 && values.length > 0) {
                     removeItem(event, values.length - 1);
                 }
-            break;
+                break;
 
             //enter
             case 13:
                 if (inputValue && inputValue.trim().length && (!props.max || props.max > values.length)) {
                     addItem(event, inputValue, true);
                 }
-            break;
+                break;
 
             default:
                 if (isMaxedOut()) {
@@ -95,7 +95,7 @@ export const Chips = memo((props) => {
                         addItem(event, inputValue, true);
                     }
                 }
-            break;
+                break;
         }
     }
 
@@ -104,12 +104,12 @@ export const Chips = memo((props) => {
             props.onChange({
                 originalEvent: event,
                 value: items,
-                stopPropagation : () =>{},
-                preventDefault : () =>{},
+                stopPropagation: () => { },
+                preventDefault: () => { },
                 target: {
                     name: props.name,
                     id: props.id,
-                    value : items
+                    value: items
                 }
             });
         }
@@ -222,9 +222,9 @@ export const Chips = memo((props) => {
     const useInput = () => {
         return (
             <li className="p-chips-input-token">
-                <input ref={inputRef} placeholder={props.placeholder} type="text" name={props.name} disabled={props.disabled||isMaxedOut()}
-                            onKeyDown={onKeyDown} onPaste={onPaste} onFocus={onFocus} onBlur={onBlur} aria-labelledby={props.ariaLabelledBy}
-                            readOnly={props.readOnly} />
+                <input ref={inputRef} placeholder={props.placeholder} type="text" name={props.name} disabled={props.disabled || isMaxedOut()}
+                    onKeyDown={onKeyDown} onPaste={onPaste} onFocus={onFocus} onBlur={onBlur} aria-labelledby={props.ariaLabelledBy}
+                    readOnly={props.readOnly} />
             </li>
         );
     }
