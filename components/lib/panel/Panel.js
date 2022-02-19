@@ -10,6 +10,8 @@ export const Panel = (props) => {
     const className = classNames('p-panel p-component', props.className, {'p-panel-toggleable': props.toggleable});
     const collapsed = props.toggleable ? (props.onToggle ? props.collapsed : collapsedState) : false;
     const contentRef = useRef(null);
+    const headerId = id + '_header';
+    const contentId = id + '_content';
 
     const toggle = (event) => {
         if (props.toggleable) {
@@ -52,11 +54,10 @@ export const Panel = (props) => {
     const useToggleIcon = () => {
         if (props.toggleable) {
             const buttonId = id + '_label';
-            const ariaControlsId = id + '_content';
             const toggleIcon = collapsed ? props.expandIcon : props.collapseIcon;
 
             return (
-                <button className="p-panel-header-icon p-panel-toggler p-link" onClick={toggle} id={buttonId} aria-controls={ariaControlsId} aria-expanded={!collapsed} role="tab">
+                <button className="p-panel-header-icon p-panel-toggler p-link" onClick={toggle} id={buttonId} aria-controls={contentId} aria-expanded={!collapsed} role="tab">
                     {IconUtils.getJSXIcon(toggleIcon, {props: props, collapsed})}
                     <Ripple />
                 </button>
@@ -70,7 +71,7 @@ export const Panel = (props) => {
         const header = ObjectUtils.getJSXElement(props.header, props);
         const icons = ObjectUtils.getJSXElement(props.icons, props);
         const togglerElement = useToggleIcon();
-        const titleElement = <span className="p-panel-title" id={id + '_header'}>{header}</span>;
+        const titleElement = <span className="p-panel-title" id={headerId}>{header}</span>;
         const iconsElement = (
             <div className="p-panel-icons">
                 {icons}
@@ -112,7 +113,7 @@ export const Panel = (props) => {
     const useContent = () => {
         return (
             <CSSTransition nodeRef={contentRef} classNames="p-toggleable-content" timeout={{ enter: 1000, exit: 450 }} in={!collapsed} unmountOnExit options={props.transitionOptions}>
-                <div ref={contentRef} className="p-toggleable-content" aria-hidden={collapsed} role="region" id={id + '_content'} aria-labelledby={id + '_header'}>
+                <div ref={contentRef} className="p-toggleable-content" aria-hidden={collapsed} role="region" id={contentId} aria-labelledby={headerId}>
                     <div className="p-panel-content">
                         {props.children}
                     </div>

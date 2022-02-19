@@ -10,6 +10,8 @@ export const Fieldset = (props) => {
     const className = classNames('p-fieldset p-component', props.className, { 'p-fieldset-toggleable': props.toggleable });
     const collapsed = props.toggleable ? (props.onToggle ? props.collapsed : collapsedState) : false;
     const contentRef = useRef(null);
+    const headerId = id + '_header';
+    const contentId = id + '_content';
 
     const toggle = (event) => {
         if (props.toggleable) {
@@ -52,7 +54,7 @@ export const Fieldset = (props) => {
     const useContent = ()=> {
         return (
             <CSSTransition nodeRef={contentRef} classNames="p-toggleable-content" timeout={{ enter: 1000, exit: 450 }} in={!collapsed} unmountOnExit options={props.transitionOptions}>
-                <div ref={contentRef} id={id + '_content'} className="p-toggleable-content" aria-hidden={collapsed} role="region" aria-labelledby={id + '_header'}>
+                <div ref={contentRef} id={contentId} className="p-toggleable-content" aria-hidden={collapsed} role="region" aria-labelledby={headerId}>
                     <div className="p-fieldset-content">
                         {props.children}
                     </div>
@@ -76,10 +78,9 @@ export const Fieldset = (props) => {
     const useLegendContent = () => {
         if (props.toggleable) {
             const toggleIcon = useToggleIcon();
-            const ariaControlsId = id + '_content';
 
             return (
-                <a href={'#' + ariaControlsId} aria-controls={ariaControlsId} id={id + '_header'} aria-expanded={!collapsed} tabIndex={props.toggleable ? null : -1}>
+                <a href={'#' + contentId} aria-controls={contentId} id={headerId} aria-expanded={!collapsed} tabIndex={props.toggleable ? null : -1}>
                     {toggleIcon}
                     <span className="p-fieldset-legend-text">{props.legend}</span>
                     <Ripple />
@@ -88,7 +89,7 @@ export const Fieldset = (props) => {
         }
 
         return (
-            <span className="p-fieldset-legend-text" id={id + '_header'}>{props.legend}</span>
+            <span className="p-fieldset-legend-text" id={headerId}>{props.legend}</span>
         );
     }
 
