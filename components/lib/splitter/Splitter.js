@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { DomHandler, classNames, ObjectUtils } from '../utils/Utils';
+import { useEventListener } from '../hooks/useEventListener';
 
 export const SplitterPanel = () => {}
 
@@ -8,8 +9,6 @@ export const Splitter = (props) => {
     const className = classNames(`p-splitter p-component p-splitter-${props.layout}`, props.className);
     const container = useRef(null);
     const gutterEl = useRef(null);
-    const mouseMoveListener = useRef(null);
-    const mouseUpListener = useRef(null);
     const size = useRef(null);
     const dragging = useRef(null);
     const startPos = useRef(null);
@@ -20,32 +19,20 @@ export const Splitter = (props) => {
     const prevPanelIndex = useRef(null);
     const panelSizes = useRef(null);
     const isStateful = props.stateKey != null;
+    const [bindMouseMove, unbindMouseMove] = useEventListener('mousemove', event => onResize(event));
+    const [bindMouseUp, unbindMouseUp] = useEventListener('mouseup', event => {
+        onResizeEnd(event);
+        unbindMouseListeners();
+    });
 
     const bindMouseListeners = () => {
-        if (!mouseMoveListener.current) {
-            mouseMoveListener.current = event => onResize(event);
-            document.addEventListener('mousemove', mouseMoveListener.current);
-        }
-
-        if (!mouseUpListener.current) {
-            mouseUpListener.current = event => {
-                onResizeEnd(event);
-                unbindMouseListeners();
-            }
-            document.addEventListener('mouseup', mouseUpListener.current);
-        }
+        bindMouseMove();
+        bindMouseUp();
     }
 
     const unbindMouseListeners = () => {
-        if (mouseMoveListener.current) {
-            document.removeEventListener('mousemove', mouseMoveListener.current);
-            mouseMoveListener.current = null;
-        }
-
-        if (mouseUpListener.current) {
-            document.removeEventListener('mouseup', mouseUpListener.current);
-            mouseUpListener.current = null;
-        }
+        unbindMouseMove();
+        unbindMouseUp();
     }
 
     const validateResize = (newPrevPanelSize, newNextPanelSize) => {
@@ -124,7 +111,7 @@ export const Splitter = (props) => {
         let newPos;
         let pageX = event.type === 'touchmove' ? event.touches[0].pageX : event.pageX;
         let pageY = event.type === 'touchmove' ? event.touches[0].pageY : event.pageY;
-        
+
         if (props.layout === 'horizontal')
             newPos = (pageX * 100 / size.current) - (startPos.current * 100 / size.current);
         else
@@ -199,7 +186,7 @@ export const Splitter = (props) => {
             </React.Fragment>
         );
     }
-    
+
 
     const usePanels = () => {
         return (
@@ -216,16 +203,16 @@ export const Splitter = (props) => {
                 DomHandler.addClass(panelElement, 'p-splitter-panel-nested');
             }
         });
-    
+
         if (props.children && props.children.length) {
             let initialized = false;
             if (isStateful) {
                 initialized = restoreState();
             }
-    
+
             if (!initialized) {
                 let _panelSizes = [];
-    
+
                 props.children.map((panel, i) => {
                     let panelInitialSize = panel.props && panel.props.size ? panel.props.size : null;
                     let panelSize = panelInitialSize || (100 / props.children.length);
@@ -233,7 +220,7 @@ export const Splitter = (props) => {
                     panelElements[i].style.flexBasis = 'calc(' + panelSize + '% - ' + ((props.children.length - 1) * props.gutterSize) + 'px)';
                     return _panelSizes;
                 });
-    
+
                 panelSizes.current = _panelSizes;
             }
         }
