@@ -131,7 +131,7 @@ export default class FileUploadDemo extends Component {
                     <div>
                         <h1>FileUpload</h1>
                         <p>FileUpload is an advanced uploader with dragdrop support, multi file uploads, auto uploading, progress tracking and validations.</p>
-                    </div> 
+                    </div>
                     <DocActions github="fileupload/index.js" />
                 </div>
 

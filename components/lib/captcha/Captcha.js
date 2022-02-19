@@ -1,110 +1,118 @@
-import React, { Component } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import PropTypes from 'prop-types';
 
-export class Captcha extends Component {
+export const Captcha = forwardRef((props, ref) => {
+    const elementRef = useRef(null);
+    const instance = useRef(null);
+    const recaptchaScript = useRef(null);
 
-    static defaultProps = {
-        id: null,
-        siteKey: null,
-        theme: "light",
-        type: "image",
-        size: "normal",
-        tabIndex: 0,
-        language: "en",
-        onResponse: null,
-        onExpire: null
-    }
-
-    static propTypes = {
-        id: PropTypes.string,
-        sitekey: PropTypes.string,
-        theme: PropTypes.string,
-        type: PropTypes.string,
-        size: PropTypes.string,
-        tabIndex: PropTypes.number,
-        language: PropTypes.string,
-        onResponse: PropTypes.func,
-        onExpire: PropTypes.func
-    }
-
-    init() {
-        this._instance = (window).grecaptcha.render(this.targetEL, {
-            'sitekey': this.props.siteKey,
-            'theme': this.props.theme,
-            'type': this.props.type,
-            'size': this.props.size,
-            'tabindex': this.props.tabIndex,
-            'hl': this.props.language,
-            'callback': (response) => {this.recaptchaCallback(response)},
-            'expired-callback': () => {this.recaptchaExpiredCallback()}
+    const init = () => {
+        instance.current = (window).grecaptcha.render(elementRef.current, {
+            'sitekey': props.siteKey,
+            'theme': props.theme,
+            'type': props.type,
+            'size': props.size,
+            'tabindex': props.tabIndex,
+            'hl': props.language,
+            'callback': recaptchaCallback,
+            'expired-callback': recaptchaExpiredCallback
         });
     }
 
-    reset() {
-        if(this._instance === null)
+    const reset = () => {
+        if (instance.current === null)
             return;
 
-        (window).grecaptcha.reset(this._instance);
+        (window).grecaptcha.reset(instance.current);
     }
 
-    getResponse() {
-        if (this._instance === null)
+    const getResponse = () => {
+        if (instance.current === null)
             return null;
 
-        return (window).grecaptcha.getResponse(this._instance);
+        return (window).grecaptcha.getResponse(instance.current);
     }
 
-    recaptchaCallback(response) {
-        if(this.props.onResponse) {
-            this.props.onResponse({
-                response: response
+    const recaptchaCallback = (response) => {
+        if (props.onResponse) {
+            props.onResponse({
+                response
             });
         }
     }
 
-    recaptchaExpiredCallback() {
-        if(this.props.onExpire) {
-            this.props.onExpire();
+    const recaptchaExpiredCallback = () => {
+        if (props.onExpire) {
+            props.onExpire();
         }
     }
 
-    addRecaptchaScript() {
-        this.recaptchaScript = null;
+    const addRecaptchaScript = () => {
+        recaptchaScript.current = null;
         if (!(window).grecaptcha) {
             let head = document.head || document.getElementsByTagName('head')[0];
-            this.recaptchaScript = document.createElement('script');
-            this.recaptchaScript.src = "https://www.google.com/recaptcha/api.js?render=explicit";
-            this.recaptchaScript.async = true;
-            this.recaptchaScript.defer = true;
-            this.recaptchaScript.onload = () => {
+            let script = document.createElement('script');
+            script.src = 'https://www.google.com/recaptcha/api.js?render=explicit';
+            script.async = true;
+            script.defer = true;
+            script.onload = () => {
                 if (!(window).grecaptcha) {
-                    console.warn("Recaptcha is not loaded");
+                    console.warn('Recaptcha is not loaded');
                     return;
                 }
 
                 window.grecaptcha.ready(() => {
-                    this.init();
+                    init();
                 });
             }
-            head.appendChild(this.recaptchaScript);
+            recaptchaScript.current = script;
+
+            head.appendChild(recaptchaScript.current);
         }
     }
 
-    componentDidMount() {
-        this.addRecaptchaScript();
+    useEffect(() => {
+        addRecaptchaScript();
 
         if ((window).grecaptcha) {
-            this.init();
+            init();
         }
-    }
 
-    componentWillUnmount() {
-        if(this.recaptchaScript) {
-            this.recaptchaScript.parentNode.removeChild(this.recaptchaScript);
+        return () => {
+            if (recaptchaScript.current) {
+                recaptchaScript.current.parentNode.removeChild(recaptchaScript.current);
+            }
         }
-    }
+    }, []);
 
-    render() {
-        return <div id={this.props.id} ref={(el) => this.targetEL = el}></div>
-    }
+    useImperativeHandle(ref, () => ({
+        reset,
+        getResponse
+    }));
+
+    return <div ref={elementRef} id={props.id}></div>
+});
+
+Captcha.defaultProps = {
+    id: null,
+    siteKey: null,
+    theme: 'light',
+    type: 'image',
+    size: 'normal',
+    tabIndex: 0,
+    language: 'en',
+    onResponse: null,
+    onExpire: null
+}
+
+Captcha.propTypes = {
+    id: PropTypes.string,
+    sitekey: PropTypes.string,
+    theme: PropTypes.string,
+    type: PropTypes.string,
+    size: PropTypes.string,
+    tabIndex: PropTypes.number,
+    language: PropTypes.string,
+    onResponse: PropTypes.func,
+    onExpire: PropTypes.func
 }

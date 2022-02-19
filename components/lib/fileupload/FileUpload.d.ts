@@ -124,4 +124,5 @@ interface FileUploadProps {
 export declare class FileUpload extends React.Component<FileUploadProps, any> {
     public upload(): void;
     public clear(): void;
+    public formatSize(bytes: number): number;
 }

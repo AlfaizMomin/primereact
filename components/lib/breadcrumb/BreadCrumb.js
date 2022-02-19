@@ -1,26 +1,10 @@
-import React, {Component} from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, classNames } from '../utils/Utils';
 
-export class BreadCrumb extends Component {
+export const BreadCrumb = (props) => {
 
-    static defaultProps = {
-        id: null,
-        model: null,
-        home: null,
-        style: null,
-        className: null
-    };
-
-    static propTypes = {
-        id: PropTypes.string,
-        model: PropTypes.array,
-        home: PropTypes.any,
-        style: PropTypes.object,
-        className: PropTypes.string
-    };
-
-    itemClick(event, item){
+    const itemClick = (event, item) => {
         if (item.disabled) {
             event.preventDefault();
             return;
@@ -33,51 +17,54 @@ export class BreadCrumb extends Component {
         if (item.command) {
             item.command({
                 originalEvent: event,
-                item: item
+                item
             });
         }
     }
 
-    renderHome() {
-        if(this.props.home) {
-            const className = classNames('p-breadcrumb-home',  {'p-disabled': this.props.home.disabled}, this.props.home.className);
-            const iconClassName = classNames('p-menuitem-icon', this.props.home.icon);
+    const useHome = () => {
+        const home = props.home;
+
+        if (home) {
+            const { icon, target, url, disabled, style, className: _className } = home;
+            const className = classNames('p-breadcrumb-home', { 'p-disabled': disabled }, _className);
+            const iconClassName = classNames('p-menuitem-icon', icon);
 
             return (
-                <li className={className} style={this.props.home.style}>
-                    <a href={this.props.home.url || '#'} className="p-menuitem-link" aria-disabled={this.props.home.disabled} target={this.props.home.target} onClick={event => this.itemClick(event, this.props.home)}>
+                <li className={className} style={style}>
+                    <a href={url || '#'} className="p-menuitem-link" aria-disabled={disabled} target={target} onClick={(event) => itemClick(event, home)}>
                         <span className={iconClassName}></span>
                     </a>
                 </li>
-            );
+            )
         }
 
         return null;
     }
 
-    renderSeparator() {
+    const useSeparator = () => {
         return (
             <li className="p-breadcrumb-chevron pi pi-chevron-right"></li>
-        );
+        )
     }
 
-    renderMenuitem(item) {
-        const className = classNames(item.className, {'p-disabled': item.disabled});
+    const useMenuitem = (item) => {
+        const className = classNames(item.className, { 'p-disabled': item.disabled });
         const label = item.label && <span className="p-menuitem-text">{item.label}</span>;
         let content = (
-            <a href={item.url || '#'} className="p-menuitem-link" target={item.target} onClick={event => this.itemClick(event, item)} aria-disabled={item.disabled}>
+            <a href={item.url || '#'} className="p-menuitem-link" target={item.target} onClick={(event) => itemClick(event, item)} aria-disabled={item.disabled}>
                 {label}
             </a>
         );
 
         if (item.template) {
             const defaultContentOptions = {
-                onClick: (event) => this.itemClick(event, item),
+                onClick: (event) => itemClick(event, item),
                 className: 'p-menuitem-link',
                 labelClassName: 'p-menuitem-text',
                 element: content,
-                props: this.props
-            };
+                props
+            }
 
             content = ObjectUtils.getJSXElement(item.template, item, defaultContentOptions);
         }
@@ -86,14 +73,14 @@ export class BreadCrumb extends Component {
             <li className={className} style={item.style}>
                 {content}
             </li>
-        );
+        )
     }
 
-    renderMenuitems() {
-        if (this.props.model) {
-            const items = this.props.model.map((item, index)=> {
-                const menuitem = this.renderMenuitem(item);
-                const separator = (index === this.props.model.length - 1) ? null : this.renderSeparator();
+    const useMenuitems = () => {
+        if (props.model) {
+            const items = props.model.map((item, index) => {
+                const menuitem = useMenuitem(item);
+                const separator = (index === props.model.length - 1) ? null : useSeparator();
 
                 return (
                     <React.Fragment key={item.label + '_' + index}>
@@ -109,20 +96,34 @@ export class BreadCrumb extends Component {
         return null;
     }
 
-    render() {
-        const className=classNames('p-breadcrumb p-component', this.props.className);
-        const home = this.renderHome();
-        const items = this.renderMenuitems();
-        const separator = this.renderSeparator();
+    const className = classNames('p-breadcrumb p-component', props.className);
+    const home = useHome();
+    const items = useMenuitems();
+    const separator = useSeparator();
 
-        return (
-            <nav id={this.props.id} className={className} style={this.props.style} aria-label="Breadcrumb">
-                <ul>
-                    {home}
-                    {separator}
-                    {items}
-                </ul>
-            </nav>
-        );
-    }
+    return (
+        <nav id={props.id} className={className} style={props.style} aria-label="Breadcrumb">
+            <ul>
+                {home}
+                {separator}
+                {items}
+            </ul>
+        </nav>
+    )
+}
+
+BreadCrumb.defaultProps = {
+    id: null,
+    model: null,
+    home: null,
+    style: null,
+    className: null
+}
+
+BreadCrumb.propTypes = {
+    id: PropTypes.string,
+    model: PropTypes.array,
+    home: PropTypes.any,
+    style: PropTypes.object,
+    className: PropTypes.string
 }

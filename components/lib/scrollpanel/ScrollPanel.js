@@ -1,10 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { DomHandler, classNames } from '../utils/Utils';
 
-// todo: Expose refresh() which calls moveBar
-
-export const ScrollPanel = (props) => {
+export const ScrollPanel = forwardRef((props, ref) => {
     const className = classNames('p-scrollpanel p-component', props.className);
     const container = useRef(null);
     const content = useRef(null);
@@ -130,6 +128,10 @@ export const ScrollPanel = (props) => {
         isYBarClicked.current = false;
     }
 
+    const refresh = () => {
+        moveBar();
+    }
+
     useEffect(() => {
         moveBar();
         window.addEventListener('resize', moveBar);
@@ -147,6 +149,10 @@ export const ScrollPanel = (props) => {
         };
     }, []);
 
+    useImperativeHandle(ref, () => ({
+        refresh
+    }));
+
     return (
         <div ref={container} id={props.id} className={className} style={props.style}>
             <div className="p-scrollpanel-wrapper">
@@ -158,7 +164,7 @@ export const ScrollPanel = (props) => {
             <div ref={yBar} className="p-scrollpanel-bar p-scrollpanel-bar-y" onMouseDown={onYBarMouseDown}></div>
         </div>
     );
-}
+})
 
 ScrollPanel.defaultProps = {
     id: null,

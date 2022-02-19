@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { forwardRef, memo, useImperativeHandle, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '../button/Button';
 import { Messages } from '../messages/Messages';
@@ -7,199 +7,78 @@ import { DomHandler, ObjectUtils, IconUtils, classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
 import { localeOption } from '../api/Api';
 
-export class FileUpload extends Component {
+export const FileUpload = memo(forwardRef((props, ref) => {
+    const [files, setFiles] = useState([]);
+    const [progress, setProgress] = useState(0);
+    const [focused, setFocused] = useState(false);
+    const fileInputRef = useRef(null);
+    const messagesRef = useRef(null);
+    const contentRef = useRef(null);
+    const duplicateIEEvent = useRef(false);
+    const uploadedFileCount = useRef(0);
 
-    static defaultProps = {
-        id: null,
-        name: null,
-        url: null,
-        mode: 'advanced',
-        multiple: false,
-        accept: null,
-        disabled: false,
-        auto: false,
-        maxFileSize: null,
-        invalidFileSizeMessageSummary: '{0}: Invalid file size, ',
-        invalidFileSizeMessageDetail: 'maximum upload size is {0}.',
-        style: null,
-        className: null,
-        widthCredentials: false,
-        previewWidth: 50,
-        chooseLabel: null,
-        uploadLabel: null,
-        cancelLabel: null,
-        chooseOptions: {
-            label: null,
-            icon: null,
-            iconOnly: false,
-            className: null,
-            style: null
-        },
-        uploadOptions: {
-            label: null,
-            icon: null,
-            iconOnly: false,
-            className: null,
-            style: null
-        },
-        cancelOptions: {
-            label: null,
-            icon: null,
-            iconOnly: false,
-            className: null,
-            style: null
-        },
-        customUpload: false,
-        headerClassName: null,
-        headerStyle: null,
-        contentClassName: null,
-        contentStyle: null,
-        headerTemplate: null,
-        itemTemplate: null,
-        emptyTemplate: null,
-        progressBarTemplate: null,
-        onBeforeUpload: null,
-        onBeforeSend: null,
-        onUpload: null,
-        onError: null,
-        onClear: null,
-        onSelect: null,
-        onProgress: null,
-        onValidationFail: null,
-        uploadHandler: null,
-        onRemove: null
+    const hasFiles = () => {
+        return ObjectUtils.isNotEmpty(files);
     }
 
-    static propTypes = {
-        id: PropTypes.string,
-        name: PropTypes.string,
-        url: PropTypes.string,
-        mode: PropTypes.string,
-        multiple: PropTypes.bool,
-        accept: PropTypes.string,
-        disabled: PropTypes.bool,
-        auto: PropTypes.bool,
-        maxFileSize: PropTypes.number,
-        invalidFileSizeMessageSummary: PropTypes.string,
-        invalidFileSizeMessageDetail: PropTypes.string,
-        style: PropTypes.object,
-        className: PropTypes.string,
-        widthCredentials: PropTypes.bool,
-        previewWidth: PropTypes.number,
-        chooseLabel: PropTypes.string,
-        uploadLabel: PropTypes.string,
-        cancelLabel: PropTypes.string,
-        chooseOptions: PropTypes.object,
-        uploadOptions: PropTypes.object,
-        cancelOptions: PropTypes.object,
-        customUpload: PropTypes.bool,
-        headerClassName: PropTypes.string,
-        headerStyle: PropTypes.object,
-        contentClassName: PropTypes.string,
-        contentStyle: PropTypes.object,
-        headerTemplate: PropTypes.any,
-        itemTemplate: PropTypes.any,
-        emptyTemplate: PropTypes.any,
-        progressBarTemplate: PropTypes.any,
-        onBeforeUpload: PropTypes.func,
-        onBeforeSend: PropTypes.func,
-        onUpload: PropTypes.func,
-        onError: PropTypes.func,
-        onClear: PropTypes.func,
-        onSelect: PropTypes.func,
-        onProgress: PropTypes.func,
-        onValidationFail: PropTypes.func,
-        uploadHandler: PropTypes.func,
-        onRemove: PropTypes.func
-    };
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            files: [],
-            msgs: [],
-            focused: false,
-            progress: 0
-        };
-
-        this.choose = this.choose.bind(this);
-        this.upload = this.upload.bind(this);
-        this.clear = this.clear.bind(this);
-        this.onFileSelect = this.onFileSelect.bind(this);
-        this.onDragEnter = this.onDragEnter.bind(this);
-        this.onDragOver = this.onDragOver.bind(this);
-        this.onDragLeave = this.onDragLeave.bind(this);
-        this.onDrop = this.onDrop.bind(this);
-        this.onKeyDown = this.onKeyDown.bind(this);
-        this.onFocus = this.onFocus.bind(this);
-        this.onBlur = this.onBlur.bind(this);
-        this.onSimpleUploaderClick = this.onSimpleUploaderClick.bind(this);
-
-        this.duplicateIEEvent = false;
-    }
-
-    hasFiles() {
-        return this.state.files && this.state.files.length > 0;
-    }
-
-    isImage(file) {
+    const isImage = (file) => {
         return /^image\//.test(file.type);
     }
 
-    chooseDisabled() {
-        return this.props.disabled || (this.props.fileLimit && this.props.fileLimit <= this.state.files.length + this.uploadedFileCount);
+    const chooseDisabled = () => {
+        return props.disabled || (props.fileLimit && props.fileLimit <= files.length + uploadedFileCount);
     }
 
-    uploadDisabled() {
-        return this.props.disabled || !this.hasFiles();
+    const uploadDisabled = () => {
+        return props.disabled || !hasFiles();
     }
 
-    cancelDisabled() {
-        return this.props.disabled || !this.hasFiles();
+    const cancelDisabled = () => {
+        return props.disabled || !hasFiles();
     }
 
-    chooseButtonLabel() {
-        return this.props.chooseLabel || this.props.chooseOptions.label || localeOption('choose');
+    const chooseButtonLabel = () => {
+        return props.chooseLabel || props.chooseOptions.label || localeOption('choose');
     }
 
-    uploadButtonLabel() {
-        return this.props.uploadLabel || this.props.uploadOptions.label || localeOption('upload');
+    const uploadButtonLabel = () => {
+        return props.uploadLabel || props.uploadOptions.label || localeOption('upload');
     }
 
-    cancelButtonLabel() {
-        return this.props.cancelLabel || this.props.cancelOptions.label || localeOption('cancel');
+    const cancelButtonLabel = () => {
+        return props.cancelLabel || props.cancelOptions.label || localeOption('cancel');
     }
 
-    remove(event, index) {
-        this.clearInputElement();
-        let currentFiles = [...this.state.files];
-        let removedFile = this.state.files[index];
+    const remove = (event, index) => {
+        clearInput();
+        let currentFiles = [...files];
+        let removedFile = files[index];
 
         currentFiles.splice(index, 1);
-        this.setState({ files: currentFiles });
+        setFiles(currentFiles);
 
-        if (this.props.onRemove) {
-            this.props.onRemove({
+        if (props.onRemove) {
+            props.onRemove({
                 originalEvent: event,
                 file: removedFile
             })
         }
     }
 
-    clearInputElement() {
-        if (this.fileInput) {
-            this.fileInput.value = '';
+    const clearInput = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
         }
     }
 
-    clearIEInput() {
-        if (this.fileInput) {
-            this.duplicateIEEvent = true; //IE11 fix to prevent onFileChange trigger again
-            this.fileInput.value = '';
+    const clearIEInput = () => {
+        if (fileInputRef.current) {
+            duplicateIEEvent.current = true; //IE11 fix to prevent onFileChange trigger again
+            fileInputRef.current.value = '';
         }
     }
 
-    formatSize(bytes) {
+    const formatSize = (bytes) => {
         if (bytes === 0) {
             return '0 B';
         }
@@ -211,76 +90,74 @@ export class FileUpload extends Component {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
     }
 
-    onFileSelect(event) {
-        if (event.type !== 'drop' && this.isIE11() && this.duplicateIEEvent) {
-            this.duplicateIEEvent = false;
+    const onFileSelect = (event) => {
+        if (event.type !== 'drop' && isIE11() && duplicateIEEvent.current) {
+            duplicateIEEvent.current = false;
             return;
         }
 
-        this.setState({ msgs: [] });
-        this.files = this.state.files ? [...this.state.files] : [];
-        let files = event.dataTransfer ? event.dataTransfer.files : event.target.files;
-        for (let i = 0; i < files.length; i++) {
-            let file = files[i];
+        let currentFiles = files ? [...files] : [];
+        let selectedFiles = event.dataTransfer ? event.dataTransfer.files : event.target.files;
+        for (let i = 0; i < selectedFiles.length; i++) {
+            let file = selectedFiles[i];
 
-            if (!this.isFileSelected(file)) {
-                if (this.validate(file)) {
-                    if (this.isImage(file)) {
-                        file.objectURL = window.URL.createObjectURL(file);
-                    }
-                    this.files.push(file);
+            if (!isFileSelected(file) && validate(file)) {
+                if (isImage(file)) {
+                    file.objectURL = window.URL.createObjectURL(file);
                 }
+                currentFiles.push(file);
             }
         }
 
-        this.setState({ files: this.files }, () => {
-            if (this.hasFiles() && this.props.auto) {
-                this.upload();
-            }
-        });
+        setFiles(currentFiles);
 
-        if (this.props.onSelect) {
-            this.props.onSelect({ originalEvent: event, files: files });
+        if (ObjectUtils.isNotEmpty(currentFiles) && props.auto) {
+            upload();
         }
 
-        if (event.type !== 'drop' && this.isIE11()) {
-            this.clearIEInput();
+        if (props.onSelect) {
+            props.onSelect({ originalEvent: event, files: [...selectedFiles] });
+        }
+
+        if (event.type !== 'drop' && isIE11()) {
+            clearIEInput();
         }
         else {
-            this.clearInputElement();
+            clearInput();
         }
 
-        if (this.props.mode === 'basic' && this.files.length > 0) {
-            this.fileInput.style.display = 'none';
+        if (props.mode === 'basic' && currentFiles.length > 0) {
+            fileInputRef.current.style.display = 'none';
         }
     }
 
-    isFileSelected(file) {
-        for (let sFile of this.state.files) {
-            if ((sFile.name + sFile.type + sFile.size) === (file.name + file.type + file.size))
+    const isFileSelected = (_file) => {
+        for (let sFile of files) {
+            if ((sFile.name + sFile.type + sFile.size) === (_file.name + _file.type + _file.size))
                 return true;
         }
         return false;
     }
 
-    isIE11() {
+    const isIE11 = () => {
         return !!window['MSInputMethodContext'] && !!document['documentMode'];
     }
 
-    validate(file) {
-        if (this.props.maxFileSize && file.size > this.props.maxFileSize) {
+    const validate = (file) => {
+        if (props.maxFileSize && file.size > props.maxFileSize) {
             const message = {
                 severity: 'error',
-                summary: this.props.invalidFileSizeMessageSummary.replace('{0}', file.name),
-                detail: this.props.invalidFileSizeMessageDetail.replace('{0}', this.formatSize(this.props.maxFileSize))
+                summary: props.invalidFileSizeMessageSummary.replace('{0}', file.name),
+                detail: props.invalidFileSizeMessageDetail.replace('{0}', formatSize(props.maxFileSize)),
+                sticky: true
             };
 
-            if (this.props.mode === 'advanced') {
-                this.messagesUI.show(message);
+            if (props.mode === 'advanced') {
+                messagesRef.current.show(message);
             }
 
-            if (this.props.onValidationFail) {
-                this.props.onValidationFail(file);
+            if (props.onValidationFail) {
+                props.onValidationFail(file);
             }
 
             return false;
@@ -289,189 +166,187 @@ export class FileUpload extends Component {
         return true;
     }
 
-    upload() {
-        if (this.props.customUpload) {
-            if (this.props.fileLimit) {
-                this.uploadedFileCount += this.state.files.length;
+    const upload = () => {
+        if (props.customUpload) {
+            if (props.fileLimit) {
+                uploadedFileCount += files.length;
             }
 
-            if (this.props.uploadHandler) {
-                this.props.uploadHandler({
-                    files: this.state.files,
+            if (props.uploadHandler) {
+                props.uploadHandler({
+                    files,
                     options: {
-                        clear: this.clear,
-                        props: this.props
+                        clear,
+                        props
                     }
                 })
             }
         }
         else {
-            this.setState({ msgs: [] });
             let xhr = new XMLHttpRequest();
             let formData = new FormData();
 
-            if (this.props.onBeforeUpload) {
-                this.props.onBeforeUpload({
+            if (props.onBeforeUpload) {
+                props.onBeforeUpload({
                     'xhr': xhr,
                     'formData': formData
                 });
             }
 
-            for (let file of this.state.files) {
-                formData.append(this.props.name, file, file.name);
+            for (let file of files) {
+                formData.append(props.name, file, file.name);
             }
 
             xhr.upload.addEventListener('progress', (event) => {
                 if (event.lengthComputable) {
-                    this.setState({ progress: Math.round((event.loaded * 100) / event.total) }, () => {
-                        if (this.props.onProgress) {
-                            this.props.onProgress({
-                                originalEvent: event,
-                                progress: this.state.progress
-                            });
-                        };
-                    });
+                    setProgress(Math.round((event.loaded * 100) / event.total));
+                    if (props.onProgress) {
+                        props.onProgress({
+                            originalEvent: event,
+                            progress
+                        });
+                    };
                 }
             });
 
             xhr.onreadystatechange = () => {
                 if (xhr.readyState === 4) {
-                    this.setState({ progress: 0 });
+                    setProgress(0);
 
                     if (xhr.status >= 200 && xhr.status < 300) {
-                        if (this.props.fileLimit) {
-                            this.uploadedFileCount += this.state.files.length;
+                        if (props.fileLimit) {
+                            uploadedFileCount += files.length;
                         }
 
-                        if (this.props.onUpload) {
-                            this.props.onUpload({ xhr: xhr, files: this.state.files });
+                        if (props.onUpload) {
+                            props.onUpload({ xhr, files });
                         }
                     }
                     else {
-                        if (this.props.onError) {
-                            this.props.onError({ xhr: xhr, files: this.state.files });
+                        if (props.onError) {
+                            props.onError({ xhr, files });
                         }
                     }
 
-                    this.clear();
+                    clear();
                 }
             };
 
-            xhr.open('POST', this.props.url, true);
+            xhr.open('POST', props.url, true);
 
-            if (this.props.onBeforeSend) {
-                this.props.onBeforeSend({
+            if (props.onBeforeSend) {
+                props.onBeforeSend({
                     'xhr': xhr,
                     'formData': formData
                 });
             }
 
-            xhr.withCredentials = this.props.withCredentials;
+            xhr.withCredentials = props.withCredentials;
 
             xhr.send(formData);
         }
     }
 
-    clear() {
-        this.setState({ files: [] });
-        if (this.props.onClear) {
-            this.props.onClear();
+    const clear = () => {
+        setFiles([]);
+        if (props.onClear) {
+            props.onClear();
         }
-        this.clearInputElement();
+        clearInput();
     }
 
-    choose() {
-        this.fileInput.click();
+    const choose = () => {
+        fileInputRef.current.click();
     }
 
-    onFocus() {
-        this.setState({ focused: true });
+    const onFocus = () => {
+        setFocused(true);
     }
 
-    onBlur() {
-        this.setState({ focused: false });
+    const onBlur = () => {
+        setFocused(false);
     }
 
-    onKeyDown(event) {
+    const onKeyDown = (event) => {
         if (event.which === 13) { // enter
-            this.choose();
+            choose();
         }
     }
 
-    onDragEnter(event) {
-        if (!this.props.disabled) {
+    const onDragEnter = (event) => {
+        if (!props.disabled) {
             event.dataTransfer.dropEffect = "copy";
             event.stopPropagation();
             event.preventDefault();
         }
     }
 
-    onDragOver(event) {
-        if (!this.props.disabled) {
+    const onDragOver = (event) => {
+        if (!props.disabled) {
             event.dataTransfer.dropEffect = "copy";
-            DomHandler.addClass(this.content, 'p-fileupload-highlight');
+            DomHandler.addClass(contentRef.current, 'p-fileupload-highlight');
             event.stopPropagation();
             event.preventDefault();
         }
     }
 
-    onDragLeave(event) {
-        if (!this.props.disabled) {
+    const onDragLeave = (event) => {
+        if (!props.disabled) {
             event.dataTransfer.dropEffect = "copy";
-            DomHandler.removeClass(this.content, 'p-fileupload-highlight');
+            DomHandler.removeClass(contentRef.current, 'p-fileupload-highlight');
         }
     }
 
-    onDrop(event) {
-        if (!this.props.disabled) {
-            DomHandler.removeClass(this.content, 'p-fileupload-highlight');
+    const onDrop = (event) => {
+        if (!props.disabled) {
+            DomHandler.removeClass(contentRef.current, 'p-fileupload-highlight');
             event.stopPropagation();
             event.preventDefault();
 
             let files = event.dataTransfer ? event.dataTransfer.files : event.target.files;
-            let allowDrop = this.props.multiple || (files && files.length === 0);
+            let allowDrop = props.multiple || (files && files.length === 0);
 
             if (allowDrop) {
-                this.onFileSelect(event);
+                onFileSelect(event);
             }
         }
     }
 
-    onSimpleUploaderClick() {
-        if (this.hasFiles()) {
-            this.upload();
+    const onSimpleUploaderClick = () => {
+        if (hasFiles()) {
+            upload();
         }
         else {
-            this.fileInput.click();
+            fileInputRef.current.click();
         }
     }
 
-    renderChooseButton() {
-        const { className, style, icon, iconOnly } = this.props.chooseOptions;
+    const useChooseButton = () => {
+        const { className, style, icon, iconOnly } = props.chooseOptions;
         const chooseClassName = classNames('p-button p-fileupload-choose p-component', {
-            'p-disabled': this.props.disabled,
-            'p-focus': this.state.focused,
+            'p-disabled': props.disabled,
+            'p-focus': focused,
             'p-button-icon-only': iconOnly
         }, className);
         const labelClassName = 'p-button-label p-clickable';
-        const label = iconOnly ? <span className={labelClassName} dangerouslySetInnerHTML={{ __html: "&nbsp;" }} /> : <span className={labelClassName}>{this.chooseButtonLabel()}</span>;
+        const label = iconOnly ? <span className={labelClassName} dangerouslySetInnerHTML={{ __html: "&nbsp;" }} /> : <span className={labelClassName}>{chooseButtonLabel()}</span>;
 
         return (
-            <span className={chooseClassName} style={style} onClick={this.choose} onKeyDown={this.onKeyDown} onFocus={this.onFocus} onBlur={this.onBlur} tabIndex={0}>
-                <input ref={(el) => this.fileInput = el} type="file" onChange={this.onFileSelect}
-                    multiple={this.props.multiple} accept={this.props.accept} disabled={this.chooseDisabled()} />
-                {IconUtils.getJSXIcon(icon || 'pi pi-fw pi-plus', { className: 'p-button-icon p-button-icon-left p-clickable' }, { props: this.props })}
+            <span className={chooseClassName} style={style} onClick={choose} onKeyDown={onKeyDown} onFocus={onFocus} onBlur={onBlur} tabIndex={0}>
+                <input ref={fileInputRef} type="file" onChange={onFileSelect}
+                    multiple={props.multiple} accept={props.accept} disabled={chooseDisabled()} />
+                {IconUtils.getJSXIcon(icon || 'pi pi-fw pi-plus', { className: 'p-button-icon p-button-icon-left p-clickable' }, { props })}
                 {label}
                 <Ripple />
             </span>
         );
     }
 
-    renderFile(file, index) {
-        let preview = this.isImage(file) ? <div><img alt={file.name} role="presentation" src={file.objectURL} width={this.props.previewWidth} /></div> : null;
+    const useFile = (file, index) => {
+        let preview = isImage(file) ? <div><img alt={file.name} role="presentation" src={file.objectURL} width={props.previewWidth} /></div> : null;
         let fileName = <div className="p-fileupload-filename">{file.name}</div>;
-        let size = <div>{this.formatSize(file.size)}</div>;
-        let removeButton = <div><Button type="button" icon="pi pi-times" onClick={(e) => this.remove(e, index)} /></div>
+        let size = <div>{formatSize(file.size)}</div>;
+        let removeButton = <div><Button type="button" icon="pi pi-times" onClick={(e) => remove(e, index)} /></div>
         let content = (
             <>
                 {preview}
@@ -481,21 +356,19 @@ export class FileUpload extends Component {
             </>
         );
 
-        if (this.props.itemTemplate) {
+        if (props.itemTemplate) {
             const defaultContentOptions = {
-                onRemove: (event) => this.remove(event, index),
+                onRemove: (event) => remove(event, index),
                 previewElement: preview,
                 fileNameElement: fileName,
                 sizeElement: size,
                 removeElement: removeButton,
-                formatSize: this.formatSize(file.size),
-                files: this.state.files,
-                index,
+                formatSize: formatSize(file.size),
                 element: content,
-                props: this.props
+                props
             };
 
-            content = ObjectUtils.getJSXElement(this.props.itemTemplate, file, defaultContentOptions);
+            content = ObjectUtils.getJSXElement(props.itemTemplate, file, defaultContentOptions);
         }
 
         return (
@@ -505,81 +378,81 @@ export class FileUpload extends Component {
         )
     }
 
-    renderFiles() {
+    const useFiles = () => {
         return (
             <div className="p-fileupload-files">
-                {this.state.files.map((file, index) => this.renderFile(file, index))}
+                {files.map((file, index) => useFile(file, index))}
             </div>
         );
     }
 
-    renderEmptyContent() {
-        if (this.props.emptyTemplate && !this.hasFiles()) {
-            return ObjectUtils.getJSXElement(this.props.emptyTemplate, this.props);
+    const useEmptyContent = () => {
+        if (props.emptyTemplate && !hasFiles()) {
+            return ObjectUtils.getJSXElement(props.emptyTemplate, props);
         }
 
         return null;
     }
 
-    renderProgressBarContent() {
-        if (this.props.progressBarTemplate) {
-            return ObjectUtils.getJSXElement(this.props.progressBarTemplate, this.props);
+    const useProgressBarContent = () => {
+        if (props.progressBarTemplate) {
+            return ObjectUtils.getJSXElement(props.progressBarTemplate, props);
         }
 
-        return <ProgressBar value={this.state.progress} showValue={false} />;
+        return <ProgressBar value={progress} showValue={false} />;
     }
 
-    renderAdvanced() {
-        const className = classNames('p-fileupload p-fileupload-advanced p-component', this.props.className);
-        const headerClassName = classNames('p-fileupload-buttonbar', this.props.headerClassName);
-        const contentClassName = classNames('p-fileupload-content', this.props.contentClassName);
+    const useAdvanced = () => {
+        const className = classNames('p-fileupload p-fileupload-advanced p-component', props.className);
+        const headerClassName = classNames('p-fileupload-buttonbar', props.headerClassName);
+        const contentClassName = classNames('p-fileupload-content', props.contentClassName);
         let uploadButton, cancelButton, filesList, progressBar;
-        const chooseButton = this.renderChooseButton();
-        const emptyContent = this.renderEmptyContent();
+        const chooseButton = useChooseButton();
+        const emptyContent = useEmptyContent();
 
-        if (!this.props.auto) {
-            const uploadOptions = this.props.uploadOptions;
-            const cancelOptions = this.props.cancelOptions;
-            const uploadLabel = !uploadOptions.iconOnly ? this.uploadButtonLabel() : '';
-            const cancelLabel = !cancelOptions.iconOnly ? this.cancelButtonLabel() : '';
+        if (!props.auto) {
+            const uploadOptions = props.uploadOptions;
+            const cancelOptions = props.cancelOptions;
+            const uploadLabel = !uploadOptions.iconOnly ? uploadButtonLabel() : '';
+            const cancelLabel = !cancelOptions.iconOnly ? cancelButtonLabel() : '';
 
-            uploadButton = <Button type="button" label={uploadLabel} icon={uploadOptions.icon || 'pi pi-upload'} onClick={this.upload} disabled={this.uploadDisabled()} style={uploadOptions.style} className={uploadOptions.className} />;
-            cancelButton = <Button type="button" label={cancelLabel} icon={cancelOptions.icon || 'pi pi-times'} onClick={this.clear} disabled={this.cancelDisabled()} style={cancelOptions.style} className={cancelOptions.className} />;
+            uploadButton = <Button type="button" label={uploadLabel} icon={uploadOptions.icon || 'pi pi-upload'} onClick={upload} disabled={uploadDisabled()} style={uploadOptions.style} className={uploadOptions.className} />;
+            cancelButton = <Button type="button" label={cancelLabel} icon={cancelOptions.icon || 'pi pi-times'} onClick={clear} disabled={cancelDisabled()} style={cancelOptions.style} className={cancelOptions.className} />;
         }
 
-        if (this.hasFiles()) {
-            filesList = this.renderFiles();
-            progressBar = this.renderProgressBarContent();
+        if (hasFiles()) {
+            filesList = useFiles();
+            progressBar = useProgressBarContent();
         }
 
         let header = (
-            <div className={headerClassName} style={this.props.headerStyle}>
+            <div className={headerClassName} style={props.headerStyle}>
                 {chooseButton}
                 {uploadButton}
                 {cancelButton}
             </div>
         );
 
-        if (this.props.headerTemplate) {
+        if (props.headerTemplate) {
             const defaultContentOptions = {
                 className: headerClassName,
                 chooseButton,
                 uploadButton,
                 cancelButton,
                 element: header,
-                props: this.props
+                props
             };
 
-            header = ObjectUtils.getJSXElement(this.props.headerTemplate, defaultContentOptions);
+            header = ObjectUtils.getJSXElement(props.headerTemplate, defaultContentOptions);
         }
 
         return (
-            <div id={this.props.id} className={className} style={this.props.style}>
+            <div id={props.id} className={className} style={props.style}>
                 {header}
-                <div ref={(el) => { this.content = el; }} className={contentClassName} style={this.props.contentStyle}
-                    onDragEnter={this.onDragEnter} onDragOver={this.onDragOver} onDragLeave={this.onDragLeave} onDrop={this.onDrop}>
+                <div ref={contentRef} className={contentClassName} style={props.contentStyle}
+                    onDragEnter={onDragEnter} onDragOver={onDragOver} onDragLeave={onDragLeave} onDrop={onDrop}>
                     {progressBar}
-                    <Messages ref={(el) => this.messagesUI = el} />
+                    <Messages ref={messagesRef} />
                     {filesList}
                     {emptyContent}
                 </div>
@@ -587,38 +460,146 @@ export class FileUpload extends Component {
         );
     }
 
-    renderBasic() {
-        const hasFiles = this.hasFiles();
-        const chooseOptions = this.props.chooseOptions;
-        const className = classNames('p-fileupload p-fileupload-basic p-component', this.props.className);
-        const buttonClassName = classNames('p-button p-component p-fileupload-choose', { 'p-fileupload-choose-selected': hasFiles, 'p-disabled': this.props.disabled, 'p-focus': this.state.focused }, chooseOptions.className);
-        const chooseIcon = chooseOptions.icon || classNames({ 'pi pi-plus': !chooseOptions.icon && (!hasFiles || this.props.auto), 'pi pi-upload': !chooseOptions.icon && hasFiles && !this.props.auto });
+    const useBasic = () => {
+        const _hasFiles = hasFiles();
+        const chooseOptions = props.chooseOptions;
+        const className = classNames('p-fileupload p-fileupload-basic p-component', props.className);
+        const buttonClassName = classNames('p-button p-component p-fileupload-choose', { 'p-fileupload-choose-selected': _hasFiles, 'p-disabled': props.disabled, 'p-focus': focused }, chooseOptions.className);
+        const chooseIcon = chooseOptions.icon || classNames({ 'pi pi-plus': !chooseOptions.icon && (!_hasFiles || props.auto), 'pi pi-upload': !chooseOptions.icon && _hasFiles && !props.auto });
         const labelClassName = 'p-button-label p-clickable';
-        const chooseLabel = chooseOptions.iconOnly ? <span className={labelClassName} dangerouslySetInnerHTML={{ __html: "&nbsp;" }} /> : <span className={labelClassName}>{this.chooseButtonLabel()}</span>;
-        const label = this.props.auto ? chooseLabel : (
+        const chooseLabel = chooseOptions.iconOnly ? <span className={labelClassName} dangerouslySetInnerHTML={{ __html: "&nbsp;" }} /> : <span className={labelClassName}>{chooseButtonLabel()}</span>;
+        const label = props.auto ? chooseLabel : (
             <span className={labelClassName}>
-                {hasFiles ? this.state.files[0].name : chooseLabel}
+                {_hasFiles ? files[0].name : chooseLabel}
             </span>
         );
-        const icon = IconUtils.getJSXIcon(chooseIcon, { className: 'p-button-icon p-button-icon-left' }, { props: this.props, hasFiles });
+        const icon = IconUtils.getJSXIcon(chooseIcon, { className: 'p-button-icon p-button-icon-left' }, { props, hasFiles: _hasFiles });
 
         return (
-            <div className={className} style={this.props.style}>
-                <Messages ref={(el) => this.messagesUI = el} />
-                <span className={buttonClassName} style={chooseOptions.style} onMouseUp={this.onSimpleUploaderClick} onKeyDown={this.onKeyDown} onFocus={this.onFocus} onBlur={this.onBlur} tabIndex={0}>
+            <div className={className} style={props.style}>
+                <Messages ref={messagesRef} />
+                <span className={buttonClassName} style={chooseOptions.style} onMouseUp={onSimpleUploaderClick} onKeyDown={onKeyDown} onFocus={onFocus} onBlur={onBlur} tabIndex={0}>
                     {icon}
                     {label}
-                    {!hasFiles && <input ref={(el) => this.fileInput = el} type="file" accept={this.props.accept} multiple={this.props.multiple} disabled={this.props.disabled} onChange={this.onFileSelect} />}
+                    {!_hasFiles && <input ref={fileInputRef} type="file" accept={props.accept} multiple={props.multiple} disabled={props.disabled} onChange={onFileSelect} />}
                     <Ripple />
                 </span>
             </div>
         );
     }
 
-    render() {
-        if (this.props.mode === 'advanced')
-            return this.renderAdvanced();
-        else if (this.props.mode === 'basic')
-            return this.renderBasic();
-    }
+    useImperativeHandle(ref, () => ({
+        upload,
+        clear,
+        formatSize
+    }));
+
+    if (props.mode === 'advanced')
+        return useAdvanced();
+    else if (props.mode === 'basic')
+        return useBasic();
+}))
+
+FileUpload.defaultProps = {
+    id: null,
+    name: null,
+    url: null,
+    mode: 'advanced',
+    multiple: false,
+    accept: null,
+    disabled: false,
+    auto: false,
+    maxFileSize: null,
+    invalidFileSizeMessageSummary: '{0}: Invalid file size, ',
+    invalidFileSizeMessageDetail: 'maximum upload size is {0}.',
+    style: null,
+    className: null,
+    widthCredentials: false,
+    previewWidth: 50,
+    chooseLabel: null,
+    uploadLabel: null,
+    cancelLabel: null,
+    chooseOptions: {
+        label: null,
+        icon: null,
+        iconOnly: false,
+        className: null,
+        style: null
+    },
+    uploadOptions: {
+        label: null,
+        icon: null,
+        iconOnly: false,
+        className: null,
+        style: null
+    },
+    cancelOptions: {
+        label: null,
+        icon: null,
+        iconOnly: false,
+        className: null,
+        style: null
+    },
+    customUpload: false,
+    headerClassName: null,
+    headerStyle: null,
+    contentClassName: null,
+    contentStyle: null,
+    headerTemplate: null,
+    itemTemplate: null,
+    emptyTemplate: null,
+    progressBarTemplate: null,
+    onBeforeUpload: null,
+    onBeforeSend: null,
+    onUpload: null,
+    onError: null,
+    onClear: null,
+    onSelect: null,
+    onProgress: null,
+    onValidationFail: null,
+    uploadHandler: null,
+    onRemove: null
+}
+
+FileUpload.propTypes = {
+    id: PropTypes.string,
+    name: PropTypes.string,
+    url: PropTypes.string,
+    mode: PropTypes.string,
+    multiple: PropTypes.bool,
+    accept: PropTypes.string,
+    disabled: PropTypes.bool,
+    auto: PropTypes.bool,
+    maxFileSize: PropTypes.number,
+    invalidFileSizeMessageSummary: PropTypes.string,
+    invalidFileSizeMessageDetail: PropTypes.string,
+    style: PropTypes.object,
+    className: PropTypes.string,
+    widthCredentials: PropTypes.bool,
+    previewWidth: PropTypes.number,
+    chooseLabel: PropTypes.string,
+    uploadLabel: PropTypes.string,
+    cancelLabel: PropTypes.string,
+    chooseOptions: PropTypes.object,
+    uploadOptions: PropTypes.object,
+    cancelOptions: PropTypes.object,
+    customUpload: PropTypes.bool,
+    headerClassName: PropTypes.string,
+    headerStyle: PropTypes.object,
+    contentClassName: PropTypes.string,
+    contentStyle: PropTypes.object,
+    headerTemplate: PropTypes.any,
+    itemTemplate: PropTypes.any,
+    emptyTemplate: PropTypes.any,
+    progressBarTemplate: PropTypes.any,
+    onBeforeUpload: PropTypes.func,
+    onBeforeSend: PropTypes.func,
+    onUpload: PropTypes.func,
+    onError: PropTypes.func,
+    onClear: PropTypes.func,
+    onSelect: PropTypes.func,
+    onProgress: PropTypes.func,
+    onValidationFail: PropTypes.func,
+    uploadHandler: PropTypes.func,
+    onRemove: PropTypes.func
 }
