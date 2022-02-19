@@ -1,4 +1,4 @@
-import React, { Component, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { CSSTransition } from '../csstransition/CSSTransition';
 import { ObjectUtils, classNames, IconUtils, UniqueComponentId } from '../utils/Utils';
@@ -7,7 +7,7 @@ import { Ripple } from '../ripple/Ripple';
 export const Panel = (props) => {
     const [id, setId] = useState(props.id);
     const [collapsedState,setCollapsedState] = useState(props.collapsed);
-    const className = classNames('p-panel p-component', {'p-panel-toggleable': props.toggleable}, props.className);
+    const className = classNames('p-panel p-component', props.className, {'p-panel-toggleable': props.toggleable});
     const collapsed = props.toggleable ? (props.onToggle ? props.collapsed : collapsedState) : false;
     const contentRef = useRef(null);
 
