@@ -1,158 +1,65 @@
-import React, { Component } from 'react';
+import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '../button/Button';
 import { Ripple } from '../ripple/Ripple';
 import { classNames, DomHandler, ObjectUtils } from '../utils/Utils';
+import { useEventListener } from '../hooks/useEventListener';
 
-export class SpeedDial extends Component {
+export const SpeedDial = memo(forwardRef((props, ref) => {
+    const [visible, setVisible] = useState(false);
+    const isItemClicked = useRef(false);
+    const elementRef = useRef(null);
+    const listRef = useRef(null);
+    const isVisible = props.onVisibleChange ? props.visible : visible;
+    const [bindDocumentClick, unbindDocumentClick] = useEventListener({ type: 'click', listener: event => {
+            if (isVisible && isOutsideClicked(event)) {
+                hide();
+            }
 
-    static defaultProps = {
-        id: null,
-        model: null,
-        visible: false,
-        style: null,
-        className: null,
-        direction: 'up',
-        transitionDelay: 30,
-        type: 'linear',
-        radius: 0,
-        mask: false,
-        disabled: false,
-        hideOnClickOutside: true,
-        buttonStyle: null,
-        buttonClassName: null,
-        buttonTemplate: null,
-        maskStyle: null,
-        maskClassName: null,
-        showIcon: 'pi pi-plus',
-        hideIcon: null,
-        rotateAnimation: true,
-        onVisibleChange: null,
-        onClick: null,
-        onShow: null,
-        onHide: null
-    }
-
-    static propTypes = {
-        id: PropTypes.string,
-        model: PropTypes.array,
-        visible: PropTypes.bool,
-        style: PropTypes.object,
-        className: PropTypes.string,
-        direction: PropTypes.string,
-        transitionDelay: PropTypes.number,
-        type: PropTypes.string,
-        radius: PropTypes.number,
-        mask: PropTypes.bool,
-        disabled: PropTypes.bool,
-        hideOnClickOutside: PropTypes.bool,
-        buttonStyle: PropTypes.object,
-        buttonClassName: PropTypes.string,
-        buttonTemplate: PropTypes.any,
-        maskStyle: PropTypes.object,
-        maskClassName: PropTypes.string,
-        showIcon: PropTypes.any,
-        hideIcon: PropTypes.any,
-        rotateAnimation: PropTypes.bool,
-        onVisibleChange: PropTypes.func,
-        onClick: PropTypes.func,
-        onShow: PropTypes.func,
-        onHide: PropTypes.func
-    }
-
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            visible: false
-        };
-
-        this.onClick = this.onClick.bind(this);
-        this.onItemClick = this.onItemClick.bind(this);
-    }
-
-    isVisible() {
-        return this.props.onVisibleChange ? this.props.visible : this.state.visible;
-    }
-
-    show() {
-        if (this.props.onVisibleChange) {
-            this.props.onVisibleChange(true);
+            isItemClicked.current = false;
         }
-        else {
-            this.setState({ visible: true });
-        }
+    });
 
-        this.props.onShow && this.props.onShow();
+    const show = () => {
+        props.onVisibleChange ? props.onVisibleChange(true) : setVisible(true);
+        props.onShow && props.onShow();
     }
 
-    hide() {
-        if (this.props.onVisibleChange) {
-            this.props.onVisibleChange(false);
-        }
-        else {
-            this.setState({ visible: false });
-        }
-
-        this.props.onHide && this.props.onHide();
+    const hide = () => {
+        props.onVisibleChange ? props.onVisibleChange(false) : setVisible(false);
+        props.onHide && props.onHide();
     }
 
-    onClick(e) {
-        this.isVisible() ? this.hide() : this.show();
+    const onClick = (e) => {
+        isVisible ? hide() : show();
+        props.onClick && props.onClick(e);
 
-        this.props.onClick && this.props.onClick(e);
-
-        this.isItemClicked = true;
+        isItemClicked.current = true;
     }
 
-    onItemClick(e, item) {
-        if (item.command) {
-            item.command({ originalEvent: e, item });
-        }
+    const onItemClick = (e, item) => {
+        item.command && item.command({ originalEvent: e, item });
+        hide();
 
-        this.hide();
-
-        this.isItemClicked = true;
+        isItemClicked.current = true;
         e.preventDefault();
     }
 
-    bindDocumentClickListener() {
-        if (!this.documentClickListener) {
-            this.documentClickListener = (event) => {
-                if (this.isVisible() && this.isOutsideClicked(event)) {
-                    this.hide();
-                }
-
-                this.isItemClicked = false;
-            };
-            document.addEventListener('click', this.documentClickListener);
-        }
+    const isOutsideClicked = (event) => {
+        return elementRef.current && !(elementRef.current.isSameNode(event.target) || elementRef.current.contains(event.target) || isItemClicked.current);
     }
 
-    unbindDocumentClickListener() {
-        if (this.documentClickListener) {
-            document.removeEventListener('click', this.documentClickListener);
-            this.documentClickListener = null;
-        }
+    const calculateTransitionDelay = (index) => {
+        const length = props.model.length;
+        return (isVisible ? index : length - index - 1) * props.transitionDelay;
     }
 
-    isOutsideClicked(event) {
-        return this.container && !(this.container.isSameNode(event.target) || this.container.contains(event.target) || this.isItemClicked);
-    }
-
-    calculateTransitionDelay(index) {
-        const length = this.props.model.length;
-        const visible = this.isVisible();
-
-        return (visible ? index : length - index - 1) * this.props.transitionDelay;
-    }
-
-    calculatePointStyle(index) {
-        const type = this.props.type;
+    const calculatePointStyle = (index) => {
+        const type = props.type;
 
         if (type !== 'linear') {
-            const length = this.props.model.length;
-            const radius = this.props.radius || (length * 20);
+            const length = props.model.length;
+            const radius = props.radius || (length * 20);
 
             if (type === 'circle') {
                 const step = 2 * Math.PI / length;
@@ -163,7 +70,7 @@ export class SpeedDial extends Component {
                 }
             }
             else if (type === 'semi-circle') {
-                const direction = this.props.direction;
+                const direction = props.direction;
                 const step = Math.PI / (length - 1);
                 const x = `calc(${radius * Math.cos(step * index)}px + var(--item-diff-x, 0px))`;
                 const y = `calc(${radius * Math.sin(step * index)}px + var(--item-diff-y, 0px))`;
@@ -181,7 +88,7 @@ export class SpeedDial extends Component {
                 }
             }
             else if (type === 'quarter-circle') {
-                const direction = this.props.direction;
+                const direction = props.direction;
                 const step = Math.PI / (2 * (length - 1));
                 const x = `calc(${radius * Math.cos(step * index)}px + var(--item-diff-x, 0px))`;
                 const y = `calc(${radius * Math.sin(step * index)}px + var(--item-diff-y, 0px))`;
@@ -203,9 +110,9 @@ export class SpeedDial extends Component {
         return {};
     }
 
-    getItemStyle(index) {
-        const transitionDelay = this.calculateTransitionDelay(index);
-        const pointStyle = this.calculatePointStyle(index);
+    const getItemStyle = (index) => {
+        const transitionDelay = calculateTransitionDelay(index);
+        const pointStyle = calculatePointStyle(index);
 
         return {
             transitionDelay: `${transitionDelay}ms`,
@@ -213,38 +120,39 @@ export class SpeedDial extends Component {
         };
     }
 
-    componentDidMount() {
-        if (this.props.type !== 'linear') {
-            const button = DomHandler.findSingle(this.container, '.p-speeddial-button');
-            const firstItem = DomHandler.findSingle(this.list, '.p-speeddial-item');
+    useEffect(() => {
+        if (props.type !== 'linear') {
+            const button = DomHandler.findSingle(elementRef.current, '.p-speeddial-button');
+            const firstItem = DomHandler.findSingle(listRef.current, '.p-speeddial-item');
 
             if (button && firstItem) {
                 const wDiff = Math.abs(button.offsetWidth - firstItem.offsetWidth);
                 const hDiff = Math.abs(button.offsetHeight - firstItem.offsetHeight);
-                this.list.style.setProperty('--item-diff-x', `${wDiff / 2}px`);
-                this.list.style.setProperty('--item-diff-y', `${hDiff / 2}px`);
+                listRef.current.style.setProperty('--item-diff-x', `${wDiff / 2}px`);
+                listRef.current.style.setProperty('--item-diff-y', `${hDiff / 2}px`);
             }
         }
 
-        if (this.props.hideOnClickOutside) {
-            this.bindDocumentClickListener();
-        }
-    }
+        props.hideOnClickOutside && bindDocumentClick();
 
-    componentWillUnmount() {
-        if (this.props.hideOnClickOutside) {
-            this.unbindDocumentClickListener();
+        return () => {
+            props.hideOnClickOutside && unbindDocumentClick();
         }
-    }
+    }, []);
 
-    renderItem(item, index) {
-        const style = this.getItemStyle(index);
+    useImperativeHandle(ref, () => ({
+        show,
+        hide
+    }));
+
+    const useItem = (item, index) => {
+        const style = getItemStyle(index);
         const { disabled, icon: _icon, label, template, url, target } = item;
         const contentClassName = classNames('p-speeddial-action', { 'p-disabled': disabled });
         const iconClassName = classNames('p-speeddial-action-icon', _icon);
         const icon = _icon && <span className={iconClassName}></span>;
         let content = (
-            <a href={url || '#'} role="menuitem" className={contentClassName} target={target} data-pr-tooltip={label} onClick={(e) => this.onItemClick(e, item)}>
+            <a href={url || '#'} role="menuitem" className={contentClassName} target={target} data-pr-tooltip={label} onClick={(e) => onItemClick(e, item)}>
                 {icon}
                 <Ripple />
             </a>
@@ -252,12 +160,12 @@ export class SpeedDial extends Component {
 
         if (template) {
             const defaultContentOptions = {
-                onClick: (e) => this.onItemClick(e, item),
+                onClick: (e) => onItemClick(e, item),
                 className: contentClassName,
                 iconClassName,
                 element: content,
-                props: this.props,
-                visible: this.isVisible()
+                props,
+                visible: isVisible
             };
 
             content = ObjectUtils.getJSXElement(template, item, defaultContentOptions);
@@ -270,84 +178,134 @@ export class SpeedDial extends Component {
         )
     }
 
-    renderItems() {
-        if (this.props.model) {
-            return this.props.model.map((item, index) => this.renderItem(item, index));
+    const useItems = () => {
+        if (props.model) {
+            return props.model.map(useItem);
         }
 
         return null;
     }
 
-    renderList() {
-        const items = this.renderItems();
+    const useList = () => {
+        const items = useItems();
 
         return (
-            <ul ref={(el) => this.list = el} className="p-speeddial-list" role="menu">
+            <ul ref={listRef} className="p-speeddial-list" role="menu">
                 {items}
             </ul>
         )
     }
 
-    renderButton() {
-        const visible = this.isVisible();
+    const useButton = () => {
         const className = classNames('p-speeddial-button p-button-rounded', {
-            'p-speeddial-rotate': this.props.rotateAnimation && !this.props.hideIcon
-        }, this.props.buttonClassName);
+            'p-speeddial-rotate': props.rotateAnimation && !props.hideIcon
+        }, props.buttonClassName);
         const iconClassName = classNames({
-            [`${this.props.showIcon}`]: (!visible && !!this.props.showIcon) || !this.props.hideIcon,
-            [`${this.props.hideIcon}`]: visible && !!this.props.hideIcon,
+            [`${props.showIcon}`]: (!isVisible && !!props.showIcon) || !props.hideIcon,
+            [`${props.hideIcon}`]: isVisible && !!props.hideIcon,
         });
-        const content = <Button type="button" style={this.props.buttonStyle} className={className} icon={iconClassName} onClick={this.onClick} disabled={this.props.disabled} />;
+        const content = <Button type="button" style={props.buttonStyle} className={className} icon={iconClassName} onClick={onClick} disabled={props.disabled} />;
 
-        if (this.props.buttonTemplate) {
+        if (props.buttonTemplate) {
             const defaultContentOptions = {
-                onClick: (event) => this.onClick(event),
+                onClick,
                 className,
                 iconClassName,
                 element: content,
-                props: this.props,
+                props,
                 visible
             };
 
-            return ObjectUtils.getJSXElement(this.props.buttonTemplate, defaultContentOptions);
+            return ObjectUtils.getJSXElement(props.buttonTemplate, defaultContentOptions);
         }
 
         return content;
     }
 
-    renderMask() {
-        if (this.props.mask) {
-            const visible = this.isVisible();
+    const useMask = () => {
+        if (props.mask) {
             const className = classNames('p-speeddial-mask', {
-                'p-speeddial-mask-visible': visible
-            }, this.props.maskClassName);
+                'p-speeddial-mask-visible': isVisible
+            }, props.maskClassName);
 
             return (
-                <div className={className} style={this.props.maskStyle}></div>
+                <div className={className} style={props.maskStyle}></div>
             );
         }
 
         return null;
     }
 
-    render() {
-        const className = classNames(`p-speeddial p-component p-speeddial-${this.props.type}`, {
-            [`p-speeddial-direction-${this.props.direction}`]: this.props.type !== 'circle',
-            'p-speeddial-opened': this.isVisible(),
-            'p-disabled': this.props.disabled
-        }, this.props.className);
-        const button = this.renderButton();
-        const list = this.renderList();
-        const mask = this.renderMask();
+    const className = classNames(`p-speeddial p-component p-speeddial-${props.type}`, {
+        [`p-speeddial-direction-${props.direction}`]: props.type !== 'circle',
+        'p-speeddial-opened': isVisible,
+        'p-disabled': props.disabled
+    }, props.className);
+    const button = useButton();
+    const list = useList();
+    const mask = useMask();
 
-        return (
-            <React.Fragment>
-                <div ref={(el) => this.container = el} id={this.props.id} className={className} style={this.props.style}>
-                    {button}
-                    {list}
-                </div>
-                {mask}
-            </React.Fragment>
-        );
-    }
+    return (
+        <React.Fragment>
+            <div ref={elementRef} id={props.id} className={className} style={props.style}>
+                {button}
+                {list}
+            </div>
+            {mask}
+        </React.Fragment>
+    );
+}))
+
+SpeedDial.defaultProps = {
+    id: null,
+    model: null,
+    visible: false,
+    style: null,
+    className: null,
+    direction: 'up',
+    transitionDelay: 30,
+    type: 'linear',
+    radius: 0,
+    mask: false,
+    disabled: false,
+    hideOnClickOutside: true,
+    buttonStyle: null,
+    buttonClassName: null,
+    buttonTemplate: null,
+    maskStyle: null,
+    maskClassName: null,
+    showIcon: 'pi pi-plus',
+    hideIcon: null,
+    rotateAnimation: true,
+    onVisibleChange: null,
+    onClick: null,
+    onShow: null,
+    onHide: null
+}
+
+SpeedDial.propTypes = {
+    id: PropTypes.string,
+    model: PropTypes.array,
+    visible: PropTypes.bool,
+    style: PropTypes.object,
+    className: PropTypes.string,
+    direction: PropTypes.string,
+    transitionDelay: PropTypes.number,
+    type: PropTypes.string,
+    radius: PropTypes.number,
+    mask: PropTypes.bool,
+    disabled: PropTypes.bool,
+    hideOnClickOutside: PropTypes.bool,
+    buttonStyle: PropTypes.object,
+    buttonClassName: PropTypes.string,
+    buttonTemplate: PropTypes.any,
+    maskStyle: PropTypes.object,
+    maskClassName: PropTypes.string,
+    showIcon: PropTypes.any,
+    hideIcon: PropTypes.any,
+    rotateAnimation: PropTypes.bool,
+    onVisibleChange: PropTypes.func,
+    onClick: PropTypes.func,
+    onShow: PropTypes.func,
+    onHide: PropTypes.func
 }
