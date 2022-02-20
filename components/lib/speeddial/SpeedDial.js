@@ -12,13 +12,12 @@ export const SpeedDial = memo(forwardRef((props, ref) => {
     const listRef = useRef(null);
     const isVisible = props.onVisibleChange ? props.visible : visible;
     const [bindDocumentClick, unbindDocumentClick] = useEventListener({ type: 'click', listener: event => {
-            if (isVisible && isOutsideClicked(event)) {
-                hide();
-            }
-
-            isItemClicked.current = false;
+        if (isVisible && isOutsideClicked(event)) {
+            hide();
         }
-    });
+
+        isItemClicked.current = false;
+    }});
 
     const show = () => {
         props.onVisibleChange ? props.onVisibleChange(true) : setVisible(true);
