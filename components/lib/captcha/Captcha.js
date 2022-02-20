@@ -1,7 +1,7 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import PropTypes from 'prop-types';
 
-export const Captcha = forwardRef((props, ref) => {
+export const Captcha = memo(forwardRef((props, ref) => {
     const elementRef = useRef(null);
     const instance = useRef(null);
     const recaptchaScript = useRef(null);
@@ -91,7 +91,7 @@ export const Captcha = forwardRef((props, ref) => {
     }));
 
     return <div ref={elementRef} id={props.id}></div>
-});
+}));
 
 Captcha.defaultProps = {
     id: null,

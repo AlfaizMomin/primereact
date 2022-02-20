@@ -1,37 +1,31 @@
 import { useEffect, useRef } from 'react';
-import { DomHandler, ObjectUtils } from '../utils/Utils';
+import { DomHandler } from '../utils/Utils';
 
-export const useEventListener = (type, listener, target) => {
-    const listenerRef = useRef(null);
+export const useEventListener = ({ target = 'document', type, listener, options }) => {
     const targetRef = useRef(null);
+    const listenerRef = useRef(null);
 
     const bind = () => {
         if (!listenerRef.current && targetRef.current) {
             listenerRef.current = event => listener && listener(event);
-            targetRef.current.addEventListener(type, listenerRef.current);
+            targetRef.current.addEventListener(type, listenerRef.current, options);
         }
     }
 
     const unbind = () => {
         if (listenerRef.current) {
-            targetRef.current.removeEventListener(type, listenerRef.current);
+            targetRef.current.removeEventListener(type, listenerRef.current, options);
             listenerRef.current = null;
         }
     }
 
     useEffect(() => {
-        const targetEl = document;
-        if (target) {
-            const el = ObjectUtils.getPropValue(target);
-            targetEl = DomHandler.isExist(el) ? el : targetEl;
-        }
-
-        targetRef.current = targetEl;
+        targetRef.current = DomHandler.getTargetElement(target);
 
         return () => {
             unbind();
         }
-    }, []);
+    }, [target]);
 
     return [bind, unbind];
 }

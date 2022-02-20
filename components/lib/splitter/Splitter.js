@@ -19,11 +19,11 @@ export const Splitter = (props) => {
     const prevPanelIndex = useRef(null);
     const panelSizes = useRef(null);
     const isStateful = props.stateKey != null;
-    const [bindDocumentMouseMove, unbindDocumentMouseMove] = useEventListener('mousemove', event => onResize(event));
-    const [bindDocumentMouseUp, unbindDocumentMouseUp] = useEventListener('mouseup', event => {
+    const [bindDocumentMouseMove, unbindDocumentMouseMove] = useEventListener({ type: 'mousemove', listener: event => onResize(event) });
+    const [bindDocumentMouseUp, unbindDocumentMouseUp] = useEventListener({ type: 'mouseup', listener: event => {
         onResizeEnd(event);
         unbindMouseListeners();
-    });
+    }});
 
     const bindMouseListeners = () => {
         bindDocumentMouseMove();
