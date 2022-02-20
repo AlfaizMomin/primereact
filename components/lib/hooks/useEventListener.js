@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { DomHandler } from '../utils/Utils';
+import { usePrevious } from './usePrevious';
 
 export const useEventListener = ({ target = 'document', type, listener, options }) => {
     const targetRef = useRef(null);
     const listenerRef = useRef(null);
+    const prevOptions = usePrevious(options);
 
     const bind = () => {
         if (!listenerRef.current && targetRef.current) {
@@ -26,6 +28,13 @@ export const useEventListener = ({ target = 'document', type, listener, options 
             unbind();
         }
     }, [target]);
+
+    useEffect(() => {
+        if (listenerRef.current && (listenerRef.current !== listener || prevOptions !== options)) {
+            unbind();
+            bind();
+        }
+    }, [listener, options]);
 
     return [bind, unbind];
 }

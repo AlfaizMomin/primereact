@@ -1,10 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { DomHandler } from '../utils/Utils';
+import { usePrevious } from './usePrevious';
 
 export const useOverlayScrollListener = ({ target, listener, options }) => {
     const targetRef = useRef(null);
     const listenerRef = useRef(null);
     const scrollableParents = useRef([]);
+    const prevOptions = usePrevious(options);
 
     const bind = () => {
         if (!listenerRef.current && targetRef.current) {
@@ -31,6 +33,13 @@ export const useOverlayScrollListener = ({ target, listener, options }) => {
             unbind();
         }
     }, [target]);
+
+    useEffect(() => {
+        if (listenerRef.current && (listenerRef.current !== listener || prevOptions !== options)) {
+            unbind();
+            bind();
+        }
+    }, [listener, options]);
 
     return [bind, unbind];
 }
