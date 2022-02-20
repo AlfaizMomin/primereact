@@ -17,22 +17,19 @@ export const SplitButton = memo(forwardRef((props, ref) => {
     const defaultButtonRef = useRef(null);
     const overlayRef = useRef(null);
     const tooltipRef = useRef(null);
-    const [bindDocumentClick, unbindDocumentClick] = useEventListener({
-        type: 'click', listener: event => {
+    const [bindDocumentClick, unbindDocumentClick] = useEventListener({ type: 'click', listener: event => {
             if (overlayVisible && isOutsideClicked(event)) {
                 hide();
             }
         }
     });
-    const [bindOverlayScroll, unbindOverlayScroll] = useOverlayScrollListener({
-        target: elementRef, listener: () => {
+    const [bindOverlayScroll, unbindOverlayScroll] = useOverlayScrollListener({ target: elementRef, listener: () => {
             if (overlayVisible) {
                 hide();
             }
         }
     });
-    const [bindWindowResize, unbindWindowResize] = useEventListener({
-        target: 'window', type: 'resize', listener: () => {
+    const [bindWindowResize, unbindWindowResize] = useEventListener({ target: 'window', type: 'resize', listener: () => {
             if (overlayVisible && !DomHandler.isTouchDevice()) {
                 hide();
             }
