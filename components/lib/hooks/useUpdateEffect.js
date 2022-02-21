@@ -7,7 +7,7 @@ export const useUpdateEffect = (listener, dependencies) => {
             mounted.current = true;
             return;
         }
-        
-        return listener();
+
+        return listener && listener();
     }, dependencies);
 }

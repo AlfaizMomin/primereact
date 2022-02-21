@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 
 export const useMountEffect = (listener) => {
-    return useEffect(listener, []);
+    return useEffect(() => listener && listener(), []);
 }
