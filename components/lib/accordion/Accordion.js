@@ -1,92 +1,24 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { classNames, ObjectUtils, IconUtils, UniqueComponentId } from '../utils/Utils';
 import { CSSTransition } from '../csstransition/CSSTransition';
 
-export class AccordionTab extends Component {
+export const AccordionTab = () => {}
 
-    static defaultProps = {
-        header: null,
-        disabled: false,
-        style: null,
-        className: null,
-        headerStyle: null,
-        headerClassName: null,
-        headerTemplate: null,
-        contentStyle: null,
-        contentClassName: null
-    }
+export const Accordion = (props) => {
+    const [id,setId] = useState(props.id);
+    const [activeIndexState,setActiveIndexState] = useState(null);
+    const className = classNames('p-accordion p-component', props.className);
 
-    static propTypes = {
-        header: PropTypes.any,
-        disabled: PropTypes.bool,
-        style: PropTypes.object,
-        className: PropTypes.string,
-        headerStyle: PropTypes.object,
-        headerClassName: PropTypes.string,
-        headerTemplate: PropTypes.any,
-        contentStyle: PropTypes.object,
-        contentClassName: PropTypes.string
-    }
-}
+    const shouldUseTab = (tab) => tab && tab.type === AccordionTab;
 
-export class Accordion extends Component {
-
-    static defaultProps = {
-        id: null,
-        activeIndex: null,
-        className: null,
-        style: null,
-        multiple: false,
-        expandIcon: 'pi pi-chevron-right',
-        collapseIcon: 'pi pi-chevron-down',
-        transitionOptions: null,
-        onTabOpen: null,
-        onTabClose: null,
-        onTabChange: null
-    }
-
-    static propTypes = {
-        id: PropTypes.string,
-        activeIndex: PropTypes.any,
-        className: PropTypes.string,
-        style: PropTypes.object,
-        multiple: PropTypes.bool,
-        expandIcon: PropTypes.any,
-        collapseIcon: PropTypes.any,
-        transitionOptions: PropTypes.object,
-        onTabOpen: PropTypes.func,
-        onTabClose: PropTypes.func,
-        onTabChange: PropTypes.func
-    };
-
-    constructor(props) {
-        super(props);
-        let state = {
-            id: this.props.id
-        };
-
-        if (!this.props.onTabChange) {
-            state = {
-                ...state,
-                activeIndex: props.activeIndex
-            };
-        }
-
-        this.state = state;
-    }
-
-    shouldTabRender(tab) {
-        return tab && tab.type === AccordionTab;
-    }
-
-    onTabHeaderClick(event, tab, index) {
+    const onTabHeaderClick = (event, tab, index) => {
         if (!tab.props.disabled) {
-            const selected = this.isSelected(index);
+            const selected = isSelected(index);
             let newActiveIndex = null;
 
-            if (this.props.multiple) {
-                let indexes = (this.props.onTabChange ? this.props.activeIndex : this.state.activeIndex) || [];
+            if (props.multiple) {
+                let indexes = (props.onTabChange ? props.activeIndex : activeIndexState) || [];
                 if (selected)
                     indexes = indexes.filter(i => i !== index);
                 else
@@ -98,67 +30,59 @@ export class Accordion extends Component {
                 newActiveIndex = selected ? null : index;
             }
 
-            let callback = selected ? this.props.onTabClose : this.props.onTabOpen;
+            let callback = selected ? props.onTabClose : props.onTabOpen;
             if (callback) {
                 callback({ originalEvent: event, index: index });
             }
 
-            if (this.props.onTabChange) {
-                this.props.onTabChange({
+            if (props.onTabChange) {
+                props.onTabChange({
                     originalEvent: event,
                     index: newActiveIndex
                 })
             }
             else {
-                this.setState({
-                    activeIndex: newActiveIndex
-                });
+                setActiveIndexState(newActiveIndex);
             }
         }
 
         event.preventDefault();
     }
 
-    isSelected(index) {
-        const activeIndex = this.props.onTabChange ? this.props.activeIndex : this.state.activeIndex;
+    const isSelected = (index) => {
+        const activeIndex = props.onTabChange ? props.activeIndex : activeIndexState;
 
-        return this.props.multiple ? (activeIndex && activeIndex.indexOf(index) >= 0) : activeIndex === index;
+        return props.multiple ? (activeIndex && activeIndex.indexOf(index) >= 0) : activeIndex === index;
     }
 
-    componentDidMount() {
-        if (!this.state.id) {
-            this.setState({ id: UniqueComponentId() });
-        }
-    }
-
-    renderTabHeader(tab, selected, index) {
+    const useTabHeader = (tab, selected, index) => {
         const style = { ...(tab.props.headerStyle || {}), ...(tab.props.style || {}) };
         const className = classNames('p-accordion-header', { 'p-highlight': selected, 'p-disabled': tab.props.disabled }, tab.props.headerClassName, tab.props.className);
-        const id = this.state.id + '_header_' + index;
-        const ariaControls = this.state.id + '_content_' + index;
+        const headerId = id + '_header_' + index;
+        const ariaControls = id + '_content_' + index;
         const tabIndex = tab.props.disabled ? -1 : null;
         const header = tab.props.headerTemplate ? ObjectUtils.getJSXElement(tab.props.headerTemplate, tab.props) : <span className="p-accordion-header-text">{tab.props.header}</span>;
-        const icon = selected ? this.props.collapseIcon : this.props.expandIcon;
+        const icon = selected ? props.collapseIcon : props.expandIcon;
 
         return (
             <div className={className} style={style}>
-                <a href={'#' + ariaControls} id={id} className="p-accordion-header-link" aria-controls={ariaControls} role="tab" aria-expanded={selected} onClick={(event) => this.onTabHeaderClick(event, tab, index)} tabIndex={tabIndex}>
-                    {IconUtils.getJSXIcon(icon, { className: 'p-accordion-toggle-icon' }, { props: this.props, selected })}
+                <a href={'#' + ariaControls} id={headerId} className="p-accordion-header-link" aria-controls={ariaControls} role="tab" aria-expanded={selected} onClick={(e) => onTabHeaderClick(e, tab, index)} tabIndex={tabIndex}>
+                    {IconUtils.getJSXIcon(icon, { className: 'p-accordion-toggle-icon' }, { props: props, selected })}
                     {header}
                 </a>
             </div>
         );
     }
 
-    renderTabContent(tab, selected, index) {
+    const useTabContent = (tab, selected, index) => {
         const style = { ...(tab.props.contentStyle || {}), ...(tab.props.style || {}) };
         const className = classNames('p-toggleable-content', tab.props.contentClassName, tab.props.className);
-        const id = this.state.id + '_content_' + index;
-        const toggleableContentRef = React.createRef();
+        const contentId = id + '_content_' + index;
+        const toggleableContentRef = useRef(null);
 
         return (
-            <CSSTransition nodeRef={toggleableContentRef} classNames="p-toggleable-content" timeout={{ enter: 1000, exit: 450 }} in={selected} unmountOnExit options={this.props.transitionOptions}>
-                <div ref={toggleableContentRef} id={id} className={className} style={style} role="region" aria-labelledby={this.state.id + '_header_' + index}>
+            <CSSTransition nodeRef={toggleableContentRef} classNames="p-toggleable-content" timeout={{ enter: 1000, exit: 450 }} in={selected} unmountOnExit options={props.transitionOptions}>
+                <div ref={toggleableContentRef} id={contentId} className={className} style={style} role="region" aria-labelledby={id + '_header_' + index}>
                     <div className="p-accordion-content">
                         {tab.props.children}
                     </div>
@@ -167,10 +91,10 @@ export class Accordion extends Component {
         );
     }
 
-    renderTab(tab, index) {
-        const selected = this.isSelected(index);
-        const tabHeader = this.renderTabHeader(tab, selected, index);
-        const tabContent = this.renderTabContent(tab, selected, index);
+    const useTab = (tab, index) => {
+        const selected = isSelected(index);
+        const tabHeader = useTabHeader(tab, selected, index);
+        const tabContent = useTabContent(tab, selected, index);
         const tabClassName = classNames('p-accordion-tab', {
             'p-accordion-tab-active': selected
         });
@@ -183,24 +107,80 @@ export class Accordion extends Component {
         );
     }
 
-    renderTabs() {
+    const useTabs = () => {
         return (
-            React.Children.map(this.props.children, (tab, index) => {
-                if (this.shouldTabRender(tab)) {
-                    return this.renderTab(tab, index);
+            React.Children.map(props.children, (tab, index) => {
+                if (shouldUseTab(tab)) {
+                    return useTab(tab, index);
                 }
             })
         )
     }
 
-    render() {
-        const className = classNames('p-accordion p-component', this.props.className);
-        const tabs = this.renderTabs();
+    useEffect(() => {
+        if (!props.id) {
+            setId(UniqueComponentId());
+        }
+    }, []);
 
-        return (
-            <div ref={(el) => this.container = el} id={this.state.id} className={className} style={this.props.style}>
-                {tabs}
-            </div>
-        );
-    }
+    const tabs = useTabs();
+
+    return (
+        <div id={id} className={className} style={props.style}>
+            {tabs}
+        </div>
+    );
 }
+
+
+AccordionTab.defaultProps = {
+    header: null,
+    disabled: false,
+    style: null,
+    className: null,
+    headerStyle: null,
+    headerClassName: null,
+    headerTemplate: null,
+    contentStyle: null,
+    contentClassName: null
+}
+
+AccordionTab.propTypes = {
+    header: PropTypes.any,
+    disabled: PropTypes.bool,
+    style: PropTypes.object,
+    className: PropTypes.string,
+    headerStyle: PropTypes.object,
+    headerClassName: PropTypes.string,
+    headerTemplate: PropTypes.any,
+    contentStyle: PropTypes.object,
+    contentClassName: PropTypes.string
+}
+
+Accordion.defaultProps = {
+    id: null,
+    activeIndex: null,
+    className: null,
+    style: null,
+    multiple: false,
+    expandIcon: 'pi pi-chevron-right',
+    collapseIcon: 'pi pi-chevron-down',
+    transitionOptions: null,
+    onTabOpen: null,
+    onTabClose: null,
+    onTabChange: null
+}
+
+Accordion.propTypes = {
+    id: PropTypes.string,
+    activeIndex: PropTypes.any,
+    className: PropTypes.string,
+    style: PropTypes.object,
+    multiple: PropTypes.bool,
+    expandIcon: PropTypes.any,
+    collapseIcon: PropTypes.any,
+    transitionOptions: PropTypes.object,
+    onTabOpen: PropTypes.func,
+    onTabClose: PropTypes.func,
+    onTabChange: PropTypes.func
+};
