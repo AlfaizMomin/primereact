@@ -4,8 +4,8 @@ import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 import { KeyFilter } from '../keyfilter/KeyFilter';
 import { tip } from '../tooltip/Tooltip';
 
-const InputTextComponent = (props) => {
-    const elementRef = useRef(props.forwardRef);
+export const InputText = memo(forwardRef((props, ref) => {
+    const elementRef = useRef(ref);
     const tooltipRef = useRef(null);
 
     const onKeyPress = (event) => {
@@ -41,7 +41,7 @@ const InputTextComponent = (props) => {
     ), [props.value, props.defaultValue]);
 
     useEffect(() => {
-        ObjectUtils.combinedRefs(elementRef, props.forwardRef);
+        ObjectUtils.combinedRefs(elementRef, ref);
     }, [elementRef]);
 
     useEffect(() => {
@@ -64,16 +64,14 @@ const InputTextComponent = (props) => {
         }
     }, [props.tooltip, props.tooltipOptions]);
 
-    const inputProps = ObjectUtils.findDiffKeys(props, { ...InputText.defaultProps, forwardRef: props.forwardRef });
+    const inputProps = ObjectUtils.findDiffKeys(props, InputText.defaultProps);
     const className = classNames('p-inputtext p-component', {
         'p-disabled': props.disabled,
         'p-filled': isFilled
     }, props.className);
 
     return <input ref={elementRef} {...inputProps} className={className} onInput={onInput} onKeyPress={onKeyPress} />;
-}
-
-export const InputText = memo(forwardRef((props, ref) => <InputTextComponent forwardRef={ref} {...props} />));
+}))
 
 InputText.defaultProps = {
     keyfilter: null,

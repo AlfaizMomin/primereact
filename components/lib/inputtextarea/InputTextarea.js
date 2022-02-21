@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
 
-const InputTextareaComponent = (props) => {
-    const elementRef = useRef(props.forwardRef);
+export const InputTextarea = memo(forwardRef((props, ref) => {
+    const elementRef = useRef(ref);
     const tooltipRef = useRef(null);
     const cachedScrollHeight = useRef(0);
 
@@ -84,7 +84,7 @@ const InputTextareaComponent = (props) => {
     ), [props.value, props.defaultValue]);
 
     useEffect(() => {
-        ObjectUtils.combinedRefs(elementRef, props.forwardRef);
+        ObjectUtils.combinedRefs(elementRef, ref);
     }, [elementRef]);
 
     useEffect(() => {
@@ -113,7 +113,7 @@ const InputTextareaComponent = (props) => {
         }
     }, [props.autoResize]);
 
-    const textareaProps = ObjectUtils.findDiffKeys(props, { ...InputTextarea.defaultProps, forwardRef: props.forwardRef });
+    const textareaProps = ObjectUtils.findDiffKeys(props, InputTextarea.defaultProps);
     const className = classNames('p-inputtextarea p-inputtext p-component', {
         'p-disabled': props.disabled,
         'p-filled': isFilled,
@@ -123,9 +123,7 @@ const InputTextareaComponent = (props) => {
     return (
         <textarea ref={elementRef} {...textareaProps} className={className} onFocus={onFocus} onBlur={onBlur} onKeyUp={onKeyUp} onInput={onInput}></textarea>
     );
-}
-
-export const InputTextarea = memo(forwardRef((props, ref) => <InputTextareaComponent forwardRef={ref} {...props} />));
+}))
 
 InputTextarea.defaultProps = {
     autoResize: false,

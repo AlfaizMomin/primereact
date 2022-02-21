@@ -4,12 +4,12 @@ import { ObjectUtils, classNames, IconUtils } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
 import { Ripple } from '../ripple/Ripple';
 
-const ButtonComponent = (props) => {
-    const elementRef = useRef(props.forwardRef);
+export const Button = memo(forwardRef((props, ref) => {
+    const elementRef = useRef(ref);
     const tooltipRef = useRef(null);
 
     useEffect(() => {
-        ObjectUtils.combinedRefs(elementRef, props.forwardRef);
+        ObjectUtils.combinedRefs(elementRef, ref);
     }, [elementRef]);
 
     useEffect(() => {
@@ -60,7 +60,7 @@ const ButtonComponent = (props) => {
     }
 
     const disabled = props.disabled || props.loading;
-    const buttonProps = ObjectUtils.findDiffKeys(props, { ...Button.defaultProps, forwardRef: props.forwardRef });
+    const buttonProps = ObjectUtils.findDiffKeys(props, Button.defaultProps);
     const className = classNames('p-button p-component', props.className, {
         'p-button-icon-only': (props.icon || (props.loading && props.loadingIcon)) && !props.label,
         'p-button-vertical': (props.iconPos === 'top' || props.iconPos === 'bottom') && props.label,
@@ -83,9 +83,7 @@ const ButtonComponent = (props) => {
             <Ripple />
         </button>
     );
-}
-
-export const Button = memo(forwardRef((props, ref) => <ButtonComponent forwardRef={ref} {...props} />));
+}))
 
 Button.defaultProps = {
     label: null,
