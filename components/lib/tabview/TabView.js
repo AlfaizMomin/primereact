@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { forwardRef, useEffect, useState, useImperativeHandle, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { DomHandler, ObjectUtils, classNames, UniqueComponentId } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
 
 export const TabPanel = () => {}
 
-export const TabView = (props) => {
+export const TabView = forwardRef((props, ref) => {
     const [id,setId] = useState(props.id);
     const [backwardIsDisabled,setBackwardIsDisabled] = useState(true);
     const [forwardIsDisabled,setForwardIsDisabled] = useState(false);
@@ -113,6 +113,17 @@ export const TabView = (props) => {
         const lastPos = contentRef.current.scrollWidth - width;
 
         contentRef.current.scrollLeft = pos >= lastPos ? lastPos : pos;
+    }
+
+    const reset = () => {
+        setBackwardIsDisabled(true);
+        setForwardIsDisabled(false);
+        setHiddenTabs([]);
+
+        if (props.onTabChange) 
+            props.onTabChange({index: activeIndex});
+        else
+            setActiveIndexState(props.activeIndex);
     }
 
     useEffect(() => {
@@ -254,6 +265,10 @@ export const TabView = (props) => {
         }
     }
 
+    useImperativeHandle(ref, () => ({
+        reset
+    }));
+
     const className = classNames('p-tabview p-component', props.className, { 'p-tabview-scrollable': props.scrollable });
     const navigator = useNavigator();
     const content = useContent();
@@ -270,7 +285,7 @@ export const TabView = (props) => {
             {content}
         </div>
     );
-}
+})
 
 TabPanel.defaultProps = {
     header: null,
