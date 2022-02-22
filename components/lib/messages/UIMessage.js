@@ -1,50 +1,32 @@
-import React, { Component } from 'react';
+import React, { useEffect, useRef, forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
 
-class UIMessageComponent extends Component {
+const UIMessageComponent = (props) => {
+    const timer = useRef(null);
 
-    static defaultProps = {
-        message: null,
-        onClose: null,
-        onClick: null
-    }
-
-    static propTypes = {
-        message: PropTypes.object,
-        onClose: PropTypes.func,
-        onClick: PropTypes.func
-    };
-
-    constructor(props) {
-        super(props);
-
-        this.onClick = this.onClick.bind(this);
-        this.onClose = this.onClose.bind(this);
-    }
-
-    componentDidMount() {
-        if (!this.props.message.sticky) {
-            this.timeout = setTimeout(() => {
-                this.onClose(null);
-            }, this.props.message.life || 3000);
-        }
-    }
-
-    componentWillUnmount() {
-        if (this.timeout) {
-            clearTimeout(this.timeout);
-        }
-    }
-
-    onClose(event) {
-        if (this.timeout) {
-            clearTimeout(this.timeout);
+    useEffect(() => {
+        if (!props.message.sticky) {
+            timer.current = setTimeout(() => {
+                onClose(null);
+            }, props.message.life || 3000);
         }
 
-        if (this.props.onClose) {
-            this.props.onClose(this.props.message);
+        return () => {
+            if (timer.current) {
+                clearTimeout(timer.current);
+            }
+        };
+    }, []);
+
+    const onClose = (event) => {
+        if (timer.current) {
+            clearTimeout(timer.current);
+        }
+
+        if (props.onClose) {
+            props.onClose(props.message);
         }
 
         if (event) {
@@ -53,16 +35,16 @@ class UIMessageComponent extends Component {
         }
     }
 
-    onClick() {
-        if (this.props.onClick) {
-            this.props.onClick(this.props.message);
+    const onClick = () => {
+        if (props.onClick) {
+            props.onClick(props.message);
         }
     }
 
-    renderCloseIcon() {
-        if (this.props.message.closable !== false) {
+    const useCloseIcon = () => {
+        if (props.message.closable !== false) {
             return (
-                <button type="button" className="p-message-close p-link" onClick={this.onClose}>
+                <button type="button" className="p-message-close p-link" onClick={onClose}>
                     <i className="p-message-close-icon pi pi-times"></i>
                     <Ripple />
                 </button>
@@ -72,9 +54,9 @@ class UIMessageComponent extends Component {
         return null;
     }
 
-    renderMessage() {
-        if (this.props.message) {
-            const { severity, content, summary, detail } = this.props.message;
+    const useMessage = () => {
+        if (props.message) {
+            const { severity, content, summary, detail } = props.message;
             const icon = classNames('p-message-icon pi ', {
                 'pi-info-circle': severity === 'info',
                 'pi-check': severity === 'success',
@@ -94,21 +76,31 @@ class UIMessageComponent extends Component {
         return null;
     }
 
-    render() {
-        const severity = this.props.message.severity;
-        let className = 'p-message p-component p-message-' + severity;
-        let closeIcon = this.renderCloseIcon();
-        let message = this.renderMessage();
+    const severity = props.message.severity;
+    const className = 'p-message p-component p-message-' + severity;
+    const closeIcon = useCloseIcon();
+    const message = useMessage();
 
-        return (
-            <div ref={this.props.forwardRef} className={className} onClick={this.onClick}>
-                <div className="p-message-wrapper">
-                    {message}
-                    {closeIcon}
-                </div>
+    return (
+        <div ref={props.forwardRef} className={className} onClick={onClick}>
+            <div className="p-message-wrapper">
+                {message}
+                {closeIcon}
             </div>
-        );
-    }
+        </div>
+    );
 }
 
-export const UIMessage = React.forwardRef((props, ref) => <UIMessageComponent forwardRef={ref} {...props} />);
+UIMessageComponent.defaultProps = {
+    message: null,
+    onClose: null,
+    onClick: null
+}
+
+UIMessageComponent.propTypes = {
+    message: PropTypes.object,
+    onClose: PropTypes.func,
+    onClick: PropTypes.func
+};
+
+export const UIMessage = forwardRef((props, ref) => <UIMessageComponent forwardRef={ref} {...props} />);
