@@ -1,38 +1,19 @@
-import React, { useEffect, useRef } from 'react';
-import PropTypes from 'prop-types';
+import React, { forwardRef, memo } from 'react';
 import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
-import { useMountEffect } from '../hooks/useMountEffect';
 import { Ripple } from '../ripple/Ripple';
+import { useTimeout } from '../hooks/useTimeout';
 
-const ToastMessageComponent = (props) =>  {
-    const severity = props.message.severity;
-    const contentClassName = props.message.contentClassName;
-    const contentStyle = props.message.contentStyle;
-    const style = props.message.style;
-    const timer = useRef(null);
+export const ToastMessage = memo(forwardRef((props, ref) => {
+    const { severity, content, summary, detail, closable, life, sticky,
+            className: _className, style, contentClassName: _contentClassName, contentStyle } = props.message;
 
-    useEffect(() => {
-        if (!props.message.sticky) {
-            timer.current = setTimeout(() => {
-                
-            }, props.message.life || 3000);
-        }
-
-        return () => {
-            if (timer.current) {
-                clearTimeout(timer.current);
-            }
-        }
-    }, []);
+    const [clearTimer] = useTimeout(() => {
+        onClose();
+    }, life || 3000, !sticky);
 
     const onClose = () => {
-        if (timer.current) {
-            clearTimeout(timer.current);
-        }
-
-        if (props.onClose) {
-            props.onClose(props.message);
-        }
+        clearTimer();
+        props.onClose && props.onClose(props.message);
     }
 
     const onClick = (event) => {
@@ -42,7 +23,7 @@ const ToastMessageComponent = (props) =>  {
     }
 
     const useCloseIcon = () => {
-        if (props.message.closable !== false) {
+        if (closable !== false) {
             return (
                 <button type="button" className="p-toast-icon-close p-link" onClick={onClose}>
                     <span className="p-toast-icon-close-icon pi pi-times"></span>
@@ -56,8 +37,7 @@ const ToastMessageComponent = (props) =>  {
 
     const useMessage = () => {
         if (props.message) {
-            const { severity, content, summary, detail } = props.message;
-            const contentEl = ObjectUtils.getJSXElement(content, {...props, onClose: onClose});
+            const contentEl = ObjectUtils.getJSXElement(content, { ...props, onClose });
             const iconClassName = classNames('p-toast-message-icon pi', {
                 'pi-info-circle': severity === 'info',
                 'pi-exclamation-triangle': severity === 'warn',
@@ -80,35 +60,19 @@ const ToastMessageComponent = (props) =>  {
     }
 
     const className = classNames('p-toast-message', {
-        'p-toast-message-info': severity === 'info',
-        'p-toast-message-warn': severity === 'warn',
-        'p-toast-message-error': severity === 'error',
-        'p-toast-message-success': severity === 'success'
-    }, props.message.className);
+        [`p-toast-message-${severity}`]: severity
+    }, _className);
+    const contentClassName = classNames('p-toast-message-content', _contentClassName);
 
     const message = useMessage();
     const closeIcon = useCloseIcon();
 
     return (
-        <div ref={props.forwardRef} className={className} style={style} role="alert" aria-live="assertive" aria-atomic="true" onClick={onClick}>
-            <div className={classNames('p-toast-message-content', contentClassName)} style={contentStyle}>
+        <div ref={ref} className={className} style={style} role="alert" aria-live="assertive" aria-atomic="true" onClick={onClick}>
+            <div className={contentClassName} style={contentStyle}>
                 {message}
                 {closeIcon}
             </div>
         </div>
-    );
-}
-
-ToastMessageComponent.defaultProps = {
-    message: null,
-    onClose: null,
-    onClick: null
-}
-
-ToastMessageComponent.propTypes = {
-    message: PropTypes.object,
-    onClose: PropTypes.func,
-    onClick: PropTypes.func
-};
-
-export const ToastMessage = React.forwardRef((props, ref) => <ToastMessageComponent forwardRef={ref} {...props} />);
+    )
+}))

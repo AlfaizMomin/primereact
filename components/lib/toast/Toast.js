@@ -1,4 +1,4 @@
-import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
+import React, { useState, useRef, forwardRef, useImperativeHandle, createRef, memo, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { classNames, ZIndexUtils } from '../utils/Utils';
 import { ToastMessage } from './ToastMessage';
@@ -6,74 +6,60 @@ import { TransitionGroup } from 'react-transition-group';
 import { CSSTransition } from '../csstransition/CSSTransition';
 import PrimeReact from '../api/Api';
 import { Portal } from '../portal/Portal';
-import { useMountEffect } from '../hooks/useMountEffect';
-import { useUpdateEffect } from '../hooks/useUpdateEffect';
 
 let messageIdx = 0;
 
-export const Toast =  forwardRef((props, ref) => {
-    const [messages,setMessages] = useState([]);
+export const Toast = memo(forwardRef((props, ref) => {
+    const [messages, setMessages] = useState([]);
     const containerRef = useRef(null);
 
     const show = (value) => {
         if (value) {
-            if (value) {
-                let _messages;
-    
-                if (Array.isArray(value)) {
-                    for (let i = 0; i < value.length; i++) {
-                        value[i].id = messageIdx++;
-                        _messages = [...messages, ...value];
-                    }
+            let _messages;
+
+            if (Array.isArray(value)) {
+                for (let i = 0; i < value.length; i++) {
+                    value[i].id = messageIdx++;
+                    _messages = [...messages, ...value];
                 }
-                else {
-                    value.id = messageIdx++;
-                    _messages = messages ? [...messages, value] : [value];
-                }
-    
-                messages.length === 0 && ZIndexUtils.set('toast', containerRef.current, PrimeReact.autoZIndex, props.baseZIndex || PrimeReact.zIndex['toast']);
-    
-                setMessages(_messages);
             }
+            else {
+                value.id = messageIdx++;
+                _messages = messages ? [...messages, value] : [value];
+            }
+
+            messages.length === 0 && ZIndexUtils.set('toast', containerRef.current, PrimeReact.autoZIndex, props.baseZIndex || PrimeReact.zIndex['toast']);
+
+            setMessages(_messages);
         }
     }
-    
+
     const clear = () => {
         ZIndexUtils.clear(containerRef.current);
         setMessages([]);
     }
-    
+
     const onClose = (message) => {
         let _messages = messages.filter(msg => msg.id !== message.id);
         setMessages(_messages);
-        
-        if (props.onRemove) {
-            props.onRemove(message);
-        }
+
+        props.onRemove && props.onRemove(message);
     }
-    
+
     const onEntered = () => {
-        if (props.onShow) {
-            props.onShow();
-        }
-    }
-    
-    const onExited = () => {    
-        if (props.onHide) {
-            props.onHide();
-        }
+        props.onShow && props.onShow();
     }
 
-    useMountEffect(() => {
+    const onExited = () => {
+        messages.length === 0 && ZIndexUtils.clear(containerRef.current);
+
+        props.onHide && props.onHide();
+    }
+
+    useEffect(() => {
         return () => ZIndexUtils.clear(containerRef.current);
-    });
+    }, []);
 
-    useUpdateEffect(() => {
-        if (messages.length === 0) {
-            ZIndexUtils.clear(containerRef.current);
-        }
-    }, [messages]);
-    
     useImperativeHandle(ref, () => ({
         show,
         clear
@@ -81,18 +67,17 @@ export const Toast =  forwardRef((props, ref) => {
 
     const useElement = () => {
         const className = classNames('p-toast p-component p-toast-' + props.position, props.className);
-        const messageRefs = [];
-        messages.forEach(msg => messageRefs[msg.id] = React.createRef());
 
         return (
             <div ref={containerRef} id={props.id} className={className} style={props.style}>
-                <h1>{messages.length}</h1>
                 <TransitionGroup>
                     {
                         messages.map((message) => {
+                            const messageRef = createRef();
+
                             return (
-                                <CSSTransition nodeRef={messageRefs[message.id]} key={message.id} classNames="p-toast-message" unmountOnExit timeout={{ enter: 300, exit: 300 }} onEntered={onEntered} onExited={onExited} options={props.transitionOptions}>
-                                    <ToastMessage ref={messageRefs[message.id]} message={message} onClick={props.onClick} onClose={onClose} />
+                                <CSSTransition nodeRef={messageRef} key={message.id} classNames="p-toast-message" unmountOnExit timeout={{ enter: 300, exit: 300 }} onEntered={onEntered} onExited={onExited} options={props.transitionOptions}>
+                                    <ToastMessage ref={messageRef} message={message} onClick={props.onClick} onClose={onClose} />
                                 </CSSTransition>
                             )
                         })
@@ -106,8 +91,8 @@ export const Toast =  forwardRef((props, ref) => {
 
     return (
         <Portal element={element} appendTo={props.appendTo} />
-    );
-});
+    )
+}))
 
 Toast.defaultProps = {
     id: null,
@@ -135,4 +120,4 @@ Toast.propTypes = {
     onRemove: PropTypes.func,
     onShow: PropTypes.func,
     onHide: PropTypes.func
-};
+}
