@@ -73,7 +73,6 @@ export const TabView = forwardRef((props, ref) => {
 
     const updateScrollBar = () => {
         let tabHeader = tabsRef.current[`tab_${activeIndex}`];
-        console.log(tabHeader);
 
         if (tabHeader && tabHeader.scrollIntoView) {
             tabHeader.scrollIntoView({ block: 'nearest' });
