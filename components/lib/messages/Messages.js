@@ -1,4 +1,4 @@
-import React, { useState, forwardRef, useImperativeHandle, useRef } from 'react';
+import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import PropTypes from 'prop-types';
 import { UIMessage } from './UIMessage';
 import { TransitionGroup } from 'react-transition-group';
