@@ -1,200 +1,133 @@
-import React, { Component } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { DomHandler, ObjectUtils, ZIndexUtils, classNames } from '../utils/Utils';
 import { CSSTransition } from '../csstransition/CSSTransition';
 import { Ripple } from '../ripple/Ripple';
 import { Portal } from '../portal/Portal';
 import PrimeReact from '../api/Api';
+import { useMountEffect } from '../hooks/useMountEffect';
+import { useUpdateEffect } from '../hooks/useUpdateEffect';
+import { useEventListener } from '../hooks/useEventListener';
 
-export class Sidebar extends Component {
+export const Sidebar = (props) => {
+    const [maskVisible, setMaskVisible] = useState(props.visible);
+    const [visible, setVisible] = useState(props.visible);
+    const sidebarRef = useRef(null);
+    const maskRef = useRef(null);
+    const closeIcon = useRef(null);
 
-    static defaultProps = {
-        id: null,
-        style: null,
-        className: null,
-        maskStyle: null,
-        maskClassName: null,
-        visible: false,
-        position: 'left',
-        fullScreen: false,
-        blockScroll: false,
-        baseZIndex: 0,
-        dismissable: true,
-        showCloseIcon: true,
-        ariaCloseLabel: 'close',
-        closeOnEscape: true,
-        icons: null,
-        modal: true,
-        appendTo: null,
-        transitionOptions: null,
-        onShow: null,
-        onHide: null
-    };
-
-    static propTypes = {
-        id: PropTypes.string,
-        style: PropTypes.object,
-        className: PropTypes.string,
-        maskStyle: PropTypes.object,
-        maskClassName: PropTypes.string,
-        visible: PropTypes.bool,
-        position: PropTypes.string,
-        fullScreen: PropTypes.bool,
-        blockScroll: PropTypes.bool,
-        baseZIndex: PropTypes.number,
-        dismissable: PropTypes.bool,
-        showCloseIcon: PropTypes.bool,
-        ariaCloseLabel: PropTypes.string,
-        closeOnEscape: PropTypes.bool,
-        icons: PropTypes.any,
-        modal: PropTypes.bool,
-        appendTo: PropTypes.any,
-        transitionOptions: PropTypes.object,
-        onShow: PropTypes.func,
-        onHide: PropTypes.func.isRequired
-    };
-
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            maskVisible: false,
-            visible: false
+    const [bindDocumentEscapeListener, unbindDocumentEscapeListener] = useEventListener({ type: 'keydown', listener: event => {
+        if (event.which === 27) {
+            if (ZIndexUtils.get(maskRef.current) === ZIndexUtils.getCurrent('modal', PrimeReact.autoZIndex)) {
+                onClose(event);
+            }
         }
-
-        this.onMaskClick = this.onMaskClick.bind(this);
-        this.onClose = this.onClose.bind(this);
-        this.onEntered = this.onEntered.bind(this);
-        this.onExiting = this.onExiting.bind(this);
-        this.onExited = this.onExited.bind(this);
-
-        this.sidebarRef = React.createRef();
-    }
-
-    getPositionClass() {
+    }});
+    
+    const getPositionClass = () => {
         const positions = ['left', 'right', 'top', 'bottom'];
-        const pos = positions.find(item => item === this.props.position);
+        const pos = positions.find(item => item === props.position);
 
         return pos ? `p-sidebar-${pos}` : '';
     }
 
-    focus() {
+    const focus = () => {
         let activeElement = document.activeElement;
-        let isActiveElementInDialog = activeElement && this.sidebarRef && this.sidebarRef.current.contains(activeElement);
-        if (!isActiveElementInDialog && this.props.showCloseIcon) {
-            this.closeIcon.focus();
+        let isActiveElementInDialog = activeElement && sidebarRef && sidebarRef.current.contains(activeElement);
+        if (!isActiveElementInDialog && props.showCloseIcon) {
+            closeIcon.focus();
         }
     }
 
-    onMaskClick(event) {
-        if (this.props.dismissable && this.props.modal && this.mask === event.target) {
-            this.onClose(event);
+    const onMaskClick = (event) => {
+        if (props.dismissable && props.modal && maskRef.current === event.target) {
+            onClose(event);
         }
     }
 
-    onClose(event) {
-        this.props.onHide();
+    const onClose = (event) => {
+        props.onHide();
         event.preventDefault();
     }
 
-    onEntered() {
-        if (this.props.onShow) {
-            this.props.onShow();
+    const onEntered = () => {
+        if (props.onShow) {
+            props.onShow();
         }
 
-        this.focus();
+        focus();
 
-        this.enableDocumentSettings();
+        enableDocumentSettings();
     }
 
-    onExiting() {
-        if (this.props.modal) {
-            DomHandler.addClass(this.mask, 'p-component-overlay-leave');
+    const onExiting = () => {
+        if (props.modal) {
+            DomHandler.addClass(maskRef.current, 'p-component-overlay-leave');
         }
     }
 
-    onExited() {
-        ZIndexUtils.clear(this.mask);
-        this.setState({ maskVisible: false });
-        this.disableDocumentSettings();
+    const onExited = () => {
+        ZIndexUtils.clear(maskRef.current);
+        setMaskVisible(false);
+        disableDocumentSettings();
     }
 
-    enableDocumentSettings() {
-        this.bindGlobalListeners();
+    const enableDocumentSettings = () => {
+        bindGlobalListeners();
 
-        if (this.props.blockScroll) {
+        if (props.blockScroll) {
             DomHandler.addClass(document.body, 'p-overflow-hidden');
         }
     }
 
-    disableDocumentSettings() {
-        this.unbindGlobalListeners();
+    const disableDocumentSettings = () => {
+        unbindGlobalListeners();
 
-        if (this.props.blockScroll) {
+        if (props.blockScroll) {
             DomHandler.removeClass(document.body, 'p-overflow-hidden');
         }
     }
 
-    bindGlobalListeners() {
-        if (this.props.closeOnEscape) {
-            this.bindDocumentEscapeListener();
+    const bindGlobalListeners = () => {
+        if (props.closeOnEscape) {
+            bindDocumentEscapeListener();
         }
     }
 
-    unbindGlobalListeners() {
-        this.unbindDocumentEscapeListener();
+    const unbindGlobalListeners = () => {
+        unbindDocumentEscapeListener();
     }
 
-    bindDocumentEscapeListener() {
-        this.documentEscapeListener = (event) => {
-            if (event.which === 27) {
-                if (ZIndexUtils.get(this.mask) === ZIndexUtils.getCurrent('modal', PrimeReact.autoZIndex)) {
-                    this.onClose(event);
-                }
-            }
-        };
-        document.addEventListener('keydown', this.documentEscapeListener);
-    }
-
-    unbindDocumentEscapeListener() {
-        if (this.documentEscapeListener) {
-            document.removeEventListener('keydown', this.documentEscapeListener);
-            this.documentEscapeListener = null;
-        }
-    }
-
-    componentDidMount() {
-        if (this.props.visible) {
-            this.setState({ maskVisible: true, visible: true }, () => {
-                ZIndexUtils.set('modal', this.mask, PrimeReact.autoZIndex, this.props.baseZIndex || PrimeReact.zIndex['modal']);
-            });
-        }
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        if (this.props.visible && !this.state.maskVisible) {
-            this.setState({ maskVisible: true }, () => {
-                ZIndexUtils.set('modal', this.mask, PrimeReact.autoZIndex, this.props.baseZIndex || PrimeReact.zIndex['modal']);
-            });
+    useMountEffect(() => {
+        if (props.visible) {
+            setVisible(true);
+            setMaskVisible(true);
         }
 
-        if (this.props.visible !== this.state.visible && this.state.maskVisible) {
-            this.setState({
-                visible: this.props.visible
-            });
+        return () => {
+            disableDocumentSettings();
+            maskRef.current && ZIndexUtils.clear(maskRef.current);
         }
-    }
+    });
 
-    componentWillUnmount() {
-        this.disableDocumentSettings();
+    useUpdateEffect(() => {
+        if (props.visible)
+            setMaskVisible(true);
+        else
+            setVisible(false);
+    }, [props.visible]);
 
-        ZIndexUtils.clear(this.mask);
-    }
+    useUpdateEffect(() => {
+        if (maskVisible) {
+            setVisible(true);
+            ZIndexUtils.set('modal', maskRef.current, PrimeReact.autoZIndex, props.baseZIndex || PrimeReact.zIndex['modal']);
+        }
+    }, [maskVisible]);
 
-    renderCloseIcon() {
-        if (this.props.showCloseIcon) {
+    const useCloseIcon = () => {
+        if (props.showCloseIcon) {
             return (
-                <button type="button" ref={el => this.closeIcon = el} className="p-sidebar-close p-sidebar-icon p-link" onClick={this.onClose} aria-label={this.props.ariaCloseLabel}>
+                <button type="button" ref={el => closeIcon = el} className="p-sidebar-close p-sidebar-icon p-link" onClick={onClose} aria-label={props.ariaCloseLabel}>
                     <span className="p-sidebar-close-icon pi pi-times" />
                     <Ripple />
                 </button>
@@ -204,42 +137,42 @@ export class Sidebar extends Component {
         return null;
     }
 
-    renderIcons() {
-        if (this.props.icons) {
-            return ObjectUtils.getJSXElement(this.props.icons, this.props);
+    const useIcons = () => {
+        if (props.icons) {
+            return ObjectUtils.getJSXElement(props.icons, props);
         }
 
         return null;
     }
 
-    renderElement() {
-        const className = classNames('p-sidebar p-component', this.props.className);
+    const useElement = () => {
+        const className = classNames('p-sidebar p-component', props.className);
         const maskClassName = classNames('p-sidebar-mask', {
-            'p-component-overlay p-component-overlay-enter': this.props.modal,
-            'p-sidebar-mask-scrollblocker': this.props.blockScroll,
-            'p-sidebar-visible': this.state.maskVisible,
-            'p-sidebar-full': this.props.fullScreen
-        }, this.props.maskClassName, this.getPositionClass());
+            'p-component-overlay p-component-overlay-enter': props.modal,
+            'p-sidebar-mask-scrollblocker': props.blockScroll,
+            'p-sidebar-visible': maskVisible,
+            'p-sidebar-full': props.fullScreen
+        }, props.maskClassName, getPositionClass());
 
-        const closeIcon = this.renderCloseIcon();
-        const icons = this.renderIcons();
+        const closeIcon = useCloseIcon();
+        const icons = useIcons();
 
         const transitionTimeout = {
-            enter: this.props.fullScreen ? 150 : 300,
-            exit: this.props.fullScreen ? 150 : 300
+            enter: props.fullScreen ? 150 : 300,
+            exit: props.fullScreen ? 150 : 300
         };
 
         return (
-            <div ref={(el) => this.mask = el} style={this.props.maskStyle} className={maskClassName} onClick={this.onMaskClick}>
-                <CSSTransition nodeRef={this.sidebarRef} classNames="p-sidebar" in={this.state.visible} timeout={transitionTimeout} options={this.props.transitionOptions}
-                    unmountOnExit onEntered={this.onEntered} onExiting={this.onExiting} onExited={this.onExited}>
-                    <div ref={this.sidebarRef} id={this.props.id} className={className} style={this.props.style} role="complementary">
+            <div ref={maskRef} style={props.maskStyle} className={maskClassName} onClick={onMaskClick}>
+                <CSSTransition nodeRef={sidebarRef} classNames="p-sidebar" in={visible} timeout={transitionTimeout} options={props.transitionOptions}
+                    unmountOnExit onEntered={onEntered} onExiting={onExiting} onExited={onExited}>
+                    <div ref={sidebarRef} id={props.id} className={className} style={props.style} role="complementary">
                         <div className="p-sidebar-header">
                             {icons}
                             {closeIcon}
                         </div>
                         <div className="p-sidebar-content">
-                            {this.props.children}
+                            {props.children}
                         </div>
                     </div>
                 </CSSTransition>
@@ -247,13 +180,57 @@ export class Sidebar extends Component {
         );
     }
 
-    render() {
-        if (this.state.maskVisible) {
-            const element = this.renderElement();
+    const useSidebar = () => {
+        const element = useElement();
 
-            return <Portal element={element} appendTo={this.props.appendTo} visible />;
-        }
-
-        return null;
+        return <Portal element={element} appendTo={props.appendTo} visible />;
     }
+
+    return maskVisible && useSidebar();
 }
+
+Sidebar.defaultProps = {
+    id: null,
+    style: null,
+    className: null,
+    maskStyle: null,
+    maskClassName: null,
+    visible: false,
+    position: 'left',
+    fullScreen: false,
+    blockScroll: false,
+    baseZIndex: 0,
+    dismissable: true,
+    showCloseIcon: true,
+    ariaCloseLabel: 'close',
+    closeOnEscape: true,
+    icons: null,
+    modal: true,
+    appendTo: null,
+    transitionOptions: null,
+    onShow: null,
+    onHide: null
+};
+
+Sidebar.propTypes = {
+    id: PropTypes.string,
+    style: PropTypes.object,
+    className: PropTypes.string,
+    maskStyle: PropTypes.object,
+    maskClassName: PropTypes.string,
+    visible: PropTypes.bool,
+    position: PropTypes.string,
+    fullScreen: PropTypes.bool,
+    blockScroll: PropTypes.bool,
+    baseZIndex: PropTypes.number,
+    dismissable: PropTypes.bool,
+    showCloseIcon: PropTypes.bool,
+    ariaCloseLabel: PropTypes.string,
+    closeOnEscape: PropTypes.bool,
+    icons: PropTypes.any,
+    modal: PropTypes.bool,
+    appendTo: PropTypes.any,
+    transitionOptions: PropTypes.object,
+    onShow: PropTypes.func,
+    onHide: PropTypes.func.isRequired
+};
