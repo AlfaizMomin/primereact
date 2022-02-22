@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { DomHandler } from '../utils/Utils';
 import { usePrevious } from './usePrevious';
 
-export const useEventListener = ({ target = 'document', type, listener, options }) => {
+export const useEventListener = ({ target = 'document', type, listener, options, when = true }) => {
     const targetRef = useRef(null);
     const listenerRef = useRef(null);
     const prevOptions = usePrevious(options);
@@ -22,19 +22,25 @@ export const useEventListener = ({ target = 'document', type, listener, options 
     }
 
     useEffect(() => {
-        targetRef.current = DomHandler.getTargetElement(target);
+        if (when) {
+            targetRef.current = DomHandler.getTargetElement(target);
 
-        return () => {
-            unbind();
+            return () => {
+                unbind();
+            }
         }
-    }, [target]);
+        else {
+            unbind();
+            targetRef.current = null;
+        }
+    }, [target, when]);
 
     useEffect(() => {
         if (listenerRef.current && (listenerRef.current !== listener || prevOptions !== options)) {
             unbind();
-            bind();
+            when && bind();
         }
-    }, [listener, options]);
+    }, [listener, options, when]);
 
     return [bind, unbind];
 }
