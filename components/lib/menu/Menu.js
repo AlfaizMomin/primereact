@@ -144,8 +144,6 @@ export const Menu = forwardRef((props, ref) => {
     }
 
     useEffect(() => {
-        console.log(currentEvent.current)
-
         if (visible && props.onShow) {
             props.onShow(currentEvent.current);
         }
