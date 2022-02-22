@@ -1,3 +1,3 @@
 import { useEffect } from 'react';
 
-export const useMountEffect = (listener) => useEffect(() => listener && listener(), []);
+export const useMountEffect = (fn) => useEffect(fn, []);

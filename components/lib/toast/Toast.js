@@ -1,4 +1,4 @@
-import React, { useState, useRef, forwardRef, useImperativeHandle, createRef, memo, useEffect } from 'react';
+import React, { useState, useRef, forwardRef, useImperativeHandle, createRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { classNames, ZIndexUtils } from '../utils/Utils';
 import { ToastMessage } from './ToastMessage';
@@ -6,6 +6,7 @@ import { TransitionGroup } from 'react-transition-group';
 import { CSSTransition } from '../csstransition/CSSTransition';
 import PrimeReact from '../api/Api';
 import { Portal } from '../portal/Portal';
+import { useUnmountEffect } from '../hooks/useUnmountEffect';
 
 let messageIdx = 0;
 
@@ -56,9 +57,9 @@ export const Toast = memo(forwardRef((props, ref) => {
         props.onHide && props.onHide();
     }
 
-    useEffect(() => {
-        return () => ZIndexUtils.clear(containerRef.current);
-    }, []);
+    useUnmountEffect(() => {
+        ZIndexUtils.clear(containerRef.current);
+    });
 
     useImperativeHandle(ref, () => ({
         show,

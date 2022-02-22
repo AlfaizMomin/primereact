@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-export const useUpdateEffect = (listener, dependencies) => {
+export const useUpdateEffect = (fn, deps) => {
     const mounted = useRef(false);
     return useEffect(() => {
         if (!mounted.current) {
@@ -8,6 +8,6 @@ export const useUpdateEffect = (listener, dependencies) => {
             return;
         }
 
-        return listener && listener();
-    }, dependencies);
+        return fn && fn();
+    }, deps);
 }
