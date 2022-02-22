@@ -14,7 +14,7 @@ const ToastMessageComponent = (props) =>  {
     useEffect(() => {
         if (!props.message.sticky) {
             timer.current = setTimeout(() => {
-                onClose();
+                
             }, props.message.life || 3000);
         }
 

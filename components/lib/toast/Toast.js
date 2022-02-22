@@ -81,18 +81,18 @@ export const Toast =  forwardRef((props, ref) => {
 
     const useElement = () => {
         const className = classNames('p-toast p-component p-toast-' + props.position, props.className);
-    
+        const messageRefs = [];
+        messages.forEach(msg => messageRefs[msg.id] = React.createRef());
+
         return (
             <div ref={containerRef} id={props.id} className={className} style={props.style}>
                 <h1>{messages.length}</h1>
                 <TransitionGroup>
                     {
                         messages.map((message) => {
-                            const messageRef = React.createRef();
-
                             return (
-                                <CSSTransition nodeRef={messageRef} key={message.id} classNames="p-toast-message" unmountOnExit timeout={{ enter: 300, exit: 300 }} onEntered={onEntered} onExited={onExited} options={props.transitionOptions}>
-                                    <ToastMessage ref={messageRef} message={message} onClick={props.onClick} onClose={onClose} />
+                                <CSSTransition nodeRef={messageRefs[message.id]} key={message.id} classNames="p-toast-message" unmountOnExit timeout={{ enter: 300, exit: 300 }} onEntered={onEntered} onExited={onExited} options={props.transitionOptions}>
+                                    <ToastMessage ref={messageRefs[message.id]} message={message} onClick={props.onClick} onClose={onClose} />
                                 </CSSTransition>
                             )
                         })
