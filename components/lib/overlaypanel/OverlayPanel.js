@@ -96,23 +96,6 @@ export const OverlayPanel = forwardRef((props, ref) => {
         }
     }
 
-    useUpdateEffect(() => {
-        if (visible) {
-            overlayEventListener.current = (e) => {
-                if (!isOutsideClicked(e.target)) {
-                    isPanelClicked.current = true;
-                }
-            };
-
-            OverlayService.on('overlay-click', overlayEventListener.current);
-        }
-        else {
-            OverlayService.off('overlay-click', overlayEventListener.current);
-            overlayEventListener.current = null;
-        }
-
-    }, [visible]);
-
     const hide = () => {
         setVisible(false);
     }
@@ -186,6 +169,23 @@ export const OverlayPanel = forwardRef((props, ref) => {
             createStyle();
         }
     });
+
+    useUpdateEffect(() => {
+        if (visible) {
+            overlayEventListener.current = (e) => {
+                if (!isOutsideClicked(e.target)) {
+                    isPanelClicked.current = true;
+                }
+            };
+
+            OverlayService.on('overlay-click', overlayEventListener.current);
+        }
+        else {
+            OverlayService.off('overlay-click', overlayEventListener.current);
+            overlayEventListener.current = null;
+        }
+
+    }, [visible]);
 
     useUnmountEffect(() => {
         unbindDocumentClickListener();
