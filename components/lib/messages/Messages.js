@@ -1,4 +1,4 @@
-import React, { useState, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, forwardRef, useImperativeHandle, createRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { UIMessage } from './UIMessage';
 import { TransitionGroup } from 'react-transition-group';
@@ -6,13 +6,13 @@ import { CSSTransition } from '../csstransition/CSSTransition';
 
 let messageIdx = 0;
 
-export const Messages = forwardRef((props, ref) => {
-    const [messages,setMessages] = useState([]);
+export const Messages = memo(forwardRef((props, ref) => {
+    const [messages, setMessages] = useState([]);
 
     const show = (value) => {
         if (value) {
             let _messages = [];
-    
+
             if (Array.isArray(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i].id = messageIdx++;
@@ -23,26 +23,24 @@ export const Messages = forwardRef((props, ref) => {
                 value.id = messageIdx++;
                 _messages = messages ? [...messages, value] : [value];
             }
-    
+
             setMessages(_messages);
         }
     }
-    
+
     const clear = () => {
         setMessages([]);
     }
-    
+
     const replace = (value) => {
         setMessages(value);
     }
-    
+
     const onClose = (message) => {
         let _messages = messages.filter(msg => msg.id !== message.id);
         setMessages(_messages);
-    
-        if (props.onRemove) {
-            props.onRemove(message);
-        }
+
+        props.onRemove && props.onRemove(message);
     }
 
     useImperativeHandle(ref, () => ({
@@ -56,7 +54,7 @@ export const Messages = forwardRef((props, ref) => {
             <TransitionGroup>
                 {
                     messages.map((message) => {
-                        const messageRef = React.createRef();
+                        const messageRef = createRef();
 
                         return (
                             <CSSTransition nodeRef={messageRef} key={message.id} classNames="p-message" unmountOnExit timeout={{ enter: 300, exit: 300 }} options={props.transitionOptions}>
@@ -68,7 +66,7 @@ export const Messages = forwardRef((props, ref) => {
             </TransitionGroup>
         </div>
     );
-});
+}))
 
 Messages.defaultProps = {
     id: null,
@@ -86,4 +84,4 @@ Messages.propTypes = {
     transitionOptions: PropTypes.object,
     onRemove: PropTypes.func,
     onClick: PropTypes.func
-};
+}
