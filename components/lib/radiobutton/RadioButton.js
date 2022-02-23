@@ -15,17 +15,17 @@ export const RadioButton = memo(forwardRef((props, ref) => {
     }
 
     const onClick = (e) => {
-        if(!props.disabled && props.onChange) {
+        if (!props.disabled && props.onChange) {
             props.onChange({
                 originalEvent: e,
                 value: props.value,
                 checked: !props.checked,
-                stopPropagation : () =>{},
-                preventDefault : () =>{},
+                stopPropagation: () => { },
+                preventDefault: () => { },
                 target: {
                     name: props.name,
                     id: props.id,
-                    value:  props.value,
+                    value: props.value,
                     checked: !props.checked
                 }
             });
@@ -92,7 +92,7 @@ export const RadioButton = memo(forwardRef((props, ref) => {
         <div ref={elementRef} id={props.id} className={className} style={props.style} onClick={onClick}>
             <div className="p-hidden-accessible">
                 <input ref={inputRef} id={props.inputId} type="radio" aria-labelledby={props.ariaLabelledBy} name={props.name} defaultChecked={props.checked}
-                    onFocus={onFocus} onBlur={onBlur} disabled={props.disabled} required={props.required} tabIndex={props.tabIndex}/>
+                    onFocus={onFocus} onBlur={onBlur} disabled={props.disabled} required={props.required} tabIndex={props.tabIndex} />
             </div>
             <div className={boxClass} role="radio" aria-checked={props.checked}>
                 <div className="p-radiobutton-icon"></div>
