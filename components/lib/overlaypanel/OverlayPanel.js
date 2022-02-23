@@ -98,17 +98,17 @@ export const OverlayPanel = forwardRef((props, ref) => {
 
     useUpdateEffect(() => {
         if (visible) {
-            overlayEventListener = (e) => {
+            overlayEventListener.current = (e) => {
                 if (!isOutsideClicked(e.target)) {
                     isPanelClicked.current = true;
                 }
             };
 
-            OverlayService.on('overlay-click', overlayEventListener);
+            OverlayService.on('overlay-click', overlayEventListener.current);
         }
         else {
-            OverlayService.off('overlay-click', overlayEventListener);
-            overlayEventListener = null;
+            OverlayService.off('overlay-click', overlayEventListener.current);
+            overlayEventListener.current = null;
         }
 
     }, [visible]);
@@ -193,9 +193,9 @@ export const OverlayPanel = forwardRef((props, ref) => {
 
         styleElement = DomHandler.removeInlineStyle(styleElement);
 
-        if (overlayEventListener) {
-            OverlayService.off('overlay-click', overlayEventListener);
-            overlayEventListener = null;
+        if (overlayEventListener.current) {
+            OverlayService.off('overlay-click', overlayEventListener.current);
+            overlayEventListener.current = null;
         }
 
         ZIndexUtils.clear(overlayRef.current);
