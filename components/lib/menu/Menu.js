@@ -20,6 +20,7 @@ export const Menu = forwardRef((props, ref) => {
             hide(event);
         }
     }});
+    
     const [bindDocumentClickListener, unbindDocumentClickListener] = useEventListener({ type: 'click', listener: event => {
         if (visible && isOutsideClicked(event)) {
             hide(event);
