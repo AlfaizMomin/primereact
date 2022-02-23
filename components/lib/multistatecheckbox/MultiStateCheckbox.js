@@ -76,7 +76,7 @@ export const MultiStateCheckbox = memo((props) => {
         if (!props.empty && props.value === null) {
             toggle();
         }
-    })
+    });
 
     useEffect(() => {
         ObjectUtils.combinedRefs(inputRef, props.inputRef);
