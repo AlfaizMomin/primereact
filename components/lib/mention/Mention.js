@@ -1,183 +1,128 @@
-import React, { Component, createRef } from 'react';
+import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { classNames, ConnectedOverlayScrollHandler, DomHandler, ObjectUtils, ZIndexUtils } from '../utils/Utils';
+import { classNames, DomHandler, ObjectUtils, ZIndexUtils } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
 import { OverlayService } from '../overlayservice/OverlayService';
 import { CSSTransition } from '../csstransition/CSSTransition';
 import { Portal } from '../portal/Portal';
 import { InputTextarea } from '../inputtextarea/InputTextarea';
 import PrimeReact from '../api/Api';
+import { useEventListener } from '../hooks/useEventListener';
+import { useOverlayScrollListener } from '../hooks/useOverlayScrollListener';
+import { useResizeListener } from '../hooks/useResizeListener';
 
-export class Mention extends Component {
+export const Mention = memo((props) => {
+    const [overlayVisible, setOverlayVisible] = useState(false);
+    const [focused, setFocused] = useState(false);
+    const [searching, setSearching] = useState(false);
+    const [trigger, setTrigger] = useState(null);
+    const elementRef = useRef(null);
+    const overlayRef = useRef(null);
+    const inputRef = useRef(props.inputRef);
+    const listRef = useRef(null);
+    const timeout = useRef(null);
 
-    static defaultProps = {
-        id: null,
-        inputId: null,
-        inputRef: null,
-        style: null,
-        className: null,
-        trigger: '@',
-        suggestions: null,
-        field: null,
-        inputStyle: null,
-        inputClassName: null,
-        panelClassName: null,
-        panelStyle: null,
-        scrollHeight: '200px',
-        autoHighlight: true,
-        delay: 0,
-        headerTemplate: null,
-        footerTemplate: null,
-        itemTemplate: null,
-        transitionOptions: null,
-        onChange: null,
-        onInput: null,
-        onSearch: null,
-        onSelect: null,
-        onFocus: null,
-        onBlur: null,
-        onShow: null,
-        onHide: null
+    const [bindDocumentClick, unbindDocumentClick] = useEventListener({ type: 'click', listener: event => {
+        if (event.which === 3) { // right click
+            return;
+        }
+
+        if (overlayVisible && isOutsideClicked(event)) {
+            hide();
+        }
+    }});
+    const [bindOverlayScroll, unbindOverlayScroll] = useOverlayScrollListener({ target: elementRef.current, listener: () => {
+        overlayVisible && hide();
+    }});
+    const [bindWindowResize, unbindWindowResize] = useResizeListener({ listener: () => {
+        if (overlayVisible && !DomHandler.isTouchDevice()) {
+            hide();
+        }
+    }});
+
+    const show = () => {
+        setOverlayVisible(true);
     }
 
-    static propTypes = {
-        id: PropTypes.string,
-        inputId: PropTypes.string,
-        inputRef: PropTypes.any,
-        style: PropTypes.object,
-        className: PropTypes.string,
-        trigger: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
-        suggestions: PropTypes.array,
-        field: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
-        inputStyle: PropTypes.object,
-        inputClassName: PropTypes.string,
-        panelClassName: PropTypes.string,
-        panelStyle: PropTypes.object,
-        scrollHeight: PropTypes.string,
-        autoHighlight: PropTypes.bool,
-        delay: PropTypes.number,
-        headerTemplate: PropTypes.any,
-        footerTemplate: PropTypes.any,
-        itemTemplate: PropTypes.any,
-        transitionOptions: PropTypes.object,
-        onChange: PropTypes.func,
-        onInput: PropTypes.func,
-        onSearch: PropTypes.func,
-        onSelect: PropTypes.func,
-        onFocus: PropTypes.func,
-        onBlur: PropTypes.func,
-        onShow: PropTypes.func,
-        onHide: PropTypes.func
+    const hide = () => {
+        setOverlayVisible(false);
+        setSearching(false);
+        setTrigger(null);
     }
 
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            overlayVisible: false,
-            focused: false,
-            searching: false,
-            trigger: null
-        };
-
-        this.onOverlayEnter = this.onOverlayEnter.bind(this);
-        this.onOverlayEntering = this.onOverlayEntering.bind(this);
-        this.onOverlayEntered = this.onOverlayEntered.bind(this);
-        this.onOverlayExit = this.onOverlayExit.bind(this);
-        this.onOverlayExited = this.onOverlayExited.bind(this);
-        this.onFocus = this.onFocus.bind(this);
-        this.onBlur = this.onBlur.bind(this);
-        this.onKeyDown = this.onKeyDown.bind(this);
-        this.onChange = this.onChange.bind(this);
-        this.onInput = this.onInput.bind(this);
-        this.onKeyUp = this.onKeyUp.bind(this);
-        this.onPanelClick = this.onPanelClick.bind(this);
-
-        this.overlayRef = createRef();
-        this.inputRef = createRef(this.props.inputRef);
+    const onOverlayEnter = () => {
+        ZIndexUtils.set('overlay', overlayRef.current, PrimeReact.autoZIndex, PrimeReact.zIndex['overlay']);
+        alignOverlay();
     }
 
-    showOverlay() {
-        this.setState({ overlayVisible: true });
-    }
-
-    hideOverlay() {
-        this.setState({ overlayVisible: false, searching: false, trigger: null });
-    }
-
-    onOverlayEnter() {
-        ZIndexUtils.set('overlay', this.overlayRef.current, PrimeReact.autoZIndex, PrimeReact.zIndex['overlay']);
-        this.alignOverlay();
-    }
-
-    onOverlayEntering() {
-        if (this.props.autoHighlight && this.props.suggestions && this.props.suggestions.length) {
-            DomHandler.addClass(this.list.firstChild, 'p-highlight');
+    const onOverlayEntering = () => {
+        if (props.autoHighlight && props.suggestions && props.suggestions.length) {
+            DomHandler.addClass(listRef.current.firstChild, 'p-highlight');
         }
     }
 
-    onOverlayEntered() {
-        this.bindDocumentClickListener();
-        this.bindScrollListener();
-        this.bindResizeListener();
+    const onOverlayEntered = () => {
+        bindDocumentClick();
+        bindOverlayScroll();
+        bindWindowResize();
 
-        this.props.onShow && this.props.onShow();
+        props.onShow && props.onShow();
     }
 
-    onOverlayExit() {
-        this.unbindDocumentClickListener();
-        this.unbindScrollListener();
-        this.unbindResizeListener();
+    const onOverlayExit = () => {
+        unbindDocumentClick();
+        unbindOverlayScroll();
+        unbindWindowResize();
     }
 
-    onOverlayExited() {
-        ZIndexUtils.clear(this.overlayRef.current);
+    const onOverlayExited = () => {
+        ZIndexUtils.clear(overlayRef.current);
 
-        this.props.onHide && this.props.onHide();
+        props.onHide && props.onHide();
     }
 
-    alignOverlay() {
-        const { key, index } = this.state.trigger;
-        const value = this.inputRef.current.value;
-        const position = DomHandler.getCursorOffset(this.inputRef.current, value.substring(0, index - 1), value.substring(index), key);
-        this.overlayRef.current.style.transformOrigin = 'top';
-        this.overlayRef.current.style.left = `calc(${position.left}px + 1rem)`;
-        this.overlayRef.current.style.top = `calc(${position.top}px + 1.2rem)`;
+    const alignOverlay = () => {
+        const { key, index } = trigger;
+        const value = inputRef.current.value;
+        const position = DomHandler.getCursorOffset(inputRef.current, value.substring(0, index - 1), value.substring(index), key);
+        overlayRef.current.style.transformOrigin = 'top';
+        overlayRef.current.style.left = `calc(${position.left}px + 1rem)`;
+        overlayRef.current.style.top = `calc(${position.top}px + 1.2rem)`;
     }
 
-    onPanelClick(event) {
+    const onPanelClick = (event) => {
         OverlayService.emit('overlay-click', {
             originalEvent: event,
-            target: this.container
-        });
+            target: elementRef.current
+        })
     }
 
-    getTrigger(value, key, start) {
-        if (!this.state.trigger) {
-            const triggerKey = Array.isArray(this.props.trigger) ? this.props.trigger.find(t => t === key) : (this.props.trigger === key ? this.props.trigger : null);
+    const getTrigger = (value, key, start) => {
+        if (!trigger) {
+            const triggerKey = Array.isArray(props.trigger) ? props.trigger.find(t => t === key) : (props.trigger === key ? props.trigger : null);
 
             if (triggerKey) {
                 return {
                     key: triggerKey,
                     index: start
-                };
+                }
             }
 
             const latestSpaceIndex = value.substring(0, start).lastIndexOf(' ');
-            const latestTrigger = this.getLatestTrigger(value, start);
+            const latestTrigger = getLatestTrigger(value, start);
 
             if (latestTrigger.index > latestSpaceIndex) {
                 return latestTrigger;
             }
         }
 
-        return this.state.trigger;
+        return trigger;
     }
 
-    getLatestTrigger(value, start) {
-        if (Array.isArray(this.props.trigger)) {
+    const getLatestTrigger = (value, start) => {
+        if (Array.isArray(props.trigger)) {
             let latestTrigger = {};
-            this.props.trigger.forEach((t) => {
+            props.trigger.forEach((t) => {
                 const index = value.substring(0, start).lastIndexOf(t);
 
                 if (index !== -1 && (index > latestTrigger.index || !latestTrigger.index)) {
@@ -186,60 +131,60 @@ export class Mention extends Component {
                         index: index !== -1 ? index + 1 : -1
                     }
                 }
-            });
+            })
 
             return latestTrigger;
         }
 
-        const index = value.substring(0, start).lastIndexOf(this.props.trigger);
+        const index = value.substring(0, start).lastIndexOf(props.trigger);
 
         return {
-            key: this.props.trigger,
+            key: props.trigger,
             index: index !== -1 ? index + 1 : -1
         }
     }
 
-    onSearch(event) {
-        if (this.timeout) {
-            clearTimeout(this.timeout);
+    const onSearch = (event) => {
+        if (timeout.current) {
+            clearTimeout(timeout.current);
         }
 
         const { value, selectionStart } = event.target;
         const key = value.substring(selectionStart - 1, selectionStart);
 
         if (key === ' ') {
-            this.hideOverlay();
+            hide();
             return;
         }
 
-        const currentTrigger = this.getTrigger(value, key, selectionStart);
+        const currentTrigger = getTrigger(value, key, selectionStart);
 
         if (currentTrigger && currentTrigger.index > -1) {
             const query = value.substring(currentTrigger.index, selectionStart);
-            this.timeout = setTimeout(() => {
-                this.search(event, query, currentTrigger);
-            }, this.props.delay);
+            timeout.current = setTimeout(() => {
+                search(event, query, currentTrigger);
+            }, props.delay);
         }
     }
 
-    search(event, query, trigger) {
-        if (this.props.onSearch) {
-            this.setState({ searching: true, trigger });
-            this.props.onSearch({
+    const search = (event, query, _trigger) => {
+        if (props.onSearch) {
+            setSearching(true);
+            setTrigger(_trigger);
+            props.onSearch({
                 originalEvent: event,
-                trigger: trigger.key,
+                trigger: _trigger.key,
                 query
             });
         }
     }
 
-    selectItem(event, suggestion) {
-        const value = this.inputRef.current.value;
+    const selectItem = (event, suggestion) => {
+        const value = inputRef.current.value;
         const selectionStart = event.target.selectionStart;
-        const trigger = this.state.trigger;
         const spaceIndex = value.indexOf(' ', trigger.index);
         const currentText = value.substring(trigger.index, spaceIndex > -1 ? spaceIndex : selectionStart);
-        const selectedText = this.formatValue(suggestion).replace(/\s+/g, '');
+        const selectedText = formatValue(suggestion).replace(/\s+/g, '');
 
         if (currentText.trim() !== selectedText) {
             let diff = 0;
@@ -256,70 +201,66 @@ export class Mention extends Component {
             const prevText = value.substring(0, trigger.index);
             const nextText = value.substring(trigger.index + diff);
 
-            this.inputRef.current.value = `${prevText}${selectedText} ${nextText}`;
-            this.props.onChange && this.props.onChange(event);
+            inputRef.current.value = `${prevText}${selectedText} ${nextText}`;
+            props.onChange && props.onChange(event);
         }
 
         const cursorStart = trigger.index + selectedText.length + 1;
-        this.inputRef.current.setSelectionRange(cursorStart, cursorStart);
+        inputRef.current.setSelectionRange(cursorStart, cursorStart);
 
-        this.hideOverlay();
+        hide();
 
-        this.props.onSelect && this.props.onSelect({ originalEvent: event, suggestion });
+        props.onSelect && props.onSelect({ originalEvent: event, suggestion });
     }
 
-    formatValue(value) {
+    const formatValue = (value) => {
         if (value) {
-            const field = Array.isArray(this.props.field) ? this.props.field[this.props.trigger.findIndex(f => f === this.state.trigger.key)] : this.props.field;
+            const field = Array.isArray(props.field) ? props.field[props.trigger.findIndex(f => f === trigger.key)] : props.field;
             return field ? ObjectUtils.resolveFieldData(value, field) : value;
         }
 
         return '';
     }
 
-    onItemClick(event, suggestion) {
-        this.inputRef.current.focus();
-        this.selectItem(event, suggestion);
+    const onItemClick = (event, suggestion) => {
+        inputRef.current.focus();
+        selectItem(event, suggestion);
     }
 
-    onFocus(event) {
-        event.persist();
-        this.setState({ focused: true }, () => {
-            this.props.onFocus && this.props.onFocus(event);
-        });
+    const onFocus = (event) => {
+        setFocused(true);
+        props.onFocus && props.onFocus(event);
     }
 
-    onBlur(event) {
-        event.persist();
-        this.setState({ focused: false }, () => {
-            this.props.onBlur && this.props.onBlur(event);
-        });
+    const onBlur = (event) => {
+        setFocused(false);
+        props.onBlur && props.onBlur(event);
     }
 
-    onInput(event) {
-        this.props.onInput && this.props.onInput(event);
+    const onInput = (event) => {
+        props.onInput && props.onInput(event);
 
         if (event.target.value.length > 0)
-            DomHandler.addClass(this.container, 'p-inputwrapper-filled');
+            DomHandler.addClass(elementRef.current, 'p-inputwrapper-filled');
         else
-            DomHandler.removeClass(this.container, 'p-inputwrapper-filled');
+            DomHandler.removeClass(elementRef.current, 'p-inputwrapper-filled');
     }
 
-    onKeyUp(event) {
+    const onKeyUp = (event) => {
         if (event.which === 37 || event.which === 39) {
-            this.onSearch(event);
+            onSearch(event);
         }
     }
 
-    onChange(event) {
-        this.props.onChange && this.props.onChange(event);
+    const onChange = (event) => {
+        props.onChange && props.onChange(event);
 
-        this.onSearch(event);
+        onSearch(event);
     }
 
-    onKeyDown(event) {
-        if (this.state.overlayVisible) {
-            let highlightItem = DomHandler.findSingle(this.overlayRef.current, 'li.p-highlight');
+    const onKeyDown = (event) => {
+        if (overlayVisible) {
+            let highlightItem = DomHandler.findSingle(overlayRef.current, 'li.p-highlight');
 
             switch (event.which) {
                 //down
@@ -329,11 +270,11 @@ export class Mention extends Component {
                         if (nextElement) {
                             DomHandler.addClass(nextElement, 'p-highlight');
                             DomHandler.removeClass(highlightItem, 'p-highlight');
-                            DomHandler.scrollInView(this.overlayRef.current, nextElement);
+                            DomHandler.scrollInView(overlayRef.current, nextElement);
                         }
                     }
                     else {
-                        highlightItem = DomHandler.findSingle(this.overlayRef.current, 'li');
+                        highlightItem = DomHandler.findSingle(overlayRef.current, 'li');
                         if (highlightItem) {
                             DomHandler.addClass(highlightItem, 'p-highlight');
                         }
@@ -349,7 +290,7 @@ export class Mention extends Component {
                         if (previousElement) {
                             DomHandler.addClass(previousElement, 'p-highlight');
                             DomHandler.removeClass(highlightItem, 'p-highlight');
-                            DomHandler.scrollInView(this.overlayRef.current, previousElement);
+                            DomHandler.scrollInView(overlayRef.current, previousElement);
                         }
                     }
 
@@ -360,8 +301,8 @@ export class Mention extends Component {
                 case 8:
                     const { value, selectionStart } = event.target;
                     const key = value.substring(selectionStart - 1, selectionStart);
-                    if (key === this.state.trigger.key) {
-                        this.hideOverlay();
+                    if (key === trigger.key) {
+                        hide();
                     }
 
                     break;
@@ -369,7 +310,7 @@ export class Mention extends Component {
                 //enter
                 case 13:
                     if (highlightItem) {
-                        this.selectItem(event, this.props.suggestions[DomHandler.index(highlightItem)]);
+                        selectItem(event, props.suggestions[DomHandler.index(highlightItem)]);
                     }
 
                     event.preventDefault();
@@ -377,7 +318,7 @@ export class Mention extends Component {
 
                 //escape
                 case 27:
-                    this.hideOverlay();
+                    hide();
                     event.preventDefault();
                     break;
 
@@ -387,137 +328,52 @@ export class Mention extends Component {
         }
     }
 
-    bindDocumentClickListener() {
-        if (!this.documentClickListener) {
-            this.documentClickListener = (event) => {
-                if (event.which === 3) { // right click
-                    return;
-                }
-
-                if (this.state.overlayVisible && this.isOutsideClicked(event)) {
-                    this.hideOverlay();
-                }
-            };
-
-            document.addEventListener('click', this.documentClickListener);
-        }
+    const isOutsideClicked = (event) => {
+        return elementRef.current && (overlayRef.current && !overlayRef.current.contains(event.target));
     }
 
-    unbindDocumentClickListener() {
-        if (this.documentClickListener) {
-            document.removeEventListener('click', this.documentClickListener);
-            this.documentClickListener = null;
-        }
-    }
+    const isFilled = useMemo(() => (
+        ObjectUtils.isNotEmpty(props.value) || ObjectUtils.isNotEmpty(props.defaultValue) || (inputRef.current && ObjectUtils.isNotEmpty(inputRef.current.value))
+    ), [props.value, props.defaultValue, inputRef]);
 
-    bindScrollListener() {
-        if (!this.scrollHandler) {
-            this.scrollHandler = new ConnectedOverlayScrollHandler(this.container, () => {
-                if (this.state.overlayVisible) {
-                    this.hideOverlay();
-                }
-            });
+    useEffect(() => {
+        ObjectUtils.combinedRefs(inputRef, props.inputRef);
+    }, [inputRef]);
+
+    useEffect(() => {
+        if (searching) {
+            props.suggestions && props.suggestions.length ? show() : hide();
+            overlayVisible && alignOverlay();
+            setSearching(false);
+        }
+    }, [props.suggestions]);
+
+    useEffect(() => {
+        if (!isFilled && DomHandler.hasClass(elementRef.current, 'p-inputwrapper-filled')) {
+            DomHandler.removeClass(elementRef.current, 'p-inputwrapper-filled');
         }
 
-        this.scrollHandler.bindScrollListener();
-    }
+        return () => ZIndexUtils.clear(overlayRef.current);
+    }, [isFilled]);
 
-    unbindScrollListener() {
-        if (this.scrollHandler) {
-            this.scrollHandler.unbindScrollListener();
-        }
-    }
-
-    bindResizeListener() {
-        if (!this.resizeListener) {
-            this.resizeListener = () => {
-                if (this.state.overlayVisible && !DomHandler.isTouchDevice()) {
-                    this.hideOverlay();
-                }
-            };
-            window.addEventListener('resize', this.resizeListener);
-        }
-    }
-
-    unbindResizeListener() {
-        if (this.resizeListener) {
-            window.removeEventListener('resize', this.resizeListener);
-            this.resizeListener = null;
-        }
-    }
-
-    isOutsideClicked(event) {
-        return this.container && (this.overlayRef && this.overlayRef.current && !this.overlayRef.current.contains(event.target));
-    }
-
-    isFilled() {
-        return (this.props.value != null && this.props.value.toString().length > 0) ||
-            (this.props.defaultValue != null && this.props.defaultValue.toString().length > 0) ||
-            (this.inputRef && this.inputRef.current && this.inputRef.current.value.toString().length > 0);
-    }
-
-    updateInputRef() {
-        let ref = this.props.inputRef;
-
-        if (ref) {
-            if (typeof ref === 'function') {
-                ref(this.inputRef.current);
-            }
-            else {
-                ref.current = this.inputRef.current;
-            }
-        }
-    }
-
-    componentDidMount() {
-        this.updateInputRef();
-    }
-
-    componentDidUpdate(prevProps) {
-        if (prevProps.suggestions !== this.props.suggestions && this.state.searching) {
-            this.props.suggestions && this.props.suggestions.length ? this.showOverlay() : this.hideOverlay();
-
-            if (this.state.overlayVisible) {
-                this.alignOverlay();
-            }
-
-            this.setState({ searching: false });
-        }
-
-        if (!this.isFilled() && DomHandler.hasClass(this.container, 'p-inputwrapper-filled')) {
-            DomHandler.removeClass(this.container, 'p-inputwrapper-filled');
-        }
-    }
-
-    componentWillUnmount() {
-        this.unbindDocumentClickListener();
-        this.unbindResizeListener();
-        if (this.scrollHandler) {
-            this.scrollHandler.destroy();
-            this.scrollHandler = null;
-        }
-
-        ZIndexUtils.clear(this.overlayRef.current);
-    }
-
-    renderItem(suggestion, index) {
-        let content = this.props.itemTemplate ?
-            ObjectUtils.getJSXElement(this.props.itemTemplate, suggestion, { trigger: this.state.trigger ? this.state.trigger.key : '', index }) :
-            this.formatValue(suggestion);
+    const useItem = (suggestion, index) => {
+        const content = props.itemTemplate ?
+            ObjectUtils.getJSXElement(props.itemTemplate, suggestion, { trigger: trigger ? trigger.key : '', index }) :
+            formatValue(suggestion);
 
         return (
-            <li key={index + '_item'} className="p-mention-item" onClick={(e) => this.onItemClick(e, suggestion)}>
+            <li key={index + '_item'} className="p-mention-item" onClick={(e) => onItemClick(e, suggestion)}>
                 {content}
                 <Ripple />
             </li>
-        );
+        )
     }
 
-    renderList() {
-        if (this.props.suggestions) {
-            const items = this.props.suggestions.map((suggestion, index) => this.renderItem(suggestion, index));
+    const useList = () => {
+        if (props.suggestions) {
+            const items = props.suggestions.map((suggestion, index) => useItem(suggestion, index));
             return (
-                <ul ref={(el) => this.list = el} className="p-mention-items">
+                <ul ref={listRef} className="p-mention-items">
                     {items}
                 </ul>
             )
@@ -526,43 +382,101 @@ export class Mention extends Component {
         return null;
     }
 
-    renderPanel() {
-        const panelClassName = classNames('p-mention-panel p-component', this.props.panelClassName);
-        const panelStyle = { maxHeight: this.props.scrollHeight, ...this.props.panelStyle };
-        const header = ObjectUtils.getJSXElement(this.props.headerTemplate, this.props);
-        const footer = ObjectUtils.getJSXElement(this.props.footerTemplate, this.props);
-        const list = this.renderList();
+    const usePanel = () => {
+        const panelClassName = classNames('p-mention-panel p-component', props.panelClassName);
+        const panelStyle = { maxHeight: props.scrollHeight, ...props.panelStyle };
+        const header = ObjectUtils.getJSXElement(props.headerTemplate, props);
+        const footer = ObjectUtils.getJSXElement(props.footerTemplate, props);
+        const list = useList();
 
         const panel = (
-            <CSSTransition nodeRef={this.overlayRef} classNames="p-connected-overlay" in={this.state.overlayVisible} timeout={{ enter: 120, exit: 100 }} options={this.props.transitionOptions}
-                unmountOnExit onEnter={this.onOverlayEnter} onEntering={this.onOverlayEntering} onEntered={this.onOverlayEntered} onExit={this.onOverlayExit} onExited={this.onOverlayExited}>
-                <div ref={this.overlayRef} className={panelClassName} style={panelStyle} onClick={this.onPanelClick}>
+            <CSSTransition nodeRef={overlayRef} classNames="p-connected-overlay" in={overlayVisible} timeout={{ enter: 120, exit: 100 }} options={props.transitionOptions}
+                unmountOnExit onEnter={onOverlayEnter} onEntering={onOverlayEntering} onEntered={onOverlayEntered} onExit={onOverlayExit} onExited={onOverlayExited}>
+                <div ref={overlayRef} className={panelClassName} style={panelStyle} onClick={onPanelClick}>
                     {header}
                     {list}
                     {footer}
                 </div>
             </CSSTransition>
-        );
+        )
 
         return <Portal element={panel} appendTo="self" />;
     }
 
-    render() {
-        const containerClassName = classNames('p-mention p-component p-inputwrapper', {
-            'p-inputwrapper-filled': this.isFilled(),
-            'p-inputwrapper-focus': this.state.focused
-        }, this.props.className);
-        const inputClassName = classNames('p-mention-input', this.props.inputClassName)
+    const className = classNames('p-mention p-component p-inputwrapper', {
+        'p-inputwrapper-filled': isFilled,
+        'p-inputwrapper-focus': focused
+    }, props.className);
+    const inputClassName = classNames('p-mention-input', props.inputClassName)
 
-        const inputProps = ObjectUtils.findDiffKeys(this.props, Mention.defaultProps);
-        const panel = this.renderPanel();
+    const inputProps = ObjectUtils.findDiffKeys(props, Mention.defaultProps);
+    const panel = usePanel();
 
-        return (
-            <div ref={el => this.container = el} id={this.props.id} className={containerClassName} style={this.props.style}>
-                <InputTextarea ref={this.inputRef} id={this.props.inputId} {...inputProps} className={inputClassName} style={this.props.inputStyle}
-                    onFocus={this.onFocus} onBlur={this.onBlur} onKeyDown={this.onKeyDown} onInput={this.onInput} onKeyUp={this.onKeyUp} onChange={this.onChange} />
-                {panel}
-            </div>
-        )
-    }
+    return (
+        <div ref={elementRef} id={props.id} className={className} style={props.style}>
+            <InputTextarea ref={inputRef} id={props.inputId} {...inputProps} className={inputClassName} style={props.inputStyle}
+                onFocus={onFocus} onBlur={onBlur} onKeyDown={onKeyDown} onInput={onInput} onKeyUp={onKeyUp} onChange={onChange} />
+            {panel}
+        </div>
+    )
+})
+
+Mention.defaultProps = {
+    id: null,
+    inputId: null,
+    inputRef: null,
+    style: null,
+    className: null,
+    trigger: '@',
+    suggestions: null,
+    field: null,
+    inputStyle: null,
+    inputClassName: null,
+    panelClassName: null,
+    panelStyle: null,
+    scrollHeight: '200px',
+    autoHighlight: true,
+    delay: 0,
+    headerTemplate: null,
+    footerTemplate: null,
+    itemTemplate: null,
+    transitionOptions: null,
+    onChange: null,
+    onInput: null,
+    onSearch: null,
+    onSelect: null,
+    onFocus: null,
+    onBlur: null,
+    onShow: null,
+    onHide: null
+}
+
+Mention.propTypes = {
+    id: PropTypes.string,
+    inputId: PropTypes.string,
+    inputRef: PropTypes.any,
+    style: PropTypes.object,
+    className: PropTypes.string,
+    trigger: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
+    suggestions: PropTypes.array,
+    field: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
+    inputStyle: PropTypes.object,
+    inputClassName: PropTypes.string,
+    panelClassName: PropTypes.string,
+    panelStyle: PropTypes.object,
+    scrollHeight: PropTypes.string,
+    autoHighlight: PropTypes.bool,
+    delay: PropTypes.number,
+    headerTemplate: PropTypes.any,
+    footerTemplate: PropTypes.any,
+    itemTemplate: PropTypes.any,
+    transitionOptions: PropTypes.object,
+    onChange: PropTypes.func,
+    onInput: PropTypes.func,
+    onSearch: PropTypes.func,
+    onSelect: PropTypes.func,
+    onFocus: PropTypes.func,
+    onBlur: PropTypes.func,
+    onShow: PropTypes.func,
+    onHide: PropTypes.func
 }
