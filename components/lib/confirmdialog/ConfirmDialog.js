@@ -1,11 +1,12 @@
-import React, { Component } from 'react';
+import React, { useRef, useState, forwardRef } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import {DomHandler, ObjectUtils, classNames, IconUtils} from '../utils/Utils';
+import { DomHandler, ObjectUtils, classNames, IconUtils } from '../utils/Utils';
 import { Dialog } from '../dialog/Dialog';
 import { Button } from '../button/Button';
 import { localeOption } from '../api/Api';
 import { Portal } from '../portal/Portal';
+import { useUpdateEffect } from '../hooks/useUpdateEffect';
 
 export function confirmDialog(props) {
     let appendTo = props.appendTo || document.body;
@@ -41,147 +42,142 @@ export function confirmDialog(props) {
     }
 }
 
-export class ConfirmDialog extends Component {
 
-    static defaultProps = {
-        visible: false,
-        message: null,
-        rejectLabel: null,
-        acceptLabel: null,
-        icon: null,
-        rejectIcon: null,
-        acceptIcon: null,
-        rejectClassName: null,
-        acceptClassName: null,
-        className: null,
-        appendTo: null,
-        footer: null,
-        breakpoints: null,
-        onHide: null,
-        accept: null,
-        reject: null
+export const ConfirmDialog = forwardRef((props, ref) => {
+
+    const [visible, setVisible] = useState(props.visible);
+    const currentResult = useRef('');
+
+    const acceptLabel = () => {
+        return props.acceptLabel || localeOption('accept');
     }
 
-    static propTypes = {
-        visible: PropTypes.bool,
-        message: PropTypes.any,
-        rejectLabel: PropTypes.string,
-        acceptLabel: PropTypes.string,
-        icon: PropTypes.any,
-        rejectIcon: PropTypes.any,
-        acceptIcon: PropTypes.any,
-        rejectClassName: PropTypes.string,
-        acceptClassName: PropTypes.string,
-        appendTo: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
-        className: PropTypes.string,
-        footer: PropTypes.any,
-        breakpoints: PropTypes.object,
-        onHide: PropTypes.func,
-        accept: PropTypes.func,
-        reject: PropTypes.func
+    const rejectLabel = () => {
+        return props.rejectLabel || localeOption('reject');
     }
 
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            visible: props.visible
-        };
-
-        this.reject = this.reject.bind(this);
-        this.accept = this.accept.bind(this);
-        this.hide = this.hide.bind(this);
-    }
-
-    acceptLabel() {
-        return this.props.acceptLabel || localeOption('accept');
-    }
-
-    rejectLabel() {
-        return this.props.rejectLabel || localeOption('reject');
-    }
-
-    accept() {
-        if (this.props.accept) {
-            this.props.accept();
+    const accept = () => {
+        if (props.accept) {
+            props.accept();
         }
 
-        this.hide('accept');
+        hide('accept');
     }
 
-    reject() {
-        if (this.props.reject) {
-            this.props.reject();
+    const reject = () => {
+        if (props.reject) {
+            props.reject();
         }
 
-        this.hide('reject');
+        hide('reject');
     }
 
-    show() {
-        this.setState({ visible: true });
+    const show = () => {
+        setVisible(true)
     }
 
-    hide(result) {
-        this.setState({ visible: false }, () => {
-            if (this.props.onHide) {
-                this.props.onHide(result);
+    const hide = (result) => {
+        currentResult.current = result;
+        setVisible(false);
+    }
+
+    useUpdateEffect(() => {
+        if (!visible) {
+            if (props.onHide) {
+                props.onHide(currentResult.current);
             }
-        });
-    }
-
-    componentDidUpdate(prevProps) {
-        if (prevProps.visible !== this.props.visible) {
-            this.setState({ visible: this.props.visible });
         }
-    }
+    }, [visible]);
 
-    renderFooter() {
-        const acceptClassName = classNames('p-confirm-dialog-accept', this.props.acceptClassName);
+    useUpdateEffect(() => {
+        setVisible(props.visible);
+    }, [props.visible]);
+
+
+    const useFooter = () => {
+        const acceptClassName = classNames('p-confirm-dialog-accept', props.acceptClassName);
         const rejectClassName = classNames('p-confirm-dialog-reject', {
-            'p-button-text': !this.props.rejectClassName
-        }, this.props.rejectClassName);
+            'p-button-text': !props.rejectClassName
+        }, props.rejectClassName);
         const content = (
             <>
-                <Button label={this.rejectLabel()} icon={this.props.rejectIcon} className={rejectClassName} onClick={this.reject} />
-                <Button label={this.acceptLabel()} icon={this.props.acceptIcon} className={acceptClassName} onClick={this.accept} autoFocus />
+                <Button label={rejectLabel()} icon={props.rejectIcon} className={rejectClassName} onClick={reject} />
+                <Button label={acceptLabel()} icon={props.acceptIcon} className={acceptClassName} onClick={accept} autoFocus />
             </>
         );
 
-        if (this.props.footer) {
+        if (props.footer) {
             const defaultContentOptions = {
-                accept: this.accept,
-                reject: this.reject,
+                accept: accept,
+                reject: reject,
                 acceptClassName,
                 rejectClassName,
-                acceptLabel: this.acceptLabel(),
-                rejectLabel: this.rejectLabel(),
+                acceptLabel: acceptLabel(),
+                rejectLabel: rejectLabel(),
                 element: content,
-                props: this.props
+                props: props
             };
 
-            return ObjectUtils.getJSXElement(this.props.footer, defaultContentOptions);
+            return ObjectUtils.getJSXElement(props.footer, defaultContentOptions);
         }
 
         return content;
     }
 
-    renderElement() {
-        const className = classNames('p-confirm-dialog', this.props.className);
-        const dialogProps = ObjectUtils.findDiffKeys(this.props, ConfirmDialog.defaultProps);
-        const message = ObjectUtils.getJSXElement(this.props.message, this.props);
-        const footer = this.renderFooter();
+    const useElement = () => {
+        const className = classNames('p-confirm-dialog', props.className);
+        const dialogProps = ObjectUtils.findDiffKeys(props, ConfirmDialog.defaultProps);
+        const message = ObjectUtils.getJSXElement(props.message, props);
+        const footer = useFooter();
 
         return (
-            <Dialog visible={this.state.visible} {...dialogProps} className={className} footer={footer} onHide={this.hide} breakpoints={this.props.breakpoints}>
-                {IconUtils.getJSXIcon(this.props.icon, { className: 'p-confirm-dialog-icon' }, { props: this.props })}
+            <Dialog visible={visible} {...dialogProps} className={className} footer={footer} onHide={hide} breakpoints={props.breakpoints}>
+                {IconUtils.getJSXIcon(props.icon, { className: 'p-confirm-dialog-icon' }, { props: props })}
                 <span className="p-confirm-dialog-message">{message}</span>
             </Dialog>
         );
     }
 
-    render() {
-        const element = this.renderElement();
+    const element = useElement();
 
-        return <Portal element={element} appendTo={this.props.appendTo} />;
-    }
+    return <Portal element={element} appendTo={props.appendTo} />;
+
+})
+
+ConfirmDialog.defaultProps = {
+    visible: false,
+    message: null,
+    rejectLabel: null,
+    acceptLabel: null,
+    icon: null,
+    rejectIcon: null,
+    acceptIcon: null,
+    rejectClassName: null,
+    acceptClassName: null,
+    className: null,
+    appendTo: null,
+    footer: null,
+    breakpoints: null,
+    onHide: null,
+    accept: null,
+    reject: null
+}
+
+ConfirmDialog.propTypes = {
+    visible: PropTypes.bool,
+    message: PropTypes.any,
+    rejectLabel: PropTypes.string,
+    acceptLabel: PropTypes.string,
+    icon: PropTypes.any,
+    rejectIcon: PropTypes.any,
+    acceptIcon: PropTypes.any,
+    rejectClassName: PropTypes.string,
+    acceptClassName: PropTypes.string,
+    appendTo: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+    className: PropTypes.string,
+    footer: PropTypes.any,
+    breakpoints: PropTypes.object,
+    onHide: PropTypes.func,
+    accept: PropTypes.func,
+    reject: PropTypes.func
 }
