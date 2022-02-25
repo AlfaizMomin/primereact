@@ -47,7 +47,7 @@ export function confirmPopup(props) {
     }
 }
 
-export const ConfirmPopup = forwardRef((props, ref) => {
+export const ConfirmPopup = (props) => {
 
     const [visible, setVisible] = useState(false);
     const isPanelClicked = useRef(false);
@@ -283,7 +283,7 @@ export const ConfirmPopup = forwardRef((props, ref) => {
     let element = useElement();
 
     return <Portal element={element} appendTo={props.appendTo} visible={props.visible} />;
-})
+}
 
 ConfirmPopup.defaultProps = {
     target: null,
