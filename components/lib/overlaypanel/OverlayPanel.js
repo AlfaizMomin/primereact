@@ -146,14 +146,14 @@ export const OverlayPanel = forwardRef((props, ref) => {
     }
 
     const createStyle = () => {
-        if (!styleElement) {
-            styleElement = DomHandler.createInlineStyle(PrimeReact.nonce);
+        if (!styleElement.current) {
+            styleElement.current = DomHandler.createInlineStyle(PrimeReact.nonce);
 
             let innerHTML = '';
             for (let breakpoint in props.breakpoints) {
                 innerHTML += `
                     @media screen and (max-width: ${breakpoint}) {
-                        .p-overlaypanel[${attributeSelector}] {
+                        .p-overlaypanel[${attributeSelector.current}] {
                             width: ${props.breakpoints[breakpoint]} !important;
                         }
                     }
@@ -191,7 +191,7 @@ export const OverlayPanel = forwardRef((props, ref) => {
         unbindDocumentClickListener();
         unbindResizeListener();
 
-        styleElement = DomHandler.removeInlineStyle(styleElement);
+        styleElement.current = DomHandler.removeInlineStyle(styleElement.current);
 
         if (overlayEventListener.current) {
             OverlayService.off('overlay-click', overlayEventListener.current);
