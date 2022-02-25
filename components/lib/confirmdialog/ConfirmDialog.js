@@ -43,7 +43,7 @@ export function confirmDialog(props) {
 }
 
 
-export const ConfirmDialog = forwardRef((props, ref) => {
+export const ConfirmDialog = (props, ref) => {
 
     const [visible, setVisible] = useState(props.visible);
     const currentResult = useRef('');
@@ -142,7 +142,7 @@ export const ConfirmDialog = forwardRef((props, ref) => {
 
     return <Portal element={element} appendTo={props.appendTo} />;
 
-})
+}
 
 ConfirmDialog.defaultProps = {
     visible: false,
