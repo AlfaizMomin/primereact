@@ -1,4 +1,4 @@
-import React, { useRef, useState, forwardRef } from 'react';
+import React, { useRef, useState, forwardRef, useImperativeHandle } from 'react';
 import PropTypes from 'prop-types';
 import { DomHandler, ObjectUtils, classNames, ZIndexUtils, UniqueComponentId}  from '../utils/Utils';
 import { CSSTransition } from '../csstransition/CSSTransition';
@@ -422,7 +422,7 @@ export const Dialog = forwardRef((props, ref) => {
             DomHandler[funcName](document.body, 'p-overflow-hidden');
         }
     }
-    
+
     useUnmountEffect(() => {
         disableDocumentSettings();
 
