@@ -14,7 +14,7 @@ export const Sidebar = (props) => {
     const [visible, setVisible] = useState(props.visible);
     const sidebarRef = useRef(null);
     const maskRef = useRef(null);
-    const closeIcon = useRef(null);
+    const closeIconRef = useRef(null);
 
     const [bindDocumentEscapeListener, unbindDocumentEscapeListener] = useEventListener({ type: 'keydown', listener: event => {
         if (event.which === 27) {
@@ -35,7 +35,7 @@ export const Sidebar = (props) => {
         let activeElement = document.activeElement;
         let isActiveElementInDialog = activeElement && sidebarRef && sidebarRef.current.contains(activeElement);
         if (!isActiveElementInDialog && props.showCloseIcon) {
-            closeIcon.focus();
+            closeIconRef.current.focus();
         }
     }
 
@@ -127,7 +127,7 @@ export const Sidebar = (props) => {
     const useCloseIcon = () => {
         if (props.showCloseIcon) {
             return (
-                <button type="button" ref={el => closeIcon = el} className="p-sidebar-close p-sidebar-icon p-link" onClick={onClose} aria-label={props.ariaCloseLabel}>
+                <button type="button" ref={closeIconRef} className="p-sidebar-close p-sidebar-icon p-link" onClick={onClose} aria-label={props.ariaCloseLabel}>
                     <span className="p-sidebar-close-icon pi pi-times" />
                     <Ripple />
                 </button>
