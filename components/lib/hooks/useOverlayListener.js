@@ -9,7 +9,8 @@ export const useOverlayListener = ({ target, overlay, listener, when = true }) =
     const overlayRef = useRef(null);
 
     const [bindDocumentClick, unbindDocumentClick] = useEventListener({ type: 'click', listener: event => {
-        isOutsideClicked(event) && listener && listener(event, 'outside');
+        // right click
+        (event.which !== 3) && isOutsideClicked(event) && listener && listener(event, 'outside');
     }});
     const [bindWindowResize, unbindWindowResize] = useResizeListener({ listener: event => {
         !DomHandler.isTouchDevice() && listener && listener(event, 'resize');
