@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { forwardRef, memo, useRef } from 'react';
 import { ObjectUtils, classNames } from '../utils/Utils';
 import { CSSTransition } from '../csstransition/CSSTransition';
 import { Portal } from '../portal/Portal';
@@ -7,48 +7,42 @@ import { MultiSelectItem } from './MultiSelectItem';
 import { VirtualScroller } from '../virtualscroller/VirtualScroller';
 import { localeOption } from '../api/Api';
 
-class MultiSelectPanelComponent extends Component {
+export const MultiSelectPanel = memo(forwardRef((props, ref) => {
+    const virtualScrollerRef = useRef(null);
 
-    constructor(props) {
-        super(props);
-
-        this.onEnter = this.onEnter.bind(this);
-        this.onFilterInputChange = this.onFilterInputChange.bind(this);
-    }
-
-    onEnter() {
-        this.props.onEnter(() => {
-            if (this.virtualScrollerRef) {
-                const selectedIndex = this.props.getSelectedOptionIndex();
+    const onEnter = () => {
+        props.onEnter(() => {
+            if (virtualScrollerRef.current) {
+                const selectedIndex = props.getSelectedOptionIndex();
                 if (selectedIndex !== -1) {
-                    this.virtualScrollerRef.scrollToIndex(selectedIndex);
+                    virtualScrollerRef.current.scrollToIndex(selectedIndex);
                 }
             }
         });
     }
 
-    onFilterInputChange(event) {
-        if (this.virtualScrollerRef) {
-            this.virtualScrollerRef.scrollToIndex(0);
+    const onFilterInputChange = (event) => {
+        if (virtualScrollerRef.current) {
+            virtualScrollerRef.current.scrollToIndex(0);
         }
 
-        this.props.onFilterInputChange && this.props.onFilterInputChange(event);
+        props.onFilterInputChange && props.onFilterInputChange(event);
     }
 
-    isEmptyFilter() {
-        return !(this.props.visibleOptions && this.props.visibleOptions.length) && this.props.hasFilter();
+    const isEmptyFilter = () => {
+        return !(props.visibleOptions && props.visibleOptions.length) && props.hasFilter;
     }
 
-    renderHeader() {
+    const useHeader = () => {
         return (
-            <MultiSelectHeader filter={this.props.filter} filterValue={this.props.filterValue} onFilter={this.onFilterInputChange} filterPlaceholder={this.props.filterPlaceholder}
-                onClose={this.props.onCloseClick} showSelectAll={this.props.showSelectAll} selectAll={this.props.isAllSelected()} onSelectAll={this.props.onSelectAll} template={this.props.panelHeaderTemplate} />
-        );
+            <MultiSelectHeader filter={props.filter} filterValue={props.filterValue} onFilter={onFilterInputChange} filterPlaceholder={props.filterPlaceholder}
+                onClose={props.onCloseClick} showSelectAll={props.showSelectAll} selectAll={props.isAllSelected()} onSelectAll={props.onSelectAll} template={props.panelHeaderTemplate} />
+        )
     }
 
-    renderFooter() {
-        if (this.props.panelFooterTemplate) {
-            const content = ObjectUtils.getJSXElement(this.props.panelFooterTemplate, this.props, this.props.onOverlayHide);
+    const useFooter = () => {
+        if (props.panelFooterTemplate) {
+            const content = ObjectUtils.getJSXElement(props.panelFooterTemplate, props, props.onOverlayHide);
 
             return (
                 <div className="p-multiselect-footer">
@@ -60,25 +54,25 @@ class MultiSelectPanelComponent extends Component {
         return null;
     }
 
-    renderGroupChildren(optionGroup) {
-        const groupChildren = this.props.getOptionGroupChildren(optionGroup);
+    const useGroupChildren = (optionGroup) => {
+        const groupChildren = props.getOptionGroupChildren(optionGroup);
         return (
             groupChildren.map((option, j) => {
-                let optionLabel = this.props.getOptionLabel(option);
-                let optionKey = j + '_' + this.props.getOptionRenderKey(option);
-                let disabled = this.props.isOptionDisabled(option)
-                let tabIndex = disabled ? null : this.props.tabIndex || 0;
+                const optionLabel = props.getOptionLabel(option);
+                const optionKey = j + '_' + props.getOptionRenderKey(option);
+                const disabled = props.isOptionDisabled(option)
+                const tabIndex = disabled ? null : props.tabIndex || 0;
 
                 return (
-                    <MultiSelectItem key={optionKey} label={optionLabel} option={option} template={this.props.itemTemplate}
-                        selected={this.props.isSelected(option)} onClick={this.props.onOptionSelect} onKeyDown={this.props.onOptionKeyDown} tabIndex={tabIndex} disabled={disabled} />
+                    <MultiSelectItem key={optionKey} label={optionLabel} option={option} template={props.itemTemplate}
+                        selected={props.isSelected(option)} onClick={props.onOptionSelect} onKeyDown={props.onOptionKeyDown} tabIndex={tabIndex} disabled={disabled} />
                 );
             })
         )
     }
 
-    renderEmptyFilter() {
-        const emptyFilterMessage = ObjectUtils.getJSXElement(this.props.emptyFilterMessage, this.props) || localeOption('emptyFilterMessage');
+    const useEmptyFilter = () => {
+        const emptyFilterMessage = ObjectUtils.getJSXElement(props.emptyFilterMessage, props) || localeOption('emptyFilterMessage');
         return (
             <li className="p-multiselect-empty-message">
                 {emptyFilterMessage}
@@ -86,11 +80,11 @@ class MultiSelectPanelComponent extends Component {
         );
     }
 
-    renderItem(option, index) {
-        if (this.props.optionGroupLabel) {
-            const groupContent = this.props.optionGroupTemplate ? ObjectUtils.getJSXElement(this.props.optionGroupTemplate, option, index) : this.props.getOptionGroupLabel(option);
-            const groupChildrenContent = this.renderGroupChildren(option);
-            const key = index + '_' + this.props.getOptionGroupRenderKey(option);
+    const useItem = (option, index) => {
+        if (props.optionGroupLabel) {
+            const groupContent = props.optionGroupTemplate ? ObjectUtils.getJSXElement(props.optionGroupTemplate, option, index) : props.getOptionGroupLabel(option);
+            const groupChildrenContent = useGroupChildren(option);
+            const key = index + '_' + props.getOptionGroupRenderKey(option);
 
             return (
                 <React.Fragment key={key}>
@@ -102,56 +96,58 @@ class MultiSelectPanelComponent extends Component {
             )
         }
         else {
-            let optionLabel = this.props.getOptionLabel(option);
-            let optionKey = index + '_' + this.props.getOptionRenderKey(option);
-            let disabled = this.props.isOptionDisabled(option)
-            let tabIndex = disabled ? null : this.props.tabIndex || 0;
+            const optionLabel = props.getOptionLabel(option);
+            const optionKey = index + '_' + props.getOptionRenderKey(option);
+            const disabled = props.isOptionDisabled(option)
+            const tabIndex = disabled ? null : props.tabIndex || 0;
 
             return (
-                <MultiSelectItem key={optionKey} label={optionLabel} option={option} template={this.props.itemTemplate}
-                    selected={this.props.isSelected(option)} onClick={this.props.onOptionSelect} onKeyDown={this.props.onOptionKeyDown} tabIndex={tabIndex} disabled={disabled} />
+                <MultiSelectItem key={optionKey} label={optionLabel} option={option} template={props.itemTemplate}
+                    selected={props.isSelected(option)} onClick={props.onOptionSelect} onKeyDown={props.onOptionKeyDown} tabIndex={tabIndex} disabled={disabled} />
             );
         }
     }
 
-    renderItems() {
-        if (this.props.visibleOptions && this.props.visibleOptions.length) {
-            return this.props.visibleOptions.map((option, index) => this.renderItem(option, index));
+    const useItems = () => {
+        if (props.visibleOptions && props.visibleOptions.length) {
+            return props.visibleOptions.map(useItem);
         }
-        else if (this.props.hasFilter()) {
-            return this.renderEmptyFilter();
+        else if (props.hasFilter) {
+            return useEmptyFilter();
         }
 
         return null;
     }
 
-    renderContent() {
-        if (this.props.virtualScrollerOptions) {
-            const virtualScrollerProps = { ...this.props.virtualScrollerOptions, ...{
-                style: {...this.props.virtualScrollerOptions.style, ...{ height: this.props.scrollHeight }},
-                className: classNames('p-multiselect-items-wrapper', this.props.virtualScrollerOptions.className),
-                items: this.props.visibleOptions,
-                onLazyLoad: (event) => this.props.virtualScrollerOptions.onLazyLoad({...event, ...{ filter: this.props.filterValue }}),
-                itemTemplate: (item, options) => item && this.renderItem(item, options.index),
-                contentTemplate: (options) => {
-                    const className = classNames('p-multiselect-items p-component', options.className);
-                    const content = this.isEmptyFilter() ? this.renderEmptyFilter() : options.children;
+    const useContent = () => {
+        if (props.virtualScrollerOptions) {
+            const virtualScrollerProps = {
+                ...props.virtualScrollerOptions, ...{
+                    style: { ...props.virtualScrollerOptions.style, ...{ height: props.scrollHeight } },
+                    className: classNames('p-multiselect-items-wrapper', props.virtualScrollerOptions.className),
+                    items: props.visibleOptions,
+                    onLazyLoad: (event) => props.virtualScrollerOptions.onLazyLoad({ ...event, ...{ filter: props.filterValue } }),
+                    itemTemplate: (item, options) => item && useItem(item, options.index),
+                    contentTemplate: (options) => {
+                        const className = classNames('p-multiselect-items p-component', options.className);
+                        const content = isEmptyFilter() ? useEmptyFilter() : options.children;
 
-                    return (
-                        <ul ref={options.contentRef} className={className} role="listbox" aria-multiselectable>
-                            {content}
-                        </ul>
-                    );
+                        return (
+                            <ul ref={options.contentRef} className={className} role="listbox" aria-multiselectable>
+                                {content}
+                            </ul>
+                        );
+                    }
                 }
-            }};
+            };
 
-            return <VirtualScroller ref={(el) => this.virtualScrollerRef = el} {...virtualScrollerProps} />;
+            return <VirtualScroller ref={virtualScrollerRef} {...virtualScrollerProps} />;
         }
         else {
-            const items = this.renderItems();
+            const items = useItems();
 
             return (
-                <div className="p-multiselect-items-wrapper" style={{ maxHeight: this.props.scrollHeight }}>
+                <div className="p-multiselect-items-wrapper" style={{ maxHeight: props.scrollHeight }}>
                     <ul className="p-multiselect-items p-component" role="listbox" aria-multiselectable>
                         {items}
                     </ul>
@@ -160,18 +156,18 @@ class MultiSelectPanelComponent extends Component {
         }
     }
 
-    renderElement() {
+    const useElement = () => {
         const panelClassName = classNames('p-multiselect-panel p-component', {
-            'p-multiselect-limited': !this.props.allowOptionSelect()
-        }, this.props.panelClassName);
-        const header = this.renderHeader();
-        const content = this.renderContent();
-        const footer = this.renderFooter();
+            'p-multiselect-limited': !props.allowOptionSelect()
+        }, props.panelClassName);
+        const header = useHeader();
+        const content = useContent();
+        const footer = useFooter();
 
         return (
-            <CSSTransition nodeRef={this.props.forwardRef} classNames="p-connected-overlay" in={this.props.in} timeout={{ enter: 120, exit: 100 }} options={this.props.transitionOptions}
-                unmountOnExit onEnter={this.onEnter} onEntered={this.props.onEntered} onExit={this.props.onExit} onExited={this.props.onExited}>
-                <div ref={this.props.forwardRef} className={panelClassName} style={this.props.panelStyle} onClick={this.props.onClick}>
+            <CSSTransition nodeRef={ref} classNames="p-connected-overlay" in={props.in} timeout={{ enter: 120, exit: 100 }} options={props.transitionOptions}
+                unmountOnExit onEnter={onEnter} onEntered={props.onEntered} onExit={props.onExit} onExited={props.onExited}>
+                <div ref={ref} className={panelClassName} style={props.panelStyle} onClick={props.onClick}>
                     {header}
                     {content}
                     {footer}
@@ -181,11 +177,7 @@ class MultiSelectPanelComponent extends Component {
         );
     }
 
-    render() {
-        let element = this.renderElement();
+    const element = useElement();
 
-        return <Portal element={element} appendTo={this.props.appendTo} />;
-    }
-}
-
-export const MultiSelectPanel = React.forwardRef((props, ref) => <MultiSelectPanelComponent forwardRef={ref} {...props} />);
+    return <Portal element={element} appendTo={props.appendTo} />;
+}))
