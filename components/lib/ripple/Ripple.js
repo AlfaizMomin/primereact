@@ -1,78 +1,74 @@
-import React, { Component } from 'react';
+import React, { useRef } from 'react';
 import { DomHandler } from '../utils/Utils';
 import PrimeReact from '../api/Api';
+import { useUpdateEffect } from "../hooks/useUpdateEffect";
+import { useMountEffect } from "../hooks/useMountEffect";
+import { useUnmountEffect } from "../hooks/useUnmountEffect";
+import { useEventListener } from '../hooks/useEventListener';
 
-export class Ripple extends Component {
+export const Ripple = () => {
 
-    constructor(props) {
-        super(props);
+    const ink = useRef(null);
+    const target = useRef(null);
 
-        this.onMouseDown = this.onMouseDown.bind(this);
-    }
-
-    getTarget() {
-        return this.ink && this.ink.parentElement;
-    }
-
-    bindEvents() {
-        if (this.target) {
-            this.target.addEventListener('mousedown', this.onMouseDown);
+    const [bindEvents, unbindEvents] = useEventListener({
+        type: 'mousedown', listener: () => {
+            if (target.current) {
+                target.current.addEventListener('mousedown', onMouseDown);
+            }
         }
+    });
+
+    const getTarget = () => {
+        return ink.current && ink.current.parentElement;
     }
 
-    unbindEvents() {
-        if (this.target) {
-            this.target.removeEventListener('mousedown', this.onMouseDown);
-        }
-    }
-
-    onMouseDown(event) {
-        if (!this.ink || getComputedStyle(this.ink, null).display === 'none') {
+    const onMouseDown = (event) => {
+        if (!ink.current || getComputedStyle(ink.current, null).display === 'none') {
             return;
         }
 
-        DomHandler.removeClass(this.ink, 'p-ink-active');
-        if (!DomHandler.getHeight(this.ink) && !DomHandler.getWidth(this.ink)) {
-            let d = Math.max(DomHandler.getOuterWidth(this.target), DomHandler.getOuterHeight(this.target));
-            this.ink.style.height = d + 'px';
-            this.ink.style.width = d + 'px';
+        DomHandler.removeClass(ink.current, 'p-ink-active');
+        if (!DomHandler.getHeight(ink.current) && !DomHandler.getWidth(ink.current)) {
+            let d = Math.max(DomHandler.getOuterWidth(target.current), DomHandler.getOuterHeight(target.current));
+            ink.current.style.height = d + 'px';
+            ink.current.style.width = d + 'px';
         }
 
-        let offset = DomHandler.getOffset(this.target);
-        let x = event.pageX - offset.left + document.body.scrollTop - DomHandler.getWidth(this.ink) / 2;
-        let y = event.pageY - offset.top + document.body.scrollLeft - DomHandler.getHeight(this.ink) / 2;
+        let offset = DomHandler.getOffset(target.current);
+        let x = event.pageX - offset.left + document.body.scrollTop - DomHandler.getWidth(ink.current) / 2;
+        let y = event.pageY - offset.top + document.body.scrollLeft - DomHandler.getHeight(ink.current) / 2;
 
-        this.ink.style.top = y + 'px';
-        this.ink.style.left = x + 'px';
-        DomHandler.addClass(this.ink, 'p-ink-active');
+        ink.current.style.top = y + 'px';
+        ink.current.style.left = x + 'px';
+        DomHandler.addClass(ink.current, 'p-ink-active');
     }
 
-    onAnimationEnd(event) {
+    const onAnimationEnd = (event) => {
         DomHandler.removeClass(event.currentTarget, 'p-ink-active');
     }
 
-    componentDidMount() {
-        if (this.ink) {
-            this.target = this.getTarget();
-            this.bindEvents();
+    useMountEffect(() => {
+        if (ink.current) {
+            target.current = getTarget();
+            bindEvents();
         }
-    }
+    })
 
-    componentDidUpdate() {
-        if (this.ink && !this.target) {
-            this.target = this.getTarget();
-            this.bindEvents();
+    useUpdateEffect(() => {
+        if (ink.current && !target.current) {
+            target.current = getTarget();
+            bindEvents();
         }
-    }
+    })
 
-    componentWillUnmount() {
-        if (this.ink) {
-            this.target = null;
-            this.unbindEvents();
+    useUnmountEffect(() => {
+        if (ink.current) {
+            target.current = null;
+            unbindEvents();
         }
-    }
+    })
 
-    render() {
-        return PrimeReact.ripple ? (<span ref={(el => this.ink = el)} className="p-ink" onAnimationEnd={this.onAnimationEnd}></span>) : null;
-    }
+    return PrimeReact.ripple ? (<span ref={ink} className="p-ink" onAnimationEnd={onAnimationEnd}></span>) : null;
+
 }
