@@ -169,7 +169,7 @@ export default class DropdownDemo extends Component {
 
     groupedItemTemplate(option) {
         return (
-            <div className="flex align-items-center untry-item">
+            <div className="flex align-items-center country-item">
                 <img alt={option.label} src={`${this.contextPath}/images/flag/flag_placeholder.png`} onError={(e) => e.target.src = 'https://www.primefaces.org/wp-content/uploads/2020/05/placeholder.png'} className={`flag flag-${option.code.toLowerCase()}`} />
                 <div>{option.label}</div>
             </div>

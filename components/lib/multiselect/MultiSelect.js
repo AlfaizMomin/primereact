@@ -14,6 +14,7 @@ export const MultiSelect = memo((props) => {
     const [overlayVisible, setOverlayVisible] = useState(false);
     const elementRef = useRef(null);
     const inputRef = useRef(props.inputRef);
+    const labelRef = useRef(null);
     const overlayRef = useRef(null);
     const tooltipRef = useRef(null);
     const hasFilter = filter && filter.trim().length > 0;
@@ -257,7 +258,7 @@ export const MultiSelect = memo((props) => {
     }
 
     const alignOverlay = () => {
-        DomHandler.alignOverlay(overlayRef.current, label.parentElement, props.appendTo || PrimeReact.appendTo);
+        DomHandler.alignOverlay(overlayRef.current, labelRef.current.parentElement, props.appendTo || PrimeReact.appendTo);
     }
 
     const scrollInView = () => {
@@ -597,7 +598,7 @@ export const MultiSelect = memo((props) => {
         });
 
         return (
-            <div ref={(el) => label = el} className="p-multiselect-label-container">
+            <div ref={labelRef} className="p-multiselect-label-container">
                 <div className={labelClassName}>{content || props.placeholder || 'empty'}</div>
             </div>
         );
