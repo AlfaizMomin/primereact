@@ -1,29 +1,37 @@
-import React, { Component } from 'react';
+import React, { useState, Component } from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, classNames, UniqueComponentId } from '../utils/Utils';
 import { CSSTransition } from '../csstransition/CSSTransition';
+import { useMountEffect } from '../hooks/useMountEffect';
 
-class PanelMenuSub extends Component {
+const PanelMenuSub = (props) => {
 
-    static defaultProps = {
-        model: null,
-        multiple: false
-    };
+    const findActiveItem = () => {
+        if (props.model) {
+            if (props.multiple) {
+                return props.model.filter(item => item.expanded);
+            }
+            else {
+                let activeItem = null;
+                props.model.forEach(item => {
+                    if (item.expanded) {
+                        if (!activeItem)
+                            activeItem = item;
+                        else
+                            item.expanded = false;
+                    }
+                });
 
-    static propTypes = {
-        model: PropTypes.any,
-        multiple: PropTypes.bool
-    };
+                return activeItem;
+            }
+        }
 
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            activeItem: this.findActiveItem()
-        };
+        return null;
     }
 
-    onItemClick(event, item) {
+    const [activeItem, setActiveItem] = useState(findActiveItem());
+
+    const onItemClick = (event, item) => {
         if (item.disabled) {
             event.preventDefault();
             return;
@@ -40,59 +48,32 @@ class PanelMenuSub extends Component {
             });
         }
 
-        let activeItem = this.state.activeItem;
-        let active = this.isItemActive(item);
+        let activeItem = activeItem;
+        let active = isItemActive(item);
 
         if (active) {
             item.expanded = false;
-            this.setState({
-                activeItem: this.props.multiple ? activeItem.filter(a_item => a_item !== item) : null
-            });
+            setActiveItem(props.multiple ? activeItem.filter(a_item => a_item !== item) : null)
         }
         else {
-            if (!this.props.multiple && activeItem) {
+            if (!props.multiple && activeItem) {
                 activeItem.expanded = false;
             }
 
             item.expanded = true;
-            this.setState({
-                activeItem: this.props.multiple ? [...(activeItem||[]), item] : item
-            });
+            setActiveItem(props.multiple ? [...(activeItem || []), item] : item)
         }
     }
 
-    findActiveItem() {
-        if (this.props.model) {
-            if (this.props.multiple) {
-                return this.props.model.filter(item => item.expanded);
-            }
-            else {
-                let activeItem = null;
-                this.props.model.forEach(item => {
-                    if (item.expanded) {
-                        if (!activeItem)
-                            activeItem = item;
-                        else
-                            item.expanded = false;
-                    }
-                });
-
-                return activeItem;
-            }
-        }
-
-        return null;
+    const isItemActive = (item) => {
+        return activeItem && (props.multiple ? activeItem.indexOf(item) > -1 : activeItem === item);
     }
 
-    isItemActive(item) {
-        return this.state.activeItem && (this.props.multiple ? this.state.activeItem.indexOf(item) > -1: this.state.activeItem === item);
-    }
-
-    renderSeparator(index) {
+    const useSeparator = (index) => {
         return <li key={'separator_' + index} className="p-menu-separator"></li>;
     }
 
-    renderSubmenu(item, active) {
+    const useSubmenu = (item, active) => {
         const submenuWrapperClassName = classNames('p-toggleable-content', { 'p-toggleable-content-collapsed': !active });
         const submenuContentRef = React.createRef();
 
@@ -100,7 +81,7 @@ class PanelMenuSub extends Component {
             return (
                 <CSSTransition nodeRef={submenuContentRef} classNames="p-toggleable-content" timeout={{ enter: 1000, exit: 450 }} in={active} unmountOnExit>
                     <div ref={submenuContentRef} className={submenuWrapperClassName}>
-                        <PanelMenuSub model={item.items} multiple={this.props.multiple} />
+                        <PanelMenuSub model={item.items} multiple={props.multiple} />
                     </div>
                 </CSSTransition>
             );
@@ -109,8 +90,8 @@ class PanelMenuSub extends Component {
         return null;
     }
 
-    renderMenuitem(item, index) {
-        const active = this.isItemActive(item);
+    const useMenuItem = (item, index) => {
+        const active = isItemActive(item);
         const className = classNames('p-menuitem', item.className);
         const linkClassName = classNames('p-menuitem-link', { 'p-disabled': item.disabled });
         const iconClassName = classNames('p-menuitem-icon', item.icon);
@@ -118,9 +99,9 @@ class PanelMenuSub extends Component {
         const icon = item.icon && <span className={iconClassName}></span>;
         const label = item.label && <span className="p-menuitem-text">{item.label}</span>;
         const submenuIcon = item.items && <span className={submenuIconClassName}></span>;
-        const submenu = this.renderSubmenu(item, active);
+        const submenu = useSubmenu(item, active);
         let content = (
-            <a href={item.url || '#'} className={linkClassName} target={item.target} onClick={(event) => this.onItemClick(event, item, index)} role="menuitem" aria-disabled={item.disabled}>
+            <a href={item.url || '#'} className={linkClassName} target={item.target} onClick={(event) => onItemClick(event, item, index)} role="menuitem" aria-disabled={item.disabled}>
                 {submenuIcon}
                 {icon}
                 {label}
@@ -129,13 +110,13 @@ class PanelMenuSub extends Component {
 
         if (item.template) {
             const defaultContentOptions = {
-                onClick: (event) => this.onItemClick(event, item, index),
+                onClick: (event) => onItemClick(event, item, index),
                 className: linkClassName,
                 labelClassName: 'p-menuitem-text',
                 iconClassName,
                 submenuIconClassName,
                 element: content,
-                props: this.props,
+                props: props,
                 leaf: !item.items,
                 active
             };
@@ -151,18 +132,18 @@ class PanelMenuSub extends Component {
         );
     }
 
-    renderItem(item, index) {
+    const useItem = (item, index) => {
         if (item.separator)
-            return this.renderSeparator(index);
+            return useSeparator(index);
         else
-            return this.renderMenuitem(item, index);
+            return useMenuItem(item, index);
     }
 
-    renderMenu() {
-        if (this.props.model) {
+    const useMenu = () => {
+        if (props.model) {
             return (
-                this.props.model.map((item, index) => {
-                    return this.renderItem(item, index);
+                props.model.map((item, index) => {
+                    return useItem(item, index);
                 })
             );
         }
@@ -170,48 +151,45 @@ class PanelMenuSub extends Component {
         return null;
     }
 
-    render() {
-        const className = classNames('p-submenu-list', this.props.className);
-        const menu = this.renderMenu();
+    const className = classNames('p-submenu-list', props.className);
+    const menu = useMenu();
 
-        return (
-            <ul className={className} role="tree">
-                {menu}
-            </ul>
-        );
-    }
+    return (
+        <ul className={className} role="tree">
+            {menu}
+        </ul>
+    );
 }
 
-export class PanelMenu extends Component {
+export const PanelMenu = (props) => {
 
-    static defaultProps = {
-        id: null,
-        model: null,
-        style: null,
-        className: null,
-        multiple: false,
-        transitionOptions: null
-    };
+    const findActiveItem = () => {
+        if (props.model) {
+            if (props.multiple) {
+                return props.model.filter(item => item.expanded);
+            }
+            else {
+                let activeItem = null;
+                props.model.forEach(item => {
+                    if (item.expanded) {
+                        if (!activeItem)
+                            activeItem = item;
+                        else
+                            item.expanded = false;
+                    }
+                });
 
-    static propTypes = {
-        id: PropTypes.string,
-        model: PropTypes.array,
-        style: PropTypes.object,
-        className: PropTypes.string,
-        multiple: PropTypes.bool,
-        transitionOptions: PropTypes.object
-    };
+                return activeItem;
+            }
+        }
 
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            id: props.id,
-            activeItem: this.findActiveItem()
-        };
+        return null;
     }
 
-    onItemClick(event, item) {
+    const [id, setId] = useState(props.id);
+    const [activeItem, setActiveItem] = useState(findActiveItem())
+
+    const onItemClick = (event, item) => {
         if (item.disabled) {
             event.preventDefault();
             return;
@@ -228,62 +206,35 @@ export class PanelMenu extends Component {
             });
         }
 
-        let activeItem = this.state.activeItem;
-        let active = this.isItemActive(item);
+        let activeItem = activeItem;
+        let active = isItemActive(item);
 
         if (active) {
             item.expanded = false;
-            this.setState({
-                activeItem: this.props.multiple ? activeItem.filter(a_item => a_item !== item) : null
-            });
+            setActiveItem(props.multiple ? activeItem.filter(a_item => a_item !== item) : null)
         }
         else {
-            if (!this.props.multiple && activeItem) {
+            if (!props.multiple && activeItem) {
                 activeItem.expanded = false;
             }
 
             item.expanded = true;
-            this.setState({
-                activeItem: this.props.multiple ? [...(activeItem||[]), item] : item
-            });
+            setActiveItem(props.multiple ? [...(activeItem || []), item] : item)
         }
     }
 
-    findActiveItem() {
-        if (this.props.model) {
-            if (this.props.multiple) {
-                return this.props.model.filter(item => item.expanded);
-            }
-            else {
-                let activeItem = null;
-                this.props.model.forEach(item => {
-                    if (item.expanded) {
-                        if (!activeItem)
-                            activeItem = item;
-                        else
-                            item.expanded = false;
-                    }
-                });
+    const isItemActive = (item) => {
+        return activeItem && (props.multiple ? activeItem.indexOf(item) > -1 : activeItem === item);
+    }
 
-                return activeItem;
-            }
+    useMountEffect(() => {
+        if (!id) {
+            setId(UniqueComponentId())
         }
+    })
 
-        return null;
-    }
-
-    isItemActive(item) {
-        return this.state.activeItem && (this.props.multiple ? this.state.activeItem.indexOf(item) > -1: this.state.activeItem === item);
-    }
-
-    componentDidMount() {
-        if (!this.state.id) {
-            this.setState({ id: UniqueComponentId() });
-        }
-    }
-
-    renderPanel(item, index) {
-        const active = this.isItemActive(item);
+    const usePanel = (item, index) => {
+        const active = isItemActive(item);
         const className = classNames('p-panelmenu-panel', item.className);
         const headerClassName = classNames('p-component p-panelmenu-header', { 'p-highlight': active, 'p-disabled': item.disabled });
         const submenuIconClassName = classNames('p-panelmenu-icon pi', { 'pi-chevron-right': !active, ' pi-chevron-down': active });
@@ -294,8 +245,8 @@ export class PanelMenu extends Component {
         const contentWrapperClassName = classNames('p-toggleable-content', { 'p-toggleable-content-collapsed': !active });
         const menuContentRef = React.createRef();
         let content = (
-            <a href={item.url || '#'} className="p-panelmenu-header-link" onClick={(e) => this.onItemClick(e, item)} aria-expanded={active}
-                id={this.state.id + '_header'} aria-controls={this.state.id + 'content'} aria-disabled={item.disabled}>
+            <a href={item.url || '#'} className="p-panelmenu-header-link" onClick={(e) => onItemClick(e, item)} aria-expanded={active}
+                id={id + '_header'} aria-controls={id + 'content'} aria-disabled={item.disabled}>
                 {submenuIcon}
                 {itemIcon}
                 {label}
@@ -304,13 +255,13 @@ export class PanelMenu extends Component {
 
         if (item.template) {
             const defaultContentOptions = {
-                onClick: (event) => this.onItemClick(event, item),
+                onClick: (event) => onItemClick(event, item),
                 className: 'p-panelmenu-header-link',
                 labelClassName: 'p-menuitem-text',
                 submenuIconClassName,
                 iconClassName,
                 element: content,
-                props: this.props,
+                props: props,
                 leaf: !item.items,
                 active
             };
@@ -323,10 +274,10 @@ export class PanelMenu extends Component {
                 <div className={headerClassName} style={item.style}>
                     {content}
                 </div>
-                <CSSTransition nodeRef={menuContentRef} classNames="p-toggleable-content" timeout={{ enter: 1000, exit: 450 }} in={active} unmountOnExit options={this.props.transitionOptions}>
-                    <div ref={menuContentRef} className={contentWrapperClassName} role="region" id={this.state.id + '_content'} aria-labelledby={this.state.id + '_header'}>
+                <CSSTransition nodeRef={menuContentRef} classNames="p-toggleable-content" timeout={{ enter: 1000, exit: 450 }} in={active} unmountOnExit options={props.transitionOptions}>
+                    <div ref={menuContentRef} className={contentWrapperClassName} role="region" id={id + '_content'} aria-labelledby={id + '_header'}>
                         <div className="p-panelmenu-content">
-                            <PanelMenuSub model={item.items} className="p-panelmenu-root-submenu" multiple={this.props.multiple} />
+                            <PanelMenuSub model={item.items} className="p-panelmenu-root-submenu" multiple={props.multiple} />
                         </div>
                     </div>
                 </CSSTransition>
@@ -334,11 +285,11 @@ export class PanelMenu extends Component {
         );
     }
 
-    renderPanels() {
-        if (this.props.model) {
+    const usePanels = () => {
+        if (props.model) {
             return (
-                this.props.model.map((item, index) => {
-                    return this.renderPanel(item, index);
+                props.model.map((item, index) => {
+                    return usePanel(item, index);
                 })
             );
         }
@@ -346,14 +297,41 @@ export class PanelMenu extends Component {
         return null;
     }
 
-    render() {
-        const className = classNames('p-panelmenu p-component', this.props.className);
-        const panels = this.renderPanels();
+    const className = classNames('p-panelmenu p-component', props.className);
+    const panels = usePanels();
 
-        return (
-            <div id={this.props.id} className={className} style={this.props.style}>
-                {panels}
-            </div>
-        );
-    }
+    return (
+        <div id={props.id} className={className} style={props.style}>
+            {panels}
+        </div>
+    );
 }
+
+PanelMenuSub.defaultProps = {
+    model: null,
+    multiple: false
+};
+
+PanelMenuSub.propTypes = {
+    model: PropTypes.any,
+    multiple: PropTypes.bool
+};
+
+
+PanelMenu.defaultProps = {
+    id: null,
+    model: null,
+    style: null,
+    className: null,
+    multiple: false,
+    transitionOptions: null
+};
+
+PanelMenu.propTypes = {
+    id: PropTypes.string,
+    model: PropTypes.array,
+    style: PropTypes.object,
+    className: PropTypes.string,
+    multiple: PropTypes.bool,
+    transitionOptions: PropTypes.object
+};
