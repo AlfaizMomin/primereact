@@ -1,99 +1,62 @@
-import React, { Component } from 'react';
+import React, { useRef, forwardRef, useEffect, useState, useImperativeHandle } from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, ZIndexUtils, classNames } from '../utils/Utils';
 import { MenubarSub } from './MenubarSub';
 import PrimeReact from '../api/Api';
+import { useEventListener } from '../hooks/useEventListener';
 
-export class Menubar extends Component {
+export const Menubar = forwardRef((props, ref) => {
 
-    static defaultProps = {
-        id: null,
-        model: null,
-        style: null,
-        className: null,
-        start: null,
-        end: null
-    };
+    const [mobileActive, setMobileActive] = useState(false);
+    const rootmenu = useRef(null);
+    const menubutton = useRef(null);
 
-    static propTypes = {
-        id: PropTypes.string,
-        model: PropTypes.array,
-        style: PropTypes.object,
-        className: PropTypes.string,
-        start: PropTypes.any,
-        end: PropTypes.any
-    };
+    const [bindDocumentClickListener, unbindDocumentClickListener] = useEventListener({
+        type: 'click', listener: event => {
+            if (mobileActive && isOutsideClicked(event)) {
+                setMobileActive(false)
+            }
+        }
+    });
 
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            mobileActive: false
-        };
-
-        this.toggle = this.toggle.bind(this);
-        this.onLeafClick = this.onLeafClick.bind(this);
-    }
-
-    toggle(event) {
+    const toggle = (event) => {
         event.preventDefault();
 
-        this.setState((prevState) => ({
-            mobileActive: !prevState.mobileActive
-        }), () => {
-            if (this.state.mobileActive) {
-                ZIndexUtils.set('menu', this.rootmenu,  PrimeReact.autoZIndex, PrimeReact.zIndex['menu']);
-                this.bindDocumentClickListener();
-            }
-            else {
-                this.unbindDocumentClickListener();
-                ZIndexUtils.clear(this.rootmenu);
-            }
-        });
+        setMobileActive(prevState => !prevState)
     }
 
-    bindDocumentClickListener() {
-        if (!this.documentClickListener) {
-            this.documentClickListener = (event) => {
-                if (this.state.mobileActive && this.isOutsideClicked(event)) {
-                    this.setState({ mobileActive: false }, () => {
-                        this.unbindDocumentClickListener();
-                        ZIndexUtils.clear(this.rootmenu);
-                    });
-                }
-            };
-            document.addEventListener('click', this.documentClickListener);
+    useEffect(() => {
+        if (mobileActive) {
+            ZIndexUtils.set('menu', rootmenu.current, PrimeReact.autoZIndex, PrimeReact.zIndex['menu']);
+            bindDocumentClickListener();
         }
-    }
-
-    isOutsideClicked(event) {
-        return this.rootmenu !== event.target && !this.rootmenu.contains(event.target)
-            && this.menubutton !== event.target && !this.menubutton.contains(event.target)
-    }
-
-    unbindDocumentClickListener() {
-        if (this.documentClickListener) {
-            document.removeEventListener('click', this.documentClickListener);
-            this.documentClickListener = null;
+        else {
+            unbindDocumentClickListener();
+            ZIndexUtils.clear(rootmenu.current);
         }
+    }, [mobileActive])
+
+
+    const isOutsideClicked = (event) => {
+        return rootmenu.current !== event.target && !rootmenu.current.contains(event.target)
+            && menubutton.current !== event.target && !menubutton.current.contains(event.target)
     }
 
-    onLeafClick() {
-        this.setState({ mobileActive: false }, () => {
-            this.unbindDocumentClickListener();
-            ZIndexUtils.clear(this.rootmenu);
-        });
+    const onLeafClick = () => {
+        setMobileActive(false);
     }
 
-    componentWillUnmount() {
-        ZIndexUtils.clear(this.rootmenu);
-    }
+    useEffect(() => {
+        return () => {
+            ZIndexUtils.clear(rootmenu.current);
+        }
+    }, [])
 
-    renderCustomContent() {
-        if (this.props.children) {
+    const useCustomContent = () => {
+        if (props.children) {
             return (
                 <div className="p-menubar-custom">
-                    {this.props.children}
+                    {props.children}
                 </div>
             );
         }
@@ -101,9 +64,9 @@ export class Menubar extends Component {
         return null;
     }
 
-    renderStartContent() {
-        if (this.props.start) {
-            const start = ObjectUtils.getJSXElement(this.props.start, this.props);
+    const useStartContent = () => {
+        if (props.start) {
+            const start = ObjectUtils.getJSXElement(props.start, props);
 
             return (
                 <div className="p-menubar-start">
@@ -115,9 +78,9 @@ export class Menubar extends Component {
         return null;
     }
 
-    renderEndContent() {
-        if (this.props.end) {
-            const end = ObjectUtils.getJSXElement(this.props.end, this.props);
+    const useEndContent = () => {
+        if (props.end) {
+            const end = ObjectUtils.getJSXElement(props.end, props);
 
             return (
                 <div className="p-menubar-end">
@@ -129,10 +92,10 @@ export class Menubar extends Component {
         return null;
     }
 
-    renderMenuButton() {
+    const useMenuButton = () => {
         /* eslint-disable */
         const button = (
-            <a ref={(el) => this.menubutton = el} href={'#'} role="button" tabIndex={0} className="p-menubar-button" onClick={this.toggle}>
+            <a ref={menubutton} href={'#'} role="button" tabIndex={0} className="p-menubar-button" onClick={toggle}>
                 <i className="pi pi-bars" />
             </a>
         );
@@ -141,19 +104,40 @@ export class Menubar extends Component {
         return button;
     }
 
-    render() {
-        const className = classNames('p-menubar p-component', { 'p-menubar-mobile-active': this.state.mobileActive }, this.props.className);
-        const start = this.renderStartContent();
-        const end = this.renderEndContent();
-        const menuButton = this.renderMenuButton();
+    useImperativeHandle(ref, () => ({
+        toggle,
+        useCustomContent
+    }));
 
-        return (
-            <div id={this.props.id} className={className} style={this.props.style}>
-                {start}
-                {menuButton}
-                <MenubarSub ref={(el) => this.rootmenu = el} model={this.props.model} root mobileActive={this.state.mobileActive} onLeafClick={this.onLeafClick} />
-                {end}
-            </div>
-        );
-    }
-}
+    const className = classNames('p-menubar p-component', { 'p-menubar-mobile-active': mobileActive }, props.className);
+    const start = useStartContent();
+    const end = useEndContent();
+    const menuButton = useMenuButton();
+
+    return (
+        <div id={props.id} className={className} style={props.style}>
+            {start}
+            {menuButton}
+            <MenubarSub ref={(el) => rootmenu = el} model={props.model} root mobileActive={mobileActive} onLeafClick={onLeafClick} />
+            {end}
+        </div>
+    );
+})
+
+Menubar.defaultProps = {
+    id: null,
+    model: null,
+    style: null,
+    className: null,
+    start: null,
+    end: null
+};
+
+Menubar.propTypes = {
+    id: PropTypes.string,
+    model: PropTypes.array,
+    style: PropTypes.object,
+    className: PropTypes.string,
+    start: PropTypes.any,
+    end: PropTypes.any
+};
