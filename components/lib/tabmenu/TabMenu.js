@@ -1,39 +1,17 @@
-import React, {Component} from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
 
-export class TabMenu extends Component {
+export const TabMenu = (props) => {
 
-    static defaultProps = {
-        id: null,
-        model: null,
-        activeIndex: 0,
-        style: null,
-        className: null,
-        onTabChange: null
-    };
+    const [activeIndexState, setActiveIndexState] = useState(props.activeIndex);
+    const activeIndex = props.onTabChange ? props.activeIndex : activeIndexState;
+    const inkbarRef = useRef(null);
+    const navRef = useRef(null);
+    const tabsRef = useRef({})
 
-    static propTypes = {
-        id: PropTypes.string,
-        model: PropTypes.array,
-        activeIndex: PropTypes.number,
-        style: PropTypes.any,
-        className: PropTypes.string,
-        onTabChange: PropTypes.func
-    };
-
-    constructor(props) {
-        super(props);
-
-        if (!this.props.onTabChange) {
-            this.state = {
-                activeIndex: props.activeIndex
-            };
-        }
-    }
-
-    itemClick(event, item, index) {
+    const itemClick = (event, item, index) => {
         if (item.disabled) {
             event.preventDefault();
             return;
@@ -50,46 +28,40 @@ export class TabMenu extends Component {
             });
         }
 
-        if (this.props.onTabChange) {
-            this.props.onTabChange({
+        if (props.onTabChange) {
+            props.onTabChange({
                 originalEvent: event,
                 value: item,
                 index
             });
         }
         else {
-            this.setState({
-                activeIndex: index
-            });
+            setActiveIndexState(index)
         }
     }
 
-    getActiveIndex() {
-        return this.props.onTabChange ? this.props.activeIndex : this.state.activeIndex;
+    const getActiveIndex = () => {
+        return props.onTabChange ? props.activeIndex : activeIndex;
     }
 
-    isSelected(index) {
-        return (index === (this.getActiveIndex() || 0));
+    const isSelected = (index) => {
+        return (index === (getActiveIndex() || 0));
     }
 
-    updateInkBar() {
-        const activeIndex = this.getActiveIndex();
-        const tabHeader = this[`tab_${activeIndex}`];
+    const updateInkBar = () => {
+        const activeIndex = getActiveIndex();
+        const tabHeader = tabsRef.current[`tab_${activeIndex}`];
 
-        this.inkbar.style.width = DomHandler.getWidth(tabHeader) + 'px';
-        this.inkbar.style.left =  DomHandler.getOffset(tabHeader).left - DomHandler.getOffset(this.nav).left + 'px';
+        inkbarRef.current.style.width = DomHandler.getWidth(tabHeader) + 'px';
+        inkbarRef.current.style.left = DomHandler.getOffset(tabHeader).left - DomHandler.getOffset(navRef.current).left + 'px';
     }
 
-    componentDidMount() {
-        this.updateInkBar();
-    }
+    useEffect(() => {
+        updateInkBar();
+    })
 
-    componentDidUpdate() {
-        this.updateInkBar();
-    }
-
-    renderMenuItem(item, index) {
-        const active = this.isSelected(index);
+    const useMenuItem = (item, index) => {
+        const active = isSelected(index);
         const className = classNames('p-tabmenuitem', {
             'p-highlight': active,
             'p-disabled': item.disabled
@@ -98,7 +70,7 @@ export class TabMenu extends Component {
         const icon = item.icon && <span className={iconClassName}></span>;
         const label = item.label && <span className="p-menuitem-text">{item.label}</span>;
         let content = (
-            <a href={item.url||'#'} className="p-menuitem-link" target={item.target} onClick={(event) => this.itemClick(event, item, index)} role="presentation">
+            <a href={item.url || '#'} className="p-menuitem-link" target={item.target} onClick={(event) => itemClick(event, item, index)} role="presentation">
                 {icon}
                 {label}
                 <Ripple />
@@ -107,12 +79,12 @@ export class TabMenu extends Component {
 
         if (item.template) {
             const defaultContentOptions = {
-                onClick: (event) => this.itemClick(event, item, index),
+                onClick: (event) => itemClick(event, item, index),
                 className: 'p-menuitem-link',
                 labelClassName: 'p-menuitem-text',
                 iconClassName,
                 element: content,
-                props: this.props,
+                props: props,
                 active,
                 index
             };
@@ -121,35 +93,51 @@ export class TabMenu extends Component {
         }
 
         return (
-            <li ref={(el) => this[`tab_${index}`] = el} key={item.label + '_' + index} className={className} style={item.style} role="tab" aria-selected={active} aria-expanded={active} aria-disabled={item.disabled}>
+            <li ref={tabsRef.current[`tab_${index}`]} key={item.label + '_' + index} className={className} style={item.style} role="tab" aria-selected={active} aria-expanded={active} aria-disabled={item.disabled}>
                 {content}
             </li>
         );
     }
 
-    renderItems() {
+    const useItems = () => {
         return (
-            this.props.model.map((item, index) => {
-                return this.renderMenuItem(item, index);
+            props.model.map((item, index) => {
+                return useMenuItem(item, index);
             })
         );
     }
 
-    render() {
-        if (this.props.model) {
-            const className = classNames('p-tabmenu p-component', this.props.className);
-            const items = this.renderItems();
+    if (props.model) {
+        const className = classNames('p-tabmenu p-component', props.className);
+        const items = useItems();
 
-            return (
-                <div id={this.props.id} className={className} style={this.props.style}>
-                    <ul ref={(el) => this.nav = el} className="p-tabmenu-nav p-reset" role="tablist">
-                        {items}
-                        <li ref={(el) => this.inkbar = el} className="p-tabmenu-ink-bar"></li>
-                    </ul>
-                </div>
-            );
-        }
-
-        return null;
+        return (
+            <div id={props.id} className={className} style={props.style}>
+                <ul ref={navRef} className="p-tabmenu-nav p-reset" role="tablist">
+                    {items}
+                    <li ref={inkbarRef} className="p-tabmenu-ink-bar"></li>
+                </ul>
+            </div>
+        );
     }
+
+    return null;
 }
+
+TabMenu.defaultProps = {
+    id: null,
+    model: null,
+    activeIndex: 0,
+    style: null,
+    className: null,
+    onTabChange: null
+};
+
+TabMenu.propTypes = {
+    id: PropTypes.string,
+    model: PropTypes.array,
+    activeIndex: PropTypes.number,
+    style: PropTypes.any,
+    className: PropTypes.string,
+    onTabChange: PropTypes.func
+};
