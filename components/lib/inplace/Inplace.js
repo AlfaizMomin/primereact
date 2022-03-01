@@ -1,137 +1,83 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { classNames } from '../utils/Utils';
 import { Button } from '../button/Button';
 
-export class InplaceDisplay extends Component {
+export const InplaceDisplay = props => props.children;
+export const InplaceContent = props => props.children;
 
-    render() {
-        return this.props.children;
-    }
+export const Inplace = (props) => {
 
-}
+    const [active, setActive] = useState(false);
 
-export class InplaceContent extends Component {
-
-    render() {
-        return this.props.children;
-    }
-
-}
-
-export class Inplace extends Component {
-
-    static defaultProps = {
-        style: null,
-        className: null,
-        active: false,
-        closable: false,
-        disabled: false,
-        tabIndex: 0,
-        ariaLabel: null,
-        onOpen: null,
-        onClose: null,
-        onToggle: null
-    };
-
-    static propTypes = {
-        style: PropTypes.object,
-        className: PropTypes.string,
-        active: PropTypes.bool,
-        closable: PropTypes.bool,
-        disabled: PropTypes.bool,
-        tabIndex: PropTypes.number,
-        ariaLabel: PropTypes.string,
-        onOpen: PropTypes.func,
-        onClose: PropTypes.func,
-        onToggle: PropTypes.func,
-    };
-
-    constructor(props) {
-        super(props);
-        if (!this.props.onToggle) {
-            this.state = {
-                active: false
-            }
-        }
-
-        this.open = this.open.bind(this);
-        this.close = this.close.bind(this);
-        this.onDisplayKeyDown = this.onDisplayKeyDown.bind(this);
-    }
-
-    open(event) {
-        if (this.props.disabled) {
+    const open = (event) => {
+        if (props.disabled) {
             return;
         }
 
-        if (this.props.onOpen) {
-            this.props.onOpen(event);
+        if (props.onOpen) {
+            props.onOpen(event);
         }
-        if (this.props.onToggle) {
-            this.props.onToggle({
+        if (props.onToggle) {
+            props.onToggle({
                 originalEvent: event,
                 value: true
             });
         }
         else {
-            this.setState({
-                active: true
-            });
+            setActive(true);
         }
     }
 
-    close(event) {
-        if (this.props.onClose) {
-            this.props.onClose(event);
+    const close = (event) => {
+        if (props.onClose) {
+            props.onClose(event);
         }
 
-        if (this.props.onToggle) {
-            this.props.onToggle({
+        if (props.onToggle) {
+            props.onToggle({
                 originalEvent: event,
                 value: false
             });
         }
         else {
-            this.setState({
-                active: false
-            });
+            setActive(false);
         }
     }
 
-    onDisplayKeyDown(event) {
+    const onDisplayKeyDown = (event) => {
         if (event.key === 'Enter') {
-            this.open(event);
+            open(event);
             event.preventDefault();
         }
     }
 
-    isActive() {
-        return this.props.onToggle ? this.props.active : this.state.active;
+    const isActive = () => {
+        return props.onToggle ? props.active : active;
     }
 
-    renderDisplay(content) {
-        const className = classNames('p-inplace-display', { 'p-disabled': this.props.disabled });
+    const useDisplay = (content) => {
+        const className = classNames('p-inplace-display', { 'p-disabled': props.disabled });
 
         return (
-            <div className={className} onClick={this.open} onKeyDown={this.onDisplayKeyDown} tabIndex={this.props.tabIndex} aria-label={this.props.ariaLabel}>
+            <div className={className} onClick={open} onKeyDown={onDisplayKeyDown} tabIndex={props.tabIndex} aria-label={props.ariaLabel}>
                 {content}
             </div>
         );
     }
 
-    renderCloseButton() {
-        if (this.props.closable) {
+    const useCloseButton = () => {
+        if (props.closable) {
             return (
-                <Button type="button" className="p-inplace-content-close" icon="pi pi-times" onClick={this.close} />
+                <Button type="button" className="p-inplace-content-close" icon="pi pi-times" onClick={close} />
             )
         }
 
         return null;
     }
 
-    renderContent(content) {
-        const closeButton = this.renderCloseButton();
+    const useContent = (content) => {
+        const closeButton = useCloseButton();
 
         return (
             <div className="p-inplace-content">
@@ -141,28 +87,53 @@ export class Inplace extends Component {
         );
     }
 
-    renderChildren() {
-        const active = this.isActive();
+    const useChildren = () => {
+        const active = isActive();
 
         return (
-            React.Children.map(this.props.children, (child, i) => {
+            React.Children.map(props.children, (child, i) => {
                 if (active && child.type === InplaceContent) {
-                    return this.renderContent(child);
+                    return useContent(child);
                 }
                 else if (!active && child.type === InplaceDisplay) {
-                    return this.renderDisplay(child);
+                    return useDisplay(child);
                 }
             })
         );
     }
 
-    render() {
-        const className = classNames('p-inplace p-component', { 'p-inplace-closable': this.props.closable }, this.props.className);
+    const className = classNames('p-inplace p-component', { 'p-inplace-closable': props.closable }, props.className);
 
-        return (
-            <div className={className}>
-                {this.renderChildren()}
-            </div>
-        );
-    }
+    return (
+        <div className={className}>
+            {useChildren()}
+        </div>
+    );
+
 }
+
+Inplace.defaultProps = {
+    style: null,
+    className: null,
+    active: false,
+    closable: false,
+    disabled: false,
+    tabIndex: 0,
+    ariaLabel: null,
+    onOpen: null,
+    onClose: null,
+    onToggle: null
+};
+
+Inplace.propTypes = {
+    style: PropTypes.object,
+    className: PropTypes.string,
+    active: PropTypes.bool,
+    closable: PropTypes.bool,
+    disabled: PropTypes.bool,
+    tabIndex: PropTypes.number,
+    ariaLabel: PropTypes.string,
+    onOpen: PropTypes.func,
+    onClose: PropTypes.func,
+    onToggle: PropTypes.func,
+};
