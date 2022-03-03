@@ -1,51 +1,28 @@
-import React, { Component } from 'react';
+import React, { useRef, forwardRef, useState, useEffect, useImperativeHandle } from 'react';
 import PropTypes from 'prop-types';
 import { DomHandler, ObjectUtils, ZIndexUtils, classNames } from '../utils/Utils';
 import { CSSTransition } from '../csstransition/CSSTransition';
 import { Ripple } from '../ripple/Ripple';
 import { Portal } from '../portal/Portal';
 import PrimeReact from '../api/Api';
+import { useUpdateEffect } from '../hooks/useUpdateEffect';
+import { useEventListener } from '../hooks/useEventListener';
+import { useResizeListener } from '../hooks/useResizeListener';
 
-class ContextMenuSub extends Component {
+const ContextMenuSub = (props) => {
 
-    static defaultProps = {
-        model: null,
-        root: false,
-        className: null,
-        resetMenu: false,
-        onLeafClick: null
-    };
+    const [activeItem, setActiveItem] = useState(null);
+    const submenuRef = useRef(null);
 
-    static propTypes = {
-        model: PropTypes.any,
-        root: PropTypes.bool,
-        className: PropTypes.string,
-        resetMenu: PropTypes.bool,
-        onLeafClick: PropTypes.func
-    };
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            activeItem: null
-        };
-
-        this.onEnter = this.onEnter.bind(this);
-        this.submenuRef = React.createRef();
-    }
-
-    onItemMouseEnter(event, item) {
+    const onItemMouseEnter = (event, item) => {
         if (item.disabled) {
             event.preventDefault();
             return;
         }
-
-        this.setState({
-            activeItem: item
-        });
+        setActiveItem(item);
     }
 
-    onItemClick(event, item) {
+    const onItemClick = (event, item) => {
         if (item.disabled) {
             event.preventDefault();
             return;
@@ -63,69 +40,65 @@ class ContextMenuSub extends Component {
         }
 
         if (!item.items) {
-            this.props.onLeafClick(event);
+            props.onLeafClick(event);
         }
     }
 
-    position() {
-        const parentItem = this.submenuRef.current.parentElement;
-        const containerOffset = DomHandler.getOffset(this.submenuRef.current.parentElement)
+    const position = () => {
+        const parentItem = submenuRef.current.parentElement;
+        const containerOffset = DomHandler.getOffset(submenuRef.current.parentElement)
         const viewport = DomHandler.getViewport();
-        const sublistWidth = this.submenuRef.current.offsetParent ? this.submenuRef.current.offsetWidth : DomHandler.getHiddenElementOuterWidth(this.submenuRef.current);
+        const sublistWidth = submenuRef.current.offsetParent ? submenuRef.current.offsetWidth : DomHandler.getHiddenElementOuterWidth(submenuRef.current);
         const itemOuterWidth = DomHandler.getOuterWidth(parentItem.children[0]);
 
-        this.submenuRef.current.style.top = '0px';
+        submenuRef.current.style.top = '0px';
 
         if ((parseInt(containerOffset.left, 10) + itemOuterWidth + sublistWidth) > (viewport.width - DomHandler.calculateScrollbarWidth())) {
-            this.submenuRef.current.style.left = -1 * sublistWidth + 'px';
+            submenuRef.current.style.left = -1 * sublistWidth + 'px';
         }
         else {
-            this.submenuRef.current.style.left = itemOuterWidth + 'px';
+            submenuRef.current.style.left = itemOuterWidth + 'px';
         }
     }
 
-    onEnter() {
-        this.position();
+    const onEnter = () => {
+        position();
     }
 
-    isActive() {
-        return this.props.root || !this.props.resetMenu;
+    const isActive = () => {
+        return props.root || !props.resetMenu;
     }
 
-    static getDerivedStateFromProps(nextProps, prevState) {
-        if (nextProps.resetMenu === true) {
-            return {
-                activeItem: null
-            }
+    useUpdateEffect(() => {
+        if (props.resetMenu === true) {
+            setActiveItem(null);
         }
+    }, [props.resetMenu])
 
-        return null;
-    }
-
-    componentDidUpdate() {
-        if (this.isActive()) {
-            this.position();
+    useUpdateEffect(() => {
+        if (isActive()) {
+            position();
         }
-    }
+    })
 
-    renderSeparator(index) {
+    const useSeparator = (index) => {
         return (
             <li key={'separator_' + index} className="p-menu-separator" role="separator"></li>
         );
     }
 
-    renderSubmenu(item) {
+    const useSubmenu = (item) => {
         if (item.items) {
             return (
-                <ContextMenuSub model={item.items} resetMenu={item !== this.state.activeItem} onLeafClick={this.props.onLeafClick} />
+                <ContextMenuSub model={item.items} resetMenu={item !== activeItem} onLeafClick={props.onLeafClick} />
             );
         }
 
         return null;
     }
 
-    renderMenuitem(item, index) {
-        const active = this.state.activeItem === item;
+    const useMenuItem = (item, index) => {
+        const active = activeItem === item;
         const className = classNames('p-menuitem', { 'p-menuitem-active': active }, item.className);
         const linkClassName = classNames('p-menuitem-link', { 'p-disabled': item.disabled });
         const iconClassName = classNames('p-menuitem-icon', item.icon);
@@ -133,9 +106,9 @@ class ContextMenuSub extends Component {
         const icon = item.icon && <span className={iconClassName}></span>;
         const label = item.label && <span className="p-menuitem-text">{item.label}</span>;
         const submenuIcon = item.items && <span className={submenuIconClassName}></span>;
-        const submenu = this.renderSubmenu(item);
+        const submenu = useSubmenu(item);
         let content = (
-            <a href={item.url || '#'} className={linkClassName} target={item.target} onClick={(event) => this.onItemClick(event, item, index)} role="menuitem"
+            <a href={item.url || '#'} className={linkClassName} target={item.target} onClick={(event) => onItemClick(event, item, index)} role="menuitem"
                 aria-haspopup={item.items != null} aria-disabled={item.disabled}>
                 {icon}
                 {label}
@@ -146,13 +119,13 @@ class ContextMenuSub extends Component {
 
         if (item.template) {
             const defaultContentOptions = {
-                onClick: (event) => this.onItemClick(event, item, index),
+                onClick: (event) => onItemClick(event, item, index),
                 className: linkClassName,
                 labelClassName: 'p-menuitem-text',
                 iconClassName,
                 submenuIconClassName,
                 element: content,
-                props: this.props,
+                props: props,
                 active
             };
 
@@ -160,25 +133,25 @@ class ContextMenuSub extends Component {
         }
 
         return (
-            <li key={item.label + '_' + index} role="none" className={className} style={item.style} onMouseEnter={(event) => this.onItemMouseEnter(event, item)}>
+            <li key={item.label + '_' + index} role="none" className={className} style={item.style} onMouseEnter={(event) => onItemMouseEnter(event, item)}>
                 {content}
                 {submenu}
             </li>
         );
     }
 
-    renderItem(item, index) {
+    const useItem = (item, index) => {
         if (item.separator)
-            return this.renderSeparator(index);
+            return useSeparator(index);
         else
-            return this.renderMenuitem(item, index);
+            return useMenuItem(item, index);
     }
 
-    renderMenu() {
-        if (this.props.model) {
+    const useMenu = () => {
+        if (props.model) {
             return (
-                this.props.model.map((item, index) => {
-                    return this.renderItem(item, index);
+                props.model.map((item, index) => {
+                    return useItem(item, index);
                 })
             );
         }
@@ -186,85 +159,61 @@ class ContextMenuSub extends Component {
         return null;
     }
 
-    render() {
-        const className = classNames({ 'p-submenu-list': !this.props.root });
-        const submenu = this.renderMenu();
-        const isActive = this.isActive();
+    const className = classNames({ 'p-submenu-list': !props.root });
+    const submenu = useMenu();
+    const active = isActive()
 
-        return (
-            <CSSTransition nodeRef={this.submenuRef} classNames="p-contextmenusub" in={isActive} timeout={{ enter: 0, exit: 0 }}
-                unmountOnExit onEnter={this.onEnter}>
-                <ul ref={this.submenuRef} className={className}>
-                    {submenu}
-                </ul>
-            </CSSTransition>
-        );
-    }
+    return (
+        <CSSTransition nodeRef={submenuRef} classNames="p-contextmenusub" in={active} timeout={{ enter: 0, exit: 0 }}
+            unmountOnExit onEnter={onEnter}>
+            <ul ref={submenuRef} className={className}>
+                {submenu}
+            </ul>
+        </CSSTransition>
+    );
 }
 
-export class ContextMenu extends Component {
+export const ContextMenu = forwardRef((props, ref) => {
 
-    static defaultProps = {
-        id: null,
-        model: null,
-        style: null,
-        className: null,
-        global: false,
-        autoZIndex: true,
-        baseZIndex: 0,
-        appendTo: null,
-        transitionOptions: null,
-        onShow: null,
-        onHide: null
-    };
+    const [visible, setVisible] = useState(false);
+    const [reshow, setReshow] = useState(false);
+    const [resetMenu, setResetMenu] = useState(false);
+    const menuRef = useRef(null);
+    const currentEvent = useRef(null);
 
-    static propTypes = {
-        id: PropTypes.string,
-        model: PropTypes.array,
-        style: PropTypes.object,
-        className: PropTypes.string,
-        global: PropTypes.bool,
-        autoZIndex: PropTypes.bool,
-        baseZIndex: PropTypes.number,
-        appendTo: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
-        transitionOptions: PropTypes.object,
-        onShow: PropTypes.func,
-        onHide: PropTypes.func
-    };
+    const [bindDocumentClickListener, unbindDocumentClickListener] = useEventListener({
+        type: 'click', listener: event => {
+            if (isOutsideClicked(event) && event.button !== 2) {
+                hide(event);
+                setResetMenu(true);
+            }
+        }
+    });
 
-    constructor(props) {
-        super(props);
+    const [bindDocumentContextMenuListener, unbindDocumentContextMenuListener] = useEventListener({
+        type: 'contextmenu', listener: event => {
+            show(event);
+        }
+    });
 
-        this.state = {
-            visible: false,
-            reshow: false,
-            resetMenu: false
-        };
+    const [bindDocumentResizeListener, unbindDocumentResizeListener] = useResizeListener({
+        listener: event => {
+            if (visible && !DomHandler.isTouchDevice()) {
+                hide(event);
+            }
+        }
+    });
 
-        this.onMenuClick = this.onMenuClick.bind(this);
-        this.onLeafClick = this.onLeafClick.bind(this);
-        this.onMenuMouseEnter = this.onMenuMouseEnter.bind(this);
-        this.onEnter = this.onEnter.bind(this);
-        this.onEntered = this.onEntered.bind(this);
-        this.onExit = this.onExit.bind(this);
-        this.onExited = this.onExited.bind(this);
 
-        this.menuRef = React.createRef();
+    const onMenuClick = () => {
+        setResetMenu(false);
     }
 
-    onMenuClick() {
-        this.setState({
-            resetMenu: false
-        });
+    const onMenuMouseEnter = () => {
+        setResetMenu(false)
     }
 
-    onMenuMouseEnter() {
-        this.setState({
-            resetMenu: false
-        });
-    }
-
-    show(event) {
+    const show = (event) => {
         if (!(event instanceof Event)) {
             event.persist();
         }
@@ -272,60 +221,63 @@ export class ContextMenu extends Component {
         event.stopPropagation();
         event.preventDefault();
 
-        this.currentEvent = event;
+        currentEvent.current = event;
 
-        if (this.state.visible) {
-            this.setState({ reshow: true });
+        if (visible) {
+            setReshow(true)
         }
         else {
-            this.setState({ visible: true }, () => {
-                if (this.props.onShow) {
-                    this.props.onShow(this.currentEvent);
-                }
-            });
+            setVisible(true)
         }
     }
 
-    hide(event) {
+    const hide = (event) => {
         if (!(event instanceof Event)) {
             event.persist();
         }
 
-        this.currentEvent = event;
-        this.setState({ visible: false, reshow: false }, () => {
-            if (this.props.onHide) {
-                this.props.onHide(this.currentEvent);
-            }
-        });
+        currentEvent.current = event;
+
+        setVisible(false);
+        setReshow(false);
     }
 
-    onEnter() {
-        if (this.props.autoZIndex) {
-            ZIndexUtils.set('menu', this.menuRef.current, PrimeReact.autoZIndex, this.props.baseZIndex || PrimeReact.zIndex['menu']);
+    useUpdateEffect(() => {
+        if (props.onShow && visible) {
+            props.onShow(currentEvent.current);
         }
 
-        this.position(this.currentEvent);
+        if (props.onHide && !visible && !reshow) {
+            props.onHide(currentEvent.current);
+        }
+    },[visible,reshow])
+
+    const onEnter = () => {
+        if (props.autoZIndex) {
+            ZIndexUtils.set('menu', menuRef.current, PrimeReact.autoZIndex, props.baseZIndex || PrimeReact.zIndex['menu']);
+        }
+
+        position(currentEvent.current);
     }
 
-    onEntered() {
-        this.bindDocumentListeners();
+    const onEntered = () => {
+        bindDocumentListeners();
     }
 
-    onExit() {
-        this.currentEvent = null;
-        this.unbindDocumentListeners();
+    const onExit = () => {
+        unbindDocumentListeners();
     }
 
-    onExited() {
-        ZIndexUtils.clear(this.menuRef.current);
+    const onExited = () => {
+        ZIndexUtils.clear(menuRef.current);
     }
 
-    position(event) {
+    const position = (event) => {
         if (event) {
             let left = event.pageX + 1;
             let top = event.pageY + 1;
-            let width = this.menuRef.current.offsetParent ? this.menuRef.current.offsetWidth : DomHandler.getHiddenElementOuterWidth(this.menuRef.current);
-            let height = this.menuRef.current.offsetParent ? this.menuRef.current.offsetHeight : DomHandler.getHiddenElementOuterHeight(this.menuRef.current);
+            let width = menuRef.current.offsetParent ? menuRef.current.offsetWidth : DomHandler.getHiddenElementOuterWidth(menuRef.current);
+            let height = menuRef.current.offsetParent ? menuRef.current.offsetHeight : DomHandler.getHiddenElementOuterHeight(menuRef.current);
             let viewport = DomHandler.getViewport();
 
             //flip
@@ -348,135 +300,119 @@ export class ContextMenu extends Component {
                 top = document.body.scrollTop;
             }
 
-            this.menuRef.current.style.left = left + 'px';
-            this.menuRef.current.style.top = top + 'px';
+            menuRef.current.style.left = left + 'px';
+            menuRef.current.style.top = top + 'px';
         }
     }
 
-    onLeafClick(event) {
-        this.setState({
-            resetMenu: true
-        });
-
-        this.hide(event);
+    const onLeafClick = (event) => {
+        setResetMenu(true)
+        hide(event);
 
         event.stopPropagation();
     }
 
-    isOutsideClicked(event) {
-        return this.menuRef && this.menuRef.current && !(this.menuRef.current.isSameNode(event.target) || this.menuRef.current.contains(event.target));
+    const isOutsideClicked = (event) => {
+        return menuRef && menuRef.current && !(menuRef.current.isSameNode(event.target) || menuRef.current.contains(event.target));
     }
 
-    bindDocumentListeners() {
-        this.bindDocumentResizeListener();
-        this.bindDocumentClickListener();
+    const bindDocumentListeners = () => {
+        bindDocumentResizeListener();
+        bindDocumentClickListener();
     }
 
-    unbindDocumentListeners() {
-        this.unbindDocumentResizeListener();
-        this.unbindDocumentClickListener();
+    const unbindDocumentListeners = () => {
+        unbindDocumentResizeListener();
+        unbindDocumentClickListener();
     }
 
-    bindDocumentClickListener() {
-        if (!this.documentClickListener) {
-            this.documentClickListener = (event) => {
-                if (this.isOutsideClicked(event) && event.button !== 2) {
-                    this.hide(event);
-
-                    this.setState({
-                        resetMenu: true
-                    });
-                }
-            };
-
-            document.addEventListener('click', this.documentClickListener);
+    useEffect(() => {
+        if (props.global) {
+            bindDocumentContextMenuListener();
         }
-    }
 
-    bindDocumentContextMenuListener() {
-        if (!this.documentContextMenuListener) {
-            this.documentContextMenuListener = (event) => {
-                this.show(event);
-            };
+        return () => {
+            unbindDocumentListeners();
+            unbindDocumentContextMenuListener();
 
-            document.addEventListener('contextmenu', this.documentContextMenuListener);
+            ZIndexUtils.clear(menuRef.current);
         }
-    }
+    }, []);
 
-    bindDocumentResizeListener() {
-        if (!this.documentResizeListener) {
-            this.documentResizeListener = (event) => {
-                if (this.state.visible && !DomHandler.isTouchDevice()) {
-                    this.hide(event);
-                }
-            };
-
-            window.addEventListener('resize', this.documentResizeListener);
+    useUpdateEffect(() => {
+        if (visible && reshow) {
+            setVisible(false);
+            setReshow(false);
+            setResetMenu(true);
         }
-    }
-
-    unbindDocumentClickListener() {
-        if (this.documentClickListener) {
-            document.removeEventListener('click', this.documentClickListener);
-            this.documentClickListener = null;
+        else if (!visible && !reshow && resetMenu)  {
+            show(currentEvent.current);
         }
-    }
+    }, [reshow]);
 
-    unbindDocumentContextMenuListener() {
-        if (this.documentContextMenuListener) {
-            document.removeEventListener('contextmenu', this.documentContextMenuListener);
-            this.documentContextMenuListener = null;
-        }
-    }
+    useImperativeHandle(ref, () => ({
+        show,
+        hide
+    }));
 
-    unbindDocumentResizeListener() {
-        if (this.documentResizeListener) {
-            window.removeEventListener('resize', this.documentResizeListener);
-            this.documentResizeListener = null;
-        }
-    }
-
-    componentDidMount() {
-        if (this.props.global) {
-            this.bindDocumentContextMenuListener();
-        }
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        if (this.state.visible && (prevState.reshow !== this.state.reshow || prevProps.model !== this.props.model)) {
-            let event = this.currentEvent;
-            this.setState({
-                visible: false,
-                reshow: false,
-                rePosition: false,
-                resetMenu: true
-            }, () => this.show(event));
-        }
-    }
-
-    componentWillUnmount() {
-        this.unbindDocumentListeners();
-        this.unbindDocumentContextMenuListener();
-
-        ZIndexUtils.clear(this.menuRef.current);
-    }
-
-    renderContextMenu() {
-        const className = classNames('p-contextmenu p-component', this.props.className);
+    const useContextMenu = () => {
+        const className = classNames('p-contextmenu p-component', props.className);
 
         return (
-            <CSSTransition nodeRef={this.menuRef} classNames="p-contextmenu" in={this.state.visible} timeout={{ enter: 250, exit: 0 }} options={this.props.transitionOptions}
-                unmountOnExit onEnter={this.onEnter} onEntered={this.onEntered} onExit={this.onExit} onExited={this.onExited}>
-                <div ref={this.menuRef} id={this.props.id} className={className} style={this.props.style} onClick={this.onMenuClick} onMouseEnter={this.onMenuMouseEnter}>
-                    <ContextMenuSub model={this.props.model} root resetMenu={this.state.resetMenu} onLeafClick={this.onLeafClick} />
+            <CSSTransition nodeRef={menuRef} classNames="p-contextmenu" in={visible} timeout={{ enter: 250, exit: 0 }} options={props.transitionOptions}
+                unmountOnExit onEnter={onEnter} onEntered={onEntered} onExit={onExit} onExited={onExited}>
+                <div ref={menuRef} id={props.id} className={className} style={props.style} onClick={onMenuClick} onMouseEnter={onMenuMouseEnter}>
+                    <ContextMenuSub model={props.model} root resetMenu={resetMenu} onLeafClick={onLeafClick} />
                 </div>
             </CSSTransition>
         );
     }
 
-    render() {
-        const element = this.renderContextMenu();
+    const element = useContextMenu();
 
-        return <Portal element={element} appendTo={this.props.appendTo} />;
-    }
-}
+    return <Portal element={element} appendTo={props.appendTo} />;
+})
+
+ContextMenuSub.defaultProps = {
+    model: null,
+    root: false,
+    className: null,
+    resetMenu: false,
+    onLeafClick: null
+};
+
+ContextMenuSub.propTypes = {
+    model: PropTypes.any,
+    root: PropTypes.bool,
+    className: PropTypes.string,
+    resetMenu: PropTypes.bool,
+    onLeafClick: PropTypes.func
+};
+
+ContextMenu.defaultProps = {
+    id: null,
+    model: null,
+    style: null,
+    className: null,
+    global: false,
+    autoZIndex: true,
+    baseZIndex: 0,
+    appendTo: null,
+    transitionOptions: null,
+    onShow: null,
+    onHide: null
+};
+
+ContextMenu.propTypes = {
+    id: PropTypes.string,
+    model: PropTypes.array,
+    style: PropTypes.object,
+    className: PropTypes.string,
+    global: PropTypes.bool,
+    autoZIndex: PropTypes.bool,
+    baseZIndex: PropTypes.number,
+    appendTo: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+    transitionOptions: PropTypes.object,
+    onShow: PropTypes.func,
+    onHide: PropTypes.func
+};
