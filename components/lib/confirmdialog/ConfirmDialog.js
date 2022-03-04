@@ -1,4 +1,4 @@
-import React, { useRef, useState, forwardRef } from 'react';
+import React, { useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { DomHandler, ObjectUtils, classNames, IconUtils } from '../utils/Utils';
@@ -43,7 +43,7 @@ export function confirmDialog(props) {
 }
 
 
-export const ConfirmDialog = (props, ref) => {
+export const ConfirmDialog = (props) => {
 
     const [visible, setVisible] = useState(props.visible);
     const currentResult = useRef('');
