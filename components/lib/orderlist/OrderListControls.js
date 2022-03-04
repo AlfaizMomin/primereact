@@ -1,24 +1,16 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Button } from '../button/Button';
 import { ObjectUtils } from '../utils/Utils';
 
-export class OrderListControls extends Component {
+export const OrderListControls = (props) => {
 
-    constructor() {
-        super();
-        this.moveUp = this.moveUp.bind(this);
-        this.moveTop = this.moveTop.bind(this);
-        this.moveDown = this.moveDown.bind(this);
-        this.moveBottom = this.moveBottom.bind(this);
-    }
+    const moveUp = (event) => {
+        if(props.selection) {
+            let value = [...props.value];
 
-    moveUp(event) {
-        if(this.props.selection) {
-            let value = [...this.props.value];
-
-            for (let i = 0; i < this.props.selection.length; i++) {
-                let selectedItem = this.props.selection[i];
-                let selectedItemIndex = ObjectUtils.findIndexInList(selectedItem, value, this.props.dataKey);
+            for (let i = 0; i < props.selection.length; i++) {
+                let selectedItem = props.selection[i];
+                let selectedItemIndex = ObjectUtils.findIndexInList(selectedItem, value, props.dataKey);
 
                 if(selectedItemIndex !== 0) {
                     let movedItem = value[selectedItemIndex];
@@ -31,8 +23,8 @@ export class OrderListControls extends Component {
                 }
             }
 
-            if(this.props.onReorder) {
-                this.props.onReorder({
+            if(props.onReorder) {
+                props.onReorder({
                     originalEvent: event,
                     value: value,
                     direction: 'up'
@@ -41,13 +33,13 @@ export class OrderListControls extends Component {
         }
     }
 
-    moveTop(event) {
-        if(this.props.selection) {
-            let value = [...this.props.value];
+    const moveTop = (event) => {
+        if(props.selection) {
+            let value = [...props.value];
 
-            for (let i = 0; i < this.props.selection.length; i++) {
-                let selectedItem = this.props.selection[i];
-                let selectedItemIndex = ObjectUtils.findIndexInList(selectedItem, value, this.props.dataKey);
+            for (let i = 0; i < props.selection.length; i++) {
+                let selectedItem = props.selection[i];
+                let selectedItemIndex = ObjectUtils.findIndexInList(selectedItem, value, props.dataKey);
 
                 if (selectedItemIndex !== 0) {
                     let movedItem = value.splice(selectedItemIndex, 1)[0];
@@ -58,8 +50,8 @@ export class OrderListControls extends Component {
                 }
             }
 
-            if(this.props.onReorder) {
-                this.props.onReorder({
+            if(props.onReorder) {
+                props.onReorder({
                     originalEvent: event,
                     value: value,
                     direction: 'top'
@@ -68,13 +60,13 @@ export class OrderListControls extends Component {
         }
     }
 
-    moveDown(event) {
-        if (this.props.selection) {
-            let value = [...this.props.value];
+    const moveDown = (event) => {
+        if (props.selection) {
+            let value = [...props.value];
 
-            for (let i = this.props.selection.length - 1; i >= 0; i--) {
-                let selectedItem = this.props.selection[i];
-                let selectedItemIndex = ObjectUtils.findIndexInList(selectedItem, value, this.props.dataKey);
+            for (let i = props.selection.length - 1; i >= 0; i--) {
+                let selectedItem = props.selection[i];
+                let selectedItemIndex = ObjectUtils.findIndexInList(selectedItem, value, props.dataKey);
 
                 if (selectedItemIndex !== (value.length - 1)) {
                     let movedItem = value[selectedItemIndex];
@@ -87,8 +79,8 @@ export class OrderListControls extends Component {
                 }
             }
 
-            if(this.props.onReorder) {
-                this.props.onReorder({
+            if(props.onReorder) {
+                props.onReorder({
                     originalEvent: event,
                     value: value,
                     direction: 'down'
@@ -97,13 +89,13 @@ export class OrderListControls extends Component {
         }
     }
 
-    moveBottom(event) {
-        if(this.props.selection) {
-            let value = [...this.props.value];
+    const moveBottom = (event) => {
+        if(props.selection) {
+            let value = [...props.value];
 
-            for (let i = this.props.selection.length - 1; i >= 0; i--) {
-                let selectedItem = this.props.selection[i];
-                let selectedItemIndex = ObjectUtils.findIndexInList(selectedItem, value, this.props.dataKey);
+            for (let i = props.selection.length - 1; i >= 0; i--) {
+                let selectedItem = props.selection[i];
+                let selectedItemIndex = ObjectUtils.findIndexInList(selectedItem, value, props.dataKey);
 
                 if (selectedItemIndex !== (value.length - 1)) {
                     let movedItem = value.splice(selectedItemIndex, 1)[0];
@@ -114,8 +106,8 @@ export class OrderListControls extends Component {
                 }
             }
 
-            if(this.props.onReorder) {
-                this.props.onReorder({
+            if(props.onReorder) {
+                props.onReorder({
                     originalEvent: event,
                     value: value,
                     direction: 'bottom'
@@ -123,15 +115,13 @@ export class OrderListControls extends Component {
             }
         }
     }
-
-    render() {
-        return (
-            <div className="p-orderlist-controls">
-                <Button type="button" icon="pi pi-angle-up" onClick={this.moveUp}></Button>
-                <Button type="button" icon="pi pi-angle-double-up" onClick={this.moveTop}></Button>
-                <Button type="button" icon="pi pi-angle-down" onClick={this.moveDown}></Button>
-                <Button type="button" icon="pi pi-angle-double-down" onClick={this.moveBottom}></Button>
-            </div>
-        );
-    }
+   
+    return (
+        <div className="p-orderlist-controls">
+            <Button type="button" icon="pi pi-angle-up" onClick={moveUp}></Button>
+            <Button type="button" icon="pi pi-angle-double-up" onClick={moveTop}></Button>
+            <Button type="button" icon="pi pi-angle-down" onClick={moveDown}></Button>
+            <Button type="button" icon="pi pi-angle-double-down" onClick={moveBottom}></Button>
+        </div>
+    );
 }
