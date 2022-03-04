@@ -1,22 +1,18 @@
-import React, { Component } from 'react';
+import React, {forwardRef, useRef, useImperativeHandle} from 'react';
 import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 import { PickListItem } from './PickListItem';
 
-class PickListSubListComponent extends Component {
+export const PickListSubList = forwardRef((props,ref) => {
 
-    constructor(props) {
-        super(props);
-        this.onItemClick = this.onItemClick.bind(this);
-        this.onItemKeyDown = this.onItemKeyDown.bind(this);
-    }
+    const listElementRef = useRef(null);
 
-    onItemClick(event) {
+    const onItemClick = (event) => {
         let originalEvent = event.originalEvent;
         let item = event.value;
-        let selection = [...this.props.selection];
-        let index = ObjectUtils.findIndexInList(item, selection, this.props.dataKey);
+        let selection = [...props.selection];
+        let index = ObjectUtils.findIndexInList(item, selection, props.dataKey);
         let selected = (index !== -1);
-        let metaSelection = this.props.metaKeySelection;
+        let metaSelection = props.metaKeySelection;
 
         if(metaSelection) {
             let metaKey = (originalEvent.metaKey||originalEvent.ctrlKey);
@@ -38,21 +34,21 @@ class PickListSubListComponent extends Component {
                 selection.push(item);
         }
 
-        if(this.props.onSelectionChange) {
-            this.props.onSelectionChange({
+        if(props.onSelectionChange) {
+            props.onSelectionChange({
                 event: originalEvent,
                 value: selection
             })
         }
     }
 
-    onItemKeyDown(event) {
+    const onItemKeyDown = (event) => {
         let listItem = event.originalEvent.currentTarget;
 
         switch(event.originalEvent.which) {
             //down
             case 40:
-                let nextItem = this.findNextItem(listItem);
+                let nextItem = findNextItem(listItem);
                 if (nextItem) {
                     nextItem.focus();
                 }
@@ -62,7 +58,7 @@ class PickListSubListComponent extends Component {
 
             //up
             case 38:
-                let prevItem = this.findPrevItem(listItem);
+                let prevItem = findPrevItem(listItem);
                 if (prevItem) {
                     prevItem.focus();
                 }
@@ -72,7 +68,7 @@ class PickListSubListComponent extends Component {
 
             //enter
             case 13:
-                this.onItemClick(event);
+                onItemClick(event);
                 event.originalEvent.preventDefault();
             break;
 
@@ -81,7 +77,7 @@ class PickListSubListComponent extends Component {
         }
     }
 
-    findNextItem(item) {
+    const findNextItem = (item) => {
         let nextItem = item.nextElementSibling;
 
         if (nextItem)
@@ -90,43 +86,45 @@ class PickListSubListComponent extends Component {
             return null;
     }
 
-    findPrevItem(item) {
+    const findPrevItem = (item) => {
         let prevItem = item.previousElementSibling;
 
         if (prevItem)
-            return !DomHandler.hasClass(prevItem, 'p-picklist-item') ? this.findPrevItem(prevItem) : prevItem;
+            return !DomHandler.hasClass(prevItem, 'p-picklist-item') ? findPrevItem(prevItem) : prevItem;
         else
             return null;
     }
 
-    isSelected(item) {
-        return ObjectUtils.findIndexInList(item, this.props.selection, this.props.dataKey) !== -1;
+    const isSelected = (item) => {
+        return ObjectUtils.findIndexInList(item, props.selection, props.dataKey) !== -1;
     }
 
-    render() {
-        let header = null;
-        let items = null;
-        let wrapperClassName = classNames('p-picklist-list-wrapper', this.props.className);
-        let listClassName = classNames('p-picklist-list', this.props.listClassName);
+    useImperativeHandle(ref, () => ({
+        listElementRef
+    }));
 
-        if (this.props.header) {
-            header = <div className="p-picklist-header">{ObjectUtils.getJSXElement(this.props.header, this.props)}</div>
-        }
+    let header = null;
+    let items = null;
+    let wrapperClassName = classNames('p-picklist-list-wrapper', props.className);
+    let listClassName = classNames('p-picklist-list', props.listClassName);
 
-        if(this.props.list) {
-            items = this.props.list.map((item, i) => {
-                return <PickListItem key={JSON.stringify(item)} value={item} template={this.props.itemTemplate}
-                    selected={this.isSelected(item)} onClick={this.onItemClick} onKeyDown={this.onItemKeyDown} tabIndex={this.props.tabIndex} />
-            });
-        }
-
-        return <div ref={this.props.forwardRef} className={wrapperClassName}>
-                    {header}
-                    <ul className={listClassName} style={this.props.style} role="listbox" aria-multiselectable>
-                        {items}
-                    </ul>
-                 </div>;
+    if (props.header) {
+        header = <div className="p-picklist-header">{ObjectUtils.getJSXElement(props.header, props)}</div>
     }
-}
 
-export const PickListSubList = React.forwardRef((props, ref) => <PickListSubListComponent forwardRef={ref} {...props} />);
+    if(props.list) {
+        items = props.list.map((item, i) => {
+            return <PickListItem key={JSON.stringify(item)} value={item} template={props.itemTemplate}
+                selected={isSelected(item)} onClick={onItemClick} onKeyDown={onItemKeyDown} tabIndex={props.tabIndex} />
+        });
+    }
+
+    return (
+        <div ref={listElementRef} className={wrapperClassName}>
+            {header}
+            <ul className={listClassName} style={props.style} role="listbox" aria-multiselectable>
+                {items}
+            </ul>
+        </div>
+    );
+})
