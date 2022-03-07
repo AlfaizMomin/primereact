@@ -1,130 +1,139 @@
 /*global google*/
-import React, {Component} from 'react';
+import React, { useRef, forwardRef, useImperativeHandle } from 'react';
 import PropTypes from 'prop-types';
+import { useMountEffect } from '../hooks/useMountEffect';
+import { useUpdateEffect } from '../hooks/useUpdateEffect';
 
-export class GMap extends Component {
-
-    static defaultProps = {
-        options: null,
-        overlays: null,
-        style: null,
-        className: null,
-        onMapReady: null,
-        onMapClick: null,
-        onMapDragEnd: null,
-        onZoomChanged: null,
-        onOverlayDragStart: null,
-        onOverlayDrag: null,
-        onOverlayDragEnd: null,
-        onOverlayClick: null
-    }
-
-    static propTypes = {
-        options: PropTypes.object,
-        overlays: PropTypes.array,
-        style: PropTypes.object,
-        className: PropTypes.string,
-        onMapReady: PropTypes.func,
-        onMapClick: PropTypes.func,
-        onMapDragEnd: PropTypes.func,
-        onZoomChanged: PropTypes.func,
-        onOverlayDragStart: PropTypes.func,
-        onOverlayDrag: PropTypes.func,
-        onOverlayDragEnd: PropTypes.func,
-        onOverlayClick: PropTypes.func
-    };
+export const GMap = forwardRef((props, ref) => {
+    const map = useRef(null);
+    const prevOverlays = useRef(null);
+    const container = useRef(container);
         
-    initMap() {
-        this.map = new google.maps.Map(this.container, this.props.options);
+    const initMap = () => {
+        map.current = new google.maps.Map(container.current, props.options);
         
-        if(this.props.onMapReady) {
-            this.props.onMapReady({
-                map: this.map
+        if(props.onMapReady) {
+            props.onMapReady({
+                map: map.current
             });
         } 
         
-        this.initOverlays(this.props.overlays);
+        initOverlays(props.overlays);
         
-        this.bindMapEvent('click', this.props.onMapClick);
-        this.bindMapEvent('dragend', this.props.onMapDragEnd);
-        this.bindMapEvent('zoom_changed', this.props.onZoomChanged);
+        bindMapEvent('click', props.onMapClick);
+        bindMapEvent('dragend', props.onMapDragEnd);
+        bindMapEvent('zoom_changed', props.onZoomChanged);
     }
     
-    initOverlays(overlays) {
+    const initOverlays = (overlays) => {
         if(overlays) {
             for(let overlay of overlays) {
-                overlay.setMap(this.map);
-                this.bindOverlayEvents(overlay);
+                overlay.setMap(map.current);
+                bindOverlayEvents(overlay);
             }
+
+            prevOverlays.current = overlays;
         }
     }
     
-    bindOverlayEvents(overlay) {
+    const bindOverlayEvents = (overlay) => {
         overlay.addListener('click', (event) => {
-            if(this.props.onOverlayClick) {
-                this.props.onOverlayClick({
+            if(props.onOverlayClick) {
+                props.onOverlayClick({
                     originalEvent: event,
                     overlay: overlay,
-                    map: this.map
+                    map: map.current
                 });
             }
         });
         
         if(overlay.getDraggable()) {
-            this.bindDragEvents(overlay);
+            bindDragEvents(overlay);
         }
     }
     
-    bindDragEvents(overlay) {
-        this.bindDragEvent(overlay, 'dragstart', this.props.onOverlayDragStart);
-        this.bindDragEvent(overlay, 'drag', this.props.onOverlayDrag);
-        this.bindDragEvent(overlay, 'dragend', this.props.onOverlayDragEnd);
+    const bindDragEvents = (overlay) => {
+        bindDragEvent(overlay, 'dragstart', props.onOverlayDragStart);
+        bindDragEvent(overlay, 'drag', props.onOverlayDrag);
+        bindDragEvent(overlay, 'dragend', props.onOverlayDragEnd);
     }
     
-    bindMapEvent(eventName, callback) {
-        this.map.addListener(eventName, (event) => {
+    const bindMapEvent = (eventName, callback) => {
+        map.current.addListener(eventName, (event) => {
             if(callback) {
                 callback(event);
             }
         });
     }
     
-    bindDragEvent(overlay, eventName, callback) {
+    const bindDragEvent = (overlay, eventName, callback) => {
         overlay.addListener(eventName, (event) => {
             if(callback) {
                 callback({
                     originalEvent: event,
                     overlay: overlay,
-                    map: this.map
+                    map: map.current
                 });
             }
         });
     }
     
-    getMap() {
-        return this.map;
+    const getMap = () => {
+        return map.current;
     }
-    
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if(prevProps.overlays !== this.props.overlays) {
-            if(prevProps.overlays) {
-                for(let overlay of prevProps.overlays) {
-                    google.maps.event.clearInstanceListeners(overlay);
-                    overlay.setMap(null);
-                }
+
+    useUpdateEffect(() => {
+        if(prevOverlays.current) {
+            for(let overlay of prevOverlays.current) {
+                google.maps.event.clearInstanceListeners(overlay);
+                overlay.setMap(null);
             }
-            
-            this.initOverlays(this.props.overlays);
         }
-    }
+        
+        initOverlays(props.overlays);
+    }, [props.overlays]);
+
+    useMountEffect(() => {
+        initMap();
+    });
+
+    useImperativeHandle(ref, () => ({
+        getMap
+    }));
     
-    componentDidMount() {
-        this.initMap();
-    }
-    
-    render() {
-        return (
-            <div ref={(el) => this.container = el} style={this.props.style} className={this.props.className}></div>
-        );
-    }
+    return (
+        <div ref={container} style={props.style} className={props.className}></div>
+    );
+})
+
+
+
+GMap.defaultProps = {
+    options: null,
+    overlays: null,
+    style: null,
+    className: null,
+    onMapReady: null,
+    onMapClick: null,
+    onMapDragEnd: null,
+    onZoomChanged: null,
+    onOverlayDragStart: null,
+    onOverlayDrag: null,
+    onOverlayDragEnd: null,
+    onOverlayClick: null
+}
+
+GMap.propTypes = {
+    options: PropTypes.object,
+    overlays: PropTypes.array,
+    style: PropTypes.object,
+    className: PropTypes.string,
+    onMapReady: PropTypes.func,
+    onMapClick: PropTypes.func,
+    onMapDragEnd: PropTypes.func,
+    onZoomChanged: PropTypes.func,
+    onOverlayDragStart: PropTypes.func,
+    onOverlayDrag: PropTypes.func,
+    onOverlayDragEnd: PropTypes.func,
+    onOverlayClick: PropTypes.func
 }
