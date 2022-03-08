@@ -12,6 +12,7 @@ import { useUnmountEffect } from '../hooks/useUnmountEffect';
 import { useUpdateEffect } from '../hooks/useUpdateEffect';
 import { useResizeListener } from '../hooks/useResizeListener';
 import { useEventListener } from '../hooks/useEventListener';
+import { useOverlayScrollListener } from '../hooks/useOverlayScrollListener';
 
 export function confirmPopup(props) {
     let appendTo = props.appendTo || document.body;
@@ -70,9 +71,9 @@ export const ConfirmPopup = (props) => {
         isPanelClicked.current = false;
     }});
 
-    const [bindScrollListener, unbindScrollListener] = useResizeListener({ listener: () => {
+    const [bindScrollListener, unbindScrollListener] = useOverlayScrollListener({target: props.target, listener: (event) => {
         if (visible) {
-            hide();
+            hide(event);
         }
     }});
 

@@ -11,6 +11,7 @@ import { useUnmountEffect } from '../hooks/useUnmountEffect';
 import { useUpdateEffect } from '../hooks/useUpdateEffect';
 import { useResizeListener } from '../hooks/useResizeListener';
 import { useEventListener } from '../hooks/useEventListener';
+import { useOverlayScrollListener } from '../hooks/useOverlayScrollListener';
 
 export const OverlayPanel = forwardRef((props, ref) => {
     const [visible, setVisible] = useState(false);
@@ -35,7 +36,7 @@ export const OverlayPanel = forwardRef((props, ref) => {
         isPanelClicked.current = false;
     }});
 
-    const [bindScrollListener, unbindScrollListener] = useResizeListener({ listener: () => {
+    const [bindScrollListener, unbindScrollListener] = useOverlayScrollListener({target: currentTarget.current, listener: () => {
         if (visible && !DomHandler.isTouchDevice()) {
             hide();
         }
