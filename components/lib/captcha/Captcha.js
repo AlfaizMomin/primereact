@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
+import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 export const Captcha = memo(forwardRef((props, ref) => {
