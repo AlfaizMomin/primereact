@@ -2,7 +2,7 @@ import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef, useSta
 import PropTypes from 'prop-types';
 import { InputText } from '../inputtext/InputText';
 import { Button } from '../button/Button';
-import { DomHandler, ObjectUtils, classNames, UniqueComponentId, ConnectedOverlayScrollHandler, ZIndexUtils, IconUtils} from '../utils/Utils';
+import { DomHandler, ObjectUtils, classNames, UniqueComponentId, ZIndexUtils, IconUtils} from '../utils/Utils';
 import { AutoCompletePanel } from './AutoCompletePanel';
 import { tip } from '../tooltip/Tooltip';
 import { OverlayService } from '../overlayservice/OverlayService';
