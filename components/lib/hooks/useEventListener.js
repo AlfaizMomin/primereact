@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { DomHandler } from '../utils/Utils';
 import { usePrevious } from './usePrevious';
+import { useUnmountEffect } from './useUnmountEffect';
 
 export const useEventListener = ({ target = 'document', type, listener, options, when = true }) => {
     const targetRef = useRef(null);
@@ -24,10 +25,6 @@ export const useEventListener = ({ target = 'document', type, listener, options,
     useEffect(() => {
         if (when) {
             targetRef.current = DomHandler.getTargetElement(target);
-
-            return () => {
-                unbind();
-            }
         }
         else {
             unbind();
@@ -41,6 +38,10 @@ export const useEventListener = ({ target = 'document', type, listener, options,
             when && bind();
         }
     }, [listener, options, when]);
+
+    useUnmountEffect(() => {
+        unbind();
+    });
 
     return [bind, unbind];
 }

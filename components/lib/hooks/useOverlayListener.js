@@ -3,6 +3,7 @@ import { DomHandler } from '../utils/Utils';
 import { useEventListener } from './useEventListener';
 import { useResizeListener } from './useResizeListener';
 import { useOverlayScrollListener } from './useOverlayScrollListener';
+import { useUnmountEffect } from './useUnmountEffect';
 
 export const useOverlayListener = ({ target, overlay, listener, when = true }) => {
     const targetRef = useRef(null);
@@ -40,10 +41,6 @@ export const useOverlayListener = ({ target, overlay, listener, when = true }) =
         if (when) {
             targetRef.current = DomHandler.getTargetElement(target);
             overlayRef.current = DomHandler.getTargetElement(overlay);
-
-            return () => {
-                unbind();
-            }
         }
         else {
             unbind();
@@ -55,6 +52,10 @@ export const useOverlayListener = ({ target, overlay, listener, when = true }) =
         unbind();
         when && bind();
     }, [when]);
+
+    useUnmountEffect(() => {
+        unbind();
+    });
 
     return [bind, unbind];
 }
