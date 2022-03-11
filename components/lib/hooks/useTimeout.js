@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
+import { useUnmountEffect } from './useUnmountEffect';
 
 export const useTimeout = (fn, delay = 0, when = true) => {
     const timeout = useRef(null);
@@ -23,6 +24,10 @@ export const useTimeout = (fn, delay = 0, when = true) => {
             clear();
         }
     }, [delay, when]);
+
+    useUnmountEffect(() => {
+        clear();
+    });
 
     return [clear];
 }
