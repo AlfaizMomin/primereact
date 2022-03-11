@@ -1,565 +1,427 @@
-import React, { Component } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { DomHandler, classNames, UniqueComponentId } from '../utils/Utils';
+import { DomHandler, ObjectUtils, classNames, UniqueComponentId } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
 import PrimeReact from '../api/Api';
-import ObjectUtils from '../utils/ObjectUtils';
+import { useResizeListener } from '../hooks/useResizeListener';
+import { useUpdateEffect } from '../hooks/useUpdateEffect';
+import { useUnmountEffect } from '../hooks/useUnmountEffect';
+import { usePrevious } from '../hooks/usePrevious';
 
-class CarouselItem extends Component {
+const CarouselItem = memo((props) => {
+    const content = props.template(props.item);
+    const itemClassName = classNames(props.className, 'p-carousel-item', {
+        'p-carousel-item-active': props.active,
+        'p-carousel-item-start': props.start,
+        'p-carousel-item-end': props.end
+    });
 
-    static defaultProps = {
-        template: null,
-        item: null,
-        active: false,
-        start: false,
-        end: false,
-        className: null
-    }
+    return (
+        <div className={itemClassName}>
+            {content}
+        </div>
+    )
+})
 
-    static propTypes = {
-        template: PropTypes.func,
-        item: PropTypes.any,
-        active: PropTypes.bool,
-        start: PropTypes.bool,
-        end: PropTypes.bool,
-        className: PropTypes.string
-    }
+export const Carousel = memo((props) => {
+    const [numVisible, setNumVisible] = useState(props.numVisible);
+    const [numScroll, setNumScroll] = useState(props.numScroll);
+    const [totalShiftedItems, setTotalShiftedItems] = useState((props.page * props.numScroll) * -1);
+    const [page, setPage] = useState(props.page);
+    const elementRef = useRef(null);
+    const itemsContainerRef = useRef(null);
+    const remainingItems = useRef(0);
+    const allowAutoplay = useRef(!!props.autoplayInterval);
+    const circular = useRef(props.circular || !!props.autoplayInterval);
+    const attributeSelector = useRef('');
+    const swipeThreshold = useRef(20);
+    const startPos = useRef(null);
+    const interval = useRef(null);
+    const carouselStyle = useRef(null);
+    const isRemainingItemsAdded = useRef(false);
+    const responsiveOptions = useRef(null);
+    const isVertical = props.orientation === 'vertical';
+    const isCircular = circular && props.value.length >= numVisible;
+    const isAutoplay = props.autoplayInterval && allowAutoplay.current;
+    const currentPage = props.onPageChange ? props.page : page;
+    const totalIndicators = props.value ? Math.ceil((props.value.length - numVisible) / numScroll) + 1 : 0;
+    const prevNumScroll = usePrevious(numScroll);
+    const prevNumVisible = usePrevious(numVisible);
+    const prevValue = usePrevious(props.value);
+    const prevPage = usePrevious(props.page);
 
-    render() {
-        const content = this.props.template(this.props.item);
-        const itemClassName = classNames(this.props.className, 'p-carousel-item', {
-            'p-carousel-item-active': this.props.active,
-            'p-carousel-item-start': this.props.start,
-            'p-carousel-item-end': this.props.end
-        });
+    const [bindWindowResize, unbindWindowResize] = useResizeListener({ listener: () => {
+        calculatePosition();
+    }, when: props.responsiveOptions });
 
-        return (
-            <div className={itemClassName}>
-                {content}
-            </div>
-        );
-    }
-}
-
-export class Carousel extends Component {
-
-    static defaultProps = {
-        id: null,
-        value: null,
-        page: 0,
-        header: null,
-        footer: null,
-        style: null,
-        className: null,
-        itemTemplate: null,
-        circular: false,
-        autoplayInterval: 0,
-        numVisible: 1,
-        numScroll: 1,
-        responsiveOptions: null,
-        orientation: "horizontal",
-        verticalViewPortHeight: "300px",
-        contentClassName: null,
-        containerClassName: null,
-        indicatorsContentClassName: null,
-        onPageChange: null
-    }
-
-    static propTypes = {
-        id: PropTypes.string,
-        value: PropTypes.any,
-        page: PropTypes.number,
-        header: PropTypes.any,
-        footer: PropTypes.any,
-        style: PropTypes.object,
-        className: PropTypes.string,
-        itemTemplate: PropTypes.any,
-        circular: PropTypes.bool,
-        autoplayInterval: PropTypes.number,
-        numVisible: PropTypes.number,
-        numScroll: PropTypes.number,
-        responsiveOptions: PropTypes.array,
-        orientation: PropTypes.string,
-        verticalViewPortHeight: PropTypes.string,
-        contentClassName: PropTypes.string,
-        containerClassName: PropTypes.string,
-        indicatorsContentClassName: PropTypes.string,
-        onPageChange: PropTypes.func
-    };
-
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            numVisible: props.numVisible,
-            numScroll: props.numScroll,
-            totalShiftedItems: (props.page * props.numScroll) * -1
-        }
-
-        if (!this.props.onPageChange) {
-            this.state = {
-                ...this.state,
-                page: props.page
-            }
-        }
-
-        this.navBackward = this.navBackward.bind(this);
-        this.navForward = this.navForward.bind(this);
-        this.onTransitionEnd = this.onTransitionEnd.bind(this);
-        this.onTouchStart = this.onTouchStart.bind(this);
-        this.onTouchMove = this.onTouchMove.bind(this);
-        this.onTouchEnd = this.onTouchEnd.bind(this);
-        this.totalIndicators = 0;
-        this.remainingItems = 0;
-        this.allowAutoplay = !!this.props.autoplayInterval;
-        this.circular = this.props.circular || this.allowAutoplay;
-        this.attributeSelector = UniqueComponentId();
-        this.swipeThreshold = 20;
-    }
-
-    step(dir, page) {
-        let totalShiftedItems = this.state.totalShiftedItems;
-        const isCircular = this.isCircular();
-
-        if (page != null) {
-            totalShiftedItems = (this.state.numScroll * page) * -1;
+    const step = (dir, _page) => {
+        let _totalShiftedItems = totalShiftedItems;
+        if (_page != null) {
+            _totalShiftedItems = (numScroll * _page) * -1;
 
             if (isCircular) {
-                totalShiftedItems -= this.state.numVisible;
+                _totalShiftedItems -= numVisible;
             }
 
-            this.isRemainingItemsAdded = false;
+            isRemainingItemsAdded.current = false;
         }
         else {
-            totalShiftedItems += (this.state.numScroll * dir);
-            if (this.isRemainingItemsAdded) {
-                totalShiftedItems += this.remainingItems - (this.state.numScroll * dir);
-                this.isRemainingItemsAdded = false;
+            _totalShiftedItems += (numScroll * dir);
+            if (isRemainingItemsAdded.current) {
+                _totalShiftedItems += remainingItems.current - (numScroll * dir);
+                isRemainingItemsAdded.current = false;
             }
 
-            let originalShiftedItems = isCircular ? (totalShiftedItems + this.state.numVisible) : totalShiftedItems;
-            page = Math.abs(Math.floor(originalShiftedItems / this.state.numScroll));
+            let originalShiftedItems = isCircular ? (_totalShiftedItems + numVisible) : _totalShiftedItems;
+            _page = Math.abs(Math.floor(originalShiftedItems / numScroll));
         }
 
-        if (isCircular && this.state.page === (this.totalIndicators - 1) && dir === -1) {
-            totalShiftedItems = -1 * (this.props.value.length + this.state.numVisible);
-            page = 0;
+        if (isCircular && page === (totalIndicators - 1) && dir === -1) {
+            _totalShiftedItems = -1 * (props.value.length + numVisible);
+            _page = 0;
         }
-        else if (isCircular && this.state.page === 0 && dir === 1) {
-            totalShiftedItems = 0;
-            page = (this.totalIndicators - 1);
+        else if (isCircular && page === 0 && dir === 1) {
+            _totalShiftedItems = 0;
+            _page = (_totalShiftedItems - 1);
         }
-        else if (page === (this.totalIndicators - 1) && this.remainingItems > 0) {
-            totalShiftedItems += ((this.remainingItems * -1) - (this.state.numScroll * dir));
-            this.isRemainingItemsAdded = true;
-        }
-
-        if (this.itemsContainer) {
-            DomHandler.removeClass(this.itemsContainer, 'p-items-hidden');
-            this.changePosition(totalShiftedItems);
-            this.itemsContainer.style.transition = 'transform 500ms ease 0s';
+        else if (_page === (totalIndicators - 1) && remainingItems.current > 0) {
+            _totalShiftedItems += ((remainingItems.current * -1) - (numScroll * dir));
+            isRemainingItemsAdded.current = true;
         }
 
-        if (this.props.onPageChange) {
-            this.setState({
-                totalShiftedItems
-            });
+        if (itemsContainerRef.current) {
+            DomHandler.removeClass(itemsContainerRef.current, 'p-items-hidden');
+            changePosition(_totalShiftedItems);
+            itemsContainerRef.current.style.transition = 'transform 500ms ease 0s';
+        }
 
-            this.props.onPageChange({
-                page
+        if (props.onPageChange) {
+            setTotalShiftedItems(_totalShiftedItems);
+            props.onPageChange({
+                page: _page
             })
         }
         else {
-            this.setState({
-                page,
-                totalShiftedItems
-            });
+            setPage(_page);
+            setTotalShiftedItems(_totalShiftedItems);
         }
     }
 
-    calculatePosition() {
-        if (this.itemsContainer && this.responsiveOptions) {
+    const calculatePosition = () => {
+        if (itemsContainerRef.current && responsiveOptions.current) {
             let windowWidth = window.innerWidth;
             let matchedResponsiveData = {
-                numVisible: this.props.numVisible,
-                numScroll: this.props.numScroll
-            };
+                numVisible: props.numVisible,
+                numScroll: props.numScroll
+            }
 
-            for (let i = 0; i < this.responsiveOptions.length; i++) {
-                let res = this.responsiveOptions[i];
+            for (let i = 0; i < responsiveOptions.current.length; i++) {
+                let res = responsiveOptions.current[i];
 
                 if (parseInt(res.breakpoint, 10) >= windowWidth) {
                     matchedResponsiveData = res;
                 }
             }
 
-            let state = {};
-            if (this.state.numScroll !== matchedResponsiveData.numScroll) {
-                let page = this.getPage();
-                page = Math.floor((page * this.state.numScroll) / matchedResponsiveData.numScroll);
+            if (numScroll !== matchedResponsiveData.numScroll) {
+                let _page = currentPage;
+                _page = Math.floor((_page * numScroll) / matchedResponsiveData.numScroll);
 
-                let totalShiftedItems = (matchedResponsiveData.numScroll * page) * -1;
+                let _totalShiftedItems = (matchedResponsiveData.numScroll * _page) * -1;
 
-                if (this.isCircular()) {
-                    totalShiftedItems -= matchedResponsiveData.numVisible;
+                if (isCircular) {
+                    _totalShiftedItems -= matchedResponsiveData.numVisible;
                 }
 
-                state = {
-                    totalShiftedItems,
-                    numScroll: matchedResponsiveData.numScroll
-                };
+                setTotalShiftedItems(_totalShiftedItems);
+                setNumScroll(matchedResponsiveData.numScroll);
 
-                if (this.props.onPageChange) {
-                    this.props.onPageChange({
-                        page
+                if (props.onPageChange) {
+                    props.onPageChange({
+                        page: _page
                     })
                 }
                 else {
-                    state = {
-                        ...state,
-                        page
-                    };
+                    setPage(_page);
                 }
             }
 
-            if (this.state.numVisible !== matchedResponsiveData.numVisible) {
-                state = {
-                    ...state,
-                    numVisible: matchedResponsiveData.numVisible
-                };
-            }
-
-            if (Object.keys(state).length) {
-                this.setState(state);
+            if (numVisible !== matchedResponsiveData.numVisible) {
+                setNumVisible(matchedResponsiveData.numVisible);
             }
         }
     }
 
-    navBackward(e, page) {
-        if (this.circular || this.getPage() !== 0) {
-            this.step(1, page);
+    const navBackward = (e, _page) => {
+        if (circular || currentPage !== 0) {
+            step(1, _page);
         }
 
-        this.allowAutoplay = false;
+        allowAutoplay.current = false;
         if (e.cancelable) {
             e.preventDefault();
         }
     }
 
-    navForward(e, page) {
-        if (this.circular || this.getPage() < (this.totalIndicators - 1)) {
-            this.step(-1, page);
+    const navForward = (e, _page) => {
+        if (circular || currentPage < (totalIndicators - 1)) {
+            step(-1, _page);
         }
 
-        this.allowAutoplay = false;
+        allowAutoplay.current = false;
         if (e.cancelable) {
             e.preventDefault();
         }
     }
 
-    onDotClick(e, page) {
-        let currentPage = this.getPage();
-
-        if (page > currentPage) {
-            this.navForward(e, page);
+   const onDotClick = (e, _page) => {
+        if (_page > currentPage) {
+            navForward(e, _page);
         }
-        else if (page < currentPage) {
-            this.navBackward(e, page);
+        else if (_page < currentPage) {
+            navBackward(e, _page);
         }
     }
 
-    onTransitionEnd(e) {
-        if (this.itemsContainer && e.propertyName === 'transform') {
-            DomHandler.addClass(this.itemsContainer, 'p-items-hidden');
-            this.itemsContainer.style.transition = '';
+    const onTransitionEnd = (e) => {
+        if (itemsContainerRef.current && e.propertyName === 'transform') {
+            DomHandler.addClass(itemsContainerRef.current, 'p-items-hidden');
+            itemsContainerRef.current.style.transition = '';
 
-            if ((this.state.page === 0 || this.state.page === (this.totalIndicators - 1)) && this.isCircular()) {
-                this.changePosition(this.state.totalShiftedItems);
+            if ((page === 0 || page === (totalIndicators - 1)) && isCircular) {
+                changePosition(totalShiftedItems);
             }
         }
     }
 
-    onTouchStart(e) {
-        let touchobj = e.changedTouches[0];
+    const onTouchStart = (e) => {
+        const touchobj = e.changedTouches[0];
 
-        this.startPos = {
+        startPos.current = {
             x: touchobj.pageX,
             y: touchobj.pageY
         };
     }
 
-    onTouchMove(e) {
+    const onTouchMove = (e) => {
         if (e.cancelable) {
             e.preventDefault();
         }
     }
 
-    onTouchEnd(e) {
-        let touchobj = e.changedTouches[0];
+    const onTouchEnd = (e) => {
+        const touchobj = e.changedTouches[0];
 
-        if (this.isVertical()) {
-            this.changePageOnTouch(e, (touchobj.pageY - this.startPos.y));
+        if (isVertical) {
+            changePageOnTouch(e, (touchobj.pageY - startPos.current.y));
         }
         else {
-            this.changePageOnTouch(e, (touchobj.pageX - this.startPos.x));
+            changePageOnTouch(e, (touchobj.pageX - startPos.current.x));
         }
     }
 
-    changePageOnTouch(e, diff) {
-        if (Math.abs(diff) > this.swipeThreshold) {
+    const changePageOnTouch = (e, diff) => {
+        if (Math.abs(diff) > swipeThreshold) {
             if (diff < 0) {           // left
-                this.navForward(e);
+                navForward(e);
             }
             else {                    // right
-                this.navBackward(e);
+                navBackward(e);
             }
         }
     }
 
-    bindDocumentListeners() {
-        if (!this.documentResizeListener) {
-            this.documentResizeListener = () => {
-                this.calculatePosition();
-            };
-
-            window.addEventListener('resize', this.documentResizeListener);
-        }
-    }
-
-    unbindDocumentListeners() {
-        if(this.documentResizeListener) {
-            window.removeEventListener('resize', this.documentResizeListener);
-            this.documentResizeListener = null;
-        }
-    }
-
-    isVertical() {
-        return this.props.orientation === 'vertical';
-    }
-
-    isCircular() {
-        return this.circular && this.props.value.length >= this.state.numVisible;
-    }
-
-    getPage() {
-        return this.props.onPageChange ? this.props.page : this.state.page;
-    }
-
-    getTotalIndicators() {
-        return this.props.value ? Math.ceil((this.props.value.length - this.state.numVisible) / this.state.numScroll) + 1 : 0;
-    }
-
-    isAutoplay() {
-        return this.props.autoplayInterval && this.allowAutoplay;
-    }
-
-    startAutoplay() {
-        this.interval = setInterval(() => {
-            if(this.state.page === (this.totalIndicators - 1)) {
-                this.step(-1, 0);
+    const startAutoplay = () => {
+        interval.current = setInterval(() => {
+            if (page === (totalIndicators - 1)) {
+                step(-1, 0);
             }
             else {
-                this.step(-1, this.state.page + 1);
+                step(-1, page + 1);
             }
-        },
-        this.props.autoplayInterval);
+        }, props.autoplayInterval);
     }
 
-    stopAutoplay() {
-        if (this.interval) {
-            clearInterval(this.interval);
+    const stopAutoplay = () => {
+        if (interval.current) {
+            clearInterval(interval.current);
         }
     }
 
-    createStyle() {
-        if (!this.carouselStyle) {
-            this.carouselStyle = DomHandler.createInlineStyle(PrimeReact.nonce);
+    const createStyle = () => {
+        if (!carouselStyle.current) {
+            carouselStyle.current = DomHandler.createInlineStyle(PrimeReact.nonce);
         }
 
         let innerHTML = `
-            .p-carousel[${this.attributeSelector}] .p-carousel-item {
-                flex: 1 0 ${ (100/ this.state.numVisible) }%
+            .p-carousel[${attributeSelector.current}] .p-carousel-item {
+                flex: 1 0 ${(100 / numVisible)}%
             }
         `;
 
-        if (this.props.responsiveOptions) {
-            this.responsiveOptions = [...this.props.responsiveOptions];
-            this.responsiveOptions.sort((data1, data2) => {
+        if (props.responsiveOptions) {
+            responsiveOptions.current = [...props.responsiveOptions];
+            responsiveOptions.current.sort((data1, data2) => {
                 const value1 = data1.breakpoint;
                 const value2 = data2.breakpoint;
                 return ObjectUtils.sort(value1, value2, -1, PrimeReact.locale);
             });
 
-            for (let i = 0; i < this.responsiveOptions.length; i++) {
-                let res = this.responsiveOptions[i];
+            for (let i = 0; i < responsiveOptions.current.length; i++) {
+                let res = responsiveOptions.current[i];
 
                 innerHTML += `
                     @media screen and (max-width: ${res.breakpoint}) {
-                        .p-carousel[${this.attributeSelector}] .p-carousel-item {
-                            flex: 1 0 ${ (100/ res.numVisible) }%
+                        .p-carousel[${attributeSelector.current}] .p-carousel-item {
+                            flex: 1 0 ${(100 / res.numVisible)}%
                         }
                     }
                 `
             }
         }
 
-        this.carouselStyle.innerHTML = innerHTML;
+        carouselStyle.current.innerHTML = innerHTML;
     }
 
-    changePosition(totalShiftedItems) {
-        if (this.itemsContainer) {
-            this.itemsContainer.style.transform = this.isVertical() ? `translate3d(0, ${totalShiftedItems * (100/ this.state.numVisible)}%, 0)` : `translate3d(${totalShiftedItems * (100/ this.state.numVisible)}%, 0, 0)`;
+    const changePosition = (_totalShiftedItems) => {
+        if (itemsContainerRef.current) {
+            itemsContainerRef.current.style.transform = isVertical ? `translate3d(0, ${_totalShiftedItems * (100 / numVisible)}%, 0)` : `translate3d(${_totalShiftedItems * (100 / numVisible)}%, 0, 0)`;
         }
     }
 
-    componentDidMount() {
-        if (this.container) {
-            this.container.setAttribute(this.attributeSelector, '');
+    useEffect(() => {
+        if (elementRef.current) {
+            attributeSelector.current = UniqueComponentId();
+            elementRef.current.setAttribute(attributeSelector.current, '');
         }
 
-        this.createStyle();
-        this.calculatePosition();
-        this.changePosition(this.state.totalShiftedItems);
+        createStyle();
+        calculatePosition();
+        changePosition(totalShiftedItems);
+        bindWindowResize();
+    }, []);
 
-        if (this.props.responsiveOptions) {
-            this.bindDocumentListeners();
-        }
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        const isCircular = this.isCircular();
+    useUpdateEffect(() => {
         let stateChanged = false;
-        let totalShiftedItems = this.state.totalShiftedItems;
+        let _totalShiftedItems = totalShiftedItems;
 
-        if (this.props.autoplayInterval) {
-            this.stopAutoplay();
+        if (props.autoplayInterval) {
+            stopAutoplay();
         }
 
-        if (prevState.numScroll !== this.state.numScroll || prevState.numVisible !== this.state.numVisible || (this.props.value && prevProps.value && prevProps.value.length !== this.props.value.length)) {
-            this.remainingItems = (this.props.value.length - this.state.numVisible) % this.state.numScroll;
+        if (prevNumScroll !== numScroll || prevNumVisible !== numVisible || (props.value && prevValue && prevValue.length !== props.value.length)) {
+            remainingItems.current = (props.value.length - numVisible) % numScroll;
 
-            let page = this.getPage();
-            if (this.totalIndicators !== 0 && page >= this.totalIndicators) {
-                page = this.totalIndicators - 1;
+            let _page = currentPage;
+            if (totalIndicators !== 0 && page >= totalIndicators) {
+                _page = totalIndicators - 1;
 
-                if (this.props.onPageChange) {
-                    this.props.onPageChange({
-                        page
+                if (props.onPageChange) {
+                    props.onPageChange({
+                        page: _page
                     })
                 }
                 else {
-                    this.setState({
-                        page
-                    });
+                    setPage(_page);
                 }
 
                 stateChanged = true;
             }
 
-            totalShiftedItems = (page * this.state.numScroll) * -1;
+            _totalShiftedItems = (page * numScroll) * -1;
             if (isCircular) {
-                totalShiftedItems -= this.state.numVisible;
+                _totalShiftedItems -= numVisible;
             }
 
-            if (page === (this.totalIndicators - 1) && this.remainingItems > 0) {
-                totalShiftedItems += (-1 * this.remainingItems) + this.state.numScroll;
-                this.isRemainingItemsAdded = true;
+            if (page === (totalIndicators - 1) && remainingItems.current > 0) {
+                _totalShiftedItems += (-1 * remainingItems.current) + numScroll;
+                isRemainingItemsAdded.current = true;
             }
             else {
-                this.isRemainingItemsAdded = false;
+                isRemainingItemsAdded.current = false;
             }
 
-            if (totalShiftedItems !== this.state.totalShiftedItems) {
-                this.setState({
-                    totalShiftedItems
-                })
-
+            if (_totalShiftedItems !== totalShiftedItems) {
+                setTotalShiftedItems(_totalShiftedItems);
                 stateChanged = true;
             }
 
-            this.changePosition(totalShiftedItems);
+            changePosition(_totalShiftedItems);
         }
 
         if (isCircular) {
-            if (this.state.page === 0) {
-                totalShiftedItems = -1 * this.state.numVisible;
+            if (page === 0) {
+                _totalShiftedItems = -1 * numVisible;
             }
-            else if (totalShiftedItems === 0) {
-                totalShiftedItems = -1 * this.props.value.length;
-                if (this.remainingItems > 0) {
-                    this.isRemainingItemsAdded = true;
+            else if (_totalShiftedItems === 0) {
+                _totalShiftedItems = -1 * props.value.length;
+                if (remainingItems.current > 0) {
+                    isRemainingItemsAdded.current = true;
                 }
             }
 
-            if (totalShiftedItems !== this.state.totalShiftedItems) {
-                this.setState({
-                    totalShiftedItems
-                });
+            if (_totalShiftedItems !== totalShiftedItems) {
+                setTotalShiftedItems(_totalShiftedItems);
                 stateChanged = true;
             }
         }
 
-        if (prevProps.page !== this.props.page) {
-            if (this.props.page > prevProps.page && this.props.page <= (this.totalIndicators - 1)) {
-				this.step(-1, this.props.page);
-			}
-			else if (this.props.page < prevProps.page) {
-				this.step(1, this.props.page);
-			}
+        if (prevPage !== props.page) {
+            if (props.page > prevPage && props.page <= (totalIndicators - 1)) {
+                step(-1, props.page);
+            }
+            else if (props.page < prevPage) {
+                step(1, props.page);
+            }
         }
 
-        if (!stateChanged && this.isAutoplay()) {
-            this.startAutoplay();
+        if (!stateChanged && isAutoplay) {
+            startAutoplay();
         }
-    }
+    });
 
-    componentWillUnmount() {
-        if (this.props.responsiveOptions) {
-            this.unbindDocumentListeners();
+    useUnmountEffect(() => {
+        if (props.autoplayInterval) {
+            stopAutoplay();
         }
+    });
 
-        if (this.props.autoplayInterval) {
-            this.stopAutoplay();
-        }
-    }
-
-    renderItems() {
-        if (this.props.value && this.props.value.length) {
-            const isCircular = this.isCircular();
+    const useItems = () => {
+        if (props.value && props.value.length) {
             let clonedItemsForStarting = null;
             let clonedItemsForFinishing = null;
 
             if (isCircular) {
                 let clonedElements = null;
 
-                clonedElements = this.props.value.slice(-1 * this.state.numVisible);
+                clonedElements = props.value.slice(-1 * numVisible);
                 clonedItemsForStarting = clonedElements.map((item, index) => {
-                    let isActive = (this.state.totalShiftedItems * -1) === (this.props.value.length + this.state.numVisible),
-                    start = index === 0,
-                    end = index === (clonedElements.length - 1);
+                    let isActive = (totalShiftedItems * -1) === (props.value.length + numVisible),
+                        start = index === 0,
+                        end = index === (clonedElements.length - 1);
 
-                    return <CarouselItem key={index + '_scloned'} className="p-carousel-item-cloned" template={this.props.itemTemplate} item={item} active={isActive} start={start} end={end}/>
+                    return <CarouselItem key={index + '_scloned'} className="p-carousel-item-cloned" template={props.itemTemplate} item={item} active={isActive} start={start} end={end} />
                 });
 
-                clonedElements = this.props.value.slice(0, this.state.numVisible);
+                clonedElements = props.value.slice(0, numVisible);
                 clonedItemsForFinishing = clonedElements.map((item, index) => {
-                    let isActive = this.state.totalShiftedItems === 0,
-                    start = index === 0,
-                    end = index === (clonedElements.length - 1);
+                    let isActive = totalShiftedItems === 0,
+                        start = index === 0,
+                        end = index === (clonedElements.length - 1);
 
-                    return <CarouselItem key={index + '_fcloned'} className="p-carousel-item-cloned" template={this.props.itemTemplate} item={item} active={isActive} start={start} end={end}/>
+                    return <CarouselItem key={index + '_fcloned'} className="p-carousel-item-cloned" template={props.itemTemplate} item={item} active={isActive} start={start} end={end} />
                 });
             }
 
-            let items = this.props.value.map((item, index) => {
-                            let firstIndex = isCircular ? (-1 * (this.state.totalShiftedItems + this.state.numVisible)) : (this.state.totalShiftedItems * -1),
-                            lastIndex = firstIndex + this.state.numVisible - 1,
-                            isActive = firstIndex <= index && lastIndex >= index,
-                            start = firstIndex === index,
-                            end = lastIndex === index;
+            let items = props.value.map((item, index) => {
+                let firstIndex = isCircular ? (-1 * (totalShiftedItems + numVisible)) : (totalShiftedItems * -1),
+                    lastIndex = firstIndex + numVisible - 1,
+                    isActive = firstIndex <= index && lastIndex >= index,
+                    start = firstIndex === index,
+                    end = lastIndex === index;
 
-                            return <CarouselItem key={index} template={this.props.itemTemplate} item={item} active={isActive} start={start} end={end}/>
-                        });
+                return <CarouselItem key={index} template={props.itemTemplate} item={item} active={isActive} start={start} end={end} />
+            });
 
             return (
                 <>
@@ -567,138 +429,183 @@ export class Carousel extends Component {
                     {items}
                     {clonedItemsForFinishing}
                 </>
+            )
+        }
+    }
+
+    const useHeader = () => {
+        if (props.header) {
+            return (
+                <div className="p-carousel-header">
+                    {props.header}
+                </div>
+            )
+        }
+
+        return null;
+    }
+
+    const useFooter = () => {
+        if (props.footer) {
+            return (
+                <div className="p-carousel-footer">
+                    {props.footer}
+                </div>
             );
         }
-    }
-
-    renderHeader() {
-        if (this.props.header) {
-            return (<div className="p-carousel-header">
-                        {this.props.header}
-                    </div>);
-        }
 
         return null;
     }
 
-    renderFooter() {
-        if (this.props.footer) {
-            return (<div className="p-carousel-footer">
-                        {this.props.footer}
-                    </div>);
-        }
-
-        return null;
-    }
-
-    renderContent() {
-        const items = this.renderItems();
-        const height = this.isVertical() ? this.props.verticalViewPortHeight : 'auto';
-        const backwardNavigator = this.renderBackwardNavigator();
-        const forwardNavigator = this.renderForwardNavigator();
-        const containerClassName = classNames('p-carousel-container', this.props.containerClassName);
+    const useContent = () => {
+        const items = useItems();
+        const height = isVertical ? props.verticalViewPortHeight : 'auto';
+        const backwardNavigator = useBackwardNavigator();
+        const forwardNavigator = useForwardNavigator();
+        const containerClassName = classNames('p-carousel-container', props.containerClassName);
 
         return (
             <div className={containerClassName}>
                 {backwardNavigator}
-                <div className="p-carousel-items-content" style={{'height': height}} onTouchStart={this.onTouchStart} onTouchMove={this.onTouchMove} onTouchEnd={this.onTouchEnd}>
-                    <div ref={(el) => this.itemsContainer = el} className="p-carousel-items-container" onTransitionEnd={this.onTransitionEnd}>
+                <div className="p-carousel-items-content" style={{ 'height': height }} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
+                    <div ref={itemsContainerRef} className="p-carousel-items-container" onTransitionEnd={onTransitionEnd}>
                         {items}
                     </div>
                 </div>
                 {forwardNavigator}
             </div>
-        );
+        )
     }
 
-    renderBackwardNavigator() {
-        let isDisabled = (!this.circular || (this.props.value && this.props.value.length < this.state.numVisible)) && this.getPage() === 0;
+    const useBackwardNavigator = () => {
+        let isDisabled = (!circular || (props.value && props.value.length < numVisible)) && currentPage === 0;
         let buttonClassName = classNames('p-carousel-prev p-link', {
             'p-disabled': isDisabled
         }),
         iconClassName = classNames('p-carousel-prev-icon pi', {
-            'pi-chevron-left': !this.isVertical(),
-            'pi-chevron-up': this.isVertical()
+            'pi-chevron-left': !isVertical,
+            'pi-chevron-up': isVertical
         });
 
         return (
-            <button type="button" className={buttonClassName} onClick={this.navBackward} disabled={isDisabled}>
+            <button type="button" className={buttonClassName} onClick={navBackward} disabled={isDisabled}>
                 <span className={iconClassName}></span>
                 <Ripple />
             </button>
-        );
+        )
     }
 
-    renderForwardNavigator() {
-        let isDisabled = (!this.circular || (this.props.value && this.props.value.length < this.state.numVisible)) && (this.getPage() === (this.totalIndicators - 1) || this.totalIndicators === 0);
+    const useForwardNavigator = () => {
+        let isDisabled = (!circular || (props.value && props.value.length < numVisible)) && (currentPage === (totalIndicators - 1) || totalIndicators === 0);
         let buttonClassName = classNames('p-carousel-next p-link', {
             'p-disabled': isDisabled
         }),
         iconClassName = classNames('p-carousel-next-icon pi', {
-            'pi-chevron-right': !this.isVertical(),
-            'pi-chevron-down': this.isVertical()
+            'pi-chevron-right': !isVertical,
+            'pi-chevron-down': isVertical
         });
 
         return (
-            <button type="button" className={buttonClassName} onClick={this.navForward} disabled={isDisabled}>
+            <button type="button" className={buttonClassName} onClick={navForward} disabled={isDisabled}>
                 <span className={iconClassName}></span>
                 <Ripple />
             </button>
-        );
+        )
     }
 
-    renderIndicator(index) {
-        let isActive = this.getPage() === index,
+    const useIndicator = (index) => {
+        let isActive = currentPage === index,
         indicatorItemClassName = classNames('p-carousel-indicator', {
             'p-highlight': isActive
         });
 
         return (
             <li className={indicatorItemClassName} key={'p-carousel-indicator-' + index}>
-                <button type="button" className="p-link" onClick={(e) => this.onDotClick(e, index)}>
+                <button type="button" className="p-link" onClick={(e) => onDotClick(e, index)}>
                     <Ripple />
                 </button>
             </li>
-        );
+        )
     }
 
-    renderIndicators() {
-        const indicatorsContentClassName = classNames('p-carousel-indicators p-reset', this.props.indicatorsContentClassName);
+    const useIndicators = () => {
+        const indicatorsContentClassName = classNames('p-carousel-indicators p-reset', props.indicatorsContentClassName);
         let indicators = [];
 
-        for (let i = 0; i < this.totalIndicators; i++) {
-            indicators.push(this.renderIndicator(i));
+        for (let i = 0; i < totalIndicators; i++) {
+            indicators.push(useIndicator(i));
         }
 
         return (
             <ul className={indicatorsContentClassName}>
                 {indicators}
             </ul>
-        );
+        )
     }
 
-    render() {
-        const className = classNames('p-carousel p-component', {
-            'p-carousel-vertical': this.isVertical(),
-            'p-carousel-horizontal': !this.isVertical()
-        }, this.props.className);
-        const contentClassName = classNames('p-carousel-content', this.props.contentClassName);
+    const className = classNames('p-carousel p-component', {
+        'p-carousel-vertical': isVertical,
+        'p-carousel-horizontal': !isVertical
+    }, props.className);
+    const contentClassName = classNames('p-carousel-content', props.contentClassName);
 
-        this.totalIndicators = this.getTotalIndicators();
-        const content = this.renderContent();
-        const indicators = this.renderIndicators();
-        const header = this.renderHeader();
-        const footer = this.renderFooter();
+    const content = useContent();
+    const indicators = useIndicators();
+    const header = useHeader();
+    const footer = useFooter();
 
-        return (
-            <div ref={el => this.container = el} id={this.props.id} className={className} style={this.props.style}>
-                {header}
-                <div className={contentClassName}>
-                    {content}
-                    {indicators}
-                </div>
-                {footer}
+    return (
+        <div ref={elementRef} id={props.id} className={className} style={props.style}>
+            {header}
+            <div className={contentClassName}>
+                {content}
+                {indicators}
             </div>
-        );
-    }
+            {footer}
+        </div>
+    )
+})
+
+Carousel.defaultProps = {
+    id: null,
+    value: null,
+    page: 0,
+    header: null,
+    footer: null,
+    style: null,
+    className: null,
+    itemTemplate: null,
+    circular: false,
+    autoplayInterval: 0,
+    numVisible: 1,
+    numScroll: 1,
+    responsiveOptions: null,
+    orientation: "horizontal",
+    verticalViewPortHeight: "300px",
+    contentClassName: null,
+    containerClassName: null,
+    indicatorsContentClassName: null,
+    onPageChange: null
+}
+
+Carousel.propTypes = {
+    id: PropTypes.string,
+    value: PropTypes.any,
+    page: PropTypes.number,
+    header: PropTypes.any,
+    footer: PropTypes.any,
+    style: PropTypes.object,
+    className: PropTypes.string,
+    itemTemplate: PropTypes.any,
+    circular: PropTypes.bool,
+    autoplayInterval: PropTypes.number,
+    numVisible: PropTypes.number,
+    numScroll: PropTypes.number,
+    responsiveOptions: PropTypes.array,
+    orientation: PropTypes.string,
+    verticalViewPortHeight: PropTypes.string,
+    contentClassName: PropTypes.string,
+    containerClassName: PropTypes.string,
+    indicatorsContentClassName: PropTypes.string,
+    onPageChange: PropTypes.func
 }
