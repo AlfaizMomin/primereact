@@ -50,7 +50,7 @@ export const Carousel = memo((props) => {
     const prevValue = usePrevious(props.value);
     const prevPage = usePrevious(props.page);
 
-    const [bindWindowResize, unbindWindowResize] = useResizeListener({ listener: () => {
+    const [bindWindowResize, ] = useResizeListener({ listener: () => {
         calculatePosition();
     }, when: props.responsiveOptions });
 
