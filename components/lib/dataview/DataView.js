@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import { Paginator } from '../paginator/Paginator';
 import { ObjectUtils, classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
-import { localeOption } from '../api/Api';
-import PrimeReact from '../api/Api';
+import PrimeReact, { localeOption } from '../api/Api';
 
 export const DataViewLayoutOptions = (props) => {
 
@@ -15,7 +14,7 @@ export const DataViewLayoutOptions = (props) => {
         });
         event.preventDefault();
     }
-    
+
     const className = classNames('p-dataview-layout-options p-selectbutton p-buttonset', props.className);
     const buttonListClass = classNames('p-button p-button-icon-only', { 'p-highlight': props.layout === 'list' });
     const buttonGridClass = classNames('p-button p-button-icon-only', { 'p-highlight': props.layout === 'grid' });
@@ -120,7 +119,7 @@ export const DataView = (props) => {
         return null;
     }
 
-    
+
     const useBottomPaginator = () => {
         if (props.paginator && (props.paginatorPosition !== 'top' || props.paginatorPosition === 'both')) {
             return createPaginator('bottom');
