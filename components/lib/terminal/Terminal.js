@@ -1,83 +1,51 @@
-import React, { Component } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { TerminalService } from '../terminalservice/TerminalService';
 import { classNames } from '../utils/Utils';
 
-export class Terminal extends Component {
+export const Terminal = memo((props) => {
+    const [commandText, setCommandText] = useState('');
+    const [commands, setCommands] = useState([]);
+    const [index, setIndex] = useState(0);
+    const [emittedText, setEmittedText] = useState('');
+    const elementRef = useRef(null);
+    const inputRef = useRef(null);
+    const isEmitted = useRef(false);
 
-    static defaultProps = {
-        id: null,
-        style: null,
-        className: null,
-        welcomeMessage: null,
-        prompt: null
-    };
-
-    static propTypes = {
-        id: PropTypes.string,
-        style: PropTypes.object,
-        className: PropTypes.string,
-        welcomeMessage: PropTypes.string,
-        prompt: PropTypes.string
-    };
-
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            commandText: '',
-            commands: [],
-            index: 0
-        }
-
-        this.onClick = this.onClick.bind(this);
-        this.onInputChange = this.onInputChange.bind(this);
-        this.onInputKeyDown = this.onInputKeyDown.bind(this);
-        this.response = this.response.bind(this);
-        this.clear = this.clear.bind(this);
+    const onClick = () => {
+        inputRef.current.focus();
     }
 
-    onClick() {
-        this.input.focus();
+    const onInputChange = (e) => {
+        setCommandText(e.target.value);
     }
 
-    onInputChange(e) {
-        this.setState({ commandText: e.target.value });
-    }
-
-    onInputKeyDown(e) {
+    const onInputKeyDown = (e) => {
         const code = e.which || e.keyCode;
-        const commands = this.state.commands;
-
         switch (code) {
             //up
             case 38:
                 if (commands && commands.length) {
-                    const prevIndex = this.state.index - 1 < 0 ? commands.length - 1 : this.state.index - 1;
+                    const prevIndex = index - 1 < 0 ? commands.length - 1 : index - 1;
                     const command = commands[prevIndex];
 
-                    this.setState({
-                        index: prevIndex,
-                        commandText: command.text
-                    });
+                    setIndex(prevIndex);
+                    setCommandText(command.text);
                 }
                 break;
 
             //enter
             case 13:
-                if (!!this.state.commandText) {
+                if (!!commandText) {
                     let newCommands = [...commands];
-                    let text = this.state.commandText;
 
-                    newCommands.push({ text });
+                    newCommands.push({ text: commandText });
 
-                    this.setState((prevState) => ({
-                        index: prevState.index + 1,
-                        commandText: '',
-                        commands: newCommands
-                    }), () => {
-                        TerminalService.emit('command', text);
-                    });
+                    setIndex((prevIndex) => prevIndex + 1);
+                    setCommandText('');
+                    setCommands(newCommands);
+                    setEmittedText(commandText);
+                    isEmitted.current = true;
                 }
 
                 break;
@@ -87,90 +55,105 @@ export class Terminal extends Component {
         }
     }
 
-    response(res) {
-        let commands = this.state.commands;
+    useEffect(() => {
+        const response = (res) => {
+            if (commands && commands.length > 0) {
+                let _commands = [...commands];
+                _commands[_commands.length - 1].response = res;
 
-        if (commands && commands.length > 0) {
-            let _commands = [...commands];
-            _commands[_commands.length - 1].response = res;
-
-            this.setState({ commands: _commands });
+                setCommands(_commands);
+            }
         }
-    }
 
-    clear() {
-        this.setState({
-            commands: [],
-            index: 0
-        });
-    }
+        const clear = () => {
+            setCommands([]);
+            setIndex(0);
+        }
 
-    componentDidMount() {
-        TerminalService.on('response', this.response);
-        TerminalService.on('clear', this.clear);
-    }
+        TerminalService.on('response', response);
+        TerminalService.on('clear', clear);
 
-    componentDidUpdate() {
-        this.container.scrollTop = this.container.scrollHeight;
-    }
+        return () => {
+            TerminalService.off('response', response);
+            TerminalService.off('clear', clear);
+        }
+    }, [commands]);
 
-    componentWillUnmount() {
-        TerminalService.off('response', this.response);
-        TerminalService.off('clear', this.clear);
-    }
+    useEffect(() => {
+        if (isEmitted.current) {
+            TerminalService.emit('command', emittedText);
+            isEmitted.current = false;
+        }
 
-    renderWelcomeMessage() {
-        if (this.props.welcomeMessage) {
-            return <div>{this.props.welcomeMessage}</div>;
+        elementRef.current.scrollTop = elementRef.current.scrollHeight;
+    });
+
+    const useWelcomeMessage = () => {
+        if (props.welcomeMessage) {
+            return <div>{props.welcomeMessage}</div>;
         }
 
         return null;
     }
 
-    renderCommand(command, index) {
+    const useCommand = (command, index) => {
         const { text, response } = command;
 
         return (
             <div key={`${text}${index}`}>
-                <span className="p-terminal-prompt">{this.props.prompt}&nbsp;</span>
+                <span className="p-terminal-prompt">{props.prompt}&nbsp;</span>
                 <span className="p-terminal-command">{text}</span>
                 <div className="p-terminal-response">{response}</div>
             </div>
         )
     }
 
-    renderContent() {
-        const commands = this.state.commands.map((c, i) => this.renderCommand(c, i));
+    const useContent = () => {
+        const content = commands.map(useCommand);
 
         return (
             <div className="p-terminal-content">
-                {commands}
+                {content}
             </div>
         )
     }
 
-    renderPromptContainer() {
+    const usePromptContainer = () => {
         return (
             <div className="p-terminal-prompt-container">
-                <span className="p-terminal-prompt">{this.props.prompt}&nbsp;</span>
-                <input ref={(el) => this.input = el} type="text" value={this.state.commandText} className="p-terminal-input"
-                    autoComplete="off" onChange={this.onInputChange} onKeyDown={this.onInputKeyDown} />
+                <span className="p-terminal-prompt">{props.prompt}&nbsp;</span>
+                <input ref={inputRef} type="text" value={commandText} className="p-terminal-input"
+                    autoComplete="off" onChange={onInputChange} onKeyDown={onInputKeyDown} />
             </div>
         )
     }
 
-    render() {
-        const className = classNames('p-terminal p-component', this.props.className);
-        const welcomeMessage = this.renderWelcomeMessage();
-        const content = this.renderContent();
-        const prompt = this.renderPromptContainer();
+    const className = classNames('p-terminal p-component', props.className);
+    const welcomeMessage = useWelcomeMessage();
+    const content = useContent();
+    const prompt = usePromptContainer();
 
-        return (
-            <div ref={(el) => this.container = el} id={this.props.id} className={className} style={this.props.style} onClick={this.onClick}>
-                {welcomeMessage}
-                {content}
-                {prompt}
-            </div>
-        );
-    }
+    return (
+        <div ref={elementRef} id={props.id} className={className} style={props.style} onClick={onClick}>
+            {welcomeMessage}
+            {content}
+            {prompt}
+        </div>
+    )
+})
+
+Terminal.defaultProps = {
+    id: null,
+    style: null,
+    className: null,
+    welcomeMessage: null,
+    prompt: null
+}
+
+Terminal.propTypes = {
+    id: PropTypes.string,
+    style: PropTypes.object,
+    className: PropTypes.string,
+    welcomeMessage: PropTypes.string,
+    prompt: PropTypes.string
 }
