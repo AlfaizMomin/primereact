@@ -1,20 +1,19 @@
-import React, { useRef, forwardRef, useEffect, useState, useImperativeHandle } from 'react';
+import React, { useRef, forwardRef, useEffect, useState, useImperativeHandle, memo } from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, ZIndexUtils, classNames } from '../utils/Utils';
 import { MenubarSub } from './MenubarSub';
 import PrimeReact from '../api/Api';
 import { useEventListener } from '../hooks/useEventListener';
 
-export const Menubar = forwardRef((props, ref) => {
-
+export const Menubar = memo(forwardRef((props, ref) => {
     const [mobileActive, setMobileActive] = useState(false);
-    const rootmenu = useRef(null);
-    const menubutton = useRef(null);
+    const rootMenuRef = useRef(null);
+    const menuButtonRef = useRef(null);
 
     const [bindDocumentClickListener, unbindDocumentClickListener] = useEventListener({
         type: 'click', listener: event => {
             if (mobileActive && isOutsideClicked(event)) {
-                setMobileActive(false)
+                setMobileActive(false);
             }
         }
     });
@@ -27,19 +26,19 @@ export const Menubar = forwardRef((props, ref) => {
 
     useEffect(() => {
         if (mobileActive) {
-            ZIndexUtils.set('menu', rootmenu.current, PrimeReact.autoZIndex, PrimeReact.zIndex['menu']);
+            ZIndexUtils.set('menu', rootMenuRef.current, PrimeReact.autoZIndex, PrimeReact.zIndex['menu']);
             bindDocumentClickListener();
         }
         else {
             unbindDocumentClickListener();
-            ZIndexUtils.clear(rootmenu.current);
+            ZIndexUtils.clear(rootMenuRef.current);
         }
     }, [mobileActive])
 
 
     const isOutsideClicked = (event) => {
-        return rootmenu.current !== event.target && !rootmenu.current.contains(event.target)
-            && menubutton.current !== event.target && !menubutton.current.contains(event.target)
+        return rootMenuRef.current !== event.target && !rootMenuRef.current.contains(event.target)
+            && menuButtonRef.current !== event.target && !menuButtonRef.current.contains(event.target)
     }
 
     const onLeafClick = () => {
@@ -48,7 +47,7 @@ export const Menubar = forwardRef((props, ref) => {
 
     useEffect(() => {
         return () => {
-            ZIndexUtils.clear(rootmenu.current);
+            ZIndexUtils.clear(rootMenuRef.current);
         }
     }, [])
 
@@ -95,7 +94,7 @@ export const Menubar = forwardRef((props, ref) => {
     const useMenuButton = () => {
         /* eslint-disable */
         const button = (
-            <a ref={menubutton} href={'#'} role="button" tabIndex={0} className="p-menubar-button" onClick={toggle}>
+            <a ref={menuButtonRef} href={'#'} role="button" tabIndex={0} className="p-menubar-button" onClick={toggle}>
                 <i className="pi pi-bars" />
             </a>
         );
@@ -118,11 +117,11 @@ export const Menubar = forwardRef((props, ref) => {
         <div id={props.id} className={className} style={props.style}>
             {start}
             {menuButton}
-            <MenubarSub ref={(el) => rootmenu = el} model={props.model} root mobileActive={mobileActive} onLeafClick={onLeafClick} />
+            <MenubarSub ref={rootMenuRef} model={props.model} root mobileActive={mobileActive} onLeafClick={onLeafClick} />
             {end}
         </div>
     );
-})
+}))
 
 Menubar.defaultProps = {
     id: null,
@@ -131,7 +130,7 @@ Menubar.defaultProps = {
     className: null,
     start: null,
     end: null
-};
+}
 
 Menubar.propTypes = {
     id: PropTypes.string,
@@ -140,4 +139,4 @@ Menubar.propTypes = {
     className: PropTypes.string,
     start: PropTypes.any,
     end: PropTypes.any
-};
+}
