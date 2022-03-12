@@ -1,225 +1,189 @@
-import { Component } from 'react';
+import { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { DomHandler, ObjectUtils } from '../utils/Utils';
+import { useEventListener } from '../hooks/useEventListener';
+import { useUnmountEffect } from '../hooks/useUnmountEffect';
 
-export class StyleClass extends Component {
+export const StyleClass = (props) => {
+    const targetRef = useRef(null);
+    const animating = useRef(false);
+    const elementRef = useRef(null);
 
-    static defaultProps = {
-        nodeRef: null,
-        selector: null,
-        enterClassName: null,
-        enterActiveClassName: null,
-        enterToClassName: null,
-        leaveClassName: null,
-        leaveActiveClassName: null,
-        leaveToClassName: null,
-        hideOnOutsideClick: false,
-        toggleClassName: null
-    }
+    const [bindTargetEnter, unbindTargetEnter] = useEventListener({ type: 'animationend', listener: () => {
+        DomHandler.removeClass(targetRef.current, props.enterActiveClassName);
+        if (props.enterToClassName) {
+            DomHandler.addClass(targetRef.current, props.enterToClassName);
+        }
+        unbindTargetEnter();
 
-    static propTypes = {
-        nodeRef: PropTypes.any,
-        selector: PropTypes.string,
-        enterClassName: PropTypes.string,
-        enterActiveClassName: PropTypes.string,
-        enterToClassName: PropTypes.string,
-        leaveClassName: PropTypes.string,
-        leaveActiveClassName: PropTypes.string,
-        leaveToClassName: PropTypes.string,
-        hideOnOutsideClick: PropTypes.bool,
-        toggleClassName: PropTypes.string
-    }
+        if (props.enterActiveClassName === 'slidedown') {
+            targetRef.current.style.maxHeight = '';
+        }
+        animating.current = false;
+    }, when: false });
 
-    enter() {
-        if (this.props.enterActiveClassName) {
-            if (!this.animating) {
-                this.animating = true;
+    const [bindTargetLeave, unbindTargetLeave] = useEventListener({ type: 'animationend', listener: () => {
+        DomHandler.removeClass(targetRef.current, props.leaveActiveClassName);
+        if (props.leaveToClassName) {
+            DomHandler.addClass(targetRef.current, props.leaveToClassName);
+        }
+        unbindTargetLeave();
+        animating.current = false;
+    }, when: false});
 
-                if (this.props.enterActiveClassName === 'slidedown') {
-                    this.target.style.height = '0px';
-                    DomHandler.removeClass(this.target, 'hidden');
-                    this.target.style.maxHeight = this.target.scrollHeight + 'px';
-                    DomHandler.addClass(this.target, 'hidden');
-                    this.target.style.height = '';
+    const [bindDocumentClick, unbindDocumentClick] = useEventListener({ type: 'animationend', listener: (event) => {
+        if (getComputedStyle(targetRef.current).getPropertyValue('position') === 'static') {
+            unbindDocumentClick();
+        }
+        else if (!elementRef.current.isSameNode(event.target) && !elementRef.current.contains(event.target) && !targetRef.current.contains(event.target)) {
+            leave();
+        }
+    }, when: false });
+
+    const [bindClick, unbindClick] = useEventListener({ type: 'click', listener: () => {
+        targetRef.current = resolveTarget();
+
+        if (props.toggleClassName) {
+            if (DomHandler.hasClass(targetRef.current, props.toggleClassName))
+                DomHandler.removeClass(targetRef.current, props.toggleClassName);
+            else
+                DomHandler.addClass(targetRef.current, props.toggleClassName);
+        }
+        else {
+            if (targetRef.current.offsetParent === null)
+                enter();
+            else
+                leave();
+        }
+    }, when: false });
+
+    const enter = () => {
+        if (props.enterActiveClassName) {
+            if (!animating.current) {
+                animating.current = true;
+
+                if (props.enterActiveClassName === 'slidedown') {
+                    targetRef.current.style.height = '0px';
+                    DomHandler.removeClass(targetRef.current, 'hidden');
+                    targetRef.current.style.maxHeight = targetRef.current.scrollHeight + 'px';
+                    DomHandler.addClass(targetRef.current, 'hidden');
+                    targetRef.current.style.height = '';
                 }
 
-                DomHandler.addClass(this.target, this.props.enterActiveClassName);
-                if (this.props.enterClassName) {
-                    DomHandler.removeClass(this.target, this.props.enterClassName);
+                DomHandler.addClass(targetRef.current, props.enterActiveClassName);
+                if (props.enterClassName) {
+                    DomHandler.removeClass(targetRef.current, props.enterClassName);
                 }
 
-                this.enterListener = () => {
-                    DomHandler.removeClass(this.target, this.props.enterActiveClassName);
-                    if (this.props.enterToClassName) {
-                        DomHandler.addClass(this.target, this.props.enterToClassName);
-                    }
-                    this.target.removeEventListener('animationend', this.enterListener);
-
-                    if (this.props.enterActiveClassName === 'slidedown') {
-                        this.target.style.maxHeight = '';
-                    }
-                    this.animating = false;
-                };
-
-                this.target.addEventListener('animationend', this.enterListener);
+                bindTargetEnter({ target: targetRef.current, when: true });
             }
         }
         else {
-            if (this.props.enterClassName) {
-                DomHandler.removeClass(this.target, this.props.enterClassName);
+            if (props.enterClassName) {
+                DomHandler.removeClass(targetRef.current, props.enterClassName);
             }
 
-            if (this.props.enterToClassName) {
-                DomHandler.addClass(this.target, this.props.enterToClassName);
+            if (props.enterToClassName) {
+                DomHandler.addClass(targetRef.current, props.enterToClassName);
             }
         }
 
-        if (this.props.hideOnOutsideClick) {
-            this.bindDocumentListener();
-        }
+        bindDocumentClick({ target: elementRef.current && elementRef.current.ownerDocument, when: props.hideOnOutsideClick });
     }
 
-    leave() {
-        if (this.props.leaveActiveClassName) {
-            if (!this.animating) {
-                this.animating = true;
-                DomHandler.addClass(this.target, this.props.leaveActiveClassName);
-                if (this.props.leaveClassName) {
-                    DomHandler.removeClass(this.target, this.props.leaveClassName);
+    const leave = () => {
+        if (props.leaveActiveClassName) {
+            if (!animating.current) {
+                animating.current = true;
+                DomHandler.addClass(targetRef.current, props.leaveActiveClassName);
+                if (props.leaveClassName) {
+                    DomHandler.removeClass(targetRef.current, props.leaveClassName);
                 }
 
-                this.leaveListener = () => {
-                    DomHandler.removeClass(this.target, this.props.leaveActiveClassName);
-                    if (this.props.leaveToClassName) {
-                        DomHandler.addClass(this.target, this.props.leaveToClassName);
-                    }
-                    this.target.removeEventListener('animationend', this.leaveListener);
-                    this.animating = false;
-                };
-
-                this.target.addEventListener('animationend', this.leaveListener);
+                bindTargetLeave({ target: targetRef.current, when: true });
             }
         }
         else {
-            if (this.props.leaveClassName) {
-                DomHandler.removeClass(this.target, this.props.leaveClassName);
+            if (props.leaveClassName) {
+                DomHandler.removeClass(targetRef.current, props.leaveClassName);
             }
 
-            if (this.props.leaveToClassName) {
-                DomHandler.addClass(this.target, this.props.leaveToClassName);
+            if (props.leaveToClassName) {
+                DomHandler.addClass(targetRef.current, props.leaveToClassName);
             }
         }
 
-        if (this.props.hideOnOutsideClick) {
-            this.unbindDocumentListener();
-        }
+        unbindDocumentClick();
     }
 
-    resolveTarget() {
-        if (this.target) {
-            return this.target;
+    const resolveTarget = () => {
+        if (targetRef.current) {
+            return targetRef.current;
         }
 
-        switch (this.props.selector) {
+        switch (props.selector) {
             case '@next':
-                return this.el.nextElementSibling;
+                return elementRef.current.nextElementSibling;
 
             case '@prev':
-                return this.el.previousElementSibling;
+                return elementRef.current.previousElementSibling;
 
             case '@parent':
-                return this.el.parentElement;
+                return elementRef.current.parentElement;
 
             case '@grandparent':
-                return this.el.parentElement.parentElement;
+                return elementRef.current.parentElement.parentElement;
 
             default:
-                return document.querySelector(this.props.selector);
+                return document.querySelector(props.selector);
         }
     }
 
-    bindDocumentListener() {
-        if (!this.documentListener) {
-            this.documentListener = (event) => {
-                if (getComputedStyle(this.target).getPropertyValue('position') === 'static') {
-                    this.unbindDocumentListener();
-                }
-                else if (!this.el.isSameNode(event.target) && !this.el.contains(event.target) && !this.target.contains(event.target)) {
-                    this.leave();
-                }
-            };
-
-            this.el.ownerDocument.addEventListener('click', this.documentListener);
-        }
+    const init = () => {
+        elementRef.current = ObjectUtils.getRefElement(props.nodeRef);
+        bindClick({ target: elementRef.current, when: true });
     }
 
-    unbindDocumentListener() {
-        if (this.documentListener) {
-            this.el.ownerDocument.removeEventListener('click', this.documentListener);
-            this.documentListener = null;
-        }
+    const destroy = () => {
+        unbindClick();
+        unbindDocumentClick();
+        targetRef.current = null;
     }
 
-    bindEvents() {
-        this.clickListener = () => {
-            this.target = this.resolveTarget();
+    useEffect(() => {
+        destroy();
+        init();
+    }, [props.nodeRef]);
 
-            if (this.props.toggleClassName) {
-                if (DomHandler.hasClass(this.target, this.props.toggleClassName))
-                    DomHandler.removeClass(this.target, this.props.toggleClassName);
-                else
-                    DomHandler.addClass(this.target, this.props.toggleClassName);
-            }
-            else {
-                if (this.target.offsetParent === null)
-                    this.enter();
-                else
-                    this.leave();
-            }
-        }
+    useUnmountEffect(() => {
+        destroy();
+    });
 
-        this.el.addEventListener('click', this.clickListener);
-    }
+    return props.children;
+}
 
-    unbindEvents() {
-        if (this.clickListener) {
-            this.el.removeEventListener('click', this.clickListener);
-            this.clickListener = null;
-        }
-    }
+StyleClass.defaultProps = {
+    nodeRef: null,
+    selector: null,
+    enterClassName: null,
+    enterActiveClassName: null,
+    enterToClassName: null,
+    leaveClassName: null,
+    leaveActiveClassName: null,
+    leaveToClassName: null,
+    hideOnOutsideClick: false,
+    toggleClassName: null
+}
 
-    get el() {
-        return ObjectUtils.getRefElement(this.props.nodeRef);
-    }
-
-    init() {
-        if (this.el) {
-            this.bindEvents();
-        }
-    }
-
-    destroy() {
-        this.unbindEvents();
-        this.unbindDocumentListener();
-        this.target = null;
-    }
-
-    componentDidMount() {
-        this.init();
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        if (prevProps.nodeRef !== this.props.nodeRef) {
-            this.destroy();
-            this.init();
-        }
-    }
-
-    componentWillUnmount() {
-        this.destroy();
-    }
-
-    render() {
-        return this.props.children;
-    }
+StyleClass.propTypes = {
+    nodeRef: PropTypes.any,
+    selector: PropTypes.string,
+    enterClassName: PropTypes.string,
+    enterActiveClassName: PropTypes.string,
+    enterToClassName: PropTypes.string,
+    leaveClassName: PropTypes.string,
+    leaveActiveClassName: PropTypes.string,
+    leaveToClassName: PropTypes.string,
+    hideOnOutsideClick: PropTypes.bool,
+    toggleClassName: PropTypes.string
 }
