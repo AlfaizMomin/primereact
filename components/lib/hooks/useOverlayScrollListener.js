@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { DomHandler } from '../utils/Utils';
+import { DomHandler, ObjectUtils } from '../utils/Utils';
 import { usePrevious } from './usePrevious';
 import { useUnmountEffect } from './useUnmountEffect';
 
@@ -9,7 +9,12 @@ export const useOverlayScrollListener = ({ target, listener, options, when = tru
     const scrollableParents = useRef([]);
     const prevOptions = usePrevious(options);
 
-    const bind = () => {
+    const bind = (bindOptions = {}) => {
+        if (ObjectUtils.isNotEmpty(bindOptions.target)) {
+            unbind();
+            (bindOptions.when || when) && (targetRef.current = DomHandler.getTargetElement(bindOptions.target));
+        }
+
         if (!listenerRef.current && targetRef.current) {
             const nodes = scrollableParents.current = DomHandler.getScrollableParents(targetRef.current);
 

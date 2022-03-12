@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { DomHandler } from '../utils/Utils';
+import { DomHandler, ObjectUtils } from '../utils/Utils';
 import { usePrevious } from './usePrevious';
 import { useUnmountEffect } from './useUnmountEffect';
 
@@ -8,7 +8,12 @@ export const useEventListener = ({ target = 'document', type, listener, options,
     const listenerRef = useRef(null);
     const prevOptions = usePrevious(options);
 
-    const bind = () => {
+    const bind = (bindOptions = {}) => {
+        if (ObjectUtils.isNotEmpty(bindOptions.target)) {
+            unbind();
+            (bindOptions.when || when) && (targetRef.current = DomHandler.getTargetElement(bindOptions.target));
+        }
+
         if (!listenerRef.current && targetRef.current) {
             listenerRef.current = event => listener && listener(event);
             targetRef.current.addEventListener(type, listenerRef.current, options);
