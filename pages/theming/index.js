@@ -3,9 +3,9 @@ import { CodeHighlight } from '../../components/doc/common/codehighlight';
 import Head from 'next/head';
 import getConfig from 'next/config';
 
-export default function ThemingPage() {
+const ThemingPage = () => {
     const contextPath = getConfig().publicRuntimeConfig.contextPath;
-    
+
     return (
         <div>
             <Head>
@@ -180,3 +180,5 @@ primereact/resources/themes/rhea/theme.css
         </div>
     );
 }
+
+export default ThemingPage;

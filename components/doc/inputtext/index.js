@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { memo } from 'react';
 import Link from 'next/link';
 import { TabView, TabPanel } from '../../lib/tabview/TabView';
 import { useLiveEditorTabs } from '../common/liveeditor';
 import { CodeHighlight } from '../common/codehighlight';
 
-export default function InputTextDoc() {
+const InputTextDoc = memo(() => {
 
     const sources = {
         'class': {
@@ -398,4 +398,6 @@ import { InputText } from 'primereact/inputtext';
             </TabView>
         </div>
     )
-}
+})
+
+export default InputTextDoc;

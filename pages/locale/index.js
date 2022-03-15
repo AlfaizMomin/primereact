@@ -2,8 +2,8 @@ import React from 'react';
 import { CodeHighlight } from '../../components/doc/common/codehighlight';
 import Head from 'next/head';
 
-export default function LocaleDemo() {
-    
+const LocaleDemo = () => {
+
     return (
         <div>
             <Head>
@@ -203,3 +203,5 @@ locale('es');
         </div>
     );
 }
+
+export default LocaleDemo;

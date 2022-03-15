@@ -4,7 +4,7 @@ import { InputText } from '../../components/lib/inputtext/InputText';
 import { IconService } from '../../service/IconService';
 import Head from 'next/head';
 
-export default function IconsPage() {
+const IconsPage = () => {
     const [icons, setIcons] = useState(null);
     const [filteredIcons, setFilteredIcons] = useState(null);
 
@@ -37,7 +37,7 @@ export default function IconsPage() {
             setFilteredIcons(data);
         });
     }, []);
-    
+
     return (
         <div>
             <Head>
@@ -157,3 +157,5 @@ return <Menu model={items} />
         </div>
     );
 }
+
+export default IconsPage;

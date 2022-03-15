@@ -11,7 +11,7 @@ import { Slider } from '../../components/lib/slider/Slider';
 import { classNames } from '../../components/lib/utils/ClassNames';
 import { useRef, useState } from 'react';
 
-export default function DesignerSection(props) {
+const DesignerSection = (props) => {
     const contextPath = getConfig().publicRuntimeConfig.contextPath;
     const [font,setFont] = useState('-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol');
     const fonts = [
@@ -55,7 +55,7 @@ export default function DesignerSection(props) {
             _checkboxValue.push(e.value);
         else
             _checkboxValue.splice(_checkboxValue.indexOf(e.value), 1);
-    
+
         setCheckboxValue(_checkboxValue);
     }
 
@@ -179,3 +179,4 @@ export default function DesignerSection(props) {
     );
 }
 
+export default DesignerSection;

@@ -51,7 +51,7 @@ let chartOptions = {
     }
 };
 
-export default function ComponentSection() {
+const ComponentSection = () => {
     const [category, setCategory] = useState('C');
     const [nodes, setNodes] = useState(null);
     const [switchValue, setSwitchValue] = useState(true);
@@ -74,7 +74,7 @@ export default function ComponentSection() {
 
     useEffect(() => {
         nodeService.getTreeNodes().then(data => setNodes(data));
-    }, []); 
+    }, []);
 
     return (
         <section className="landing-components py-8">
@@ -236,3 +236,5 @@ export default function ComponentSection() {
         </section>
     );
 }
+
+export default ComponentSection;

@@ -1,6 +1,6 @@
 import getConfig from 'next/config';
 
-export default function FeaturesSection(props) {
+const FeaturesSection = (props) => {
     const contextPath = getConfig().publicRuntimeConfig.contextPath;
 
     return (
@@ -68,3 +68,5 @@ export default function FeaturesSection(props) {
         </section>
     );
 }
+
+export default FeaturesSection;

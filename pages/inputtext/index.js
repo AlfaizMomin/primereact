@@ -1,10 +1,10 @@
-import React, { Component, useState } from 'react';
+import React, { useState } from 'react';
 import { InputText } from '../../components/lib/inputtext/InputText';
 import InputTextDoc from '../../components/doc/inputtext';
 import { DocActions } from '../../components/doc/common/docactions';
 import Head from 'next/head';
 
-export default function InputTextDemo(props) {
+const InputTextDemo = () => {
 
     const [value1,setValue1] = useState('');
     const [value2,setValue2] = useState('');
@@ -81,3 +81,5 @@ export default function InputTextDemo(props) {
         </div>
     )
 }
+
+export default InputTextDemo;

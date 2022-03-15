@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import GetStartedSection from './getstartedsection';
 
-export default function HeroSection() {
+const HeroSection = () => {
     const contextPath = getConfig().publicRuntimeConfig.contextPath;
     const [animationClass, setAnimationClass] = useState("");
 
@@ -101,3 +101,5 @@ export default function HeroSection() {
         </section>
     );
 }
+
+export default HeroSection;

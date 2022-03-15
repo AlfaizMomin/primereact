@@ -1,7 +1,7 @@
 import getConfig from 'next/config';
 import { useEffect, useState } from 'react';
 
-export default function TemplateSection(props) {
+const TemplateSection = (props) => {
     const contextPath = getConfig().publicRuntimeConfig.contextPath;
     const [animationClass, setAnimationClass] = useState("");
 
@@ -206,7 +206,9 @@ export default function TemplateSection(props) {
                 </div>
             </div>
             </section>
-            
+
         </section>
     );
 }
+
+export default TemplateSection;

@@ -8,7 +8,7 @@ import { DocActions } from '../../components/doc/common/docactions';
 import Head from 'next/head';
 import getConfig from 'next/config';
 
-export default function MessagesDemo() {
+const MessagesDemo = () => {
     const msgs1 = useRef(null);
     const msgs2 = useRef(null);
     const msgs3 = useRef(null);
@@ -115,3 +115,5 @@ export default function MessagesDemo() {
         </div>
     )
 }
+
+export default MessagesDemo;

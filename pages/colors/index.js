@@ -2,7 +2,7 @@ import React from 'react';
 import { CodeHighlight } from '../../components/doc/common/codehighlight';
 import Head from 'next/head';
 
-export default function ColorsDemo(props) {
+const ColorsDemo = (props) => {
     const colors = ['blue', 'green', 'yellow', 'cyan', 'pink', 'indigo', 'teal', 'orange', 'bluegray', 'purple'];
     const shades = [0, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
 
@@ -116,3 +116,5 @@ export default function ColorsDemo(props) {
         </div>
     )
 }
+
+export default ColorsDemo;

@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React, { memo } from 'react';
 import Link from 'next/link';
 import { TabView, TabPanel } from '../../lib/tabview/TabView';
 import { useLiveEditorTabs } from '../common/liveeditor';
 import { CodeHighlight } from '../common/codehighlight';
 
-const AccordionDoc = () => {
+const AccordionDoc = memo(() => {
 
     const sources = {
         'class': {
@@ -385,10 +385,10 @@ export const AccordionDemo = () => {
         'browser': {
             tabName: 'Browser Source',
             imports: `
-<link rel="stylesheet" href="./AccordionDemo.css" />
+        <link rel="stylesheet" href="./AccordionDemo.css" />
 
-<script src="https://unpkg.com/primereact/core/core.min.js"></script>
-<script src="https://unpkg.com/primereact/accordion/accordion.min.js"></script>`,
+        <script src="https://unpkg.com/primereact/core/core.min.js"></script>
+        <script src="https://unpkg.com/primereact/accordion/accordion.min.js"></script>`,
             content: `
 const { useEffect, useState, useRef } = React;
 const { Accordion, AccordionTab } = primereact.accordion;
@@ -815,6 +815,6 @@ import { Accordion, AccordionTab } from 'primereact/accordion';
             </TabView>
         </div>
     );
-}
+})
 
 export default AccordionDoc;

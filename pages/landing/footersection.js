@@ -1,7 +1,7 @@
 import getConfig from 'next/config';
 import Link from 'next/link';
 
-export default function FooterSection(props) {
+const FooterSection = (props) => {
     const contextPath = getConfig().publicRuntimeConfig.contextPath;
 
     return (
@@ -103,3 +103,5 @@ export default function FooterSection(props) {
         </section>
     );
 }
+
+export default FooterSection;

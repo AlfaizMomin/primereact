@@ -1,18 +1,15 @@
-import React, { Component } from 'react';
+import React, { memo } from 'react';
 import Link from 'next/link';
 import { TabView, TabPanel } from '../../lib/tabview/TabView';
 import { useLiveEditorTabs } from '../common/liveeditor';
 import { CodeHighlight } from '../common/codehighlight';
 
-export class ConfirmDialogDoc extends Component {
+const ConfirmDialogDoc = memo(() => {
 
-    constructor(props) {
-        super(props);
-
-        this.sources = {
-            'class': {
-                tabName: 'Class Source',
-                content: `
+    const sources = {
+        'class': {
+            tabName: 'Class Source',
+            content: `
 import React, { Component } from 'react';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { Button } from 'primereact/button';
@@ -112,10 +109,10 @@ export class ConfirmDialogDemo extends Component {
     }
 }
                 `
-            },
-            'hooks': {
-                tabName: 'Hooks Source',
-                content: `
+        },
+        'hooks': {
+            tabName: 'Hooks Source',
+            content: `
 import React, { useState, useRef } from 'react';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { Button } from 'primereact/button';
@@ -201,10 +198,10 @@ const ConfirmDialogDemo = () => {
     )
 }
                 `
-            },
-            'ts': {
-                tabName: 'TS Source',
-                content: `
+        },
+        'ts': {
+            tabName: 'TS Source',
+            content: `
 import React, { useState, useRef } from 'react';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { Button } from 'primereact/button';
@@ -290,14 +287,14 @@ const ConfirmDialogDemo = () => {
     )
 }
                 `
-            },
-            'browser': {
-                tabName: 'Browser Source',
-                imports: `
+        },
+        'browser': {
+            tabName: 'Browser Source',
+            imports: `
         <script src="https://unpkg.com/primereact/core/core.min.js"></script>
         <script src="https://unpkg.com/primereact/confirmdialog/confirmdialog.min.js"></script>
         <script src="https://unpkg.com/primereact/toast/toast.min.js"></script>`,
-                content: `
+            content: `
 const { useEffect, useState, useRef } = React;
 const { ConfirmDialog, confirmDialog } = primereact.confirmdialog;
 const { Button } = primereact.button;
@@ -383,20 +380,14 @@ const ConfirmDialogDemo = () => {
     )
 }
                 `
-            }
         }
     }
 
-    shouldComponentUpdate() {
-        return false;
-    }
-
-    render() {
-        return (
-            <div className="content-section documentation" id="app-doc">
-                <TabView>
-                    <TabPanel header="Documentation">
-                        <h5>Import via Module</h5>
+    return (
+        <div className="content-section documentation" id="app-doc">
+            <TabView>
+                <TabPanel header="Documentation">
+                    <h5>Import via Module</h5>
 <CodeHighlight lang="js">
 {`
 import { ConfirmDialog } from 'primereact/confirmdialog'; // To use <ConfirmDialog> tag
@@ -404,7 +395,7 @@ import { confirmDialog } from 'primereact/confirmdialog'; // To use confirmDialo
 `}
 </CodeHighlight>
 
-                        <h5>Import via CDN</h5>
+                    <h5>Import via CDN</h5>
 <CodeHighlight>
 {`
 <script src="https://unpkg.com/primereact/core/core.min.js"></script>
@@ -412,11 +403,11 @@ import { confirmDialog } from 'primereact/confirmdialog'; // To use confirmDialo
 `}
 </CodeHighlight>
 
-                        <h5>Getting Started</h5>
-                        <p>There are two ways to display confirm dialog. One of them is to use the <i>confirmDialog</i> method and the other is to use the <i>&lt;ConfirmDialog&gt;</i> tag.
-                            These independently create dialog element. It supports the same properties in both.</p>
+                    <h5>Getting Started</h5>
+                    <p>There are two ways to display confirm dialog. One of them is to use the <i>confirmDialog</i> method and the other is to use the <i>&lt;ConfirmDialog&gt;</i> tag.
+                        These independently create dialog element. It supports the same properties in both.</p>
 
-                        <h6>1. confirmDialog method</h6>
+                    <h6>1. confirmDialog method</h6>
 <CodeHighlight lang="js">
 {`
 const confirm = () => {
@@ -433,8 +424,8 @@ const confirm = () => {
 `}
 </CodeHighlight>
 
-                        <h6>2. &lt;ConfirmDialog&gt; tag</h6>
-                        <p>ConfirmDialog is used as a container and visibility is managed with <i>visible</i> property where <i>onHide</i> event is required to update the visibility state.</p>
+                    <h6>2. &lt;ConfirmDialog&gt; tag</h6>
+                    <p>ConfirmDialog is used as a container and visibility is managed with <i>visible</i> property where <i>onHide</i> event is required to update the visibility state.</p>
 
 <CodeHighlight>
 {`
@@ -445,164 +436,165 @@ const confirm = () => {
 `}
 </CodeHighlight>
 
-                        <h5>Responsive</h5>
-                        <p>ConfirmDialog width can be adjusted per screen size with the <i>breakpoints</i> option. In example below, default width is set to 50vw and below 961px, width would be 75vw and finally below 641px width becomes
-                        100%. The value of <i>breakpoints</i> should be an object literal whose keys are the maximum screen sizes and values are the widths per screen.</p>
+                    <h5>Responsive</h5>
+                    <p>ConfirmDialog width can be adjusted per screen size with the <i>breakpoints</i> option. In example below, default width is set to 50vw and below 961px, width would be 75vw and finally below 641px width becomes
+                    100%. The value of <i>breakpoints</i> should be an object literal whose keys are the maximum screen sizes and values are the widths per screen.</p>
 <CodeHighlight>
 {`
 <ConfirmDialog breakpoints={{'960px': '75vw', '640px': '100vw'}} style={{width: '50vw'}} ... />
 `}
 </CodeHighlight>
 
-                        <h5>Properties</h5>
-                        <p>These properties are extended from Dialog properties.</p>
-                        <div className="doc-tablewrapper">
-                            <table className="doc-table">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Type</th>
-                                        <th>Default</th>
-                                        <th>Description</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>visible</td>
-                                        <td>boolean</td>
-                                        <td>false</td>
-                                        <td>Specifies the visibility of the confirm dialog.</td>
-                                    </tr>
-                                    <tr>
-                                        <td>message</td>
-                                        <td>string</td>
-                                        <td>null</td>
-                                        <td>Message of the confirmation.</td>
-                                    </tr>
-                                    <tr>
-                                        <td>icon</td>
-                                        <td>string</td>
-                                        <td>null</td>
-                                        <td>Icon to display next to the message.</td>
-                                    </tr>
-                                    <tr>
-                                        <td>acceptLabel</td>
-                                        <td>string</td>
-                                        <td>Yes</td>
-                                        <td>Label of the accept button.</td>
-                                    </tr>
-                                    <tr>
-                                        <td>rejectLabel</td>
-                                        <td>string</td>
-                                        <td>No</td>
-                                        <td>Label of the reject button.</td>
-                                    </tr>
-                                    <tr>
-                                        <td>acceptIcon</td>
-                                        <td>string</td>
-                                        <td>null</td>
-                                        <td>Icon of the accept button.</td>
-                                    </tr>
-                                    <tr>
-                                        <td>rejectIcon</td>
-                                        <td>string</td>
-                                        <td>null</td>
-                                        <td>Icon of the reject button.</td>
-                                    </tr>
-                                    <tr>
-                                        <td>acceptClassName</td>
-                                        <td>string</td>
-                                        <td>null</td>
-                                        <td>Style class of the accept button.</td>
-                                    </tr>
-                                    <tr>
-                                        <td>rejectClassName</td>
-                                        <td>string</td>
-                                        <td>null</td>
-                                        <td>Style class of the reject button.</td>
-                                    </tr>
-                                    <tr>
-                                        <td>footer</td>
-                                        <td>any</td>
-                                        <td>null</td>
-                                        <td>Footer content of the confirm dialog.</td>
-                                    </tr>
-                                    <tr>
-                                        <td>style</td>
-                                        <td>string</td>
-                                        <td>null</td>
-                                        <td>Inline style of the element.</td>
-                                    </tr>
-                                    <tr>
-                                        <td>className</td>
-                                        <td>string</td>
-                                        <td>null</td>
-                                        <td>Style class of the element.</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <h5>Properties</h5>
+                    <p>These properties are extended from Dialog properties.</p>
+                    <div className="doc-tablewrapper">
+                        <table className="doc-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Default</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>visible</td>
+                                    <td>boolean</td>
+                                    <td>false</td>
+                                    <td>Specifies the visibility of the confirm dialog.</td>
+                                </tr>
+                                <tr>
+                                    <td>message</td>
+                                    <td>string</td>
+                                    <td>null</td>
+                                    <td>Message of the confirmation.</td>
+                                </tr>
+                                <tr>
+                                    <td>icon</td>
+                                    <td>string</td>
+                                    <td>null</td>
+                                    <td>Icon to display next to the message.</td>
+                                </tr>
+                                <tr>
+                                    <td>acceptLabel</td>
+                                    <td>string</td>
+                                    <td>Yes</td>
+                                    <td>Label of the accept button.</td>
+                                </tr>
+                                <tr>
+                                    <td>rejectLabel</td>
+                                    <td>string</td>
+                                    <td>No</td>
+                                    <td>Label of the reject button.</td>
+                                </tr>
+                                <tr>
+                                    <td>acceptIcon</td>
+                                    <td>string</td>
+                                    <td>null</td>
+                                    <td>Icon of the accept button.</td>
+                                </tr>
+                                <tr>
+                                    <td>rejectIcon</td>
+                                    <td>string</td>
+                                    <td>null</td>
+                                    <td>Icon of the reject button.</td>
+                                </tr>
+                                <tr>
+                                    <td>acceptClassName</td>
+                                    <td>string</td>
+                                    <td>null</td>
+                                    <td>Style class of the accept button.</td>
+                                </tr>
+                                <tr>
+                                    <td>rejectClassName</td>
+                                    <td>string</td>
+                                    <td>null</td>
+                                    <td>Style class of the reject button.</td>
+                                </tr>
+                                <tr>
+                                    <td>footer</td>
+                                    <td>any</td>
+                                    <td>null</td>
+                                    <td>Footer content of the confirm dialog.</td>
+                                </tr>
+                                <tr>
+                                    <td>style</td>
+                                    <td>string</td>
+                                    <td>null</td>
+                                    <td>Inline style of the element.</td>
+                                </tr>
+                                <tr>
+                                    <td>className</td>
+                                    <td>string</td>
+                                    <td>null</td>
+                                    <td>Style class of the element.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-                        <h5>Events</h5>
-                        <div className="doc-tablewrapper">
-                            <table className="doc-table">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Parameters</th>
-                                        <th>Description</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>accept</td>
-                                        <td>null</td>
-                                        <td>Callback to execute when action is confirmed.</td>
-                                    </tr>
-                                    <tr>
-                                        <td>reject</td>
-                                        <td>null</td>
-                                        <td>Callback to execute when action is rejected.</td>
-                                    </tr>
+                    <h5>Events</h5>
+                    <div className="doc-tablewrapper">
+                        <table className="doc-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Parameters</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>accept</td>
+                                    <td>null</td>
+                                    <td>Callback to execute when action is confirmed.</td>
+                                </tr>
+                                <tr>
+                                    <td>reject</td>
+                                    <td>null</td>
+                                    <td>Callback to execute when action is rejected.</td>
+                                </tr>
 
-                                    <tr>
-                                        <td>onHide</td>
-                                        <td>result: Indicates with which selection the dialog was closed. <br />
-                                            Valid values are 'accept', 'reject' and undefined (using close icon).</td>
-                                        <td>Callback to invoke when confirm dialog is hidden.</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                                <tr>
+                                    <td>onHide</td>
+                                    <td>result: Indicates with which selection the dialog was closed. <br />
+                                        Valid values are 'accept', 'reject' and undefined (using close icon).</td>
+                                    <td>Callback to invoke when confirm dialog is hidden.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-                        <h5>Styling</h5>
-                        <p>Following is the list of structural style classes, for theming classes visit <Link href="/theming">theming</Link> page.</p>
-                        <div className="doc-tablewrapper">
-                            <table className="doc-table">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Element</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>p-confirm-dialog</td>
-                                        <td>Container element.</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <h5>Styling</h5>
+                    <p>Following is the list of structural style classes, for theming classes visit <Link href="/theming">theming</Link> page.</p>
+                    <div className="doc-tablewrapper">
+                        <table className="doc-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Element</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>p-confirm-dialog</td>
+                                    <td>Container element.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-                        <h5>Dependencies</h5>
-                        <p>None.</p>
-                    </TabPanel>
+                    <h5>Dependencies</h5>
+                    <p>None.</p>
+                </TabPanel>
 
-                    {
-                        useLiveEditorTabs({ name: 'ConfirmDialogDemo', sources: this.sources })
-                    }
-                </TabView>
-            </div>
-        )
-    }
-}
+                {
+                    useLiveEditorTabs({ name: 'ConfirmDialogDemo', sources: sources })
+                }
+            </TabView>
+        </div>
+    )
+})
+
+export default ConfirmDialogDoc;

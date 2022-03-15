@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Head from 'next/head';
 import getConfig from 'next/config';
 
-export default function SupportPage() {
+const SupportPage = () => {
     const contextPath = getConfig().publicRuntimeConfig.contextPath;
 
     return (
@@ -11,7 +11,7 @@ export default function SupportPage() {
                 <title>Support - PrimeReact</title>
                 <meta name="description" content="Professional support for the open source innovation." />
             </Head>
-            <div className="content-section header-support" style={{backgroundImage: `url(${contextPath}/images/header-pro.jpg)`}}>
+            <div className="content-section header-support" style={{ backgroundImage: `url(${contextPath}/images/header-pro.jpg)` }}>
                 <div className="feature-intro">
                     <h1>Support</h1>
                     <p>Professional support for the open source innovation.</p>
@@ -23,17 +23,17 @@ export default function SupportPage() {
                     <div className="card support-box">
                         <h5>Community Support</h5>
                         <p><a href="https://forum.primefaces.org/viewforum.php?f=35">Forum</a> and <a href="https://discord.gg/gzKFYnpmCY">Discord</a> are where the community users gather to seek support, post topics and discuss the technology. PrimeTek does not
-                        guarantee response at forum and discord although they are monitored and maintained by our staff. If you need to secure our response within 1 business day, you may consider PrimeReact PRO support.</p>
+                            guarantee response at forum and discord although they are monitored and maintained by our staff. If you need to secure our response within 1 business day, you may consider PrimeReact PRO support.</p>
                     </div>
                 </div>
 
                 <div className="col-12 md:col-6">
-                    <div className="flex flex-column justify-content-center card support-box pro" style={{backgroundImage: `url(${contextPath}/images/pro-effect.png)`}}>
+                    <div className="flex flex-column justify-content-center card support-box pro" style={{ backgroundImage: `url(${contextPath}/images/pro-effect.png)` }}>
                         <div>
                             <h5>PrimeReact PRO Support</h5>
                             <p>PrimeReact PRO is a term based commercial support service. With the exclusive services of Pro account,
                                 you no longer need to post your questions in the community forum and your issues to community issue tracker.
-                            With PrimeReact PRO, it's easy to support, tune and add features to PrimeReact as if it were an in-house framework.</p>
+                                With PrimeReact PRO, it's easy to support, tune and add features to PrimeReact as if it were an in-house framework.</p>
                         </div>
                         <a className="action-button" href="mailto:PrimeReact@primetek.com.tr">GET A QUOTE</a>
                     </div>
@@ -214,3 +214,5 @@ export default function SupportPage() {
         </div>
     );
 }
+
+export default SupportPage;

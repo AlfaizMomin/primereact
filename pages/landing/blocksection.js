@@ -1,7 +1,7 @@
 import getConfig from 'next/config';
 import { useEffect, useState } from 'react';
 
-export default function BlockSection() {
+const BlockSection = () => {
     const contextPath = getConfig().publicRuntimeConfig.contextPath;
     const [animationClass, setAnimationClass] = useState('');
 
@@ -385,3 +385,5 @@ export default function BlockSection() {
         </section>
     );
 }
+
+export default BlockSection;

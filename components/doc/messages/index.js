@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React, { memo } from 'react';
 import Link from 'next/link';
 import { TabView, TabPanel } from '../../lib/tabview/TabView';
 import { useLiveEditorTabs } from '../common/liveeditor';
 import { CodeHighlight } from '../common/codehighlight';
 
-export default function MessagesDoc() {
+const MessagesDoc = memo(() => {
 
     const sources = {
         'class': {
@@ -113,10 +113,10 @@ export class MessagesDemo extends Component {
     }
 }
                 `
-        },
-        'hooks': {
-            tabName: 'Hooks Source',
-            content: `
+    },
+    'hooks': {
+        tabName: 'Hooks Source',
+        content: `
 import React, { useEffect, useRef } from 'react';
 import { Messages } from 'primereact/messages';
 import { Message } from 'primereact/message';
@@ -214,10 +214,10 @@ const MessagesDemo = () => {
     )
 }
                 `
-        },
-        'ts': {
-            tabName: 'TS Source',
-            content: `
+    },
+    'ts': {
+        tabName: 'TS Source',
+        content: `
 import React, { useEffect, useRef } from 'react';
 import { Messages } from 'primereact/messages';
 import { Message } from 'primereact/message';
@@ -315,14 +315,14 @@ const MessagesDemo = () => {
     )
 }
                 `
-        },
-        'browser': {
-            tabName: 'Browser Source',
-            imports: `
+    },
+    'browser': {
+        tabName: 'Browser Source',
+        imports: `
         <script src="https://unpkg.com/primereact/core/core.min.js"></script>
         <script src="https://unpkg.com/primereact/messages/messages.min.js"></script>
         <script src="https://unpkg.com/primereact/message/message.min.js"></script>`,
-            content: `
+        content: `
 const { useEffect, useState, useRef } = React;
 const { Messages } = primereact.messages;
 const { Message } = primereact.message;
@@ -815,4 +815,6 @@ messages.current.show({ life: 5000, severity: 'error', summary: 'Error Message',
             </TabView>
         </div>
     );
-}
+})
+
+export default MessagesDoc;

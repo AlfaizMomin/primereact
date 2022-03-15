@@ -4,9 +4,9 @@ import { CodeHighlight } from '../../components/doc/common/codehighlight';
 import Head from 'next/head';
 import getConfig from 'next/config';
 
-export default function SetupPage() {
+const SetupPage = () => {
     const contextPath = getConfig().publicRuntimeConfig.contextPath;
-    
+
     return (
         <div>
             <Head>
@@ -397,3 +397,5 @@ import { MenuItem } from 'primereact/api';
         </div>
     );
 }
+
+export default SetupPage;
