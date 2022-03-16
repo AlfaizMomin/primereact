@@ -1,80 +1,40 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React, { memo, useEffect, useRef } from 'react';
 import { DomHandler, classNames } from '../utils/Utils';
 
-export class TreeTableScrollableView extends Component {
+export const TreeTableScrollableView = memo((props) => {
+    const elementRef = useRef(null);
+    const scrollHeaderRef = useRef(null);
+    const scrollHeaderBoxRef = useRef(null);
+    const scrollBodyRef = useRef(null);
+    const scrollTableRef = useRef(null);
+    const scrollFooterRef = useRef(null);
+    const scrollFooterBoxRef = useRef(null);
 
-     static defaultProps = {
-        header: null,
-        body: null,
-        footer: null,
-        columns: null,
-        frozen: null,
-        frozenWidth: null,
-        frozenBody: null
-     }
-
-    static propTypes = {
-        header: PropTypes.any,
-        body: PropTypes.any,
-        footer: PropTypes.any,
-        columns: PropTypes.array,
-        frozen: PropTypes.bool,
-        frozenWidth: PropTypes.string,
-        frozenBody: PropTypes.any
-    }
-
-    constructor(props) {
-        super(props);
-        this.onHeaderScroll = this.onHeaderScroll.bind(this);
-        this.onBodyScroll = this.onBodyScroll.bind(this);
-    }
-
-    componentDidMount() {
-        this.setScrollHeight();
-
-        if (!this.props.frozen) {
-            let scrollBarWidth = DomHandler.calculateScrollbarWidth();
-
-            this.scrollHeaderBox.style.marginRight = scrollBarWidth + 'px';
-            if(this.scrollFooterBox) {
-                this.scrollFooterBox.style.marginRight = scrollBarWidth + 'px';
-            }
-        }
-        else {
-            this.scrollBody.style.paddingBottom = DomHandler.calculateScrollbarWidth() + 'px';
-        }
-    }
-
-    componentDidUpdate() {
-        this.setScrollHeight();
-    }
-
-    setScrollHeight() {
-        if(this.props.scrollHeight) {
-            if(this.props.scrollHeight.indexOf('%') !== -1) {
-                let datatableContainer = this.findDataTableContainer(this.container);
-                this.scrollBody.style.visibility = 'hidden';
-                this.scrollBody.style.height = '100px';         //temporary height to calculate static height
+    const setScrollHeight = () => {
+        if (props.scrollHeight) {
+            if (props.scrollHeight.indexOf('%') !== -1) {
+                let datatableContainer = findDataTableContainer(elementRef.current);
+                scrollBodyRef.current.style.visibility = 'hidden';
+                scrollBodyRef.current.style.height = '100px';         //temporary height to calculate static height
                 let containerHeight = DomHandler.getOuterHeight(datatableContainer);
-                let relativeHeight = DomHandler.getOuterHeight(datatableContainer.parentElement) * parseInt(this.props.scrollHeight, 10) / 100;
+                let relativeHeight = DomHandler.getOuterHeight(datatableContainer.parentElement) * parseInt(props.scrollHeight, 10) / 100;
                 let staticHeight = containerHeight - 100;       //total height of headers, footers, paginators
                 let scrollBodyHeight = (relativeHeight - staticHeight);
 
-                this.scrollBody.style.height = 'auto';
-                this.scrollBody.style.maxHeight = scrollBodyHeight + 'px';
-                this.scrollBody.style.visibility = 'visible';
+                scrollBodyRef.current.style.height = 'auto';
+                scrollBodyRef.current.style.maxHeight = scrollBodyHeight + 'px';
+                scrollBodyRef.current.style.visibility = 'visible';
             }
             else {
-                this.scrollBody.style.maxHeight = this.props.scrollHeight;
+                scrollBodyRef.current.style.maxHeight = props.scrollHeight;
             }
         }
     }
 
-    findDataTableContainer(element) {
-        if(element) {
+    const findDataTableContainer = (element) => {
+        if (element) {
             let el = element;
-            while(el && !DomHandler.hasClass(el, 'p-treetable')) {
+            while (el && !DomHandler.hasClass(el, 'p-treetable')) {
                 el = el.parentElement;
             }
 
@@ -85,39 +45,57 @@ export class TreeTableScrollableView extends Component {
         }
     }
 
-    onHeaderScroll() {
-        this.scrollHeader.scrollLeft = 0;
+    const onHeaderScroll = () => {
+        scrollHeaderRef.current.scrollLeft = 0;
     }
 
-    onBodyScroll() {
-        let frozenView = this.container.previousElementSibling;
+    const onBodyScroll = () => {
+        let frozenView = elementRef.current.previousElementSibling;
         let frozenScrollBody;
-        if(frozenView) {
+        if (frozenView) {
             frozenScrollBody = DomHandler.findSingle(frozenView, '.p-treetable-scrollable-body');
         }
 
-        this.scrollHeaderBox.style.marginLeft = -1 * this.scrollBody.scrollLeft + 'px';
-        if(this.scrollFooterBox) {
-            this.scrollFooterBox.style.marginLeft = -1 * this.scrollBody.scrollLeft + 'px';
+        scrollHeaderBoxRef.current.style.marginLeft = -1 * scrollBodyRef.current.scrollLeft + 'px';
+        if (scrollFooterBoxRef.current) {
+            scrollFooterBoxRef.current.style.marginLeft = -1 * scrollBodyRef.current.scrollLeft + 'px';
         }
 
-        if(frozenScrollBody) {
-            frozenScrollBody.scrollTop = this.scrollBody.scrollTop;
-        }
-    }
-
-    calculateRowHeight() {
-        let row = DomHandler.findSingle(this.scrollTable, 'tr:not(.p-treetable-emptymessage-row)');
-        if(row) {
-            this.rowHeight = DomHandler.getOuterHeight(row);
+        if (frozenScrollBody) {
+            frozenScrollBody.scrollTop = scrollBodyRef.current.scrollTop;
         }
     }
 
-    renderColGroup() {
-        if(this.props.columns && this.props.columns.length) {
+    useEffect(() => {
+        if (!props.frozen) {
+            let scrollBarWidth = DomHandler.calculateScrollbarWidth();
+
+            scrollHeaderBoxRef.current.style.marginRight = scrollBarWidth + 'px';
+            if (scrollFooterBoxRef.current) {
+                scrollFooterBoxRef.current.style.marginRight = scrollBarWidth + 'px';
+            }
+        }
+        else {
+            scrollBodyRef.current.style.paddingBottom = DomHandler.calculateScrollbarWidth() + 'px';
+        }
+    }, []);
+
+    useEffect(() => {
+        setScrollHeight();
+    });
+
+    const calculateRowHeight = () => {
+        let row = DomHandler.findSingle(scrollTableRef.current, 'tr:not(.p-treetable-emptymessage-row)');
+        if (row) {
+            rowHeight = DomHandler.getOuterHeight(row);
+        }
+    }
+
+    const useColGroup = () => {
+        if (props.columns && props.columns.length) {
             return (
                 <colgroup className="p-treetable-scrollable-colgroup">
-                    {this.props.columns.map((col, i) => <col key={col.field + '_' + i} />)}
+                    {props.columns.map((col, i) => <col key={col.field + '_' + i} />)}
                 </colgroup>
             );
         }
@@ -126,38 +104,36 @@ export class TreeTableScrollableView extends Component {
         }
     }
 
-    render() {
-        let className = classNames('p-treetable-scrollable-view', {'p-treetable-frozen-view': this.props.frozen, 'p-treetable-unfrozen-view': !this.props.frozen && this.props.frozenWidth});
-        let width = this.props.frozen ? this.props.frozenWidth : 'calc(100% - ' + this.props.frozenWidth + ')';
-        let left = this.props.frozen ? null : this.props.frozenWidth;
-        let colGroup = this.renderColGroup();
-        let scrollableBodyStyle = !this.props.frozen && this.props.scrollHeight ? { overflowY: 'scroll' } : null;
+    let className = classNames('p-treetable-scrollable-view', { 'p-treetable-frozen-view': props.frozen, 'p-treetable-unfrozen-view': !props.frozen && props.frozenWidth });
+    let width = props.frozen ? props.frozenWidth : 'calc(100% - ' + props.frozenWidth + ')';
+    let left = props.frozen ? null : props.frozenWidth;
+    let colGroup = useColGroup();
+    let scrollableBodyStyle = !props.frozen && props.scrollHeight ? { overflowY: 'scroll' } : null;
 
-        return (
-            <div className={className} style={{width: width, left: left}} ref={(el) => { this.container = el; }}>
-                <div className="p-treetable-scrollable-header" ref={(el) => { this.scrollHeader= el; }} onScroll={this.onHeaderScroll}>
-                    <div className="p-treetable-scrollable-header-box" ref={(el) => { this.scrollHeaderBox = el; }}>
-                        <table className="p-treetable-scrollable-header-table">
-                            {colGroup}
-                            {this.props.header}
-                        </table>
-                    </div>
-                </div>
-                <div className="p-treetable-scrollable-body" ref={(el) => { this.scrollBody = el; }} style={scrollableBodyStyle} onScroll={this.onBodyScroll}>
-                    <table ref={(el) => { this.scrollTable = el; }} style={{top:'0'}} className="p-treetable-scrollable-body-table">
+    return (
+        <div className={className} style={{ width: width, left: left }} ref={elementRef}>
+            <div className="p-treetable-scrollable-header" ref={scrollHeaderRef} onScroll={onHeaderScroll}>
+                <div className="p-treetable-scrollable-header-box" ref={scrollHeaderBoxRef}>
+                    <table className="p-treetable-scrollable-header-table">
                         {colGroup}
-                        {this.props.body}
+                        {props.header}
                     </table>
                 </div>
-                <div className="p-treetable-scrollable-footer" ref={(el) => { this.scrollFooter = el; }}>
-                    <div className="p-treetable-scrollable-footer-box" ref={(el) => { this.scrollFooterBox = el; }}>
-                         <table className="p-treetable-scrollable-footer-table">
-                            {colGroup}
-                            {this.props.footer}
-                        </table>
-                    </div>
+            </div>
+            <div className="p-treetable-scrollable-body" ref={scrollBodyRef} style={scrollableBodyStyle} onScroll={onBodyScroll}>
+                <table ref={scrollTableRef} style={{ top: '0' }} className="p-treetable-scrollable-body-table">
+                    {colGroup}
+                    {props.body}
+                </table>
+            </div>
+            <div className="p-treetable-scrollable-footer" ref={scrollFooterRef}>
+                <div className="p-treetable-scrollable-footer-box" ref={scrollFooterBoxRef}>
+                    <table className="p-treetable-scrollable-footer-table">
+                        {colGroup}
+                        {props.footer}
+                    </table>
                 </div>
             </div>
-        );
-    }
-}
+        </div>
+    )
+})
