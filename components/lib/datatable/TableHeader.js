@@ -1,116 +1,107 @@
-import React, { Component } from 'react';
+import React, { memo, useState } from 'react';
 import { classNames } from '../utils/Utils';
 import { HeaderCell } from './HeaderCell';
 import { HeaderCheckbox } from './HeaderCheckbox';
 import { ColumnFilter } from './ColumnFilter';
+import { useMountEffect } from '../hooks/useMountEffect';
 
-export class TableHeader extends Component {
+export const TableHeader = memo((props) => {
+    const [sortableDisabledFields, setSortableDisabledFields] = useState([]);
+    const [allSortableDisabled, setAllSortableDisabled] = useState(false);
 
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            sortableDisabledFields: [],
-            allSortableDisabled: false,
-            styleObject: {}
-        }
-
-        this.onSortableChange = this.onSortableChange.bind(this);
-        this.onCheckboxChange = this.onCheckboxChange.bind(this);
+    const isSingleSort = () => {
+        return props.sortMode === 'single';
     }
 
-    isSingleSort() {
-        return this.props.sortMode === 'single';
+    const isMultipleSort = () => {
+        return props.sortMode === 'multiple';
     }
 
-    isMultipleSort() {
-        return this.props.sortMode === 'multiple';
+    const isAllSortableDisabled = () => {
+        return isSingleSort() && allSortableDisabled;
     }
 
-    isAllSortableDisabled() {
-        return this.isSingleSort() && this.state.allSortableDisabled;
+    const isColumnSorted = (column) => {
+        return props.sortField !== null ? (column.props.field === props.sortField || column.props.sortField === props.sortField) : false;
     }
 
-    isColumnSorted(column) {
-        return this.props.sortField !== null ? (column.props.field === this.props.sortField || column.props.sortField === this.props.sortField) : false;
-    }
-
-    updateSortableDisabled() {
-        if (this.isSingleSort() || (this.isMultipleSort() && this.props.onSortChange)) {
-            let sortableDisabledFields = [];
-            let allSortableDisabled = false;
-            this.props.columns.forEach((column) => {
+    const updateSortableDisabled = () => {
+        if (isSingleSort() || (isMultipleSort() && props.onSortChange)) {
+            let _sortableDisabledFields = [];
+            let _allSortableDisabled = false;
+            props.columns.forEach((column) => {
                 if (column.props.sortableDisabled) {
-                    sortableDisabledFields.push(column.props.sortField || column.props.field);
+                    _sortableDisabledFields.push(column.props.sortField || column.props.field);
 
-                    if (!allSortableDisabled && this.isColumnSorted(column)) {
-                        allSortableDisabled = true;
+                    if (!_allSortableDisabled && isColumnSorted(column)) {
+                        _allSortableDisabled = true;
                     }
                 }
             });
 
-            this.setState({ sortableDisabledFields, allSortableDisabled });
+            setSortableDisabledFields(_sortableDisabledFields);
+            setAllSortableDisabled(_allSortableDisabled);
         }
     }
 
-    onSortableChange() {
-        this.updateSortableDisabled();
+    const onSortableChange = () => {
+        updateSortableDisabled();
     }
 
-    onCheckboxChange(e) {
-        this.props.onColumnCheckboxChange(e, this.props.value);
+    const onCheckboxChange = (e) => {
+        props.onColumnCheckboxChange(e, props.value);
     }
 
-    componentDidMount() {
-        this.updateSortableDisabled();
-    }
+    useMountEffect(() => {
+        updateSortableDisabled();
+    });
 
-    renderGroupHeaderCells(row) {
+    const useGroupHeaderCells = (row) => {
         const columns = React.Children.toArray(row.props.children);
 
-        return this.renderHeaderCells(columns);
+        return useHeaderCells(columns);
     }
 
-    renderHeaderCells(columns) {
+    const useHeaderCells = (columns) => {
         return React.Children.map(columns, (col, i) => {
             const isVisible = col ? !col.props.hidden : true;
             const key = col ? col.props.columnKey || col.props.field || i : i;
 
             return isVisible && (
-                <HeaderCell key={key} value={this.props.value} tableProps={this.props.tableProps} column={col} tabIndex={this.props.tabIndex} empty={this.props.empty} resizableColumns={this.props.resizableColumns} groupRowsBy={this.props.groupRowsBy} groupRowSortField={this.props.groupRowSortField}
-                    sortMode={this.props.sortMode} sortField={this.props.sortField} sortOrder={this.props.sortOrder} multiSortMeta={this.props.multiSortMeta} allSortableDisabled={this.isAllSortableDisabled()} onSortableChange={this.onSortableChange} sortableDisabledFields={this.state.sortableDisabledFields}
-                    filterDisplay={this.props.filterDisplay} filters={this.props.filters} filtersStore={this.props.filtersStore} onFilterChange={this.props.onFilterChange} onFilterApply={this.props.onFilterApply}
-                    onColumnMouseDown={this.props.onColumnMouseDown} onColumnDragStart={this.props.onColumnDragStart} onColumnDragOver={this.props.onColumnDragOver} onColumnDragLeave={this.props.onColumnDragLeave} onColumnDrop={this.props.onColumnDrop}
-                    onColumnResizeStart={this.props.onColumnResizeStart} onColumnResizerClick={this.props.onColumnResizerClick} onColumnResizerDoubleClick={this.props.onColumnResizerDoubleClick}
-                    showSelectAll={this.props.showSelectAll} allRowsSelected={this.props.allRowsSelected} onColumnCheckboxChange={this.onCheckboxChange} reorderableColumns={this.props.reorderableColumns} onSortChange={this.props.onSortChange} />
+                <HeaderCell key={key} value={props.value} tableProps={props.tableProps} column={col} tabIndex={props.tabIndex} empty={props.empty} resizableColumns={props.resizableColumns} groupRowsBy={props.groupRowsBy} groupRowSortField={props.groupRowSortField}
+                    sortMode={props.sortMode} sortField={props.sortField} sortOrder={props.sortOrder} multiSortMeta={props.multiSortMeta} allSortableDisabled={isAllSortableDisabled()} onSortableChange={onSortableChange} sortableDisabledFields={sortableDisabledFields}
+                    filterDisplay={props.filterDisplay} filters={props.filters} filtersStore={props.filtersStore} onFilterChange={props.onFilterChange} onFilterApply={props.onFilterApply}
+                    onColumnMouseDown={props.onColumnMouseDown} onColumnDragStart={props.onColumnDragStart} onColumnDragOver={props.onColumnDragOver} onColumnDragLeave={props.onColumnDragLeave} onColumnDrop={props.onColumnDrop}
+                    onColumnResizeStart={props.onColumnResizeStart} onColumnResizerClick={props.onColumnResizerClick} onColumnResizerDoubleClick={props.onColumnResizerDoubleClick}
+                    showSelectAll={props.showSelectAll} allRowsSelected={props.allRowsSelected} onColumnCheckboxChange={onCheckboxChange} reorderableColumns={props.reorderableColumns} onSortChange={props.onSortChange} />
             );
         });
     }
 
-    renderCheckbox(selectionMode) {
-        if (this.props.showSelectAll && selectionMode === 'multiple') {
-            const allRowsSelected = this.props.allRowsSelected(this.props.value);
+    const useCheckbox = (selectionMode) => {
+        if (props.showSelectAll && selectionMode === 'multiple') {
+            const allRowsSelected = props.allRowsSelected(props.value);
 
             return (
-                <HeaderCheckbox checked={allRowsSelected} onChange={this.onCheckboxChange} disabled={this.props.empty} />
+                <HeaderCheckbox checked={allRowsSelected} onChange={onCheckboxChange} disabled={props.empty} />
             )
         }
 
         return null;
     }
 
-    renderFilter(column, filter) {
+    const useFilter = (column, filter) => {
         if (filter) {
             return (
-                <ColumnFilter display="row" column={column} filters={this.props.filters} filtersStore={this.props.filtersStore} onFilterChange={this.props.onFilterChange} onFilterApply={this.props.onFilterApply} />
+                <ColumnFilter display="row" column={column} filters={props.filters} filtersStore={props.filtersStore} onFilterChange={props.onFilterChange} onFilterApply={props.onFilterApply} />
             )
         }
 
         return null;
     }
 
-    renderFilterCells() {
-        return React.Children.map(this.props.columns, (col, i) => {
+    const useFilterCells = () => {
+        return React.Children.map(props.columns, (col, i) => {
             const isVisible = !col.props.hidden;
 
             if (isVisible) {
@@ -118,8 +109,8 @@ export class TableHeader extends Component {
                 const colStyle = { ...(filterHeaderStyle || {}), ...(style || {}) };
                 const colClassName = classNames('p-filter-column', filterHeaderClassName, className, { 'p-frozen-column': frozen });
                 const colKey = columnKey || field || i;
-                const checkbox = this.renderCheckbox(selectionMode);
-                const filterRow = this.renderFilter(col, filter);
+                const checkbox = useCheckbox(selectionMode);
+                const filterRow = useFilter(col, filter);
 
                 return (
                     <th key={colKey} style={colStyle} className={colClassName}>
@@ -133,15 +124,15 @@ export class TableHeader extends Component {
         });
     }
 
-    renderContent() {
-        if (this.props.headerColumnGroup) {
-            const rows = React.Children.toArray(this.props.headerColumnGroup.props.children);
+    const useContent = () => {
+        if (props.headerColumnGroup) {
+            const rows = React.Children.toArray(props.headerColumnGroup.props.children);
 
-            return rows.map((row, i) => <tr key={i} role="row">{this.renderGroupHeaderCells(row)}</tr>);
+            return rows.map((row, i) => <tr key={i} role="row">{useGroupHeaderCells(row)}</tr>);
         }
         else {
-            const headerRow = <tr role="row">{this.renderHeaderCells(this.props.columns)}</tr>;
-            const filterRow = this.props.filterDisplay === 'row' && <tr role="row">{this.renderFilterCells()}</tr>;
+            const headerRow = <tr role="row">{useHeaderCells(props.columns)}</tr>;
+            const filterRow = props.filterDisplay === 'row' && <tr role="row">{useFilterCells()}</tr>;
 
             return (
                 <>
@@ -152,13 +143,11 @@ export class TableHeader extends Component {
         }
     }
 
-    render() {
-        let content = this.renderContent();
+    let content = useContent();
 
-        return (
-            <thead className="p-datatable-thead">
-                {content}
-            </thead>
-        );
-    }
-}
+    return (
+        <thead className="p-datatable-thead">
+            {content}
+        </thead>
+    )
+})
