@@ -9,10 +9,8 @@ import { DocActions } from '../../components/doc/common/docactions';
 import Head from 'next/head';
 
 const DataTableReorderDemo = () => {
-
     const [products, setProducts] = useState([]);
     const toast = useRef(null);
-    const isMounted = useRef(false);
     const columns = [
         { field: 'code', header: 'Code' },
         { field: 'name', header: 'Name' },
@@ -23,13 +21,6 @@ const DataTableReorderDemo = () => {
     const productService = new ProductService();
 
     useEffect(() => {
-        if (isMounted.current) {
-            toast.current.show({ severity: 'success', summary: 'Rows Reordered', life: 3000 });
-        }
-    }, [products]);
-
-    useEffect(() => {
-        isMounted.current = true;
         productService.getProductsSmall().then(data => setProducts(data));
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -39,12 +30,12 @@ const DataTableReorderDemo = () => {
 
     const onRowReorder = (e) => {
         setProducts(e.value);
+        toast.current.show({ severity: 'success', summary: 'Rows Reordered', life: 3000 });
     }
 
     const dynamicColumns = columns.map((col, i) => {
         return <Column key={col.field} columnKey={col.field} field={col.field} header={col.header} />;
     });
-
 
     return (
         <div>
@@ -159,7 +150,6 @@ import { Toast } from 'primereact/toast';
 const DataTableReorderDemo = () => {
     const [products, setProducts] = useState([]);
     const toast = useRef(null);
-    const isMounted = useRef(false);
     const columns = [
         {field: 'code', header: 'Code'},
         {field: 'name', header: 'Name'},
@@ -170,13 +160,6 @@ const DataTableReorderDemo = () => {
     const productService = new ProductService();
 
     useEffect(() => {
-        if (isMounted.current) {
-            toast.current.show({severity:'success', summary: 'Rows Reordered', life: 3000});
-        }
-    }, [products]);
-
-    useEffect(() => {
-        isMounted.current = true;
         productService.getProductsSmall().then(data => setProducts(data));
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -186,6 +169,7 @@ const DataTableReorderDemo = () => {
 
     const onRowReorder = (e) => {
         setProducts(e.value);
+        toast.current.show({severity:'success', summary: 'Rows Reordered', life: 3000});
     }
 
     const dynamicColumns = columns.map((col,i) => {
