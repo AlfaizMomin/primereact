@@ -37,7 +37,7 @@ export const TabView = forwardRef((props, ref) => {
 
     const onTabHeaderClose = (event, index) => {
         setHiddenTabs([...hiddenTabs, index]);
-        
+
         if (props.onTabClose) {
             props.onTabClose({ originalEvent: event, index: index });
         }
@@ -119,7 +119,7 @@ export const TabView = forwardRef((props, ref) => {
         setForwardIsDisabled(false);
         setHiddenTabs([]);
 
-        if (props.onTabChange) 
+        if (props.onTabChange)
             props.onTabChange({index: activeIndex});
         else
             setActiveIndexState(props.activeIndex);
@@ -157,7 +157,7 @@ export const TabView = forwardRef((props, ref) => {
 
         let content = (
             // eslint-disable /
-            <a role="tab" className="p-tabview-nav-link" onClick={(e) => onTabHeaderClick(e, tab, index)} id={headerId} onKeyDown={(e) => onKeyDown(e, tab, index)} 
+            <a role="tab" className="p-tabview-nav-link" onClick={(e) => onTabHeaderClick(e, tab, index)} id={headerId} onKeyDown={(e) => onKeyDown(e, tab, index)}
                 aria-controls={ariaControls} aria-selected={selected} tabIndex={tabIndex}>
                 {leftIconElement}
                 {titleElement}
@@ -225,7 +225,7 @@ export const TabView = forwardRef((props, ref) => {
                 const className = classNames(tab.props.contentClassName, tab.props.className, 'p-tabview-panel', { 'p-hidden': !selected });
                 const contentId = id + '_content_' + index;
                 const ariaLabelledBy = id + '_header_' + index;
-        
+
                 return (
                     <div id={contentId} aria-labelledby={ariaLabelledBy} aria-hidden={!selected} className={className} style={style} role="tabpanel">
                         {!props.renderActiveOnly ? tab.props.children : (selected && tab.props.children)}

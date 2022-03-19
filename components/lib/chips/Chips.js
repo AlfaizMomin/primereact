@@ -2,6 +2,7 @@ import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { classNames, ObjectUtils } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
+import { useUnmountEffect } from '../hooks/useUnmountEffect';
 
 export const Chips = memo((props) => {
     const [focused, setFocused] = useState(false);
@@ -181,13 +182,6 @@ export const Chips = memo((props) => {
                 options: props.tooltipOptions
             });
         }
-
-        return () => {
-            if (tooltipRef.current) {
-                tooltipRef.current.destroy();
-                tooltipRef.current = null;
-            }
-        }
     }, [props.tooltip, props.tooltipOptions]);
 
     useEffect(() => {
@@ -196,6 +190,13 @@ export const Chips = memo((props) => {
             tooltipRef.current.activate();
         }
     }, [props.value]);
+
+    useUnmountEffect(() => {
+        if (tooltipRef.current) {
+            tooltipRef.current.destroy();
+            tooltipRef.current = null;
+        }
+    });
 
     const useRemoveIcon = (value, index) => {
         if (!props.disabled && !props.readOnly && isRemovable(value, index)) {

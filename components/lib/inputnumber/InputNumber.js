@@ -914,6 +914,13 @@ export const InputNumber = memo(forwardRef((props, ref) => {
         if (props.value !== null && props.value !== newValue) {
             updateModel(null, newValue);
         }
+
+        return () => {
+            if (tooltipRef.current) {
+                tooltipRef.current.destroy();
+                tooltipRef.current = null;
+            }
+        }
     }, []);
 
     useEffect(() => {
@@ -930,13 +937,6 @@ export const InputNumber = memo(forwardRef((props, ref) => {
                 content: props.tooltip,
                 options: props.tooltipOptions
             });
-        }
-
-        return () => {
-            if (tooltipRef.current) {
-                tooltipRef.current.destroy();
-                tooltipRef.current = null;
-            }
         }
     }, [props.tooltip, props.tooltipOptions]);
 

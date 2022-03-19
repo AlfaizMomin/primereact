@@ -97,6 +97,11 @@ export const SplitButton = memo(forwardRef((props, ref) => {
 
         return () => {
             ZIndexUtils.clear(overlayRef.current);
+
+            if (tooltipRef.current) {
+                tooltipRef.current.destroy();
+                tooltipRef.current = null;
+            }
         }
     }, []);
 
@@ -110,13 +115,6 @@ export const SplitButton = memo(forwardRef((props, ref) => {
                 content: props.tooltip,
                 options: props.tooltipOptions
             });
-        }
-
-        return () => {
-            if (tooltipRef.current) {
-                tooltipRef.current.destroy();
-                tooltipRef.current = null;
-            }
         }
     }, [props.tooltip, props.tooltipOptions]);
 

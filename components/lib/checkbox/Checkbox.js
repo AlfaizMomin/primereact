@@ -2,6 +2,7 @@ import React, { memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { classNames, IconUtils, ObjectUtils } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
+import { useUnmountEffect } from '../hooks/useUnmountEffect';
 
 export const Checkbox = memo((props) => {
     const [focused, setFocused] = useState(false);
@@ -70,18 +71,18 @@ export const Checkbox = memo((props) => {
                 options: props.tooltipOptions
             });
         }
-
-        return () => {
-            if (tooltipRef.current) {
-                tooltipRef.current.destroy();
-                tooltipRef.current = null;
-            }
-        }
     }, [props.tooltip, props.tooltipOptions]);
 
     useEffect(() => {
         inputRef.current.checked = isChecked();
     }, [props.checked, props.trueValue]);
+
+    useUnmountEffect(() => {
+        if (tooltipRef.current) {
+            tooltipRef.current.destroy();
+            tooltipRef.current = null;
+        }
+    });
 
     const checked = isChecked();
     const containerClass = classNames('p-checkbox p-component', {

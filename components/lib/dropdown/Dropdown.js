@@ -581,13 +581,6 @@ export const Dropdown = memo((props) => {
                 options: props.tooltipOptions
             });
         }
-
-        return () => {
-            if (tooltipRef.current) {
-                tooltipRef.current.destroy();
-                tooltipRef.current = null;
-            }
-        }
     }, [props.tooltip, props.tooltipOptions]);
 
     useEffect(() => {
@@ -602,6 +595,11 @@ export const Dropdown = memo((props) => {
 
         return () => {
             ZIndexUtils.clear(overlayRef.current);
+
+            if (tooltipRef.current) {
+                tooltipRef.current.destroy();
+                tooltipRef.current = null;
+            }
         }
     }, []);
 

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 import { KeyFilter } from '../keyfilter/KeyFilter';
 import { tip } from '../tooltip/Tooltip';
+import { useUnmountEffect } from '../hooks/useUnmountEffect';
 
 export const InputText = memo(forwardRef((props, ref) => {
     const elementRef = useRef(ref);
@@ -55,14 +56,14 @@ export const InputText = memo(forwardRef((props, ref) => {
                 options: props.tooltipOptions
             });
         }
-
-        return () => {
-            if (tooltipRef.current) {
-                tooltipRef.current.destroy();
-                tooltipRef.current = null;
-            }
-        }
     }, [props.tooltip, props.tooltipOptions]);
+
+    useUnmountEffect(() => {
+        if (tooltipRef.current) {
+            tooltipRef.current.destroy();
+            tooltipRef.current = null;
+        }
+    });
 
     const inputProps = ObjectUtils.findDiffKeys(props, InputText.defaultProps);
     const className = classNames('p-inputtext p-component', {

@@ -8,6 +8,7 @@ import PrimeReact from '../api/Api';
 import { useEventListener } from '../hooks/useEventListener';
 import { useOverlayScrollListener } from '../hooks/useOverlayScrollListener';
 import { useResizeListener } from '../hooks/useResizeListener';
+import { useUnmountEffect } from '../hooks/useUnmountEffect';
 
 export const ColorPicker = memo((props) => {
     const [overlayVisible, setOverlayVisible] = useState(false);
@@ -479,14 +480,14 @@ export const ColorPicker = memo((props) => {
                 options: props.tooltipOptions
             });
         }
-
-        return () => {
-            if (tooltipRef.current) {
-                tooltipRef.current.destroy();
-                tooltipRef.current = null;
-            }
-        }
     }, [props.tooltip, props.tooltipOptions]);
+
+    useUnmountEffect(() => {
+        if (tooltipRef.current) {
+            tooltipRef.current.destroy();
+            tooltipRef.current = null;
+        }
+    });
 
     const useColorSelector = () => {
         return (

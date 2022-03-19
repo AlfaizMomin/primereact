@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { ObjectUtils, classNames } from '../utils/Utils';
 import { SelectButtonItem } from './SelectButtonItem';
 import { tip } from '../tooltip/Tooltip';
+import { useUnmountEffect } from '../hooks/useUnmountEffect';
 
 export const SelectButton = memo((props) => {
     const elementRef = useRef(null);
@@ -86,14 +87,14 @@ export const SelectButton = memo((props) => {
                 options: props.tooltipOptions
             });
         }
-
-        return () => {
-            if (tooltipRef.current) {
-                tooltipRef.current.destroy();
-                tooltipRef.current = null;
-            }
-        }
     }, [props.tooltip, props.tooltipOptions]);
+
+    useUnmountEffect(() => {
+        if (tooltipRef.current) {
+            tooltipRef.current.destroy();
+            tooltipRef.current = null;
+        }
+    });
 
     const useItems = () => {
         if (props.options && props.options.length) {

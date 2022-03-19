@@ -2,6 +2,7 @@ import React, { memo, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { classNames } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
+import { useUnmountEffect } from '../hooks/useUnmountEffect';
 
 export const Rating = memo((props) => {
     const elementRef = useRef(null);
@@ -68,14 +69,14 @@ export const Rating = memo((props) => {
                 options: props.tooltipOptions
             });
         }
-
-        return () => {
-            if (tooltipRef.current) {
-                tooltipRef.current.destroy();
-                tooltipRef.current = null;
-            }
-        }
     }, [props.tooltip, props.tooltipOptions]);
+
+    useUnmountEffect(() => {
+        if (tooltipRef.current) {
+            tooltipRef.current.destroy();
+            tooltipRef.current = null;
+        }
+    });
 
     const useStars = () => {
         return Array.from({ length: props.stars }, (_, i) => i + 1).map((value) => {

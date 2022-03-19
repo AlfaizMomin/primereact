@@ -2,6 +2,7 @@ import React, { memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { classNames, ObjectUtils } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
+import { useUnmountEffect } from '../hooks/useUnmountEffect';
 
 export const TriStateCheckbox = memo((props) => {
     const [focused, setFocused] = useState(false);
@@ -64,14 +65,14 @@ export const TriStateCheckbox = memo((props) => {
                 options: props.tooltipOptions
             });
         }
-
-        return () => {
-            if (tooltipRef.current) {
-                tooltipRef.current.destroy();
-                tooltipRef.current = null;
-            }
-        }
     }, [props.tooltip, props.tooltipOptions]);
+
+    useUnmountEffect(() => {
+        if (tooltipRef.current) {
+            tooltipRef.current.destroy();
+            tooltipRef.current = null;
+        }
+    });
 
     const className = classNames('p-tristatecheckbox p-checkbox p-component', props.className);
     const boxClassName = classNames('p-checkbox-box', {

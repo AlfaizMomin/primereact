@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { ObjectUtils, classNames } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
 import { useMountEffect } from '../hooks/useMountEffect';
+import { useUnmountEffect } from '../hooks/useUnmountEffect';
 
 export const MultiStateCheckbox = memo((props) => {
     const [focused, setFocused] = useState(false);
@@ -93,14 +94,14 @@ export const MultiStateCheckbox = memo((props) => {
                 options: props.tooltipOptions
             });
         }
-
-        return () => {
-            if (tooltipRef.current) {
-                tooltipRef.current.destroy();
-                tooltipRef.current = null;
-            }
-        }
     }, [props.tooltip, props.tooltipOptions]);
+
+    useUnmountEffect(() => {
+        if (tooltipRef.current) {
+            tooltipRef.current.destroy();
+            tooltipRef.current = null;
+        }
+    });
 
     const useIcon = (option) => {
         const icon = (option && option.icon) || '';

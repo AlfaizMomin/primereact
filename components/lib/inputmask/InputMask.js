@@ -514,6 +514,13 @@ export const InputMask = memo((props) => {
     useEffect(() => {
         init();
         updateValue();
+
+        return () => {
+            if (tooltipRef.current) {
+                tooltipRef.current.destroy();
+                tooltipRef.current = null;
+            }
+        }
     }, []);
 
     useUpdateEffect(() => {
@@ -538,13 +545,6 @@ export const InputMask = memo((props) => {
                 content: props.tooltip,
                 options: props.tooltipOptions
             });
-        }
-
-        return () => {
-            if (tooltipRef.current) {
-                tooltipRef.current.destroy();
-                tooltipRef.current = null;
-            }
         }
     }, [props.tooltip, props.tooltipOptions]);
 

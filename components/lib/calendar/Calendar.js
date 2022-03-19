@@ -2217,13 +2217,6 @@ export const Calendar = memo((props) => {
                 options: props.tooltipOptions
             });
         }
-
-        return () => {
-            if (tooltipRef.current) {
-                tooltipRef.current.destroy();
-                tooltipRef.current = null;
-            }
-        }
     }, [props.tooltip, props.tooltipOptions]);
 
     useEffect(() => {
@@ -2250,6 +2243,11 @@ export const Calendar = memo((props) => {
             if (touchUIMask.current) {
                 disableModality();
                 touchUIMask.current = null;
+            }
+
+            if (tooltipRef.current) {
+                tooltipRef.current.destroy();
+                tooltipRef.current = null;
             }
 
             ZIndexUtils.clear(overlayRef.current);

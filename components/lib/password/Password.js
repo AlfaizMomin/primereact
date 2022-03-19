@@ -9,6 +9,7 @@ import { OverlayService } from '../overlayservice/OverlayService';
 import { Portal } from '../portal/Portal';
 import { useOverlayScrollListener } from '../hooks/useOverlayScrollListener';
 import { useResizeListener } from '../hooks/useResizeListener';
+import { useUnmountEffect } from '../hooks/useUnmountEffect';
 
 export const Password = memo((props) => {
     const promptLabel = () => props.promptLabel || localeOption('passwordPrompt');
@@ -233,13 +234,6 @@ export const Password = memo((props) => {
                 options: props.tooltipOptions
             });
         }
-
-        return () => {
-            if (tooltipRef.current) {
-                tooltipRef.current.destroy();
-                tooltipRef.current = null;
-            }
-        }
     }, [props.tooltip, props.tooltipOptions]);
 
     useEffect(() => {
@@ -259,6 +253,13 @@ export const Password = memo((props) => {
             ZIndexUtils.clear(overlayRef.current);
         }
     }, [isFilled]);
+
+    useUnmountEffect(() => {
+        if (tooltipRef.current) {
+            tooltipRef.current.destroy();
+            tooltipRef.current = null;
+        }
+    });
 
     const useIcon = () => {
         if (props.toggleMask) {

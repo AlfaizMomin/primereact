@@ -2,6 +2,7 @@ import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef, useSta
 import PropTypes from 'prop-types';
 import { classNames, ObjectUtils } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
+import { useUnmountEffect } from '../hooks/useUnmountEffect';
 
 export const RadioButton = memo(forwardRef((props, ref) => {
     const [focused, setFocused] = useState(false);
@@ -64,14 +65,14 @@ export const RadioButton = memo(forwardRef((props, ref) => {
                 options: props.tooltipOptions
             });
         }
-
-        return () => {
-            if (tooltipRef.current) {
-                tooltipRef.current.destroy();
-                tooltipRef.current = null;
-            }
-        }
     }, [props.tooltip, props.tooltipOptions]);
+
+    useUnmountEffect(() => {
+        if (tooltipRef.current) {
+            tooltipRef.current.destroy();
+            tooltipRef.current = null;
+        }
+    });
 
     useImperativeHandle(ref, () => {
         select

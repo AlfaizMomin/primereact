@@ -427,13 +427,6 @@ export const AutoComplete = memo(forwardRef((props, ref) => {
                 options: props.tooltipOptions
             });
         }
-
-        return () => {
-            if (tooltipRef.current) {
-                tooltipRef.current.destroy();
-                tooltipRef.current = null;
-            }
-        }
     }, [props.tooltip, props.tooltipOptions]);
 
     useEffect(() => {
@@ -448,6 +441,11 @@ export const AutoComplete = memo(forwardRef((props, ref) => {
         return () => {
             if (timeout.current) {
                 clearTimeout(timeout.current);
+            }
+
+            if (tooltipRef.current) {
+                tooltipRef.current.destroy();
+                tooltipRef.current = null;
             }
 
             ZIndexUtils.clear(overlayRef.current);

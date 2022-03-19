@@ -6,6 +6,7 @@ import { ListBoxItem } from './ListBoxItem';
 import { ListBoxHeader } from './ListBoxHeader';
 import { tip } from '../tooltip/Tooltip';
 import { VirtualScroller } from '../virtualscroller/VirtualScroller';
+import { useUnmountEffect } from '../hooks/useUnmountEffect';
 
 export const ListBox = memo((props) => {
     const [filterValue, setFilterValue] = useState('');
@@ -224,14 +225,14 @@ export const ListBox = memo((props) => {
                 options: props.tooltipOptions
             });
         }
-
-        return () => {
-            if (tooltipRef.current) {
-                tooltipRef.current.destroy();
-                tooltipRef.current = null;
-            }
-        }
     }, [props.tooltip, props.tooltipOptions]);
+
+    useUnmountEffect(() => {
+        if (tooltipRef.current) {
+            tooltipRef.current.destroy();
+            tooltipRef.current = null;
+        }
+    });
 
     const useHeader = () => {
         return props.filter ? <ListBoxHeader filter={filteredValue} onFilter={onFilter} disabled={props.disabled} filterPlaceholder={props.filterPlaceholder} /> : null;

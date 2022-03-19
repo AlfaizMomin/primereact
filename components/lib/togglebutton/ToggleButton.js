@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { classNames, IconUtils } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
 import { Ripple } from '../ripple/Ripple';
+import { useUnmountEffect } from '../hooks/useUnmountEffect';
 
 export const ToggleButton = memo((props) => {
     const elementRef = useRef(null);
@@ -46,14 +47,14 @@ export const ToggleButton = memo((props) => {
                 options: props.tooltipOptions
             });
         }
-
-        return () => {
-            if (tooltipRef.current) {
-                tooltipRef.current.destroy();
-                tooltipRef.current = null;
-            }
-        }
     }, [props.tooltip, props.tooltipOptions]);
+
+    useUnmountEffect(() => {
+        if (tooltipRef.current) {
+            tooltipRef.current.destroy();
+            tooltipRef.current = null;
+        }
+    });
 
     const useIcon = () => {
         if (hasIcon) {

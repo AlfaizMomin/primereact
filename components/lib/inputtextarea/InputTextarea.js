@@ -2,6 +2,7 @@ import { forwardRef, memo, useEffect, useMemo, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
+import { useUnmountEffect } from '../hooks/useUnmountEffect';
 
 export const InputTextarea = memo(forwardRef((props, ref) => {
     const elementRef = useRef(ref);
@@ -98,13 +99,6 @@ export const InputTextarea = memo(forwardRef((props, ref) => {
                 options: props.tooltipOptions
             });
         }
-
-        return () => {
-            if (tooltipRef.current) {
-                tooltipRef.current.destroy();
-                tooltipRef.current = null;
-            }
-        }
     }, [props.tooltip, props.tooltipOptions]);
 
     useEffect(() => {
@@ -112,6 +106,13 @@ export const InputTextarea = memo(forwardRef((props, ref) => {
             resize(true);
         }
     }, [props.autoResize]);
+
+    useUnmountEffect(() => {
+        if (tooltipRef.current) {
+            tooltipRef.current.destroy();
+            tooltipRef.current = null;
+        }
+    });
 
     const textareaProps = ObjectUtils.findDiffKeys(props, InputTextarea.defaultProps);
     const className = classNames('p-inputtextarea p-inputtext p-component', {
