@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 import { KeyFilter } from '../keyfilter/KeyFilter';
 import { tip } from '../tooltip/Tooltip';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
+import { useUnmountEffect } from '../hooks/Hooks';
 
 export const InputText = memo(forwardRef((props, ref) => {
     const elementRef = useRef(ref);

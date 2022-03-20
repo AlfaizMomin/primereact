@@ -2,7 +2,7 @@ import React, { memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { classNames, IconUtils, ObjectUtils } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
+import { useUnmountEffect } from '../hooks/Hooks';
 
 export const Checkbox = memo((props) => {
     const [focused, setFocused] = useState(false);

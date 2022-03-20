@@ -1,7 +1,7 @@
 import React, { memo, useRef } from 'react'
 import PropTypes from 'prop-types';
 import { DomHandler, classNames } from '../utils/Utils';
-import { useEventListener } from '../hooks/useEventListener';
+import { useEventListener } from '../hooks/Hooks';
 
 export const Slider = memo((props) => {
     const elementRef = useRef(null);

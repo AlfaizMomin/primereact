@@ -2,7 +2,7 @@ import React, { memo, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { classNames } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
+import { useUnmountEffect } from '../hooks/Hooks';
 
 export const Rating = memo((props) => {
     const elementRef = useRef(null);

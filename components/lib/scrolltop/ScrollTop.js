@@ -4,8 +4,7 @@ import { DomHandler, classNames, ZIndexUtils, IconUtils } from '../utils/Utils';
 import { CSSTransition } from '../csstransition/CSSTransition';
 import { Ripple } from '../ripple/Ripple';
 import PrimeReact from '../api/Api';
-import { useMountEffect } from '../hooks/useMountEffect';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
+import { useMountEffect, useUnmountEffect } from '../hooks/Hooks';
 
 export const ScrollTop = forwardRef((props, ref) => {
 

@@ -8,10 +8,7 @@ import { tip } from '../tooltip/Tooltip';
 import { Ripple } from '../ripple/Ripple';
 import PrimeReact, { localeOption, localeOptions } from '../api/Api';
 import { OverlayService } from '../overlayservice/OverlayService';
-import { useEventListener } from '../hooks/useEventListener';
-import { useResizeListener } from '../hooks/useResizeListener';
-import { useOverlayScrollListener } from '../hooks/useOverlayScrollListener';
-import { usePrevious } from '../hooks/usePrevious';
+import { useEventListener, useResizeListener, useOverlayScrollListener, usePrevious } from '../hooks/Hooks';
 
 export const Calendar = memo((props) => {
     const [focused, setFocused] = useState(false);

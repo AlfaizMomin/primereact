@@ -9,7 +9,7 @@ import { PageLinks } from './PageLinks';
 import { RowsPerPageDropdown } from './RowsPerPageDropdown';
 import { CurrentPageReport } from './CurrentPageReport';
 import { JumpToPageInput } from './JumpToPageInput';
-import { useUpdateEffect } from '../hooks/useUpdateEffect';
+import { useUpdateEffect } from '../hooks/Hooks';
 
 export const Paginator = (props) => {
     const rppChanged = useRef(false);

@@ -4,16 +4,14 @@ import { Button } from '../../lib/button/Button';
 import { Menu } from '../../lib/menu/Menu';
 import DomHandler from '../../lib/utils/DomHandler';
 import { useLiveEditor } from './liveeditor';
-import { useMountEffect } from "../../lib/hooks/useMountEffect";
 
 export const DocActions = (props) => {
-
     const menu = useRef(null);
     const liveEditor = useRef(null);
 
-    useMountEffect(() => {
+    useEffect(() => {
         liveEditor.current = useLiveEditor();
-    })
+    }, []);
 
     const items = [
         {
@@ -50,7 +48,6 @@ export const DocActions = (props) => {
     const viewOnGitHub = () => {
         window.open('https://github.com/primefaces/primereact/blob/master/pages/' + props.github, '_blank');
     }
-
 
     return (
         <div className="app-demoactions flex align-items-end justify-content-end mt-3">

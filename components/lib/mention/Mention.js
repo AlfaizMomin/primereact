@@ -7,9 +7,7 @@ import { CSSTransition } from '../csstransition/CSSTransition';
 import { Portal } from '../portal/Portal';
 import { InputTextarea } from '../inputtextarea/InputTextarea';
 import PrimeReact from '../api/Api';
-import { useEventListener } from '../hooks/useEventListener';
-import { useOverlayScrollListener } from '../hooks/useOverlayScrollListener';
-import { useResizeListener } from '../hooks/useResizeListener';
+import { useEventListener, useOverlayScrollListener, useResizeListener } from '../hooks/Hooks';
 
 export const Mention = memo((props) => {
     const [overlayVisible, setOverlayVisible] = useState(false);

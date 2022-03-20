@@ -4,7 +4,7 @@ import { DomHandler, classNames, ObjectUtils } from '../utils/Utils';
 import { PickListSubList } from './PickListSubList';
 import { PickListControls } from './PickListControls';
 import { PickListTransferControls } from './PickListTransferControls';
-import { useUpdateEffect } from '../hooks/useUpdateEffect';
+import { useUpdateEffect } from '../hooks/Hooks';
 
 export const PickList = (props) => {
 
@@ -147,7 +147,7 @@ export const PickList = (props) => {
             setTargetSelection([])
         }
     }
-    
+
     useUpdateEffect(() => {
         if (reorderedListElementRef.current) {
             handleScrollPosition(reorderedListElementRef.current, reorderDirection.current);

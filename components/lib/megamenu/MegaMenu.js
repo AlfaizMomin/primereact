@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
-import { useEventListener } from '../hooks/useEventListener';
+import { useEventListener } from '../hooks/Hooks';
 
 export const MegaMenu = (props) => {
 

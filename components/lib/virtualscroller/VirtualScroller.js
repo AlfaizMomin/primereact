@@ -1,7 +1,7 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, classNames } from '../utils/Utils';
-import { usePrevious } from '../hooks/usePrevious';
+import { usePrevious } from '../hooks/Hooks';
 
 export const VirtualScroller = forwardRef((props, ref) => {
     const isVertical = props.orientation === 'vertical';

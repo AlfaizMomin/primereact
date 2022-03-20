@@ -1,7 +1,7 @@
 import React, { memo, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { classNames } from '../utils/Utils';
-import { useEventListener } from '../hooks/useEventListener';
+import { useEventListener } from '../hooks/Hooks';
 
 const radius = 40;
 const midX = 50;

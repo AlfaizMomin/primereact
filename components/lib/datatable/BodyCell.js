@@ -4,9 +4,7 @@ import { OverlayService } from '../overlayservice/OverlayService';
 import { RowRadioButton } from './RowRadioButton';
 import { RowCheckbox } from './RowCheckbox';
 import { Ripple } from '../ripple/Ripple';
-import { useEventListener } from '../hooks/useEventListener';
-import { useUpdateEffect } from '../hooks/useUpdateEffect';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
+import { useEventListener, useUpdateEffect, useUnmountEffect } from '../hooks/Hooks';
 
 export const BodyCell = memo((props) => {
     const [editing, setEditing] = useState(props.editing);

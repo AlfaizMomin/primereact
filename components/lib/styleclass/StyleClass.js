@@ -1,8 +1,7 @@
 import { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { DomHandler, ObjectUtils } from '../utils/Utils';
-import { useEventListener } from '../hooks/useEventListener';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
+import { useEventListener, useUnmountEffect } from '../hooks/Hooks';
 
 export const StyleClass = (props) => {
     const targetRef = useRef(null);

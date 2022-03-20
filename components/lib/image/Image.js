@@ -4,7 +4,7 @@ import { CSSTransition } from '../csstransition/CSSTransition';
 import { DomHandler, classNames, ZIndexUtils, ObjectUtils } from '../utils/Utils';
 import { Portal } from '../portal/Portal';
 import PrimeReact from '../api/Api';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
+import { useUnmountEffect } from '../hooks/Hooks';
 
 export const Image = memo((props) => {
     const [maskVisible, setMaskVisible] = useState(false);

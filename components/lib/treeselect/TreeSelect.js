@@ -6,9 +6,7 @@ import { OverlayService } from '../overlayservice/OverlayService';
 import { Tree } from '../tree/Tree';
 import { TreeSelectPanel } from './TreeSelectPanel';
 import { Ripple } from '../ripple/Ripple';
-import { useEventListener } from '../hooks/useEventListener';
-import { useOverlayScrollListener } from '../hooks/useOverlayScrollListener';
-import { useResizeListener } from '../hooks/useResizeListener';
+import { useEventListener, useOverlayScrollListener, useResizeListener } from '../hooks/Hooks';
 
 export const TreeSelect = memo((props) => {
     const [focused, setFocused] = useState(false);

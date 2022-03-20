@@ -5,9 +5,7 @@ import { CSSTransition } from '../csstransition/CSSTransition';
 import { Ripple } from '../ripple/Ripple';
 import { Portal } from '../portal/Portal';
 import PrimeReact from '../api/Api';
-import { useMountEffect } from '../hooks/useMountEffect';
-import { useUpdateEffect } from '../hooks/useUpdateEffect';
-import { useEventListener } from '../hooks/useEventListener';
+import { useMountEffect, useUpdateEffect, useEventListener } from '../hooks/Hooks';
 
 export const Sidebar = (props) => {
     const [maskVisible, setMaskVisible] = useState(props.visible);
@@ -23,7 +21,7 @@ export const Sidebar = (props) => {
             }
         }
     }});
-    
+
     const getPositionClass = () => {
         const positions = ['left', 'right', 'top', 'bottom'];
         const pos = positions.find(item => item === props.position);

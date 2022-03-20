@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { classNames, IconUtils } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
 import { Ripple } from '../ripple/Ripple';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
+import { useUnmountEffect } from '../hooks/Hooks';
 
 export const ToggleButton = memo((props) => {
     const elementRef = useRef(null);

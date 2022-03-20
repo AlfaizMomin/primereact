@@ -6,7 +6,7 @@ import { TransitionGroup } from 'react-transition-group';
 import { CSSTransition } from '../csstransition/CSSTransition';
 import PrimeReact from '../api/Api';
 import { Portal } from '../portal/Portal';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
+import { useUnmountEffect } from '../hooks/Hooks';
 
 let messageIdx = 0;
 

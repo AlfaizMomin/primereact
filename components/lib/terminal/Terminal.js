@@ -2,7 +2,6 @@ import React, { memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { TerminalService } from '../terminalservice/TerminalService';
 import { classNames } from '../utils/Utils';
-import { useUpdateEffect } from "../hooks/useUpdateEffect";
 
 export const Terminal = memo((props) => {
     const [commandText, setCommandText] = useState('');

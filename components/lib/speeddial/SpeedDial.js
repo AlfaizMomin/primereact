@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Button } from '../button/Button';
 import { Ripple } from '../ripple/Ripple';
 import { classNames, DomHandler, ObjectUtils } from '../utils/Utils';
-import { useEventListener } from '../hooks/useEventListener';
+import { useEventListener } from '../hooks/Hooks';
 
 export const SpeedDial = memo(forwardRef((props, ref) => {
     const [visible, setVisible] = useState(false);

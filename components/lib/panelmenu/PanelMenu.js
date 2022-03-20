@@ -2,7 +2,7 @@ import React, { useState, Component } from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, classNames, UniqueComponentId } from '../utils/Utils';
 import { CSSTransition } from '../csstransition/CSSTransition';
-import { useMountEffect } from '../hooks/useMountEffect';
+import { useMountEffect } from '../hooks/Hooks';
 
 const PanelMenuSub = (props) => {
 

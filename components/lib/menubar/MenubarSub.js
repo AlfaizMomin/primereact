@@ -1,7 +1,7 @@
 import React, { forwardRef, memo, useEffect, useState } from 'react';
 import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
-import { useEventListener } from '../hooks/useEventListener';
+import { useEventListener } from '../hooks/Hooks';
 
 export const MenubarSub = memo(forwardRef((props, ref) => {
     const [activeItem, setActiveItem] = useState(null);

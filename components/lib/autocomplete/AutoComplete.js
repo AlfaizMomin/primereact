@@ -7,7 +7,7 @@ import { AutoCompletePanel } from './AutoCompletePanel';
 import { tip } from '../tooltip/Tooltip';
 import { OverlayService } from '../overlayservice/OverlayService';
 import PrimeReact from '../api/Api';
-import { useOverlayListener } from '../hooks/useOverlayListener';
+import { useOverlayListener } from '../hooks/Hooks';
 
 export const AutoComplete = memo(forwardRef((props, ref) => {
     const [id, setId] = useState(props.id);

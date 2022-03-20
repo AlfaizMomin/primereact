@@ -7,8 +7,7 @@ import { CSSTransition } from '../csstransition/CSSTransition';
 import { Ripple } from '../ripple/Ripple';
 import { Portal } from '../portal/Portal';
 import PrimeReact from '../api/Api';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
-import { useInterval } from '../hooks/useInterval';
+import { useUnmountEffect, useInterval } from '../hooks/Hooks';
 
 export const Galleria = memo(forwardRef((props, ref) => {
     const [visible, setVisible] = useState(false);

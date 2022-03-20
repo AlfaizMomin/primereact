@@ -5,9 +5,7 @@ import { CSSTransition } from '../csstransition/CSSTransition';
 import { OverlayService } from '../overlayservice/OverlayService';
 import { Portal } from '../portal/Portal';
 import PrimeReact from '../api/Api';
-import { useEventListener } from '../hooks/useEventListener';
-import { useResizeListener } from '../hooks/useResizeListener';
-import { useOverlayScrollListener } from '../hooks/useOverlayScrollListener';
+import { useEventListener, useResizeListener, useOverlayScrollListener } from '../hooks/Hooks';
 
 export const Menu = forwardRef((props, ref) => {
     const [visible, setVisible] = useState(!props.popup);
@@ -20,7 +18,7 @@ export const Menu = forwardRef((props, ref) => {
             hide(event);
         }
     }});
-    
+
     const [bindDocumentClickListener, unbindDocumentClickListener] = useEventListener({ type: 'click', listener: event => {
         if (visible && isOutsideClicked(event)) {
             hide(event);

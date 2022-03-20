@@ -7,12 +7,7 @@ import { CSSTransition } from '../csstransition/CSSTransition';
 import PrimeReact, { localeOption } from '../api/Api';
 import { OverlayService } from '../overlayservice/OverlayService';
 import { Portal } from '../portal/Portal';
-import { useMountEffect } from '../hooks/useMountEffect';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
-import { useUpdateEffect } from '../hooks/useUpdateEffect';
-import { useResizeListener } from '../hooks/useResizeListener';
-import { useEventListener } from '../hooks/useEventListener';
-import { useOverlayScrollListener } from '../hooks/useOverlayScrollListener';
+import { useMountEffect, useUnmountEffect, useUpdateEffect, useResizeListener, useEventListener, useOverlayScrollListener } from '../hooks/Hooks';
 
 export function confirmPopup(props) {
     let appendTo = props.appendTo || document.body;

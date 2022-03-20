@@ -2,8 +2,7 @@ import React, { memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, classNames } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
-import { useMountEffect } from '../hooks/useMountEffect';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
+import { useMountEffect, useUnmountEffect } from '../hooks/Hooks';
 
 export const MultiStateCheckbox = memo((props) => {
     const [focused, setFocused] = useState(false);

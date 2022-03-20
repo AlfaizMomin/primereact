@@ -2,7 +2,7 @@ import React, { forwardRef, useEffect, useState, useImperativeHandle, useRef } f
 import PropTypes from 'prop-types';
 import { DomHandler, ObjectUtils, classNames, UniqueComponentId } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
-import { useUpdateEffect } from '../hooks/useUpdateEffect';
+import { useUpdateEffect } from '../hooks/Hooks';
 
 export const TabPanel = () => {}
 

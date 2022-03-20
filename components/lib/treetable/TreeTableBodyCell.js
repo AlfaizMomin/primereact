@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ObjectUtils, DomHandler, classNames } from '../utils/Utils';
 import { OverlayService } from '../overlayservice/OverlayService';
-import { useEventListener } from '../hooks/useEventListener';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
+import { useEventListener, useUnmountEffect } from '../hooks/Hooks';
 
 export const TreeTableBodyCell = (props) => {
     const [editing, setEditing] = useState(false);

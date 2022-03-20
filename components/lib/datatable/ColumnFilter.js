@@ -7,9 +7,7 @@ import { Portal } from '../portal/Portal';
 import { InputText } from '../inputtext/InputText';
 import { Dropdown } from '../dropdown/Dropdown';
 import { Button } from '../button/Button';
-import { useEventListener } from '../hooks/useEventListener';
-import { useResizeListener } from '../hooks/useResizeListener';
-import { useOverlayScrollListener } from '../hooks/useOverlayScrollListener';
+import { useEventListener, useResizeListener, useOverlayScrollListener } from '../hooks/Hooks';
 
 export const ColumnFilter = memo((props) => {
     const [overlayVisible, setOverlayVisible] = useState(false);

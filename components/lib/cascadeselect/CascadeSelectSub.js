@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
 import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
-import { useUpdateEffect } from '../hooks/useUpdateEffect';
+import { useUpdateEffect } from '../hooks/Hooks';
 
 export const CascadeSelectSub = memo((props) => {
     const [activeOption, setActiveOption] = useState(null);

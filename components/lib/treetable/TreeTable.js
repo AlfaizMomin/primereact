@@ -7,7 +7,7 @@ import { TreeTableHeader } from './TreeTableHeader';
 import { TreeTableBody } from './TreeTableBody';
 import { TreeTableFooter } from './TreeTableFooter';
 import { TreeTableScrollableView } from './TreeTableScrollableView';
-import { useEventListener } from '../hooks/useEventListener';
+import { useEventListener } from '../hooks/Hooks';
 
 export const TreeTable = forwardRef((props, ref) => {
     const [expandedKeys, setExpandedKeys] = useState(props.expandedKeys);

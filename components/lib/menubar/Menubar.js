@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { ObjectUtils, ZIndexUtils, classNames } from '../utils/Utils';
 import { MenubarSub } from './MenubarSub';
 import PrimeReact from '../api/Api';
-import { useEventListener } from '../hooks/useEventListener';
+import { useEventListener } from '../hooks/Hooks';
 
 export const Menubar = memo(forwardRef((props, ref) => {
     const [mobileActive, setMobileActive] = useState(false);

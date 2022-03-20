@@ -3,7 +3,7 @@ import { BodyRow } from './BodyRow';
 import { classNames, DomHandler, ObjectUtils } from '../utils/Utils';
 import { RowTogglerButton } from './RowTogglerButton';
 import { localeOption } from '../api/Api';
-import { usePrevious } from '../hooks/usePrevious';
+import { usePrevious } from '../hooks/Hooks';
 
 export const TableBody = memo((props) => {
     const [rowGroupHeaderStyleObject, setRowGroupHeaderStyleObject] = useState({});

@@ -2,10 +2,7 @@ import React, { useRef, forwardRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
-import { useEventListener } from '../hooks/useEventListener';
-import { useMountEffect } from '../hooks/useMountEffect';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
-import { useUpdateEffect } from '../hooks/useUpdateEffect';
+import { useEventListener, useMountEffect, useUnmountEffect, useUpdateEffect } from '../hooks/Hooks';
 
 export const TieredMenuSub = forwardRef((props, ref) => {
 

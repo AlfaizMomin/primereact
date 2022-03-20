@@ -2,7 +2,7 @@ import React, { memo, useEffect, useRef, useState } from 'react';
 import { DomHandler, classNames, ObjectUtils } from '../utils/Utils';
 import { HeaderCheckbox } from './HeaderCheckbox';
 import { ColumnFilter } from './ColumnFilter';
-import { usePrevious } from '../hooks/usePrevious';
+import { usePrevious } from '../hooks/Hooks';
 
 export const HeaderCell = memo((props) => {
     const [styleObject, setStyleObject] = useState({});

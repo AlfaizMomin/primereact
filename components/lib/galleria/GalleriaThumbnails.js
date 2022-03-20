@@ -3,9 +3,7 @@ import PrimeReact from '../api/Api';
 import { DomHandler, classNames, UniqueComponentId } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
 import ObjectUtils from '../utils/ObjectUtils';
-import { useUpdateEffect } from '../hooks/useUpdateEffect';
-import { usePrevious } from '../hooks/usePrevious';
-import { useResizeListener } from '../hooks/useResizeListener';
+import { useUpdateEffect, usePrevious, useResizeListener } from '../hooks/Hooks';
 
 const GalleriaThumbnailItem = memo((props) => {
 

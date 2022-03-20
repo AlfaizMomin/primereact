@@ -1,8 +1,7 @@
 import React, { forwardRef, memo, useImperativeHandle, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { classNames, DomHandler } from '../utils/Utils';
-import { useMountEffect } from '../hooks/useMountEffect';
-import { useUpdateEffect } from '../hooks/useUpdateEffect';
+import { useMountEffect, useUpdateEffect } from '../hooks/Hooks';
 
 export const Editor = memo(forwardRef((props, ref) => {
     const contentRef = useRef(null);

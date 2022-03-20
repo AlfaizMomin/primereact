@@ -5,9 +5,7 @@ import { CSSTransition } from '../csstransition/CSSTransition';
 import { Ripple } from '../ripple/Ripple';
 import { Portal } from '../portal/Portal';
 import PrimeReact from '../api/Api';
-import { useUpdateEffect } from '../hooks/useUpdateEffect';
-import { useEventListener } from '../hooks/useEventListener';
-import { useResizeListener } from '../hooks/useResizeListener';
+import { useUpdateEffect, useEventListener, useResizeListener } from '../hooks/Hooks';
 
 const ContextMenuSub = (props) => {
 

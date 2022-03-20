@@ -6,12 +6,7 @@ import { Ripple } from '../ripple/Ripple';
 import { OverlayService } from '../overlayservice/OverlayService';
 import { Portal } from '../portal/Portal';
 import PrimeReact from '../api/Api';
-import { useMountEffect } from '../hooks/useMountEffect';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
-import { useUpdateEffect } from '../hooks/useUpdateEffect';
-import { useResizeListener } from '../hooks/useResizeListener';
-import { useEventListener } from '../hooks/useEventListener';
-import { useOverlayScrollListener } from '../hooks/useOverlayScrollListener';
+import { useMountEffect, useUnmountEffect, useUpdateEffect, useResizeListener, useEventListener, useOverlayScrollListener } from '../hooks/Hooks';
 
 export const OverlayPanel = forwardRef((props, ref) => {
     const [visible, setVisible] = useState(false);

@@ -5,10 +5,7 @@ import { ColorPickerPanel } from './ColorPickerPanel';
 import { tip } from '../tooltip/Tooltip';
 import { OverlayService } from '../overlayservice/OverlayService';
 import PrimeReact from '../api/Api';
-import { useEventListener } from '../hooks/useEventListener';
-import { useOverlayScrollListener } from '../hooks/useOverlayScrollListener';
-import { useResizeListener } from '../hooks/useResizeListener';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
+import { useEventListener, useOverlayScrollListener, useResizeListener, useUnmountEffect } from '../hooks/Hooks';
 
 export const ColorPicker = memo((props) => {
     const [overlayVisible, setOverlayVisible] = useState(false);

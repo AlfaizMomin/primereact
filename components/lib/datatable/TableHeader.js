@@ -3,7 +3,7 @@ import { classNames } from '../utils/Utils';
 import { HeaderCell } from './HeaderCell';
 import { HeaderCheckbox } from './HeaderCheckbox';
 import { ColumnFilter } from './ColumnFilter';
-import { useMountEffect } from '../hooks/useMountEffect';
+import { useMountEffect } from '../hooks/Hooks';
 
 export const TableHeader = memo((props) => {
     const [sortableDisabledFields, setSortableDisabledFields] = useState([]);

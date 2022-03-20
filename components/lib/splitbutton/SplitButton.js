@@ -7,9 +7,7 @@ import { SplitButtonPanel } from './SplitButtonPanel';
 import { tip } from '../tooltip/Tooltip';
 import { OverlayService } from '../overlayservice/OverlayService';
 import PrimeReact from '../api/Api';
-import { useEventListener } from '../hooks/useEventListener';
-import { useOverlayScrollListener } from '../hooks/useOverlayScrollListener';
-import { useResizeListener } from '../hooks/useResizeListener';
+import { useEventListener, useOverlayScrollListener, useResizeListener } from '../hooks/Hooks';
 
 export const SplitButton = memo(forwardRef((props, ref) => {
     const [id, setId] = useState(props.id);

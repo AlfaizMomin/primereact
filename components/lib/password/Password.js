@@ -7,9 +7,7 @@ import { CSSTransition } from '../csstransition/CSSTransition';
 import PrimeReact, { localeOption } from '../api/Api';
 import { OverlayService } from '../overlayservice/OverlayService';
 import { Portal } from '../portal/Portal';
-import { useOverlayScrollListener } from '../hooks/useOverlayScrollListener';
-import { useResizeListener } from '../hooks/useResizeListener';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
+import { useOverlayScrollListener, useResizeListener, useUnmountEffect } from '../hooks/Hooks';
 
 export const Password = memo((props) => {
     const promptLabel = () => props.promptLabel || localeOption('passwordPrompt');

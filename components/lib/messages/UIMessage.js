@@ -1,7 +1,7 @@
 import React, { forwardRef, memo } from 'react';
 import { classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
-import { useTimeout } from '../hooks/useTimeout';
+import { useTimeout } from '../hooks/Hooks';
 
 export const UIMessage = memo(forwardRef((props, ref) => {
     const { severity, content, summary, detail, closable, life, sticky } = props.message;

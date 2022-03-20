@@ -7,10 +7,7 @@ import { TableBody } from './TableBody';
 import { TableFooter } from './TableFooter';
 import { TableHeader } from './TableHeader';
 import { VirtualScroller } from '../virtualscroller/VirtualScroller';
-import { useEventListener } from '../hooks/useEventListener';
-import { useMountEffect } from '../hooks/useMountEffect';
-import { useUpdateEffect } from '../hooks/useUpdateEffect';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
+import { useEventListener, useMountEffect, useUpdateEffect, useUnmountEffect } from '../hooks/Hooks';
 
 export const DataTable = forwardRef((props, ref) => {
     const [first, setFirst] = useState(props.first);

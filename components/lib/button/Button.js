@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { ObjectUtils, classNames, IconUtils } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
 import { Ripple } from '../ripple/Ripple';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
+import { useUnmountEffect } from '../hooks/Hooks';
 
 export const Button = memo(forwardRef((props, ref) => {
     const elementRef = useRef(ref);

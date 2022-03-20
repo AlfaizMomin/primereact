@@ -3,10 +3,7 @@ import PropTypes from 'prop-types';
 import { DomHandler, ObjectUtils, classNames, UniqueComponentId } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
 import PrimeReact from '../api/Api';
-import { useResizeListener } from '../hooks/useResizeListener';
-import { useUpdateEffect } from '../hooks/useUpdateEffect';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
-import { usePrevious } from '../hooks/usePrevious';
+import { useResizeListener, useUpdateEffect, useUnmountEffect, usePrevious } from '../hooks/Hooks';
 
 const CarouselItem = memo((props) => {
     const content = props.template(props.item);

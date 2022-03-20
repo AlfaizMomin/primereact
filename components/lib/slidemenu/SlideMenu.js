@@ -5,11 +5,7 @@ import { CSSTransition } from '../csstransition/CSSTransition';
 import { OverlayService } from '../overlayservice/OverlayService';
 import { Portal } from '../portal/Portal';
 import PrimeReact from '../api/Api';
-import { useUpdateEffect } from '../hooks/useUpdateEffect';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
-import { useEventListener } from '../hooks/useEventListener';
-import { useResizeListener } from '../hooks/useResizeListener';
-import { useOverlayScrollListener } from '../hooks/useOverlayScrollListener';
+import { useUpdateEffect, useUnmountEffect, useEventListener, useResizeListener, useOverlayScrollListener } from '../hooks/Hooks';
 
 export const SlideMenuSub = (props) => {
 

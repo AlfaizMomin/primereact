@@ -6,10 +6,7 @@ import { CSSTransition } from '../csstransition/CSSTransition';
 import { OverlayService } from '../overlayservice/OverlayService';
 import { Portal } from '../portal/Portal';
 import PrimeReact from '../api/Api';
-import { useEventListener } from '../hooks/useEventListener';
-import { useOverlayScrollListener } from '../hooks/useOverlayScrollListener';
-import { useResizeListener } from '../hooks/useResizeListener';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
+import { useEventListener, useOverlayScrollListener, useResizeListener, useUnmountEffect } from '../hooks/Hooks';
 
 export const TieredMenu = forwardRef((props, ref) => {
 

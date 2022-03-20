@@ -4,10 +4,7 @@ import PropTypes from 'prop-types';
 import { DomHandler, classNames, ZIndexUtils } from '../utils/Utils';
 import { Portal } from '../portal/Portal';
 import PrimeReact from '../api/Api';
-import { useResizeListener } from '../hooks/useResizeListener';
-import { useOverlayScrollListener } from '../hooks/useOverlayScrollListener';
-import { useUpdateEffect } from '../hooks/useUpdateEffect';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
+import { useResizeListener, useOverlayScrollListener, useUpdateEffect, useUnmountEffect } from '../hooks/Hooks';
 
 export const tip = (props) => {
     let appendTo = props.appendTo || document.body;

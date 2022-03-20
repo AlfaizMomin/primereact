@@ -2,9 +2,7 @@ import React, { useRef, useState, forwardRef, useImperativeHandle } from 'react'
 import PropTypes from 'prop-types';
 import { classNames, ObjectUtils } from '../utils/Utils';
 import { localeOption } from '../api/Api';
-import { useMountEffect } from '../hooks/useMountEffect';
-import { useUpdateEffect } from '../hooks/useUpdateEffect';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
+import { useMountEffect, useUpdateEffect, useUnmountEffect } from '../hooks/Hooks';
 
 export const DataScroller = forwardRef((props, ref) => {
 

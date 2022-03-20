@@ -1,10 +1,7 @@
 import React, { useRef } from 'react';
 import { DomHandler } from '../utils/Utils';
 import PrimeReact from '../api/Api';
-import { useUpdateEffect } from "../hooks/useUpdateEffect";
-import { useMountEffect } from "../hooks/useMountEffect";
-import { useUnmountEffect } from "../hooks/useUnmountEffect";
-import { useEventListener } from '../hooks/useEventListener';
+import { useUpdateEffect, useMountEffect, useUnmountEffect, useEventListener } from '../hooks/Hooks';
 
 export const Ripple = () => {
 

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { DomHandler, classNames, ObjectUtils } from '../utils/Utils';
 import { InputText } from '../inputtext/InputText';
 import { tip } from '../tooltip/Tooltip';
-import { useUpdateEffect } from '../hooks/useUpdateEffect';
+import { useUpdateEffect } from '../hooks/Hooks';
 
 export const InputMask = memo((props) => {
     const elementRef = useRef(null);

@@ -5,10 +5,7 @@ import { CSSTransition } from '../csstransition/CSSTransition';
 import { Ripple } from '../ripple/Ripple';
 import { Portal } from '../portal/Portal';
 import PrimeReact from '../api/Api';
-import { useMountEffect } from '../hooks/useMountEffect';
-import { useUnmountEffect } from '../hooks/useUnmountEffect';
-import { useUpdateEffect } from '../hooks/useUpdateEffect';
-import { useEventListener } from '../hooks/useEventListener';
+import { useMountEffect, useUnmountEffect, useUpdateEffect, useEventListener } from '../hooks/Hooks';
 
 export const Dialog = forwardRef((props, ref) => {
 
@@ -32,11 +29,11 @@ export const Dialog = forwardRef((props, ref) => {
     const [bindDocumentKeyDownListener, unbindDocumentKeyDownListener] = useEventListener({ type: 'keydown', listener: (event) => onKeyDown(event) });
 
     const [bindDocumentResizeListener, unbindDocumentResizeListener] = useEventListener({ type: 'mousemove', target: 'window', listener: (event) => onResize(event)});
-    
+
     const [bindDocumentResizeEndListener, unbindDocumentResizEndListener] = useEventListener({ type: 'mouseup', target: 'window', listener: (event) => onResizeEnd(event)});
 
     const [bindDocumentDragListener, unbindDocumentDragListener] = useEventListener({ type: 'mousemove', target: 'window', listener: (event) => onDrag(event)});
-    
+
     const [bindDocumentDragEndListener, unbindDocumentDragEndListener] = useEventListener({ type: 'mouseup', target: 'window', listener: (event) => onDragEnd(event)});
 
     const onClose = (event) => {
@@ -397,7 +394,7 @@ export const Dialog = forwardRef((props, ref) => {
 
     useUpdateEffect(()=> {
         setMaximized(props.maximized);
-        
+
         if (props.onMaximize)
             changeScrollOnMaximizable();
     }, [props.maximized])
@@ -434,7 +431,7 @@ export const Dialog = forwardRef((props, ref) => {
     useImperativeHandle(ref, () => ({
         resetPosition
     }));
-    
+
     const useCloseIcon = () => {
         if (props.closable) {
             return (
@@ -550,7 +547,7 @@ export const Dialog = forwardRef((props, ref) => {
 
     const useDialog = () => {
         const element = useElement();
-        
+
         return <Portal element={element} appendTo={props.appendTo} visible />;
     }
 

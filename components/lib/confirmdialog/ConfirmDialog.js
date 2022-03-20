@@ -6,7 +6,7 @@ import { Dialog } from '../dialog/Dialog';
 import { Button } from '../button/Button';
 import { localeOption } from '../api/Api';
 import { Portal } from '../portal/Portal';
-import { useUpdateEffect } from '../hooks/useUpdateEffect';
+import { useUpdateEffect } from '../hooks/Hooks';
 
 export function confirmDialog(props) {
     let appendTo = props.appendTo || document.body;
