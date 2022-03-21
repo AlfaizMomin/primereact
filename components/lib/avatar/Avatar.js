@@ -6,19 +6,13 @@ export const Avatar = (props) => {
 
     const useContent = () => {
         if (props.label) {
-            return <span className="p-avatar-text">{props.label}</span>;
+            return <span className="p-avatar-text">{props.label}</span>
         }
         else if (props.icon) {
             return IconUtils.getJSXIcon(props.icon, { className: 'p-avatar-icon' }, { props });
         }
         else if (props.image) {
-            const onError = (e) => {
-                if (props.onImageError) {
-                    props.onImageError(e);
-                }
-            };
-
-            return <img src={props.image} alt={props.imageAlt} onError={onError}></img>
+            return <img src={props.image} alt={props.imageAlt} onError={props.onImageError}></img>
         }
 
         return null;
@@ -39,7 +33,7 @@ export const Avatar = (props) => {
             {content}
             {props.children}
         </div>
-    );
+    )
 }
 
 Avatar.defaultProps = {
