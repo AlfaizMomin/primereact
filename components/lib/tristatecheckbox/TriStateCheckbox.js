@@ -99,6 +99,7 @@ export const TriStateCheckbox = memo((props) => {
 })
 
 TriStateCheckbox.defaultProps = {
+    __TYPE: 'TriStateCheckbox',
     id: null,
     inputRef: null,
     inputId: null,
@@ -114,6 +115,7 @@ TriStateCheckbox.defaultProps = {
 }
 
 TriStateCheckbox.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputRef: PropTypes.any,
     inputId: PropTypes.string,

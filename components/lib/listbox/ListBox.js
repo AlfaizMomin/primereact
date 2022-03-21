@@ -337,6 +337,7 @@ export const ListBox = memo((props) => {
 })
 
 ListBox.defaultProps = {
+    __TYPE: 'ListBox',
     id: null,
     value: null,
     options: null,
@@ -371,6 +372,7 @@ ListBox.defaultProps = {
 }
 
 ListBox.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.any,
     options: PropTypes.array,

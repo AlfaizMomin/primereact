@@ -127,6 +127,7 @@ export const InputTextarea = memo(forwardRef((props, ref) => {
 }))
 
 InputTextarea.defaultProps = {
+    __TYPE: 'InputTextarea',
     autoResize: false,
     tooltip: null,
     tooltipOptions: null,
@@ -134,6 +135,7 @@ InputTextarea.defaultProps = {
 }
 
 InputTextarea.propTypes = {
+    __TYPE: PropTypes.string,
     autoResize: PropTypes.bool,
     tooltip: PropTypes.string,
     tooltipOptions: PropTypes.object,

@@ -1034,6 +1034,7 @@ export const InputNumber = memo(forwardRef((props, ref) => {
 }))
 
 InputNumber.defaultProps = {
+    __TYPE: 'InputNumber',
     value: null,
     inputRef: null,
     format: true,
@@ -1085,6 +1086,7 @@ InputNumber.defaultProps = {
 }
 
 InputNumber.propTypes = {
+    __TYPE: PropTypes.string,
     value: PropTypes.number,
     inputRef: PropTypes.any,
     format: PropTypes.bool,

@@ -30,12 +30,14 @@ export const LastPageLink = (props) =>  {
 }
 
 LastPageLink.defaultProps = {
+    __TYPE: 'LastPageLink',
     disabled: false,
     onClick: null,
     template: null
 }
 
 LastPageLink.propTypes = {
+    __TYPE: PropTypes.string,
     disabled: PropTypes.bool,
     onClick: PropTypes.func,
     template: PropTypes.any

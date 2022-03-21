@@ -145,6 +145,7 @@ export const ConfirmDialog = (props) => {
 }
 
 ConfirmDialog.defaultProps = {
+    __TYPE: 'ConfirmDialog',
     visible: false,
     message: null,
     rejectLabel: null,
@@ -164,6 +165,7 @@ ConfirmDialog.defaultProps = {
 }
 
 ConfirmDialog.propTypes = {
+    __TYPE: PropTypes.string,
     visible: PropTypes.bool,
     message: PropTypes.any,
     rejectLabel: PropTypes.string,

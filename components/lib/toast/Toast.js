@@ -96,6 +96,7 @@ export const Toast = memo(forwardRef((props, ref) => {
 }))
 
 Toast.defaultProps = {
+    __TYPE: 'Toast',
     id: null,
     className: null,
     style: null,
@@ -110,6 +111,7 @@ Toast.defaultProps = {
 }
 
 Toast.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     className: PropTypes.string,
     style: PropTypes.object,

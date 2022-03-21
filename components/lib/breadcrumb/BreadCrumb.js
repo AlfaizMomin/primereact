@@ -113,6 +113,7 @@ export const BreadCrumb = (props) => {
 }
 
 BreadCrumb.defaultProps = {
+    __TYPE: 'BreadCrumb',
     id: null,
     model: null,
     home: null,
@@ -121,6 +122,7 @@ BreadCrumb.defaultProps = {
 }
 
 BreadCrumb.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     model: PropTypes.array,
     home: PropTypes.any,

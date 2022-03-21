@@ -56,6 +56,7 @@ export const Chart = memo(forwardRef((props, ref) => {
 }), (prevProps, nextProps) => prevProps.data === nextProps.data && prevProps.options === nextProps.options && prevProps.type === nextProps.type);
 
 Chart.defaultProps = {
+    __TYPE: 'Chart',
     id: null,
     type: null,
     data: null,
@@ -68,6 +69,7 @@ Chart.defaultProps = {
 }
 
 Chart.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     type: PropTypes.string,
     data: PropTypes.object,

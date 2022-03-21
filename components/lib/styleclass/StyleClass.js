@@ -162,6 +162,7 @@ export const StyleClass = (props) => {
 }
 
 StyleClass.defaultProps = {
+    __TYPE: 'StyleClass',
     nodeRef: null,
     selector: null,
     enterClassName: null,
@@ -175,6 +176,7 @@ StyleClass.defaultProps = {
 }
 
 StyleClass.propTypes = {
+    __TYPE: PropTypes.string,
     nodeRef: PropTypes.any,
     selector: PropTypes.string,
     enterClassName: PropTypes.string,

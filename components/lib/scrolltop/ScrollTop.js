@@ -105,6 +105,7 @@ export const ScrollTop = forwardRef((props, ref) => {
 })
 
 ScrollTop.defaultProps = {
+    __TYPE: 'ScrollTop',
     target: 'window',
     threshold: 400,
     icon: 'pi pi-chevron-up',
@@ -117,6 +118,7 @@ ScrollTop.defaultProps = {
 };
 
 ScrollTop.propTypes = {
+    __TYPE: PropTypes.string,
     target: PropTypes.string,
     threshold: PropTypes.number,
     icon: PropTypes.any,

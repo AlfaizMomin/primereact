@@ -103,6 +103,7 @@ export const RadioButton = memo(forwardRef((props, ref) => {
 }))
 
 RadioButton.defaultProps = {
+    __TYPE: 'RadioButton',
     id: null,
     inputRef: null,
     inputId: null,
@@ -121,6 +122,7 @@ RadioButton.defaultProps = {
 }
 
 RadioButton.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputRef: PropTypes.any,
     inputId: PropTypes.string,

@@ -228,6 +228,7 @@ export const DataView = (props) => {
 }
 
 DataView.defaultProps = {
+    __TYPE: 'DataView',
     id: null,
     header: null,
     footer: null,
@@ -261,6 +262,7 @@ DataView.defaultProps = {
 }
 
 DataView.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     header: PropTypes.any,
     footer: PropTypes.any,
@@ -293,19 +295,8 @@ DataView.propTypes = {
     onPage: PropTypes.func
 }
 
-DataViewItem.defaultProps = {
-    template: null,
-    item: null,
-    layout: null
-}
-
-DataViewItem.propTypes = {
-    template: PropTypes.func,
-    item: PropTypes.any,
-    layout: PropTypes.string
-}
-
 DataViewLayoutOptions.defaultProps = {
+    __TYPE: 'DataViewLayoutOptions',
     id: null,
     style: null,
     className: null,
@@ -314,6 +305,7 @@ DataViewLayoutOptions.defaultProps = {
 }
 
 DataViewLayoutOptions.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     style: PropTypes.object,
     className: PropTypes.string,

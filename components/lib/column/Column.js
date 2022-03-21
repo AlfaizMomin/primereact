@@ -5,6 +5,7 @@ export const Column = () => {
 }
 
 Column.defaultProps = {
+    __TYPE: 'Column',
     columnKey: null,
     field: null,
     sortField: null,
@@ -81,6 +82,7 @@ Column.defaultProps = {
 }
 
 Column.propTypes = {
+    __TYPE: PropTypes.string,
     columnKey: PropTypes.string,
     field: PropTypes.string,
     sortField: PropTypes.string,

@@ -307,31 +307,22 @@ export const PanelMenu = (props) => {
     );
 }
 
-PanelMenuSub.defaultProps = {
-    model: null,
-    multiple: false
-};
-
-PanelMenuSub.propTypes = {
-    model: PropTypes.any,
-    multiple: PropTypes.bool
-};
-
-
 PanelMenu.defaultProps = {
+    __TYPE: 'Panel',
     id: null,
     model: null,
     style: null,
     className: null,
     multiple: false,
     transitionOptions: null
-};
+}
 
 PanelMenu.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     model: PropTypes.array,
     style: PropTypes.object,
     className: PropTypes.string,
     multiple: PropTypes.bool,
     transitionOptions: PropTypes.object
-};
+}

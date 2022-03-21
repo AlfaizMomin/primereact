@@ -44,6 +44,7 @@ export const Message = (props) => {
 }
 
 Message.defaultProps = {
+    __TYPE: 'Message',
     id: null,
     className: null,
     style: null,
@@ -53,6 +54,7 @@ Message.defaultProps = {
 }
 
 Message.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     className: PropTypes.string,
     style: PropTypes.object,

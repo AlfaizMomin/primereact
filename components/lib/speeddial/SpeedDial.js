@@ -256,6 +256,7 @@ export const SpeedDial = memo(forwardRef((props, ref) => {
 }))
 
 SpeedDial.defaultProps = {
+    __TYPE: 'SpeedDial',
     id: null,
     model: null,
     visible: false,
@@ -283,6 +284,7 @@ SpeedDial.defaultProps = {
 }
 
 SpeedDial.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     model: PropTypes.array,
     visible: PropTypes.bool,

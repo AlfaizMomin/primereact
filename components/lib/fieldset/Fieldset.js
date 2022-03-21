@@ -103,7 +103,7 @@ export const Fieldset = (props) => {
             );
         }
     }
-    
+
     useEffect(() => {
         if (!props.id) {
             setId(UniqueComponentId());
@@ -122,6 +122,7 @@ export const Fieldset = (props) => {
 }
 
 Fieldset.defaultProps = {
+    __TYPE: 'Fieldset',
     id: null,
     legend: null,
     className: null,
@@ -136,6 +137,7 @@ Fieldset.defaultProps = {
 };
 
 Fieldset.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     legend: PropTypes.any,
     className: PropTypes.string,

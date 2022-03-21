@@ -31,6 +31,7 @@ export const JumpToPageInput = (props) => {
 }
 
 JumpToPageInput.defaultProps = {
+    __TYPE: 'JumbToPageInput',
     page: null,
     rows: null,
     pageCount: null,
@@ -40,6 +41,7 @@ JumpToPageInput.defaultProps = {
 }
 
 JumpToPageInput.propTypes = {
+    __TYPE: PropTypes.string,
     page: PropTypes.number,
     rows: PropTypes.number,
     pageCount: PropTypes.number,

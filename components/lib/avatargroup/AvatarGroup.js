@@ -13,11 +13,13 @@ export const AvatarGroup = (props) => {
 }
 
 AvatarGroup.defaultProps = {
+    __TYPE: 'AvatarGroup',
     style: null,
     className: null
 }
 
 AvatarGroup.propTypes = {
+    __TYPE: PropTypes.string,
     style: PropTypes.object,
     className: PropTypes.string
 }

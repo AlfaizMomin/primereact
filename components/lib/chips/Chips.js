@@ -270,6 +270,7 @@ export const Chips = memo((props) => {
 });
 
 Chips.defaultProps = {
+    __TYPE: 'Chips',
     id: null,
     inputRef: null,
     name: null,
@@ -295,6 +296,7 @@ Chips.defaultProps = {
 }
 
 Chips.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputRef: PropTypes.any,
     name: PropTypes.string,

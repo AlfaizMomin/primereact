@@ -402,17 +402,19 @@ export const MegaMenu = (props) => {
 }
 
 MegaMenu.defaultProps = {
+    __TYPE: 'MegaMenu',
     id: null,
     model: null,
     style: null,
     className: null,
     orientation: 'horizontal'
-};
+}
 
 MegaMenu.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     model: PropTypes.array,
     style: PropTypes.object,
     className: PropTypes.string,
     orientation: PropTypes.string
-};
+}

@@ -66,6 +66,7 @@ export const PageLinks = (props) => {
 }
 
 PageLinks.defaultProps = {
+    __TYPE: 'PageLinks',
     value: null,
     page: null,
     rows: null,
@@ -75,6 +76,7 @@ PageLinks.defaultProps = {
 }
 
 PageLinks.propTypes = {
+    __TYPE: PropTypes.string,
     value: PropTypes.array,
     page: PropTypes.number,
     rows: PropTypes.number,

@@ -143,6 +143,7 @@ export const Terminal = memo((props) => {
 })
 
 Terminal.defaultProps = {
+    __TYPE: 'Terminal',
     id: null,
     style: null,
     className: null,
@@ -151,25 +152,10 @@ Terminal.defaultProps = {
 }
 
 Terminal.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     style: PropTypes.object,
     className: PropTypes.string,
     welcomeMessage: PropTypes.string,
     prompt: PropTypes.string
 }
-
-Terminal.defaultProps = {
-    id: null,
-    style: null,
-    className: null,
-    welcomeMessage: null,
-    prompt: null
-};
-
-Terminal.propTypes = {
-    id: PropTypes.string,
-    style: PropTypes.object,
-    className: PropTypes.string,
-    welcomeMessage: PropTypes.string,
-    prompt: PropTypes.string
-};

@@ -151,6 +151,7 @@ export const OrderList = (props) => {
 }
 
 OrderList.defaultProps = {
+    __TYPE: 'OrderList',
     id: null,
     value: null,
     header: null,
@@ -165,6 +166,7 @@ OrderList.defaultProps = {
 }
 
 OrderList.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.array,
     header: PropTypes.string,

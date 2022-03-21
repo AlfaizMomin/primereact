@@ -555,6 +555,7 @@ export const Dialog = forwardRef((props, ref) => {
 })
 
 Dialog.defaultProps = {
+    __TYPE: 'Dialog',
     id: null,
     header: null,
     footer: null,
@@ -601,6 +602,7 @@ Dialog.defaultProps = {
 }
 
 Dialog.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     header: PropTypes.any,
     footer: PropTypes.any,

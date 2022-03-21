@@ -420,6 +420,7 @@ export const Mention = memo((props) => {
 })
 
 Mention.defaultProps = {
+    __TYPE: 'Mention',
     id: null,
     inputId: null,
     inputRef: null,
@@ -450,6 +451,7 @@ Mention.defaultProps = {
 }
 
 Mention.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputId: PropTypes.string,
     inputRef: PropTypes.any,

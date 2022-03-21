@@ -87,6 +87,7 @@ export const Button = memo(forwardRef((props, ref) => {
 }))
 
 Button.defaultProps = {
+    __TYPE: 'Button',
     label: null,
     icon: null,
     iconPos: 'left',
@@ -100,6 +101,7 @@ Button.defaultProps = {
 }
 
 Button.propTypes = {
+    __TYPE: PropTypes.string,
     label: PropTypes.string,
     icon: PropTypes.any,
     iconPos: PropTypes.string,

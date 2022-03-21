@@ -167,12 +167,14 @@ export const ScrollPanel = forwardRef((props, ref) => {
 })
 
 ScrollPanel.defaultProps = {
+    __TYPE: 'ScrollPanel',
     id: null,
     style: null,
     className: null
 }
 
 ScrollPanel.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     style: PropTypes.object,
     className: PropTypes.string

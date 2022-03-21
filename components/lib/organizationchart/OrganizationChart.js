@@ -93,6 +93,7 @@ export const OrganizationChart = (props) => {
 }
 
 OrganizationChart.defaultProps = {
+    __TYPE: 'OrganizationChart',
     id: null,
     value: null,
     style: null,
@@ -106,6 +107,7 @@ OrganizationChart.defaultProps = {
 }
 
 OrganizationChart.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.any,
     style: PropTypes.object,

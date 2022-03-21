@@ -636,6 +636,7 @@ export const MultiSelect = memo((props) => {
 })
 
 MultiSelect.defaultProps = {
+    __TYPE: 'MultiSelect',
     id: null,
     inputRef: null,
     name: null,
@@ -694,6 +695,7 @@ MultiSelect.defaultProps = {
 }
 
 MultiSelect.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputRef: PropTypes.any,
     name: PropTypes.string,

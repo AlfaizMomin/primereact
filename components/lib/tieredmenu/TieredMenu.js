@@ -146,6 +146,7 @@ export const TieredMenu = forwardRef((props, ref) => {
 
 
 TieredMenu.defaultProps = {
+    __TYPE: 'TieredMenu',
     id: null,
     model: null,
     popup: false,
@@ -157,9 +158,10 @@ TieredMenu.defaultProps = {
     transitionOptions: null,
     onShow: null,
     onHide: null
-};
+}
 
 TieredMenu.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     model: PropTypes.array,
     popup: PropTypes.bool,
@@ -171,4 +173,4 @@ TieredMenu.propTypes = {
     transitionOptions: PropTypes.object,
     onShow: PropTypes.func,
     onHide: PropTypes.func
-};
+}

@@ -2874,6 +2874,7 @@ export const Calendar = memo((props) => {
 })
 
 Calendar.defaultProps = {
+    __TYPE: 'Calendar',
     id: null,
     inputRef: null,
     name: null,
@@ -2957,6 +2958,7 @@ Calendar.defaultProps = {
 }
 
 Calendar.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputRef: PropTypes.any,
     name: PropTypes.string,

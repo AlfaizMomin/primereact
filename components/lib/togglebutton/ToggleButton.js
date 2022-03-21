@@ -89,6 +89,7 @@ export const ToggleButton = memo((props) => {
 })
 
 ToggleButton.defaultProps = {
+    __TYPE: 'ToggleButton',
     id: null,
     onIcon: null,
     offIcon: null,
@@ -108,6 +109,7 @@ ToggleButton.defaultProps = {
 }
 
 ToggleButton.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     onIcon: PropTypes.any,
     offIcon: PropTypes.any,

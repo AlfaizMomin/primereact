@@ -140,6 +140,7 @@ export const Panel = (props) => {
 }
 
 Panel.defaultProps = {
+    __TYPE: 'Panel',
     id: null,
     header: null,
     headerTemplate: null,
@@ -157,6 +158,7 @@ Panel.defaultProps = {
 }
 
 Panel.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     header: PropTypes.any,
     headerTemplate: PropTypes.any,

@@ -371,23 +371,8 @@ export const ContextMenu = forwardRef((props, ref) => {
     return <Portal element={element} appendTo={props.appendTo} />;
 })
 
-ContextMenuSub.defaultProps = {
-    model: null,
-    root: false,
-    className: null,
-    resetMenu: false,
-    onLeafClick: null
-};
-
-ContextMenuSub.propTypes = {
-    model: PropTypes.any,
-    root: PropTypes.bool,
-    className: PropTypes.string,
-    resetMenu: PropTypes.bool,
-    onLeafClick: PropTypes.func
-};
-
 ContextMenu.defaultProps = {
+    __TYPE: 'ContextMenu',
     id: null,
     model: null,
     style: null,
@@ -402,6 +387,7 @@ ContextMenu.defaultProps = {
 };
 
 ContextMenu.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     model: PropTypes.array,
     style: PropTypes.object,

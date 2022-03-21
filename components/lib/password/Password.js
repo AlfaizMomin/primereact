@@ -333,6 +333,7 @@ export const Password = memo((props) => {
 })
 
 Password.defaultProps = {
+    __TYPE: 'Password',
     id: null,
     inputId: null,
     inputRef: null,
@@ -364,6 +365,7 @@ Password.defaultProps = {
 }
 
 Password.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputId: PropTypes.string,
     inputRef: PropTypes.any,

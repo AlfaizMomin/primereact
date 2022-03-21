@@ -558,6 +558,7 @@ export const InputMask = memo((props) => {
 })
 
 InputMask.defaultProps = {
+    __TYPE: 'InputMask',
     id: null,
     inputRef: null,
     value: null,
@@ -586,6 +587,7 @@ InputMask.defaultProps = {
 }
 
 InputMask.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputRef: PropTypes.any,
     value: PropTypes.string,

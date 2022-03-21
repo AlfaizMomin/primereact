@@ -43,6 +43,7 @@ export const Avatar = (props) => {
 }
 
 Avatar.defaultProps = {
+    __TYPE: 'Avatar',
     label: null,
     icon: null,
     image: null,
@@ -57,6 +58,7 @@ Avatar.defaultProps = {
 }
 
 Avatar.propTypes = {
+    __TYPE: PropTypes.string,
     label: PropTypes.string,
     icon: PropTypes.any,
     image: PropTypes.string,

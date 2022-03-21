@@ -69,6 +69,7 @@ export const Messages = memo(forwardRef((props, ref) => {
 }))
 
 Messages.defaultProps = {
+    __TYPE: 'Messages',
     id: null,
     className: null,
     style: null,
@@ -78,6 +79,7 @@ Messages.defaultProps = {
 }
 
 Messages.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     className: PropTypes.string,
     style: PropTypes.object,

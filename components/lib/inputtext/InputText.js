@@ -75,6 +75,7 @@ export const InputText = memo(forwardRef((props, ref) => {
 }))
 
 InputText.defaultProps = {
+    __TYPE: 'InputText',
     keyfilter: null,
     validateOnly: false,
     tooltip: null,
@@ -84,6 +85,7 @@ InputText.defaultProps = {
 }
 
 InputText.propTypes = {
+    __TYPE: PropTypes.string,
     keyfilter: PropTypes.any,
     validateOnly: PropTypes.bool,
     tooltip: PropTypes.string,

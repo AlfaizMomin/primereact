@@ -146,6 +146,7 @@ export const Editor = memo(forwardRef((props, ref) => {
 }))
 
 Editor.defaultProps = {
+    __TYPE: 'Editor',
     id: null,
     value: null,
     style: null,
@@ -163,6 +164,7 @@ Editor.defaultProps = {
 }
 
 Editor.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.string,
     style: PropTypes.object,

@@ -282,6 +282,7 @@ export const ConfirmPopup = (props) => {
 }
 
 ConfirmPopup.defaultProps = {
+    __TYPE: 'ConfirmPopup',
     target: null,
     visible: false,
     message: null,
@@ -305,6 +306,7 @@ ConfirmPopup.defaultProps = {
 }
 
 ConfirmPopup.propTypes = {
+    __TYPE: PropTypes.string,
     target: PropTypes.any,
     visible: PropTypes.bool,
     message: PropTypes.any,

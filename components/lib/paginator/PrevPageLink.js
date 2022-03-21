@@ -30,12 +30,14 @@ export const PrevPageLink = (props) => {
 }
 
 PrevPageLink.defaultProps = {
+    __TYPE: 'PrevPageLink',
     disabled: false,
     onClick: null,
     template: null
 }
 
 PrevPageLink.propTypes = {
+    __TYPE: PropTypes.string,
     disabled: PropTypes.bool,
     onClick: PropTypes.func,
     template: PropTypes.any

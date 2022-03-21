@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, classNames } from '../utils/Utils';
 
-export function Timeline(props) {
+export const Timeline = (props) => {
     const getKey = (item, index) => {
         return props.dataKey ? ObjectUtils.resolveFieldData(item, props.dataKey) : `pr_id__${index}`;
     }
@@ -42,11 +42,11 @@ export function Timeline(props) {
         <div id={props.id} className={containerClassName} style={props.style}>
             {events}
         </div>
-    );
+    )
 }
 
-
 Timeline.defaultProps = {
+    __TYPE: 'Timeline',
     id: null,
     value: null,
     align: 'left',
@@ -57,9 +57,10 @@ Timeline.defaultProps = {
     opposite: null,
     marker: null,
     content: null
-};
+}
 
 Timeline.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.array,
     align: PropTypes.string,
@@ -70,4 +71,4 @@ Timeline.propTypes = {
     opposite: PropTypes.any,
     marker: PropTypes.any,
     content: PropTypes.any
-};
+}

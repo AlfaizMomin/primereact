@@ -417,6 +417,7 @@ export const Tree = memo(forwardRef((props, ref) => {
 }))
 
 Tree.defaultProps = {
+    __TYPE: 'Tree',
     id: null,
     value: null,
     disabled: false,
@@ -460,6 +461,7 @@ Tree.defaultProps = {
 }
 
 Tree.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.any,
     disabled: PropTypes.bool,

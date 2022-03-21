@@ -265,23 +265,3 @@ export const TieredMenuSub = forwardRef((props, ref) => {
         </ul>
     );
 })
-
-TieredMenuSub.defaultProps = {
-    model: null,
-    root: false,
-    className: null,
-    popup: false,
-    onLeafClick: null,
-    onKeyDown: null,
-    parentActive: false
-};
-
-TieredMenuSub.propTypes = {
-    model: PropTypes.any,
-    root: PropTypes.bool,
-    className: PropTypes.string,
-    popup: PropTypes.bool,
-    onLeafClick: PropTypes.func,
-    onKeyDown: PropTypes.func,
-    parentActive: PropTypes.bool
-};

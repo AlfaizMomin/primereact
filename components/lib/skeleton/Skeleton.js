@@ -22,6 +22,7 @@ export const Skeleton = memo((props) => {
 })
 
 Skeleton.defaultProps = {
+    __TYPE: 'Skeleton',
     shape: 'rectangle',
     size: null,
     width: '100%',
@@ -33,6 +34,7 @@ Skeleton.defaultProps = {
 }
 
 Skeleton.propTypes = {
+    __TYPE: PropTypes.string,
     shape: PropTypes.string,
     size: PropTypes.string,
     width: PropTypes.string,

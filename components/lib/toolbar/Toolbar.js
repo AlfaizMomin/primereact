@@ -20,17 +20,19 @@ export const Toolbar = (props) => {
 }
 
 Toolbar.defaultProps = {
+    __TYPE: 'Toolbar',
     id: null,
     style: null,
     className: null,
     left: null,
     right: null
-};
+}
 
 Toolbar.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     style: PropTypes.object,
     className: PropTypes.string,
     left: PropTypes.any,
     right: PropTypes.any
-};
+}

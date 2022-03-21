@@ -564,6 +564,7 @@ export const Carousel = memo((props) => {
 })
 
 Carousel.defaultProps = {
+    __TYPE: 'Carousel',
     id: null,
     value: null,
     page: 0,
@@ -586,6 +587,7 @@ Carousel.defaultProps = {
 }
 
 Carousel.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.any,
     page: PropTypes.number,

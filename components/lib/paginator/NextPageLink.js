@@ -30,12 +30,14 @@ export const NextPageLink = (props) => {
 }
 
 NextPageLink.defaultProps = {
+    __TYPE: 'NextPageLink',
     disabled: false,
     onClick: null,
     template: null
 }
 
 NextPageLink.propTypes = {
+    __TYPE: PropTypes.string,
     disabled: PropTypes.bool,
     onClick: PropTypes.func,
     template: PropTypes.any

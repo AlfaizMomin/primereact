@@ -236,6 +236,7 @@ export const Splitter = (props) => {
 }
 
 SplitterPanel.defaultProps = {
+    __TYPE: 'SplitterPanel',
     size: null,
     minSize: null,
     style: null,
@@ -243,6 +244,7 @@ SplitterPanel.defaultProps = {
 }
 
 SplitterPanel.propTypes = {
+    __TYPE: PropTypes.string,
     header: PropTypes.number,
     minSize: PropTypes.number,
     style: PropTypes.object,
@@ -250,6 +252,7 @@ SplitterPanel.propTypes = {
 }
 
 Splitter.defaultProps = {
+    __TYPE: 'Splitter',
     id: null,
     className: null,
     style: null,
@@ -261,6 +264,7 @@ Splitter.defaultProps = {
 }
 
 Splitter.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     className: PropTypes.string,
     style: PropTypes.object,
@@ -269,4 +273,4 @@ Splitter.propTypes = {
     stateKey: PropTypes.string,
     stateStorage: PropTypes.string,
     onResizeEnd: PropTypes.func
-};
+}

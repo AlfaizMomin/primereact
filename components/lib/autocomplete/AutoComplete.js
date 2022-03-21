@@ -21,7 +21,7 @@ export const AutoComplete = memo(forwardRef((props, ref) => {
     const inputRef = useRef(props.inputRef);
     const multiContainerRef = useRef(null);
     const timeout = useRef(null);
-    const ariaSelected = useRef(null);
+    const selectedItem = useRef(null);
 
     const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({ target: elementRef, overlay: overlayRef, listener: (event, type) => {
         if (type === 'outside')
@@ -122,7 +122,7 @@ export const AutoComplete = memo(forwardRef((props, ref) => {
             });
         }
 
-        ariaSelected.current = value;
+        selectedItem.current = value;
     }
 
     const formatValue = (value) => {
@@ -567,7 +567,7 @@ export const AutoComplete = memo(forwardRef((props, ref) => {
             {input}
             {loader}
             {dropdown}
-            <AutoCompletePanel ref={overlayRef} virtualScrollerRef={virtualScrollerRef} {...props} listId={id + '_list'} onItemClick={selectItem} ariaSelected={ariaSelected}
+            <AutoCompletePanel ref={overlayRef} virtualScrollerRef={virtualScrollerRef} {...props} listId={id + '_list'} onItemClick={selectItem} selectedItem={selectedItem}
                 onClick={onPanelClick} getOptionGroupLabel={getOptionGroupLabel} getOptionGroupChildren={getOptionGroupChildren}
                 in={overlayVisible} onEnter={onOverlayEnter} onEntering={onOverlayEntering} onEntered={onOverlayEntered} onExit={onOverlayExit} onExited={onOverlayExited} />
         </span>
@@ -575,6 +575,7 @@ export const AutoComplete = memo(forwardRef((props, ref) => {
 }))
 
 AutoComplete.defaultProps = {
+    __TYPE: 'AutoComplete',
     id: null,
     inputRef: null,
     value: null,
@@ -636,6 +637,7 @@ AutoComplete.defaultProps = {
 }
 
 AutoComplete.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputRef: PropTypes.any,
     value: PropTypes.any,

@@ -156,6 +156,7 @@ export const Image = memo((props) => {
 })
 
 Image.defaultProps = {
+    __TYPE: 'Image',
     preview: false,
     className: null,
     downloadable: false,
@@ -170,6 +171,7 @@ Image.defaultProps = {
 }
 
 Image.propTypes = {
+    __TYPE: PropTypes.string,
     preview: PropTypes.bool,
     className: PropTypes.string,
     downloadable: PropTypes.bool,

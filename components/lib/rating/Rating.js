@@ -117,6 +117,7 @@ export const Rating = memo((props) => {
 })
 
 Rating.defaultProps = {
+    __TYPE: 'Rating',
     id: null,
     value: null,
     disabled: false,
@@ -131,6 +132,7 @@ Rating.defaultProps = {
 }
 
 Rating.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.number,
     disabled: PropTypes.bool,

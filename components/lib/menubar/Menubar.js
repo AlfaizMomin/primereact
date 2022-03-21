@@ -124,6 +124,7 @@ export const Menubar = memo(forwardRef((props, ref) => {
 }))
 
 Menubar.defaultProps = {
+    __TYPE: 'Menubar',
     id: null,
     model: null,
     style: null,
@@ -133,6 +134,7 @@ Menubar.defaultProps = {
 }
 
 Menubar.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     model: PropTypes.array,
     style: PropTypes.object,

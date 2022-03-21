@@ -111,6 +111,7 @@ export const Checkbox = memo((props) => {
 });
 
 Checkbox.defaultProps = {
+    __TYPE: 'Checkbox',
     id: null,
     inputRef: null,
     inputId: null,
@@ -135,6 +136,7 @@ Checkbox.defaultProps = {
 }
 
 Checkbox.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputRef: PropTypes.any,
     inputId: PropTypes.string,

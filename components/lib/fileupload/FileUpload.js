@@ -501,6 +501,7 @@ export const FileUpload = memo(forwardRef((props, ref) => {
 }))
 
 FileUpload.defaultProps = {
+    __TYPE: 'FileUpload',
     id: null,
     name: null,
     url: null,
@@ -562,6 +563,7 @@ FileUpload.defaultProps = {
 }
 
 FileUpload.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     name: PropTypes.string,
     url: PropTypes.string,

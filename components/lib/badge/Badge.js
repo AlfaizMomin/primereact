@@ -19,6 +19,7 @@ export const Badge = memo((props) => {
 });
 
 Badge.defaultProps = {
+    __TYPE: 'Badge',
     value: null,
     severity: null,
     size: null,
@@ -27,6 +28,7 @@ Badge.defaultProps = {
 }
 
 Badge.propTypes = {
+    __TYPE: PropTypes.string,
     value: PropTypes.any,
     severity: PropTypes.string,
     size: PropTypes.string,

@@ -12,7 +12,7 @@ export const OrganizationChartNode = (props) => {
     const onNodeClick = (event, node) => {
         props.onNodeClick(event, node)
     }
-  
+
     const toggleNode = (event, node) => {
         setExpanded(!expanded);
         event.preventDefault();
@@ -91,27 +91,5 @@ export const OrganizationChartNode = (props) => {
                 {childNodes}
             </tbody>
         </table>
-    );
-}
-
-OrganizationChartNode.defaultProps = {
-    node: null,
-    nodeTemplate: null,
-    root: false,
-    first: false,
-    last: false,
-    selectionMode: null,
-    onNodeClick: null,
-    isSelected: null
-}
-
-OrganizationChartNode.propTypes = {
-    node: PropTypes.any,
-    nodeTemplate: PropTypes.any,
-    root: PropTypes.bool,
-    first: PropTypes.bool,
-    last: PropTypes.bool,
-    selectionMode: PropTypes.string,
-    onNodeClick: PropTypes.func,
-    isSelected: PropTypes.func
+    )
 }

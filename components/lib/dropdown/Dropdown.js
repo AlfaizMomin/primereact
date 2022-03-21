@@ -730,6 +730,7 @@ export const Dropdown = memo((props) => {
 })
 
 Dropdown.defaultProps = {
+    __TYPE: 'Dropdown',
     id: null,
     inputRef: null,
     name: null,
@@ -788,6 +789,7 @@ Dropdown.defaultProps = {
 }
 
 Dropdown.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputRef: PropTypes.any,
     name: PropTypes.string,

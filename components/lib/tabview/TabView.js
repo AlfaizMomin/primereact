@@ -290,6 +290,7 @@ export const TabView = forwardRef((props, ref) => {
 })
 
 TabPanel.defaultProps = {
+    __TYPE: 'TabPanel',
     header: null,
     headerTemplate: null,
     leftIcon: null,
@@ -305,6 +306,7 @@ TabPanel.defaultProps = {
 }
 
 TabPanel.propTypes = {
+    __TYPE: PropTypes.string,
     header: PropTypes.any,
     headerTemplate: PropTypes.any,
     leftIcon: PropTypes.string,
@@ -320,6 +322,7 @@ TabPanel.propTypes = {
 }
 
 TabView.defaultProps = {
+    __TYPE: 'TabView',
     id: null,
     activeIndex: 0,
     style: null,
@@ -331,6 +334,7 @@ TabView.defaultProps = {
 }
 
 TabView.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     activeIndex: PropTypes.number,
     style: PropTypes.object,

@@ -205,6 +205,7 @@ export const Galleria = memo(forwardRef((props, ref) => {
 }))
 
 Galleria.defaultProps = {
+    __TYPE: 'Galleria',
     id: null,
     value: null,
     activeIndex: 0,
@@ -238,6 +239,7 @@ Galleria.defaultProps = {
 }
 
 Galleria.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.any,
     activeIndex: PropTypes.number,

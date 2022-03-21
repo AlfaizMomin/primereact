@@ -188,6 +188,7 @@ export const Sidebar = (props) => {
 }
 
 Sidebar.defaultProps = {
+    __TYPE: 'Sidebar',
     id: null,
     style: null,
     className: null,
@@ -211,6 +212,7 @@ Sidebar.defaultProps = {
 };
 
 Sidebar.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     style: PropTypes.object,
     className: PropTypes.string,

@@ -202,6 +202,7 @@ export const Paginator = (props) => {
 }
 
 Paginator.defaultProps = {
+    __TYPE: 'Paginator',
     totalRecords: 0,
     rows: 0,
     first: 0,
@@ -219,6 +220,7 @@ Paginator.defaultProps = {
 }
 
 Paginator.propTypes = {
+    __TYPE: PropTypes.string,
     totalRecords: PropTypes.number,
     rows: PropTypes.number,
     first: PropTypes.number,

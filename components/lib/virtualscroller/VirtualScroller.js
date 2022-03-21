@@ -592,6 +592,7 @@ export const VirtualScroller = forwardRef((props, ref) => {
 })
 
 VirtualScroller.defaultProps = {
+    __TYPE: 'VirtualScroller',
     id: null,
     style: null,
     className: null,
@@ -618,6 +619,7 @@ VirtualScroller.defaultProps = {
 }
 
 VirtualScroller.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     style: PropTypes.object,
     className: PropTypes.string,

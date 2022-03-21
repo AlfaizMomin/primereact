@@ -100,6 +100,7 @@ export const BlockUI = forwardRef((props, ref) => {
 })
 
 BlockUI.defaultProps = {
+    __TYPE: 'BlockUI',
     id: null,
     blocked: false,
     fullScreen: false,
@@ -113,6 +114,7 @@ BlockUI.defaultProps = {
 }
 
 BlockUI.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     blocked: PropTypes.bool,
     fullScreen: PropTypes.bool,

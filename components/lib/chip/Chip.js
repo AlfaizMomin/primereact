@@ -64,6 +64,7 @@ export const Chip = memo((props) => {
 });
 
 Chip.defaultProps = {
+    __TYPE: 'Chip',
     label: null,
     icon: null,
     image: null,
@@ -78,6 +79,7 @@ Chip.defaultProps = {
 }
 
 Chip.propTypes = {
+    __TYPE: PropTypes.string,
     label: PropTypes.string,
     icon: PropTypes.any,
     image: PropTypes.string,

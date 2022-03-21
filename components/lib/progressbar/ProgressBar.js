@@ -50,6 +50,7 @@ export const ProgressBar = (props) => {
 }
 
 ProgressBar.defaultProps = {
+    __TYPE: 'ProgressBar',
     id: null,
     value: null,
     showValue: true,
@@ -62,6 +63,7 @@ ProgressBar.defaultProps = {
 }
 
 ProgressBar.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     showValue: PropTypes.bool,
@@ -71,4 +73,4 @@ ProgressBar.propTypes = {
     mode: PropTypes.string,
     displayValueTemplate: PropTypes.func,
     color: PropTypes.string
-};
+}

@@ -54,7 +54,7 @@ export const DeferredContent = (props) => {
         }
 
         return () => unbindScrollListener();
-    }, []);    
+    }, []);
 
     return (
         <div ref={container}>
@@ -64,9 +64,11 @@ export const DeferredContent = (props) => {
 }
 
 DeferredContent.defaultProps = {
+    __TYPE: 'DeferredContent',
     onload: null
 }
 
 DeferredContent.propTypes = {
+    __TYPE: PropTypes.string,
     onLoad: PropTypes.func
 }

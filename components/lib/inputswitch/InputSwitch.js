@@ -102,6 +102,7 @@ export const InputSwitch = memo((props) => {
 })
 
 InputSwitch.defaultProps = {
+    __TYPE: 'InputSwitch',
     id: null,
     inputRef: null,
     style: null,
@@ -121,6 +122,7 @@ InputSwitch.defaultProps = {
 }
 
 InputSwitch.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputRef: PropTypes.any,
     style: PropTypes.object,

@@ -96,6 +96,7 @@ export const Steps = (props) => {
 }
 
 Steps.defaultProps = {
+    __TYPE: 'Steps',
     id: null,
     model: null,
     activeIndex: 0,
@@ -106,6 +107,7 @@ Steps.defaultProps = {
 }
 
 Steps.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     model: PropTypes.array.isRequired,
     activeIndex: PropTypes.number,

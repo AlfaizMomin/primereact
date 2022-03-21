@@ -94,6 +94,7 @@ export const Captcha = memo(forwardRef((props, ref) => {
 }));
 
 Captcha.defaultProps = {
+    __TYPE: 'Captcha',
     id: null,
     siteKey: null,
     theme: 'light',
@@ -106,6 +107,7 @@ Captcha.defaultProps = {
 }
 
 Captcha.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     sitekey: PropTypes.string,
     theme: PropTypes.string,

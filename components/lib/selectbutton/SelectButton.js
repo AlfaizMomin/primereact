@@ -123,6 +123,7 @@ export const SelectButton = memo((props) => {
 })
 
 SelectButton.defaultProps = {
+    __TYPE: 'SelectButton',
     id: null,
     value: null,
     options: null,
@@ -144,6 +145,7 @@ SelectButton.defaultProps = {
 }
 
 SelectButton.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.any,
     options: PropTypes.array,

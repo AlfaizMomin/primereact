@@ -471,6 +471,7 @@ export const Tooltip = memo(forwardRef((props, ref) => {
 }));
 
 Tooltip.defaultProps = {
+    __TYPE: 'Tooltip',
     id: null,
     target: null,
     content: null,
@@ -501,6 +502,7 @@ Tooltip.defaultProps = {
 }
 
 Tooltip.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     target: PropTypes.oneOfType([PropTypes.object, PropTypes.string, PropTypes.array]),
     content: PropTypes.string,

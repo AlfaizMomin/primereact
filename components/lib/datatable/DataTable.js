@@ -1559,6 +1559,7 @@ export const DataTable = forwardRef((props, ref) => {
 });
 
 DataTable.defaultProps = {
+    __TYPE: 'DataTable',
     id: null,
     value: null,
     header: null,
@@ -1688,6 +1689,7 @@ DataTable.defaultProps = {
 }
 
 DataTable.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.array,
     header: PropTypes.any,

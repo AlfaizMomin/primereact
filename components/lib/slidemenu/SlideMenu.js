@@ -297,27 +297,8 @@ export const SlideMenu = forwardRef((props, ref) => {
     return props.popup ? <Portal element={element} appendTo={props.appendTo} /> : element;
 })
 
-SlideMenuSub.defaultProps = {
-    model: null,
-    level: 0,
-    easing: 'ease-out',
-    effectDuration: 250,
-    menuWidth: 190,
-    parentActive: false,
-    onForward: null
-}
-
-SlideMenuSub.propTypes = {
-    model: PropTypes.any,
-    level: PropTypes.number,
-    easing: PropTypes.string,
-    effectDuration: PropTypes.number,
-    menuWidth: PropTypes.number,
-    parentActive: PropTypes.bool,
-    onForward: PropTypes.func
-}
-
 SlideMenu.defaultProps = {
+    __TYPE: 'SlideMenu',
     id: null,
     model: null,
     popup: false,
@@ -337,6 +318,7 @@ SlideMenu.defaultProps = {
 }
 
 SlideMenu.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     model: PropTypes.array,
     popup: PropTypes.bool,

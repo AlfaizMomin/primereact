@@ -123,6 +123,7 @@ export const Dock = memo((props) => {
 });
 
 Dock.defaultProps = {
+    __TYPE: 'Dock',
     id: null,
     style: null,
     className: null,
@@ -134,6 +135,7 @@ Dock.defaultProps = {
 }
 
 Dock.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     style: PropTypes.object,
     className: PropTypes.string,

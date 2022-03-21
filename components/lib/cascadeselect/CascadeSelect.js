@@ -270,6 +270,7 @@ export const CascadeSelect = memo((props) => {
 })
 
 CascadeSelect.defaultProps = {
+    __TYPE: 'CascadeSelect',
     id: null,
     inputRef: null,
     style: null,
@@ -300,6 +301,7 @@ CascadeSelect.defaultProps = {
 }
 
 CascadeSelect.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputRef: PropTypes.any,
     style: PropTypes.object,

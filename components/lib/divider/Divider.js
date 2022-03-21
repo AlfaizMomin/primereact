@@ -24,6 +24,7 @@ export const Divider = (props) => {
 }
 
 Divider.defaultProps = {
+    __TYPE: 'Divider',
     align: null,
     layout: 'horizontal',
     type: 'solid',
@@ -32,6 +33,7 @@ Divider.defaultProps = {
 }
 
 Divider.propTypes = {
+    __TYPE: PropTypes.string,
     align: PropTypes.string,
     layout: PropTypes.string,
     type: PropTypes.string,

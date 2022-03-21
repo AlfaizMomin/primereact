@@ -253,6 +253,7 @@ export const Slider = memo((props) => {
 })
 
 Slider.defaultProps = {
+    __TYPE: 'Slider',
     id: null,
     value: null,
     min: 0,
@@ -270,6 +271,7 @@ Slider.defaultProps = {
 }
 
 Slider.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.any,
     min: PropTypes.number,

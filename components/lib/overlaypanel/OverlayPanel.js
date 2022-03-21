@@ -240,6 +240,7 @@ export const OverlayPanel = forwardRef((props, ref) => {
 })
 
 OverlayPanel.defaultProps = {
+    __TYPE: 'OverlayPanel',
     id: null,
     dismissable: true,
     showCloseIcon: false,
@@ -254,6 +255,7 @@ OverlayPanel.defaultProps = {
 }
 
 OverlayPanel.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     dismissable: PropTypes.bool,
     showCloseIcon: PropTypes.bool,

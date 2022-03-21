@@ -35,6 +35,7 @@ export const CurrentPageReport = (props) => {
 }
 
 CurrentPageReport.defaultProps = {
+    __TYPE: 'CurrentPageReport',
     pageCount: null,
     page: null,
     first: null,
@@ -45,6 +46,7 @@ CurrentPageReport.defaultProps = {
 }
 
 CurrentPageReport.propTypes = {
+    __TYPE: PropTypes.string,
     pageCount: PropTypes.number,
     page: PropTypes.number,
     first: PropTypes.number,

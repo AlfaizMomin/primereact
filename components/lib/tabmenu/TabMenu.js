@@ -125,19 +125,21 @@ export const TabMenu = (props) => {
 }
 
 TabMenu.defaultProps = {
+    __TYPE: 'TabMenu',
     id: null,
     model: null,
     activeIndex: 0,
     style: null,
     className: null,
     onTabChange: null
-};
+}
 
 TabMenu.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     model: PropTypes.array,
     activeIndex: PropTypes.number,
     style: PropTypes.any,
     className: PropTypes.string,
     onTabChange: PropTypes.func
-};
+}

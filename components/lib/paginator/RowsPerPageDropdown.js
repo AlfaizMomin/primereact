@@ -29,6 +29,7 @@ export const RowsPerPageDropdown = (props) => {
 }
 
 RowsPerPageDropdown.defaultProps = {
+    __TYPE: 'RowsPerPageDropdown',
     options: null,
     value: null,
     page: null,
@@ -41,6 +42,7 @@ RowsPerPageDropdown.defaultProps = {
 }
 
 RowsPerPageDropdown.propTypes = {
+    __TYPE: PropTypes.string,
     options: PropTypes.array,
     value: PropTypes.number,
     page: PropTypes.number,

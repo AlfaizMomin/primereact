@@ -937,6 +937,7 @@ export const TreeTable = forwardRef((props, ref) => {
 })
 
 TreeTable.defaultProps = {
+    __TYPE: 'TreeTable',
     id: null,
     value: null,
     header: null,
@@ -1015,6 +1016,7 @@ TreeTable.defaultProps = {
 }
 
 TreeTable.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.any,
     header: PropTypes.any,

@@ -142,6 +142,7 @@ export const Knob = memo((props) => {
 })
 
 Knob.defaultProps = {
+    __TYPE: 'Knob',
     id: null,
     style: null,
     className: null,
@@ -163,6 +164,7 @@ Knob.defaultProps = {
 }
 
 Knob.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     style: PropTypes.object,
     className: PropTypes.string,

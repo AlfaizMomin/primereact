@@ -493,6 +493,7 @@ export const TreeSelect = memo((props) => {
 })
 
 TreeSelect.defaultProps = {
+    __TYPE: 'TreeSelect',
     id: null,
     value: null,
     name: null,
@@ -537,6 +538,7 @@ TreeSelect.defaultProps = {
 }
 
 TreeSelect.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.any,
     name: PropTypes.string,

@@ -296,6 +296,7 @@ export const Menu = forwardRef((props, ref) => {
 })
 
 Menu.defaultProps = {
+    __TYPE: 'Menu',
     id: null,
     model: null,
     popup: false,
@@ -307,9 +308,10 @@ Menu.defaultProps = {
     transitionOptions: null,
     onShow: null,
     onHide: null
-};
+}
 
 Menu.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     model: PropTypes.array,
     popup: PropTypes.bool,
@@ -321,4 +323,4 @@ Menu.propTypes = {
     transitionOptions: PropTypes.object,
     onShow: PropTypes.func,
     onHide: PropTypes.func
-};
+}

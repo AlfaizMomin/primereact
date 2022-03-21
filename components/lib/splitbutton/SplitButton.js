@@ -154,6 +154,7 @@ export const SplitButton = memo(forwardRef((props, ref) => {
 }))
 
 SplitButton.defaultProps = {
+    __TYPE: 'SplitButton',
     id: null,
     label: null,
     icon: null,
@@ -178,6 +179,7 @@ SplitButton.defaultProps = {
 }
 
 SplitButton.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     label: PropTypes.string,
     icon: PropTypes.any,

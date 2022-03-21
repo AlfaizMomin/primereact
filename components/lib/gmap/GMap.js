@@ -105,9 +105,8 @@ export const GMap = forwardRef((props, ref) => {
     );
 })
 
-
-
 GMap.defaultProps = {
+    __TYPE: 'GMap',
     options: null,
     overlays: null,
     style: null,
@@ -123,6 +122,7 @@ GMap.defaultProps = {
 }
 
 GMap.propTypes = {
+    __TYPE: PropTypes.string,
     options: PropTypes.object,
     overlays: PropTypes.array,
     style: PropTypes.object,

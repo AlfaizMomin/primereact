@@ -113,6 +113,7 @@ export const Inplace = (props) => {
 }
 
 Inplace.defaultProps = {
+    __TYPE: 'Inplace',
     style: null,
     className: null,
     active: false,
@@ -123,9 +124,10 @@ Inplace.defaultProps = {
     onOpen: null,
     onClose: null,
     onToggle: null
-};
+}
 
 Inplace.propTypes = {
+    __TYPE: PropTypes.string,
     style: PropTypes.object,
     className: PropTypes.string,
     active: PropTypes.bool,

@@ -19,6 +19,7 @@ export const Tag = (props) => {
 }
 
 Tag.defaultProps = {
+    __TYPE: 'Tag',
     value: null,
     severity: null,
     rounded: false,
@@ -28,6 +29,7 @@ Tag.defaultProps = {
 }
 
 Tag.propTypes = {
+    __TYPE: PropTypes.string,
     value: PropTypes.any,
     severity: PropTypes.string,
     rounded: PropTypes.bool,

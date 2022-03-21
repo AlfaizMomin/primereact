@@ -1,7 +1,7 @@
 import React, { forwardRef, memo } from 'react';
 import { ObjectUtils, classNames } from '../utils/Utils';
-import { Ripple } from '../ripple/Ripple';
 import { CSSTransition } from '../csstransition/CSSTransition';
+import { Ripple } from '../ripple/Ripple';
 import { Portal } from '../portal/Portal';
 import { VirtualScroller } from '../virtualscroller/VirtualScroller';
 
@@ -15,11 +15,13 @@ export const AutoCompletePanel = memo(forwardRef((props, ref) => {
         const groupChildren = props.getOptionGroupChildren(optionGroup);
         return (
             groupChildren.map((item, j) => {
-                let itemContent = props.itemTemplate ? ObjectUtils.getJSXElement(props.itemTemplate, item, j) : props.field ? ObjectUtils.resolveFieldData(item, props.field) : item;
+                const key = i + '_' + j;
+                const selected = props.selectedItem === item;
+                const content = props.itemTemplate ? ObjectUtils.getJSXElement(props.itemTemplate, item, j) : props.field ? ObjectUtils.resolveFieldData(item, props.field) : item;
 
                 return (
-                    <li key={j + '_item'} role="option" aria-selected={props.ariaSelected === item} className="p-autocomplete-item" onClick={(e) => props.onItemClick(e, item)} data-group={i} data-index={j}>
-                        {itemContent}
+                    <li key={key} role="option" aria-selected={selected} className="p-autocomplete-item" onClick={(e) => props.onItemClick(e, item)} data-group={i} data-index={j}>
+                        {content}
                         <Ripple />
                     </li>
                 )
@@ -29,43 +31,39 @@ export const AutoCompletePanel = memo(forwardRef((props, ref) => {
 
     const useItem = (suggestion, index) => {
         if (props.optionGroupLabel) {
-            const groupContent = props.optionGroupTemplate ? ObjectUtils.getJSXElement(props.optionGroupTemplate, suggestion, index) : props.getOptionGroupLabel(suggestion);
-            const groupChildrenContent = useGroupChildren(suggestion, index);
+            const content = props.optionGroupTemplate ? ObjectUtils.getJSXElement(props.optionGroupTemplate, suggestion, index) : props.getOptionGroupLabel(suggestion);
+            const childrenContent = useGroupChildren(suggestion, index);
             const key = index + '_' + getOptionGroupRenderKey(suggestion);
 
             return (
                 <React.Fragment key={key}>
                     <li className="p-autocomplete-item-group">
-                        {groupContent}
+                        {content}
                     </li>
-                    {groupChildrenContent}
+                    {childrenContent}
                 </React.Fragment>
             )
         }
         else {
-            const itemContent = props.itemTemplate ? ObjectUtils.getJSXElement(props.itemTemplate, suggestion, index) : props.field ? ObjectUtils.resolveFieldData(suggestion, props.field) : suggestion;
+            const content = props.itemTemplate ? ObjectUtils.getJSXElement(props.itemTemplate, suggestion, index) : props.field ? ObjectUtils.resolveFieldData(suggestion, props.field) : suggestion;
 
             return (
-                <li key={index + '_item'} role="option" aria-selected={props.ariaSelected === suggestion} className="p-autocomplete-item" onClick={(e) => props.onItemClick(e, suggestion)}>
-                    {itemContent}
+                <li key={index} role="option" aria-selected={props.selectedItem === suggestion} className="p-autocomplete-item" onClick={(e) => props.onItemClick(e, suggestion)}>
+                    {content}
                     <Ripple />
                 </li>
-            );
+            )
         }
     }
 
     const useItems = () => {
-        if (props.suggestions) {
-            return props.suggestions.map(useItem);
-        }
-
-        return null;
+        return props.suggestions ? props.suggestions.map(useItem) : null;
     }
 
     const useContent = () => {
         if (props.virtualScrollerOptions) {
             const virtualScrollerProps = { ...props.virtualScrollerOptions, ...{
-                style: {...props.virtualScrollerOptions.style, ...{ height: props.scrollHeight }},
+                style: { ...props.virtualScrollerOptions.style, ...{ height: props.scrollHeight }},
                 items: props.suggestions,
                 itemTemplate: (item, options) => item && useItem(item, options.index),
                 contentTemplate: (options) => {
@@ -94,7 +92,7 @@ export const AutoCompletePanel = memo(forwardRef((props, ref) => {
 
     const useElement = () => {
         const className = classNames('p-autocomplete-panel p-component', props.panelClassName);
-        const style = { maxHeight: props.scrollHeight, ...props.panelStyle };
+        const style = { maxHeight: props.scrollHeight, ...(props.panelStyle || {}) };
         const content = useContent();
 
         return (

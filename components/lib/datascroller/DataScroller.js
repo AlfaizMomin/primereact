@@ -211,6 +211,7 @@ export const DataScroller = forwardRef((props, ref) => {
 })
 
 DataScroller.defaultProps = {
+    __TYPE: 'DataScroller',
     id: null,
     value: null,
     rows: 0,
@@ -229,6 +230,7 @@ DataScroller.defaultProps = {
 }
 
 DataScroller.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.array,
     rows: PropTypes.number,

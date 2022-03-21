@@ -555,6 +555,7 @@ export const ColorPicker = memo((props) => {
 })
 
 ColorPicker.defaultProps = {
+    __TYPE: 'ColorPicker',
     id: null,
     inputRef: null,
     value: null,
@@ -576,6 +577,7 @@ ColorPicker.defaultProps = {
 }
 
 ColorPicker.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputRef: PropTypes.any,
     value: PropTypes.any,

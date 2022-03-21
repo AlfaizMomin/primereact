@@ -147,6 +147,7 @@ export const MultiStateCheckbox = memo((props) => {
 })
 
 MultiStateCheckbox.defaultProps = {
+    __TYPE: 'MultiStateCheckbox',
     id: null,
     inputRef: null,
     inputId: null,
@@ -168,6 +169,7 @@ MultiStateCheckbox.defaultProps = {
 }
 
 MultiStateCheckbox.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputRef: PropTypes.any,
     inputId: PropTypes.string,

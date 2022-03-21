@@ -15,19 +15,21 @@ export const ProgressSpinner = (props) => {
 }
 
 ProgressSpinner.defaultProps = {
+    __TYPE: 'ProgressSpinner',
     id: null,
     style: null,
     className: null,
     strokeWidth: "2",
     fill: "none",
     animationDuration: "2s"
-};
+}
 
 ProgressSpinner.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     style: PropTypes.object,
     className: PropTypes.string,
     strokeWidth: PropTypes.string,
     fill: PropTypes.string,
     animationDuration: PropTypes.string
-};
+}

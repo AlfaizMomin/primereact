@@ -182,11 +182,8 @@ export const PickList = (props) => {
     );
 }
 
-
-
-
-
 PickList.defaultProps = {
+    __TYPE: 'PickList',
     id: null,
     source: null,
     target: null,
@@ -214,6 +211,7 @@ PickList.defaultProps = {
 }
 
 PickList.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     source: PropTypes.array,
     target: PropTypes.array,
