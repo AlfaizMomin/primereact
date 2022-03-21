@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { classNames } from '../utils/Utils';
 
 export const Badge = memo((props) => {
-    const badgeClassName = classNames('p-badge p-component', {
+    const className = classNames('p-badge p-component', {
         'p-badge-no-gutter': props.value && String(props.value).length === 1,
         'p-badge-dot': !props.value,
         'p-badge-lg': props.size === 'large',
@@ -12,7 +12,7 @@ export const Badge = memo((props) => {
     }, props.className);
 
     return (
-        <span className={badgeClassName} style={props.style}>
+        <span className={className} style={props.style}>
             {props.value}
         </span>
     )
