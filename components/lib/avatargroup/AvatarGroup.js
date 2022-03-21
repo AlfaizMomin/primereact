@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import { classNames } from '../utils/Utils';
 
 export const AvatarGroup = (props) => {
-    const containerClassName = classNames('p-avatar-group p-component', props.className);
+    const className = classNames('p-avatar-group p-component', props.className);
 
     return (
-        <div className={containerClassName} style={props.style}>
+        <div className={className} style={props.style}>
             {props.children}
         </div>
-    );
+    )
 }
 
 AvatarGroup.defaultProps = {
