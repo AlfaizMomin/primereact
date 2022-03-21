@@ -572,7 +572,7 @@ export const AutoComplete = memo(forwardRef((props, ref) => {
                 in={overlayVisibleState} onEnter={onOverlayEnter} onEntering={onOverlayEntering} onEntered={onOverlayEntered} onExit={onOverlayExit} onExited={onOverlayExited} />
         </span>
     )
-}))
+}));
 
 AutoComplete.defaultProps = {
     __TYPE: 'AutoComplete',

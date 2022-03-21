@@ -1,20 +1,21 @@
-import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { classNames, DomHandler, ObjectUtils, ZIndexUtils } from '../utils/Utils';
-import { Portal } from '../portal/Portal';
 import PrimeReact from '../api/Api';
+import { Portal } from '../portal/Portal';
+import { classNames, DomHandler, ObjectUtils, ZIndexUtils } from '../utils/Utils';
+import { useMountEffect, useUpdateEffect, useUnmountEffect } from '../hooks/Hooks';
 
 export const BlockUI = forwardRef((props, ref) => {
-    const [visible, setVisible] = useState(props.blocked);
+    const [visibleState, setVisibleState] = useState(props.blocked);
     const maskRef = useRef(null);
 
     const block = () => {
-        setVisible(true);
+        setVisibleState(true);
     }
 
     const unblock = () => {
         const callback = () => {
-            setVisible(false);
+            setVisibleState(false);
 
             props.fullScreen && DomHandler.removeClass(document.body, 'p-overflow-hidden');
             props.onUnblocked && props.onUnblocked();
@@ -46,23 +47,21 @@ export const BlockUI = forwardRef((props, ref) => {
         props.onBlocked && props.onBlocked();
     }
 
-    useEffect(() => {
-        if (visible) {
-            block();
-        }
+    useMountEffect(() => {
+        visibleState && block();
+    });
 
-        return () => {
-            if (props.fullScreen) {
-                DomHandler.removeClass(document.body, 'p-overflow-hidden');
-            }
-
-            ZIndexUtils.clear(maskRef.current);
-        }
-    }, []);
-
-    useEffect(() => {
+    useUpdateEffect(() => {
         props.blocked ? block() : unblock();
     }, [props.blocked]);
+
+    useUnmountEffect(() => {
+        if (props.fullScreen) {
+            DomHandler.removeClass(document.body, 'p-overflow-hidden');
+        }
+
+        ZIndexUtils.clear(maskRef.current);
+    });
 
     useImperativeHandle(ref, () => ({
         block,
@@ -70,7 +69,8 @@ export const BlockUI = forwardRef((props, ref) => {
     }));
 
     const useMask = () => {
-        if (visible) {
+        if (visibleState) {
+            const appendTo = props.fullScreen ? document.body : 'self';
             const className = classNames('p-blockui p-component-overlay p-component-overlay-enter', {
                 'p-blockui-document': props.fullScreen
             }, props.className);
@@ -81,9 +81,7 @@ export const BlockUI = forwardRef((props, ref) => {
                 </div>
             );
 
-            return (
-                <Portal element={mask} appendTo={props.fullScreen ? document.body : 'self'} onMounted={onPortalMounted} />
-            );
+            return <Portal element={mask} appendTo={appendTo} onMounted={onPortalMounted} />
         }
 
         return null;
@@ -96,8 +94,8 @@ export const BlockUI = forwardRef((props, ref) => {
             {props.children}
             {mask}
         </div>
-    );
-})
+    )
+});
 
 BlockUI.defaultProps = {
     __TYPE: 'BlockUI',
