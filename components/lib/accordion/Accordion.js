@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { classNames, ObjectUtils, IconUtils, UniqueComponentId } from '../utils/Utils';
 import { CSSTransition } from '../csstransition/CSSTransition';
@@ -11,7 +11,7 @@ export const Accordion = (props) => {
     const [activeIndexState, setActiveIndexState] = useState(null);
     const activeIndex = props.onTabChange ? props.activeIndex : activeIndexState;
 
-    const shouldUseTab = (tab) => tab && tab.type === AccordionTab;
+    const shouldUseTab = (tab) => tab && tab.props.__TYPE === 'AccordionTab';
 
     const onTabHeaderClick = (event, tab, index) => {
         if (!tab.props.disabled) {
@@ -80,10 +80,11 @@ export const Accordion = (props) => {
         const className = classNames('p-toggleable-content', tab.props.contentClassName, tab.props.className);
         const contentId = idState + '_content_' + index;
         const ariaLabelledby = idState + '_header_' + index;
+        const contentRef = useRef(null);
 
         return (
-            <CSSTransition classNames="p-toggleable-content" timeout={{ enter: 1000, exit: 450 }} in={selected} unmountOnExit options={props.transitionOptions}>
-                <div id={contentId} className={className} style={style} role="region" aria-labelledby={ariaLabelledby}>
+            <CSSTransition nodeRef={contentRef} classNames="p-toggleable-content" timeout={{ enter: 1000, exit: 450 }} in={selected} unmountOnExit options={props.transitionOptions}>
+                <div ref={contentRef} id={contentId} className={className} style={style} role="region" aria-labelledby={ariaLabelledby}>
                     <div className="p-accordion-content">
                         {tab.props.children}
                     </div>
@@ -128,6 +129,7 @@ export const Accordion = (props) => {
 }
 
 AccordionTab.defaultProps = {
+    __TYPE: 'AccordionTab',
     header: null,
     disabled: false,
     style: null,
@@ -140,6 +142,7 @@ AccordionTab.defaultProps = {
 }
 
 AccordionTab.propTypes = {
+    __TYPE: PropTypes.string,
     header: PropTypes.any,
     disabled: PropTypes.bool,
     style: PropTypes.object,
@@ -152,6 +155,7 @@ AccordionTab.propTypes = {
 }
 
 Accordion.defaultProps = {
+    __TYPE: 'Accordion',
     id: null,
     activeIndex: null,
     className: null,
@@ -166,6 +170,7 @@ Accordion.defaultProps = {
 }
 
 Accordion.propTypes = {
+    __TYPE: PropTypes.string,
     id: PropTypes.string,
     activeIndex: PropTypes.any,
     className: PropTypes.string,
