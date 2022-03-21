@@ -556,7 +556,7 @@ import { Accordion, AccordionTab } from 'primereact/accordion';
 
 <CodeHighlight>
 {`
-<Accordion activeIndex={this.state.activeIndex} onTabChange={(e) => this.setState({activeIndex: e.index})}>
+<Accordion activeIndex={activeIndex} onTabChange={(e) => setActiveIndex(e.index)}>
     <AccordionTab header="Header I">
         Content I
     </AccordionTab>
