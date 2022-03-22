@@ -1,40 +1,36 @@
 import React, { useRef, useState, forwardRef, useImperativeHandle } from 'react';
 import PropTypes from 'prop-types';
-import { DomHandler, ObjectUtils, classNames, ZIndexUtils, UniqueComponentId}  from '../utils/Utils';
-import { CSSTransition } from '../csstransition/CSSTransition';
+import PrimeReact from '../api/Api';
 import { Ripple } from '../ripple/Ripple';
 import { Portal } from '../portal/Portal';
-import PrimeReact from '../api/Api';
+import { CSSTransition } from '../csstransition/CSSTransition';
+import { DomHandler, ObjectUtils, classNames, ZIndexUtils, UniqueComponentId } from '../utils/Utils';
 import { useMountEffect, useUnmountEffect, useUpdateEffect, useEventListener } from '../hooks/Hooks';
 
 export const Dialog = forwardRef((props, ref) => {
-
-    const [visible, setVisible] = useState(false);
-    const [maskVisible, setMaskVisible] = useState(false);
-    const [id, setId] = useState(props.id);
-    const [maximized, setMaximized] = useState(props.maximized);
-    const dragging = useRef(false);
-    const lastPageX = useRef(null);
-    const lastPageY = useRef(null);
-    const styleElement = useRef(null);
+    const [idState, setIdState] = useState(props.id);
+    const [maskVisibleState, setMaskVisibleState] = useState(false);
+    const [visibleState, setVisibleState] = useState(false);
+    const [maximizedState, setMaximizedState] = useState(props.maximized);
     const dialogRef = useRef(null);
-    const resizing = useRef(false);
-    const closeRef = useRef(null);
+    const maskRef = useRef(null);
     const contentRef = useRef(null);
     const headerRef = useRef(null);
     const footerRef = useRef(null);
-    const maskRef = useRef(null);
-    const attributeSelector = useRef(UniqueComponentId());
+    const closeRef = useRef(null);
+    const dragging = useRef(false);
+    const resizing = useRef(false);
+    const lastPageX = useRef(null);
+    const lastPageY = useRef(null);
+    const styleElement = useRef(null);
+    const attributeSelector = useRef('');
+    const maximized = props.onMaximize ? props.maximized : maximizedState;
 
     const [bindDocumentKeyDownListener, unbindDocumentKeyDownListener] = useEventListener({ type: 'keydown', listener: (event) => onKeyDown(event) });
-
-    const [bindDocumentResizeListener, unbindDocumentResizeListener] = useEventListener({ type: 'mousemove', target: 'window', listener: (event) => onResize(event)});
-
-    const [bindDocumentResizeEndListener, unbindDocumentResizEndListener] = useEventListener({ type: 'mouseup', target: 'window', listener: (event) => onResizeEnd(event)});
-
-    const [bindDocumentDragListener, unbindDocumentDragListener] = useEventListener({ type: 'mousemove', target: 'window', listener: (event) => onDrag(event)});
-
-    const [bindDocumentDragEndListener, unbindDocumentDragEndListener] = useEventListener({ type: 'mouseup', target: 'window', listener: (event) => onDragEnd(event)});
+    const [bindDocumentResizeListener, unbindDocumentResizeListener] = useEventListener({ type: 'mousemove', target: () => window.document, listener: (event) => onResize(event) });
+    const [bindDocumentResizeEndListener, unbindDocumentResizEndListener] = useEventListener({ type: 'mouseup', target: () => window.document, listener: (event) => onResizeEnd(event) });
+    const [bindDocumentDragListener, unbindDocumentDragListener] = useEventListener({ type: 'mousemove', target: () => window.document, listener: (event) => onDrag(event) });
+    const [bindDocumentDragEndListener, unbindDocumentDragEndListener] = useEventListener({ type: 'mouseup', target: () => window.document, listener: (event) => onDragEnd(event) });
 
     const onClose = (event) => {
         props.onHide();
@@ -43,7 +39,7 @@ export const Dialog = forwardRef((props, ref) => {
 
     const focus = () => {
         let activeElement = document.activeElement;
-        let isActiveElementInDialog = activeElement && dialogRef && dialogEl().contains(activeElement);
+        let isActiveElementInDialog = activeElement && dialogRef.current && dialogRef.current.contains(activeElement);
         if (!isActiveElementInDialog && props.closable && props.showHeader) {
             closeRef.current.focus();
         }
@@ -57,38 +53,18 @@ export const Dialog = forwardRef((props, ref) => {
         props.onMaskClick && props.onMaskClick(event);
     }
 
-    const toggleMaximize =(event) => {
-        let maximized = !isMaximized();
-
+    const toggleMaximize = (event) => {
         if (props.onMaximize) {
             props.onMaximize({
                 originalEvent: event,
-                maximized
+                maximized: !maximized
             });
         }
         else {
-            setMaximized(maximized);
+            setMaximizedState((prevMaximized) => !prevMaximized);
         }
 
         event.preventDefault();
-    }
-
-    const onDragStart = (event) => {
-        if (DomHandler.hasClass(event.target, 'p-dialog-header-icon') || DomHandler.hasClass(event.target.parentElement, 'p-dialog-header-icon')) {
-            return;
-        }
-
-        if (props.draggable) {
-            dragging.current = true;
-            lastPageX.current = event.pageX;
-            lastPageY.current = event.pageY;
-            dialogEl().style.margin = '0';
-            DomHandler.addClass(document.body, 'p-unselectable-text');
-
-            if (props.onDragStart) {
-                props.onDragStart(event);
-            }
-        }
     }
 
     const onKeyDown = (event) => {
@@ -99,7 +75,7 @@ export const Dialog = forwardRef((props, ref) => {
             let paramLength = params.length;
             let dialogId = params[paramLength - 1] ? params[paramLength - 1].id : undefined;
 
-            if (dialogId === id && props.closeOnEscape) {
+            if (dialogId === idState && props.closeOnEscape) {
                 let dialog = document.getElementById(dialogId);
 
                 if (event.which === 27) {
@@ -136,40 +112,54 @@ export const Dialog = forwardRef((props, ref) => {
         }
     }
 
+    const onDragStart = (event) => {
+        if (DomHandler.hasClass(event.target, 'p-dialog-header-icon') || DomHandler.hasClass(event.target.parentElement, 'p-dialog-header-icon')) {
+            return;
+        }
+
+        if (props.draggable) {
+            dragging.current = true;
+            lastPageX.current = event.pageX;
+            lastPageY.current = event.pageY;
+            dialogRef.current.style.margin = '0';
+            DomHandler.addClass(document.body, 'p-unselectable-text');
+
+            props.onDragStart && props.onDragStart(event);
+        }
+    }
+
     const onDrag = (event) => {
         if (dragging.current) {
-            let width = DomHandler.getOuterWidth(dialogEl());
-            let height = DomHandler.getOuterHeight(dialogEl());
-            let deltaX = event.pageX - lastPageX.current;
-            let deltaY = event.pageY - lastPageY.current;
-            let offset = dialogEl().getBoundingClientRect();
-            let leftPos = offset.left + deltaX;
-            let topPos = offset.top + deltaY;
-            let viewport = DomHandler.getViewport();
+            const width = DomHandler.getOuterWidth(dialogRef.current);
+            const height = DomHandler.getOuterHeight(dialogRef.current);
+            const deltaX = event.pageX - lastPageX.current;
+            const deltaY = event.pageY - lastPageY.current;
+            const offset = dialogRef.current.getBoundingClientRect();
+            const leftPos = offset.left + deltaX;
+            const topPos = offset.top + deltaY;
+            const viewport = DomHandler.getViewport();
 
-            dialogEl().style.position = 'fixed';
+            dialogRef.current.style.position = 'fixed';
 
             if (props.keepInViewport) {
                 if (leftPos >= props.minX && (leftPos + width) < viewport.width) {
                     lastPageX.current = event.pageX;
-                    dialogEl().style.left = leftPos + 'px';
+                    dialogRef.current.style.left = leftPos + 'px';
                 }
 
                 if (topPos >= props.minY && (topPos + height) < viewport.height) {
                     lastPageY.current = event.pageY;
-                    dialogEl().style.top = topPos + 'px';
+                    dialogRef.current.style.top = topPos + 'px';
                 }
             }
             else {
                 lastPageX.current = event.pageX;
-                dialogEl().style.left = leftPos + 'px';
+                dialogRef.current.style.left = leftPos + 'px';
                 lastPageY.current = event.pageY;
-                dialogEl().style.top = topPos + 'px';
+                dialogRef.current.style.top = topPos + 'px';
             }
 
-            if (props.onDrag) {
-                props.onDrag(event);
-            }
+            props.onDrag && props.onDrag(event);
         }
     }
 
@@ -178,9 +168,7 @@ export const Dialog = forwardRef((props, ref) => {
             dragging.current = false;
             DomHandler.removeClass(document.body, 'p-unselectable-text');
 
-            if (props.onDragEnd) {
-                props.onDragEnd(event);
-            }
+            props.onDragEnd && props.onDragEnd(event);
         }
     }
 
@@ -191,9 +179,7 @@ export const Dialog = forwardRef((props, ref) => {
             lastPageY.current = event.pageY;
             DomHandler.addClass(document.body, 'p-unselectable-text');
 
-            if (props.onResizeStart) {
-                props.onResizeStart(event);
-            }
+            props.onResizeStart && props.onResizeStart(event);
         }
     }
 
@@ -210,18 +196,18 @@ export const Dialog = forwardRef((props, ref) => {
 
     const onResize = (event) => {
         if (resizing.current) {
-            let deltaX = event.pageX - lastPageX.current;
-            let deltaY = event.pageY - lastPageY.current;
-            let width = DomHandler.getOuterWidth(dialogEl());
-            let height = DomHandler.getOuterHeight(dialogEl());
-            let offset = dialogEl().getBoundingClientRect();
-            let viewport = DomHandler.getViewport();
+            const deltaX = event.pageX - lastPageX.current;
+            const deltaY = event.pageY - lastPageY.current;
+            const width = DomHandler.getOuterWidth(dialogRef.current);
+            const height = DomHandler.getOuterHeight(dialogRef.current);
+            const offset = dialogRef.current.getBoundingClientRect();
+            const viewport = DomHandler.getViewport();
 
+            const hasBeenDragged = !parseInt(dialogRef.current.style.top) || !parseInt(dialogRef.current.style.left);
+            const minWidth = convertToPx(dialogRef.current.style.minWidth, 'width', viewport);
+            const minHeight = convertToPx(dialogRef.current.style.minHeight, 'height', viewport);
             let newWidth = width + deltaX;
             let newHeight = height + deltaY;
-            let minWidth = convertToPx(dialogEl().style.minWidth, 'width', viewport);
-            let minHeight = convertToPx(dialogEl().style.minHeight, 'height', viewport);
-            let hasBeenDragged = !parseInt(dialogEl().style.top) || !parseInt(dialogEl().style.left);
 
             if (hasBeenDragged) {
                 newWidth += deltaX;
@@ -229,20 +215,17 @@ export const Dialog = forwardRef((props, ref) => {
             }
 
             if ((!minWidth || newWidth > minWidth) && (offset.left + newWidth) < viewport.width) {
-                dialogEl().style.width = newWidth + 'px';
+                dialogRef.current.style.width = newWidth + 'px';
             }
 
             if ((!minHeight || newHeight > minHeight) && (offset.top + newHeight) < viewport.height) {
-                dialogEl().style.height = newHeight + 'px';
+                dialogRef.current.style.height = newHeight + 'px';
             }
 
             lastPageX.current = event.pageX;
             lastPageY.current = event.pageY;
 
-            if (props.onResize) {
-                props.onResize(event);
-            }
-
+            props.onResize && props.onResize(event);
         }
     }
 
@@ -251,17 +234,15 @@ export const Dialog = forwardRef((props, ref) => {
             resizing.current = false;
             DomHandler.removeClass(document.body, 'p-unselectable-text');
 
-            if (props.onResizeEnd) {
-                props.onResizeEnd(event);
-            }
+            props.onResizeEnd && props.onResizeEnd(event);
         }
     }
 
     const resetPosition = () => {
-        dialogEl().style.position = '';
-        dialogEl().style.left = '';
-        dialogEl().style.top = '';
-        dialogEl().style.margin = '';
+        dialogRef.current.style.position = '';
+        dialogRef.current.style.left = '';
+        dialogRef.current.style.top = '';
+        dialogRef.current.style.margin = '';
     }
 
     const getPositionClass = () => {
@@ -271,22 +252,12 @@ export const Dialog = forwardRef((props, ref) => {
         return pos ? `p-dialog-${pos}` : '';
     }
 
-    const isMaximized = () => {
-        return props.onMaximize ? props.maximized : maximized;
-    }
-
-    const dialogEl = () => {
-        return dialogRef.current;
-    }
-
     const onEnter = () => {
-        dialogEl().setAttribute(attributeSelector.current, '');
+        dialogRef.current.setAttribute(attributeSelector.current, '');
     }
 
     const onEntered = () => {
-        if (props.onShow) {
-            props.onShow();
-        }
+        props.onShow && props.onShow();
 
         if (props.focusOnShow) {
             focus();
@@ -304,14 +275,14 @@ export const Dialog = forwardRef((props, ref) => {
     const onExited = () => {
         dragging.current = false;
         ZIndexUtils.clear(maskRef.current);
-        setMaskVisible(false);
+        setMaskVisibleState(false);
         disableDocumentSettings();
     }
 
     const enableDocumentSettings = () => {
         bindGlobalListeners();
 
-        if (props.blockScroll || (props.maximizable && isMaximized())) {
+        if (props.blockScroll || (props.maximizable && maximized)) {
             DomHandler.addClass(document.body, 'p-overflow-hidden');
         }
     }
@@ -325,9 +296,38 @@ export const Dialog = forwardRef((props, ref) => {
                 DomHandler.removeClass(document.body, 'p-overflow-hidden');
             }
         }
-        else if (props.blockScroll || (props.maximizable && isMaximized())) {
+        else if (props.blockScroll || (props.maximizable && maximized)) {
             DomHandler.removeClass(document.body, 'p-overflow-hidden');
         }
+    }
+
+    const bindGlobalListeners = () => {
+        if (props.draggable) {
+            bindDocumentDragListener();
+            bindDocumentDragEndListener();
+        }
+
+        if (props.resizable) {
+            bindDocumentResizeListener();
+            bindDocumentResizeEndListener();
+        }
+
+        if (props.closable) {
+            bindDocumentKeyDownListener();
+
+            const newParam = { id: idState, hasBlockScroll: props.blockScroll };
+            document.primeDialogParams = document.primeDialogParams ? [...document.primeDialogParams, newParam] : [newParam];
+        }
+    }
+
+    const unbindGlobalListeners = () => {
+        unbindDocumentDragListener();
+        unbindDocumentDragEndListener();
+        unbindDocumentResizeListener();
+        unbindDocumentResizEndListener();
+        unbindDocumentKeyDownListener();
+
+        document.primeDialogParams = document.primeDialogParams && document.primeDialogParams.filter(param => param.id !== idState);
     }
 
     const createStyle = () => {
@@ -349,63 +349,22 @@ export const Dialog = forwardRef((props, ref) => {
         }
     }
 
-    const bindGlobalListeners = () => {
-        if (props.draggable) {
-            bindDocumentDragListener();
-            bindDocumentDragEndListener();
-        }
-
-        if (props.resizable) {
-            bindDocumentResizeListener();
-            bindDocumentResizeEndListener();
-        }
-
-        if (props.closable) {
-            bindDocumentKeyDownListener();
-
-            let newParam = { id: id, hasBlockScroll: props.blockScroll };
-            document.primeDialogParams = document.primeDialogParams ? [...document.primeDialogParams, newParam] : [newParam];
+    const changeScrollOnMaximizable = () => {
+        if (!props.blockScroll) {
+            let funcName = maximized ? 'addClass' : 'removeClass';
+            DomHandler[funcName](document.body, 'p-overflow-hidden');
         }
     }
-
-    const unbindGlobalListeners = () => {
-        unbindDocumentDragListener();
-        unbindDocumentDragEndListener();
-        unbindDocumentResizeListener();
-        unbindDocumentResizEndListener();
-        unbindDocumentKeyDownListener();
-
-        document.primeDialogParams = document.primeDialogParams && document.primeDialogParams.filter(param => param.id !== id);
-    }
-
-    useUpdateEffect(() => {
-        if (props.visible)
-            setMaskVisible(true);
-        else
-            setVisible(false);
-    }, [props.visible]);
-
-    useUpdateEffect(() => {
-        if (maskVisible) {
-            setVisible(true);
-            ZIndexUtils.set('modal', maskRef.current, PrimeReact.autoZIndex, props.baseZIndex || PrimeReact.zIndex['modal']);
-        }
-    }, [maskVisible]);
-
-    useUpdateEffect(()=> {
-        setMaximized(props.maximized);
-
-        if (props.onMaximize)
-            changeScrollOnMaximizable();
-    }, [props.maximized])
 
     useMountEffect(() => {
-        if (!id) {
-            setId(UniqueComponentId());
+        if (!idState) {
+            setIdState(UniqueComponentId());
         }
 
+        attributeSelector.current = UniqueComponentId();
+
         if (props.visible) {
-            setMaskVisible(true);
+            setMaskVisibleState(true);
         }
 
         if (props.breakpoints) {
@@ -413,18 +372,30 @@ export const Dialog = forwardRef((props, ref) => {
         }
     });
 
-    const changeScrollOnMaximizable = () => {
-        if (!props.blockScroll) {
-            let funcName = isMaximized() ? 'addClass' : 'removeClass';
-            DomHandler[funcName](document.body, 'p-overflow-hidden');
+    useUpdateEffect(() => {
+        if (props.visible && !maskVisibleState) {
+            setMaskVisibleState(true);
         }
-    }
+
+        if (props.visible !== visibleState && maskVisibleState) {
+            setVisibleState(props.visible);
+        }
+    });
+
+    useUpdateEffect(() => {
+        if (maskVisibleState) {
+            ZIndexUtils.set('modal', maskRef.current, PrimeReact.autoZIndex, props.baseZIndex || PrimeReact.zIndex['modal']);
+            setVisibleState(true);
+        }
+    }, [maskVisibleState]);
+
+    useUpdateEffect(() => {
+        changeScrollOnMaximizable();
+    }, [props.maximized, maximizedState]);
 
     useUnmountEffect(() => {
         disableDocumentSettings();
-
-        styleElement.current = DomHandler.removeInlineStyle(styleElement.current);
-
+        DomHandler.removeInlineStyle(styleElement.current);
         ZIndexUtils.clear(maskRef.current);
     });
 
@@ -439,14 +410,17 @@ export const Dialog = forwardRef((props, ref) => {
                     <span className="p-dialog-header-close-icon pi pi-times"></span>
                     <Ripple />
                 </button>
-            );
+            )
         }
 
         return null;
     }
 
     const useMaximizeIcon = () => {
-        const iconClassName = classNames('p-dialog-header-maximize-icon pi', { 'pi-window-maximize': !isMaximized(), 'pi-window-minimize': isMaximized() });
+        const iconClassName = classNames('p-dialog-header-maximize-icon pi', {
+            'pi-window-maximize': !maximized,
+            'pi-window-minimize': maximized
+        });
 
         if (props.maximizable) {
             return (
@@ -454,7 +428,7 @@ export const Dialog = forwardRef((props, ref) => {
                     <span className={iconClassName}></span>
                     <Ripple />
                 </button>
-            );
+            )
         }
 
         return null;
@@ -466,30 +440,32 @@ export const Dialog = forwardRef((props, ref) => {
             const maximizeIcon = useMaximizeIcon();
             const icons = ObjectUtils.getJSXElement(props.icons, props);
             const header = ObjectUtils.getJSXElement(props.header, props);
+            const headerId = idState + '_header';
 
             return (
                 <div ref={headerRef} className="p-dialog-header" onMouseDown={onDragStart}>
-                    <div id={id + '_header'} className="p-dialog-title">{header}</div>
+                    <div id={headerId} className="p-dialog-title">{header}</div>
                     <div className="p-dialog-header-icons">
                         {icons}
                         {maximizeIcon}
                         {closeIcon}
                     </div>
                 </div>
-            );
+            )
         }
 
         return null;
     }
 
     const useContent = () => {
-        let contentClassName = classNames('p-dialog-content', props.contentClassName)
+        const className = classNames('p-dialog-content', props.contentClassName);
+        const contentId = idState + '_content';
 
         return (
-            <div id={id + '_content'} ref={contentRef} className={contentClassName} style={props.contentStyle}>
+            <div id={contentId} ref={contentRef} className={className} style={props.contentStyle}>
                 {props.children}
             </div>
-        );
+        )
     }
 
     const useFooter = () => {
@@ -509,32 +485,32 @@ export const Dialog = forwardRef((props, ref) => {
     const useElement = () => {
         const className = classNames('p-dialog p-component', props.className, {
             'p-dialog-rtl': props.rtl,
-            'p-dialog-maximized': isMaximized()
+            'p-dialog-maximized': maximized
         });
-
-        const maskClassName = classNames('p-dialog-mask', {
+        const maskClassName = classNames('p-dialog-mask', getPositionClass(), {
             'p-component-overlay p-component-overlay-enter': props.modal,
-            'p-dialog-visible': maskVisible,
+            'p-dialog-visible': maskVisibleState,
             'p-dialog-draggable': props.draggable,
             'p-dialog-resizable': props.resizable,
-        }, props.maskClassName, getPositionClass());
-
+        }, props.maskClassName);
         const header = useHeader();
         const content = useContent();
         const footer = useFooter();
         const resizer = useResizer();
 
-        let transitionTimeout = {
+        const headerId = idState + '_header';
+        const contentId = idState + '_content';
+        const transitionTimeout = {
             enter: props.position === 'center' ? 150 : 300,
             exit: props.position === 'center' ? 150 : 300
         };
 
         return (
             <div ref={maskRef} style={props.maskStyle} className={maskClassName} onClick={onMaskClick}>
-                <CSSTransition nodeRef={dialogRef} classNames="p-dialog" timeout={transitionTimeout} in={visible} options={props.transitionOptions}
+                <CSSTransition nodeRef={dialogRef} classNames="p-dialog" timeout={transitionTimeout} in={visibleState} options={props.transitionOptions}
                     unmountOnExit onEnter={onEnter} onEntered={onEntered} onExiting={onExiting} onExited={onExited}>
-                    <div ref={dialogRef} id={id} className={className} style={props.style} onClick={props.onClick}
-                        role="dialog" aria-labelledby={id + '_header'} aria-describedby={id + '_content'} aria-modal={props.modal}>
+                    <div ref={dialogRef} id={idState} className={className} style={props.style} onClick={props.onClick}
+                        role="dialog" aria-labelledby={headerId} aria-describedby={contentId} aria-modal={props.modal}>
                         {header}
                         {content}
                         {footer}
@@ -542,17 +518,17 @@ export const Dialog = forwardRef((props, ref) => {
                     </div>
                 </CSSTransition>
             </div>
-        );
+        )
     }
 
     const useDialog = () => {
         const element = useElement();
 
-        return <Portal element={element} appendTo={props.appendTo} visible />;
+        return <Portal element={element} appendTo={props.appendTo} visible />
     }
 
-    return maskVisible && useDialog();
-})
+    return maskVisibleState && useDialog();
+});
 
 Dialog.defaultProps = {
     __TYPE: 'Dialog',
@@ -646,4 +622,4 @@ Dialog.propTypes = {
     onResizeEnd: PropTypes.func,
     onClick: PropTypes.func,
     onMaskClick: PropTypes.func
-};
+}

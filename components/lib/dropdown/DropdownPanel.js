@@ -1,10 +1,10 @@
 import React, { forwardRef, memo, useRef } from 'react';
-import { ObjectUtils, classNames } from '../utils/Utils';
-import { DropdownItem } from './DropdownItem';
-import { CSSTransition } from '../csstransition/CSSTransition';
-import { Portal } from '../portal/Portal';
-import { VirtualScroller } from '../virtualscroller/VirtualScroller';
 import { localeOption } from '../api/Api';
+import { DropdownItem } from './DropdownItem';
+import { Portal } from '../portal/Portal';
+import { CSSTransition } from '../csstransition/CSSTransition';
+import { VirtualScroller } from '../virtualscroller/VirtualScroller';
+import { ObjectUtils, classNames } from '../utils/Utils';
 
 export const DropdownPanel = memo(forwardRef((props, ref) => {
     const virtualScrollerRef = useRef(null);
@@ -16,7 +16,7 @@ export const DropdownPanel = memo(forwardRef((props, ref) => {
             if (virtualScrollerRef.current) {
                 const selectedIndex = props.getSelectedOptionIndex();
                 if (selectedIndex !== -1) {
-                    virtualScrollerRef.current.scrollToIndex(selectedIndex);
+                    setTimeout(() => virtualScrollerRef.current.scrollToIndex(selectedIndex), 0);
                 }
             }
         });
@@ -128,7 +128,8 @@ export const DropdownPanel = memo(forwardRef((props, ref) => {
     const useContent = () => {
         if (props.virtualScrollerOptions) {
             const virtualScrollerProps = {
-                ...props.virtualScrollerOptions, ...{
+                ...props.virtualScrollerOptions,
+                ...{
                     style: { ...props.virtualScrollerOptions.style, ...{ height: props.scrollHeight } },
                     className: classNames('p-dropdown-items-wrapper', props.virtualScrollerOptions.className),
                     items: props.visibleOptions,
@@ -147,7 +148,7 @@ export const DropdownPanel = memo(forwardRef((props, ref) => {
                 }
             };
 
-            return <VirtualScroller ref={virtualScrollerRef} {...virtualScrollerProps} />;
+            return <VirtualScroller ref={virtualScrollerRef} {...virtualScrollerProps} />
         }
         else {
             const items = useItems();
@@ -158,7 +159,7 @@ export const DropdownPanel = memo(forwardRef((props, ref) => {
                         {items}
                     </ul>
                 </div>
-            );
+            )
         }
     }
 
@@ -175,10 +176,10 @@ export const DropdownPanel = memo(forwardRef((props, ref) => {
                     {content}
                 </div>
             </CSSTransition>
-        );
+        )
     }
 
     const element = useElement();
 
-    return <Portal element={element} appendTo={props.appendTo} />;
-}))
+    return <Portal element={element} appendTo={props.appendTo} />
+}));

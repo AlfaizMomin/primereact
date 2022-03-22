@@ -1,66 +1,48 @@
-import React, { useEffect, useRef, useState } from "react";
-import PropTypes from "prop-types";
+import React, { useMemo, useRef, useState } from 'react';
+import PropTypes from 'prop-types';
+import { useMountEffect, useEventListener } from '../hooks/Hooks';
 
 export const DeferredContent = (props) => {
-    const [loaded,setLoaded] = useState(false);
-    const container = useRef(null);
-    const documentScrollListener = useRef(null);
+    const [loadedState, setLoadedState] = useState(false);
+    const elementRef = useRef(null);
+
+    const [bindScrollListener, unbindScrollListener] = useEventListener({
+        target: 'window', type: 'scroll', listener: () => {
+            if (shouldLoad()) {
+                load();
+                unbindScrollListener();
+            }
+        }
+    });
 
     const shouldLoad = () => {
-        if (loaded) {
+        if (loadedState) {
             return false;
         }
         else {
-            let rect = container.current.getBoundingClientRect();
-            let docElement = document.documentElement;
-            let winHeight = docElement.clientHeight;
+            const rect = elementRef.current.getBoundingClientRect();
+            const winHeight = document.documentElement.clientHeight;
 
             return (winHeight >= rect.top);
         }
     }
 
-    const load = () => {
-        setLoaded(true);
-
-        if (props.onLoad) {
-            props.onLoad();
-        }
+    const load = (event) => {
+        setLoadedState(true);
+        props.onLoad && props.onLoad(event);
     }
 
-    const bindScrollListener = () => {
-        documentScrollListener.current = () => {
-            if (shouldLoad()) {
-                load();
-                unbindScrollListener();
-            }
-        };
-
-        window.addEventListener('scroll', documentScrollListener.current);
-    }
-
-    const unbindScrollListener = () => {
-        if (documentScrollListener.current) {
-            window.removeEventListener('scroll', documentScrollListener.current);
-            documentScrollListener.current = null;
+    useMountEffect(() => {
+        if (!loadedState) {
+            shouldLoad() ? load() : bindScrollListener();
         }
-    }
-
-    useEffect(() => {
-        if (!loaded) {
-            if (shouldLoad())
-                load();
-            else
-                bindScrollListener();
-        }
-
-        return () => unbindScrollListener();
-    }, []);
+    });
 
     return (
-        <div ref={container}>
-            {loaded ? props.children : null}
+        <div ref={elementRef}>
+            {loadedState && props.children}
         </div>
-    );
+    )
 }
 
 DeferredContent.defaultProps = {

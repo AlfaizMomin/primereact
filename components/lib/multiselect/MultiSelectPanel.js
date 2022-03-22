@@ -15,7 +15,7 @@ export const MultiSelectPanel = memo(forwardRef((props, ref) => {
             if (virtualScrollerRef.current) {
                 const selectedIndex = props.getSelectedOptionIndex();
                 if (selectedIndex !== -1) {
-                    virtualScrollerRef.current.scrollToIndex(selectedIndex);
+                    setTimeout(() => virtualScrollerRef.current.scrollToIndex(selectedIndex), 0);
                 }
             }
         });

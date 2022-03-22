@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
-import { ObjectUtils, classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
+import { ObjectUtils, classNames } from '../utils/Utils';
 
 export const DropdownItem = memo((props) => {
 
@@ -26,4 +26,4 @@ export const DropdownItem = memo((props) => {
             <Ripple />
         </li>
     )
-})
+});

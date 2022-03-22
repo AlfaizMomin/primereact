@@ -4,14 +4,14 @@ import { classNames, ObjectUtils } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
 
 export const Dock = memo((props) => {
-    const [currentIndex, setCurrentIndex] = useState(-3);
+    const [currentIndexState, setCurrentIndexState] = useState(-3);
 
     const onListMouseLeave = () => {
-        setCurrentIndex(-3);
+        setCurrentIndexState(-3);
     }
 
     const onItemMouseEnter = (index) => {
-        setCurrentIndex(index);
+        setCurrentIndexState(index);
     }
 
     const onItemClick = (e, item) => {
@@ -25,11 +25,11 @@ export const Dock = memo((props) => {
     const useItem = (item, index) => {
         const { disabled, icon: _icon, label, template, url, target } = item;
         const className = classNames('p-dock-item', {
-            'p-dock-item-second-prev': (currentIndex - 2) === index,
-            'p-dock-item-prev': (currentIndex - 1) === index,
-            'p-dock-item-current': currentIndex === index,
-            'p-dock-item-next': (currentIndex + 1) === index,
-            'p-dock-item-second-next': (currentIndex + 2) === index
+            'p-dock-item-second-prev': (currentIndexState - 2) === index,
+            'p-dock-item-prev': (currentIndexState - 1) === index,
+            'p-dock-item-current': currentIndexState === index,
+            'p-dock-item-next': (currentIndexState + 1) === index,
+            'p-dock-item-second-next': (currentIndexState + 2) === index
         });
         const contentClassName = classNames('p-dock-action', { 'p-disabled': disabled });
         const iconClassName = classNames('p-dock-action-icon', _icon);
@@ -63,18 +63,15 @@ export const Dock = memo((props) => {
     }
 
     const useItems = () => {
-        if (props.model) {
-            return props.model.map((item, index) => useItem(item, index));
-        }
-
-        return null;
+        return props.model ? props.model.map(useItem) : null;
     }
 
     const useHeader = () => {
         if (props.header) {
+            const header = ObjectUtils.getJSXElement(props.header, { props });
             return (
                 <div className="p-dock-header">
-                    {ObjectUtils.getJSXElement(props.header, { props })}
+                    {header}
                 </div>
             )
         }
@@ -94,9 +91,10 @@ export const Dock = memo((props) => {
 
     const useFooter = () => {
         if (props.footer) {
+            const footer = ObjectUtils.getJSXElement(props.footer, { props });
             return (
                 <div className="p-dock-footer">
-                    {ObjectUtils.getJSXElement(props.footer, { props })}
+                    {footer}
                 </div>
             )
         }

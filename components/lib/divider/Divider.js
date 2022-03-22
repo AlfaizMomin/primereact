@@ -3,24 +3,23 @@ import PropTypes from 'prop-types';
 import { classNames } from '../utils/Utils';
 
 export const Divider = (props) => {
-    const isHorizontal = props.layout === 'horizontal';
-    const isVertical = props.layout === 'vertical';
-    const dividerClassName = classNames(`p-divider p-component p-divider-${props.layout} p-divider-${props.type}`, {
-        'p-divider-left': isHorizontal && (!props.align || props.align === 'left'),
-        'p-divider-right': isHorizontal && props.align === 'right',
-        'p-divider-center': (isHorizontal && props.align === 'center') || (isVertical && (!props.align || props.align === 'center')),
-        'p-divider-top': isVertical && props.align === 'top',
-        'p-divider-bottom': isVertical && props.align === 'bottom',
+    const horizontal = props.layout === 'horizontal';
+    const vertical = props.layout === 'vertical';
+    const className = classNames(`p-divider p-component p-divider-${props.layout} p-divider-${props.type}`, {
+        'p-divider-left': horizontal && (!props.align || props.align === 'left'),
+        'p-divider-right': horizontal && props.align === 'right',
+        'p-divider-center': (horizontal && props.align === 'center') || (vertical && (!props.align || props.align === 'center')),
+        'p-divider-top': vertical && props.align === 'top',
+        'p-divider-bottom': vertical && props.align === 'bottom',
     }, props.className);
 
     return (
-        <div className={dividerClassName} style={props.style} role="separator">
+        <div className={className} style={props.style} role="separator">
             <div className="p-divider-content">
                 {props.children}
             </div>
         </div>
-
-    );
+    )
 }
 
 Divider.defaultProps = {
@@ -39,4 +38,4 @@ Divider.propTypes = {
     type: PropTypes.string,
     style: PropTypes.object,
     className: PropTypes.string
-};
+}

@@ -28,25 +28,25 @@ export const VirtualScroller = forwardRef((props, ref) => {
     }
 
     const scrollToIndex = (index, behavior = 'auto') => {
-        const { numToleratedItems: _numItemsInViewport } = calculateNumItems();
+        const { numToleratedItems: _numToleratedItems } = calculateNumItems();
         const itemSize = props.itemSize;
         const contentPos = getContentPosition();
         const calculateFirst = (_index = 0, _numT) => (_index <= _numT ? 0 : _index);
         const calculateCoord = (_first, _size, _cpos) => (_first * _size) + _cpos;
-        const scrollTo = (left = 0, top = 0) => scrollTo({ left, top, behavior });
+        const scrollToItem = (left = 0, top = 0) => scrollTo({ left, top, behavior });
 
         if (isBoth) {
-            const newFirst = { rows: calculateFirst(index[0], _numItemsInViewport[0]), cols: calculateFirst(index[1], _numItemsInViewport[1]) };
+            const newFirst = { rows: calculateFirst(index[0], _numToleratedItems[0]), cols: calculateFirst(index[1], _numToleratedItems[1]) };
             if (newFirst.rows !== first.rows || newFirst.cols !== first.cols) {
-                scrollTo(calculateCoord(newFirst.cols, itemSize[1], contentPos.left), calculateCoord(newFirst.rows, itemSize[0], contentPos.top))
+                scrollToItem(calculateCoord(newFirst.cols, itemSize[1], contentPos.left), calculateCoord(newFirst.rows, itemSize[0], contentPos.top));
                 setFirst(newFirst);
             }
         }
         else {
-            const newFirst = calculateFirst(index, _numItemsInViewport);
+            const newFirst = calculateFirst(index, _numToleratedItems);
 
             if (newFirst !== first) {
-                isHorizontal ? scrollTo(calculateCoord(newFirst, itemSize, contentPos.left), 0) : scrollTo(0, calculateCoord(newFirst, itemSize, contentPos.top));
+                isHorizontal ? scrollToItem(calculateCoord(newFirst, itemSize, contentPos.left), 0) : scrollToItem(0, calculateCoord(newFirst, itemSize, contentPos.top));
                 setFirst(newFirst);
             }
         }
@@ -56,39 +56,39 @@ export const VirtualScroller = forwardRef((props, ref) => {
         if (to) {
             const { first: _first, viewport } = getRenderedRange();
             const itemSize = props.itemSize;
-            const scrollTo = (left = 0, top = 0) => scrollTo({ left, top, behavior });
+            const scrollToItem = (left = 0, top = 0) => scrollTo({ left, top, behavior });
             const isToStart = to === 'to-start';
             const isToEnd = to === 'to-end';
 
             if (isToStart) {
                 if (isBoth) {
                     if (viewport.first.rows - _first.rows > index[0]) {
-                        scrollTo(viewport.first.cols * itemSize, (viewport.first.rows - 1) * itemSize);
+                        scrollToItem(viewport.first.cols * itemSize, (viewport.first.rows - 1) * itemSize);
                     }
                     else if (viewport.first.cols - _first.cols > index[1]) {
-                        scrollTo((viewport.first.cols - 1) * itemSize, viewport.first.rows * itemSize);
+                        scrollToItem((viewport.first.cols - 1) * itemSize, viewport.first.rows * itemSize);
                     }
                 }
                 else {
                     if (viewport.first - _first > index) {
                         const pos = (viewport.first - 1) * itemSize;
-                        isHorizontal ? scrollTo(pos, 0) : scrollTo(0, pos);
+                        isHorizontal ? scrollToItem(pos, 0) : scrollToItem(0, pos);
                     }
                 }
             }
             else if (isToEnd) {
                 if (isBoth) {
                     if (viewport.last.rows - _first.rows <= index[0] + 1) {
-                        scrollTo(viewport.first.cols * itemSize, (viewport.first.rows + 1) * itemSize);
+                        scrollToItem(viewport.first.cols * itemSize, (viewport.first.rows + 1) * itemSize);
                     }
                     else if (viewport.last.cols - _first.cols <= index[1] + 1) {
-                        scrollTo((viewport.first.cols + 1) * itemSize, viewport.first.rows * itemSize);
+                        scrollToItem((viewport.first.cols + 1) * itemSize, viewport.first.rows * itemSize);
                     }
                 }
                 else {
                     if (viewport.last - _first <= index + 1) {
                         const pos = (viewport.first + 1) * itemSize;
-                        isHorizontal ? scrollTo(pos, 0) : scrollTo(0, pos);
+                        isHorizontal ? scrollToItem(pos, 0) : scrollToItem(0, pos);
                     }
                 }
             }

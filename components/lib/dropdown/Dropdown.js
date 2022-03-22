@@ -1,16 +1,16 @@
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { DomHandler, ObjectUtils, classNames, ZIndexUtils } from '../utils/Utils';
+import PrimeReact, { FilterService } from '../api/Api';
 import { DropdownPanel } from './DropdownPanel';
 import { tip } from '../tooltip/Tooltip';
 import { OverlayService } from '../overlayservice/OverlayService';
-import PrimeReact, { FilterService } from '../api/Api';
-import { useOverlayListener } from '../hooks/Hooks';
+import { DomHandler, ObjectUtils, classNames, ZIndexUtils } from '../utils/Utils';
+import { useMountEffect, useUpdateEffect, useUnmountEffect, useOverlayListener } from '../hooks/Hooks';
 
 export const Dropdown = memo((props) => {
-    const [filter, setFilter] = useState('');
-    const [focused, setFocused] = useState(false);
-    const [overlayVisible, setOverlayVisible] = useState(false);
+    const [filterState, setFilterState] = useState('');
+    const [focusedState, setFocusedState] = useState(false);
+    const [overlayVisibleState, setOverlayVisibleState] = useState(false);
     const elementRef = useRef(null);
     const overlayRef = useRef(null);
     const inputRef = useRef(props.inputRef);
@@ -19,13 +19,22 @@ export const Dropdown = memo((props) => {
     const searchTimeout = useRef(null);
     const searchValue = useRef(null);
     const isLazy = props.virtualScrollerOptions && props.virtualScrollerOptions.lazy;
-    const hasFilter = filter && filter.trim().length > 0;
+    const hasFilter = ObjectUtils.isNotEmpty(filterState);
     const appendTo = props.appendTo || PrimeReact.appendTo;
+
+    const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({
+        target: elementRef, overlay: overlayRef, listener: (event, type) => {
+            if (type === 'outside')
+                !isClearClicked(event) && hide();
+            else
+                hide();
+        }, when: overlayVisibleState
+    });
 
     const visibleOptions = useMemo(() => {
         if (hasFilter && !isLazy) {
-            let filterValue = filter.trim().toLocaleLowerCase(props.filterLocale)
-            let searchFields = props.filterBy ? props.filterBy.split(',') : [props.optionLabel || 'label'];
+            const filterValue = filterState.trim().toLocaleLowerCase(props.filterLocale)
+            const searchFields = props.filterBy ? props.filterBy.split(',') : [props.optionLabel || 'label'];
 
             if (props.optionGroupLabel) {
                 let filteredGroups = [];
@@ -37,21 +46,12 @@ export const Dropdown = memo((props) => {
                 }
                 return filteredGroups;
             }
-            else {
-                return FilterService.filter(props.options, searchFields, filterValue, props.filterMatchMode, props.filterLocale);
-            }
-        }
-        else {
-            return props.options;
-        }
-    }, [hasFilter, isLazy, props.options]);
 
-    const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({ target: elementRef, overlay: overlayRef, listener: (event, type) => {
-        if (type === 'outside')
-            !isClearClicked(event) && hide();
-        else
-            hide();
-    }, when: overlayVisible });
+            return FilterService.filter(props.options, searchFields, filterValue, props.filterMatchMode, props.filterLocale);
+        }
+
+        return props.options;
+    }, [hasFilter, isLazy, props.options]);
 
     const isClearClicked = (event) => {
         return DomHandler.hasClass(event.target, 'p-dropdown-clear-icon') || DomHandler.hasClass(event.target, 'p-dropdown-filter-clear-icon');
@@ -67,21 +67,21 @@ export const Dropdown = memo((props) => {
         }
         else if (!overlayRef.current || !(overlayRef.current && overlayRef.current.contains(event.target))) {
             focusInputRef.current.focus();
-            overlayVisible ? hide() : show();
+            overlayVisibleState ? hide() : show();
         }
     }
 
     const onInputFocus = (event) => {
-        if (props.showOnFocus && !overlayVisible) {
+        if (props.showOnFocus && !overlayVisibleState) {
             show();
         }
 
-        setFocused(true);
+        setFocusedState(true);
         props.onFocus && props.onFocus(event);
     }
 
     const onInputBlur = (event) => {
-        setFocused(false);
+        setFocusedState(false);
         props.onBlur && props.onBlur(event);
     }
 
@@ -106,7 +106,7 @@ export const Dropdown = memo((props) => {
 
             //space
             case 32:
-                overlayVisible ? hide() : show();
+                overlayVisibleState ? hide() : show();
 
                 event.preventDefault();
                 break;
@@ -155,7 +155,8 @@ export const Dropdown = memo((props) => {
 
     const onUpKey = (event) => {
         if (visibleOptions) {
-            let prevOption = findPrevOption(getSelectedOptionIndex());
+            const prevOption = findPrevOption(getSelectedOptionIndex());
+
             if (prevOption) {
                 selectItem({
                     originalEvent: event,
@@ -169,11 +170,12 @@ export const Dropdown = memo((props) => {
 
     const onDownKey = (event) => {
         if (visibleOptions) {
-            if (!overlayVisible && event.altKey) {
+            if (!overlayVisibleState && event.altKey) {
                 show();
             }
             else {
-                let nextOption = findNextOption(getSelectedOptionIndex());
+                const nextOption = findNextOption(getSelectedOptionIndex());
+
                 if (nextOption) {
                     selectItem({
                         originalEvent: event,
@@ -188,9 +190,9 @@ export const Dropdown = memo((props) => {
 
     const findNextOption = (index) => {
         if (props.optionGroupLabel) {
-            let groupIndex = index === -1 ? 0 : index.group;
-            let optionIndex = index === -1 ? -1 : index.option;
-            let option = findNextOptionInList(getOptionGroupChildren(visibleOptions[groupIndex]), optionIndex);
+            const groupIndex = index === -1 ? 0 : index.group;
+            const optionIndex = index === -1 ? -1 : index.option;
+            const option = findNextOptionInList(getOptionGroupChildren(visibleOptions[groupIndex]), optionIndex);
 
             if (option)
                 return option;
@@ -199,22 +201,18 @@ export const Dropdown = memo((props) => {
             else
                 return null;
         }
-        else {
-            return findNextOptionInList(visibleOptions, index);
-        }
+
+        return findNextOptionInList(visibleOptions, index);
     }
 
     const findNextOptionInList = (list, index) => {
-        let i = index + 1;
+        const i = index + 1;
         if (i === list.length) {
             return null;
         }
 
-        let option = list[i];
-        if (isOptionDisabled(option))
-            return findNextOptionInList(i);
-        else
-            return option;
+        const option = list[i];
+        return isOptionDisabled(option) ? findNextOptionInList(i) : option;
     }
 
     const findPrevOption = (index) => {
@@ -223,9 +221,9 @@ export const Dropdown = memo((props) => {
         }
 
         if (props.optionGroupLabel) {
-            let groupIndex = index.group;
-            let optionIndex = index.option;
-            let option = findPrevOptionInList(getOptionGroupChildren(visibleOptions[groupIndex]), optionIndex);
+            const groupIndex = index.group;
+            const optionIndex = index.option;
+            const option = findPrevOptionInList(getOptionGroupChildren(visibleOptions[groupIndex]), optionIndex);
 
             if (option)
                 return option;
@@ -234,22 +232,18 @@ export const Dropdown = memo((props) => {
             else
                 return null;
         }
-        else {
-            return findPrevOptionInList(visibleOptions, index);
-        }
+
+        return findPrevOptionInList(visibleOptions, index);
     }
 
     const findPrevOptionInList = (list, index) => {
-        let i = index - 1;
+        const i = index - 1;
         if (i < 0) {
             return null;
         }
 
-        let option = list[i];
-        if (isOptionDisabled(option))
-            return findPrevOption(i);
-        else
-            return option;
+        const option = list[i];
+        return isOptionDisabled(option) ? findPrevOption(i) : option;
     }
 
     const search = (event) => {
@@ -258,17 +252,15 @@ export const Dropdown = memo((props) => {
         }
 
         const char = event.key;
-        previousSearchChar = currentSearchChar;
-        currentSearchChar = char;
 
-        if (previousSearchChar === currentSearchChar)
-            searchValue.current = currentSearchChar;
+        if (currentSearchChar === char)
+            searchValue.current = char;
         else
             searchValue.current = searchValue.current ? searchValue.current + char : char;
 
         if (searchValue.current) {
-            let searchIndex = getSelectedOptionIndex();
-            let newOption = props.optionGroupLabel ? searchOptionInGroup(searchIndex) : searchOption(++searchIndex);
+            const searchIndex = getSelectedOptionIndex();
+            const newOption = props.optionGroupLabel ? searchOptionInGroup(searchIndex) : searchOption(++searchIndex);
             if (newOption) {
                 selectItem({
                     originalEvent: event,
@@ -283,22 +275,16 @@ export const Dropdown = memo((props) => {
     }
 
     const searchOption = (index) => {
-        let option;
-
         if (searchValue.current) {
-            option = searchOptionInRange(index, visibleOptions.length);
-
-            if (!option) {
-                option = searchOptionInRange(0, index);
-            }
+            return searchOptionInRange(index, visibleOptions.length) || searchOptionInRange(0, index);
         }
 
-        return option;
+        return null;
     }
 
     const searchOptionInRange = (start, end) => {
         for (let i = start; i < end; i++) {
-            let opt = visibleOptions[i];
+            const opt = visibleOptions[i];
             if (matchesSearchValue(opt)) {
                 return opt;
             }
@@ -308,7 +294,7 @@ export const Dropdown = memo((props) => {
     }
 
     const searchOptionInGroup = (index) => {
-        let searchIndex = index === -1 ? { group: 0, option: -1 } : index;
+        const searchIndex = index === -1 ? { group: 0, option: -1 } : index;
 
         for (let i = searchIndex.group; i < visibleOptions.length; i++) {
             let groupOptions = getOptionGroupChildren(visibleOptions[i]);
@@ -332,7 +318,7 @@ export const Dropdown = memo((props) => {
     }
 
     const matchesSearchValue = (option) => {
-        let label = getOptionLabel(option).toLocaleLowerCase(props.filterLocale);
+        const label = getOptionLabel(option).toLocaleLowerCase(props.filterLocale);
         return label.startsWith(searchValue.current.toLocaleLowerCase(props.filterLocale));
     }
 
@@ -353,7 +339,7 @@ export const Dropdown = memo((props) => {
     }
 
     const onEditableInputFocus = (event) => {
-        setFocused(true);
+        setFocusedState(true);
         hide();
         props.onFocus && props.onFocus(event);
     }
@@ -370,14 +356,14 @@ export const Dropdown = memo((props) => {
     }
 
     const onFilterInputChange = (event) => {
-        const _filter = event.target.value;
+        const filter = event.target.value;
 
-        setFilter(_filter);
+        setFilterState(filter);
 
         if (props.onFilter) {
             props.onFilter({
                 originalEvent: event,
-                filter: _filter
+                filter
             });
         }
     }
@@ -387,7 +373,7 @@ export const Dropdown = memo((props) => {
     }
 
     const resetFilter = (callback) => {
-        setFilter('');
+        setFilterState('');
         props.onFilter && props.onFilter({ filter: '' });
         callback && callback();
     }
@@ -455,13 +441,7 @@ export const Dropdown = memo((props) => {
 
     const findOptionIndexInList = (value, list) => {
         const key = equalityKey();
-        for (let i = 0; i < list.length; i++) {
-            if ((ObjectUtils.equals(value, getOptionValue(list[i]), key))) {
-                return i;
-            }
-        }
-
-        return -1;
+        return list.findIndex(item => ObjectUtils.equals(value, getOptionValue(item), key));
     }
 
     const isSelected = (option) => {
@@ -469,11 +449,11 @@ export const Dropdown = memo((props) => {
     }
 
     const show = () => {
-        setOverlayVisible(true);
+        setOverlayVisibleState(true);
     }
 
     const hide = () => {
-        setOverlayVisible(false);
+        setOverlayVisibleState(false);
     }
 
     const onOverlayEnter = (callback) => {
@@ -561,7 +541,7 @@ export const Dropdown = memo((props) => {
     }
 
     const selectedOption = useMemo(() => {
-        let index = getSelectedOptionIndex();
+        const index = getSelectedOptionIndex();
 
         return index !== -1 ? (props.optionGroupLabel ? getOptionGroupChildren(visibleOptions[index.group])[index.option] : visibleOptions[index]) : null;
     }, [visibleOptions, props.value]);
@@ -583,46 +563,41 @@ export const Dropdown = memo((props) => {
         }
     }, [props.tooltip, props.tooltipOptions]);
 
-    useEffect(() => {
+    useMountEffect(() => {
         if (props.autoFocus && focusInputRef.current) {
             focusInputRef.current.focus();
         }
+    });
 
-        updateInputField();
-        if (inputRef.current) {
-            inputRef.current.selectedIndex = 1;
-        }
-
-        return () => {
-            ZIndexUtils.clear(overlayRef.current);
-
-            if (tooltipRef.current) {
-                tooltipRef.current.destroy();
-                tooltipRef.current = null;
-            }
-        }
-    }, []);
-
-    useEffect(() => {
-        if (overlayVisible && props.value) {
+    useUpdateEffect(() => {
+        if (overlayVisibleState && props.value) {
             scrollInView();
         }
-    }, [overlayVisible, props.value]);
+    }, [overlayVisibleState, props.value]);
 
-    useEffect(() => {
-        if (overlayVisible && props.filter) {
+    useUpdateEffect(() => {
+        if (overlayVisibleState && props.filter) {
             alignOverlay();
         }
-    }, [overlayVisible, props.filter]);
+    }, [overlayVisibleState, props.filter]);
 
     useEffect(() => {
-        if (filter && (!props.options || props.options.length === 0)) {
-            setFilter('');
+        if (filterState && (!props.options || props.options.length === 0)) {
+            setFilterState('');
         }
 
         updateInputField();
         if (inputRef.current) {
             inputRef.current.selectedIndex = 1;
+        }
+    });
+
+    useUnmountEffect(() => {
+        ZIndexUtils.clear(overlayRef.current);
+
+        if (tooltipRef.current) {
+            tooltipRef.current.destroy();
+            tooltipRef.current = null;
         }
     });
 
@@ -668,20 +643,15 @@ export const Dropdown = memo((props) => {
                 'p-placeholder': label === null && props.placeholder,
                 'p-dropdown-label-empty': label === null && !props.placeholder
             });
-
             const content = props.valueTemplate ? ObjectUtils.getJSXElement(props.valueTemplate, selectedOption, props) : (label || props.placeholder || 'empty');
 
-            return (
-                <span ref={inputRef} className={className}>{content}</span>
-            )
+            return <span ref={inputRef} className={className}>{content}</span>
         }
     }
 
     const useClearIcon = () => {
         if (props.value != null && props.showClear && !props.disabled) {
-            return (
-                <i className="p-dropdown-clear-icon pi pi-times" onClick={clear}></i>
-            )
+            return <i className="p-dropdown-clear-icon pi pi-times" onClick={clear}></i>
         }
 
         return null;
@@ -691,20 +661,19 @@ export const Dropdown = memo((props) => {
         const iconClassName = classNames('p-dropdown-trigger-icon p-clickable', props.dropdownIcon);
 
         return (
-            <div className="p-dropdown-trigger" role="button" aria-haspopup="listbox" aria-expanded={overlayVisible}>
+            <div className="p-dropdown-trigger" role="button" aria-haspopup="listbox" aria-expanded={overlayVisibleState}>
                 <span className={iconClassName}></span>
             </div>
         )
     }
 
-    const className = classNames('p-dropdown p-component p-inputwrapper', props.className, {
+    const className = classNames('p-dropdown p-component p-inputwrapper', {
         'p-disabled': props.disabled,
-        'p-focus': focused,
+        'p-focus': focusedState,
         'p-dropdown-clearable': props.showClear && !props.disabled,
         'p-inputwrapper-filled': props.value,
-        'p-inputwrapper-focus': focused || overlayVisible
-    });
-
+        'p-inputwrapper-focus': focusedState || overlayVisibleState
+    }, props.className);
     const hiddenSelect = useHiddenSelect();
     const keyboardHelper = useKeyboardHelper();
     const labelElement = useLabel();
@@ -720,11 +689,11 @@ export const Dropdown = memo((props) => {
             {clearIcon}
             {dropdownIcon}
             <DropdownPanel ref={overlayRef} visibleOptions={visibleOptions} {...props} appendTo={appendTo} onClick={onPanelClick} onOptionClick={onOptionClick}
-                filterValue={filter} hasFilter={hasFilter} onFilterClearIconClick={onFilterClearIconClick} onFilterInputKeyDown={onFilterInputKeyDown} onFilterInputChange={onFilterInputChange}
+                filterValue={filterState} hasFilter={hasFilter} onFilterClearIconClick={onFilterClearIconClick} onFilterInputKeyDown={onFilterInputKeyDown} onFilterInputChange={onFilterInputChange}
                 getOptionLabel={getOptionLabel} getOptionRenderKey={getOptionRenderKey} isOptionDisabled={isOptionDisabled}
                 getOptionGroupChildren={getOptionGroupChildren} getOptionGroupLabel={getOptionGroupLabel} getOptionGroupRenderKey={getOptionGroupRenderKey}
                 isSelected={isSelected} getSelectedOptionIndex={getSelectedOptionIndex}
-                in={overlayVisible} onEnter={onOverlayEnter} onEntered={onOverlayEntered} onExit={onOverlayExit} onExited={onOverlayExited} />
+                in={overlayVisibleState} onEnter={onOverlayEnter} onEntered={onOverlayEntered} onExit={onOverlayExit} onExited={onOverlayExited} />
         </div>
     )
 })
