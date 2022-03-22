@@ -1,23 +1,27 @@
-import React, { useRef, forwardRef, useState, useEffect, useImperativeHandle } from 'react';
+import React, { useRef, forwardRef, useState, useImperativeHandle, memo } from 'react';
 import PropTypes from 'prop-types';
-import { DomHandler, ObjectUtils, ZIndexUtils, classNames } from '../utils/Utils';
-import { CSSTransition } from '../csstransition/CSSTransition';
+import PrimeReact from '../api/Api';
 import { Ripple } from '../ripple/Ripple';
 import { Portal } from '../portal/Portal';
-import PrimeReact from '../api/Api';
-import { useUpdateEffect, useEventListener, useResizeListener } from '../hooks/Hooks';
+import { CSSTransition } from '../csstransition/CSSTransition';
+import { DomHandler, ObjectUtils, ZIndexUtils, classNames } from '../utils/Utils';
+import { useMountEffect, useUnmountEffect, useUpdateEffect, useEventListener, useResizeListener } from '../hooks/Hooks';
 
-const ContextMenuSub = (props) => {
-
-    const [activeItem, setActiveItem] = useState(null);
+const ContextMenuSub = memo((props) => {
+    const [activeItemState, setActiveItemState] = useState(null);
     const submenuRef = useRef(null);
+    const active = props.root || !props.resetMenu;
+
+    if (props.resetMenu === true && activeItemState !== null) {
+        setActiveItemState(null);
+    }
 
     const onItemMouseEnter = (event, item) => {
         if (item.disabled) {
             event.preventDefault();
             return;
         }
-        setActiveItem(item);
+        setActiveItemState(item);
     }
 
     const onItemClick = (event, item) => {
@@ -63,40 +67,25 @@ const ContextMenuSub = (props) => {
         position();
     }
 
-    const isActive = () => {
-        return props.root || !props.resetMenu;
-    }
-
     useUpdateEffect(() => {
-        if (props.resetMenu === true) {
-            setActiveItem(null);
-        }
-    }, [props.resetMenu])
-
-    useUpdateEffect(() => {
-        if (isActive()) {
-            position();
-        }
-    })
+        active && position();
+    });
 
     const useSeparator = (index) => {
-        return (
-            <li key={'separator_' + index} className="p-menu-separator" role="separator"></li>
-        );
+        return <li key={'separator_' + index} className="p-menu-separator" role="separator"></li>
     }
 
     const useSubmenu = (item) => {
         if (item.items) {
-            return (
-                <ContextMenuSub model={item.items} resetMenu={item !== activeItem} onLeafClick={props.onLeafClick} />
-            );
+            return <ContextMenuSub model={item.items} resetMenu={item !== activeItemState} onLeafClick={props.onLeafClick} />
         }
 
         return null;
     }
 
     const useMenuItem = (item, index) => {
-        const active = activeItem === item;
+        const active = activeItemState === item;
+        const key = item.label + '_' + index;
         const className = classNames('p-menuitem', { 'p-menuitem-active': active }, item.className);
         const linkClassName = classNames('p-menuitem-link', { 'p-disabled': item.disabled });
         const iconClassName = classNames('p-menuitem-icon', item.icon);
@@ -123,7 +112,7 @@ const ContextMenuSub = (props) => {
                 iconClassName,
                 submenuIconClassName,
                 element: content,
-                props: props,
+                props,
                 active
             };
 
@@ -131,51 +120,39 @@ const ContextMenuSub = (props) => {
         }
 
         return (
-            <li key={item.label + '_' + index} role="none" className={className} style={item.style} onMouseEnter={(event) => onItemMouseEnter(event, item)}>
+            <li key={key} role="none" className={className} style={item.style} onMouseEnter={(event) => onItemMouseEnter(event, item)}>
                 {content}
                 {submenu}
             </li>
-        );
+        )
     }
 
     const useItem = (item, index) => {
-        if (item.separator)
-            return useSeparator(index);
-        else
-            return useMenuItem(item, index);
+        return item.separator ? useSeparator(index) : useMenuItem(item, index);
     }
 
     const useMenu = () => {
-        if (props.model) {
-            return (
-                props.model.map((item, index) => {
-                    return useItem(item, index);
-                })
-            );
-        }
-
-        return null;
+        return props.model ? props.model.map(useItem) : null;
     }
 
-    const className = classNames({ 'p-submenu-list': !props.root });
+    const className = classNames({
+        'p-submenu-list': !props.root
+    });
     const submenu = useMenu();
-    const active = isActive()
 
     return (
-        <CSSTransition nodeRef={submenuRef} classNames="p-contextmenusub" in={active} timeout={{ enter: 0, exit: 0 }}
-            unmountOnExit onEnter={onEnter}>
+        <CSSTransition nodeRef={submenuRef} classNames="p-contextmenusub" in={active} timeout={{ enter: 0, exit: 0 }} unmountOnExit onEnter={onEnter}>
             <ul ref={submenuRef} className={className}>
                 {submenu}
             </ul>
         </CSSTransition>
-    );
-}
+    )
+});
 
-export const ContextMenu = forwardRef((props, ref) => {
-
-    const [visible, setVisible] = useState(false);
-    const [reshow, setReshow] = useState(false);
-    const [resetMenu, setResetMenu] = useState(false);
+export const ContextMenu = memo(forwardRef((props, ref) => {
+    const [visibleState, setVisibleState] = useState(false);
+    const [reshowState, setReshowState] = useState(false);
+    const [resetMenuState, setResetMenuState] = useState(false);
     const menuRef = useRef(null);
     const currentEvent = useRef(null);
 
@@ -183,12 +160,12 @@ export const ContextMenu = forwardRef((props, ref) => {
         type: 'click', listener: event => {
             if (isOutsideClicked(event) && event.button !== 2) {
                 hide(event);
-                setResetMenu(true);
+                setResetMenuState(true);
             }
         }
     });
 
-    const [bindDocumentContextMenuListener, unbindDocumentContextMenuListener] = useEventListener({
+    const [bindDocumentContextMenuListener, ] = useEventListener({
         type: 'contextmenu', listener: event => {
             show(event);
         }
@@ -196,59 +173,42 @@ export const ContextMenu = forwardRef((props, ref) => {
 
     const [bindDocumentResizeListener, unbindDocumentResizeListener] = useResizeListener({
         listener: event => {
-            if (visible && !DomHandler.isTouchDevice()) {
+            if (visibleState && !DomHandler.isTouchDevice()) {
                 hide(event);
             }
         }
     });
 
-
     const onMenuClick = () => {
-        setResetMenu(false);
+        setResetMenuState(false);
     }
 
     const onMenuMouseEnter = () => {
-        setResetMenu(false)
+        setResetMenuState(false);
     }
 
     const show = (event) => {
-        if (!(event instanceof Event)) {
-            event.persist();
-        }
-
         event.stopPropagation();
         event.preventDefault();
 
         currentEvent.current = event;
 
-        if (visible) {
-            setReshow(true)
+        if (visibleState) {
+            setReshowState(true);
         }
         else {
-            setVisible(true)
+            setVisibleState(true);
+            props.onShow && props.onShow(currentEvent.current);
         }
     }
 
     const hide = (event) => {
-        if (!(event instanceof Event)) {
-            event.persist();
-        }
-
         currentEvent.current = event;
 
-        setVisible(false);
-        setReshow(false);
+        setVisibleState(false);
+        setReshowState(false);
+        props.onHide && props.onHide(currentEvent.current);
     }
-
-    useUpdateEffect(() => {
-        if (props.onShow && visible) {
-            props.onShow(currentEvent.current);
-        }
-
-        if (props.onHide && !visible && !reshow) {
-            props.onHide(currentEvent.current);
-        }
-    },[visible,reshow])
 
     const onEnter = () => {
         if (props.autoZIndex) {
@@ -264,6 +224,7 @@ export const ContextMenu = forwardRef((props, ref) => {
 
     const onExit = () => {
         unbindDocumentListeners();
+        ZIndexUtils.clear(menuRef.current);
     }
 
     const onExited = () => {
@@ -304,7 +265,7 @@ export const ContextMenu = forwardRef((props, ref) => {
     }
 
     const onLeafClick = (event) => {
-        setResetMenu(true)
+        setResetMenuState(true);
         hide(event);
 
         event.stopPropagation();
@@ -324,29 +285,26 @@ export const ContextMenu = forwardRef((props, ref) => {
         unbindDocumentClickListener();
     }
 
-    useEffect(() => {
+    useMountEffect(() => {
         if (props.global) {
             bindDocumentContextMenuListener();
         }
-
-        return () => {
-            unbindDocumentListeners();
-            unbindDocumentContextMenuListener();
-
-            ZIndexUtils.clear(menuRef.current);
-        }
-    }, []);
+    });
 
     useUpdateEffect(() => {
-        if (visible && reshow) {
-            setVisible(false);
-            setReshow(false);
-            setResetMenu(true);
+        if (visibleState) {
+            setVisibleState(false);
+            setReshowState(false);
+            setResetMenuState(true);
         }
-        else if (!visible && !reshow && resetMenu)  {
+        else if (!reshowState) {
             show(currentEvent.current);
         }
-    }, [reshow]);
+    }, [reshowState, props.model]);
+
+    useUnmountEffect(() => {
+        ZIndexUtils.clear(menuRef.current);
+    });
 
     useImperativeHandle(ref, () => ({
         show,
@@ -357,19 +315,19 @@ export const ContextMenu = forwardRef((props, ref) => {
         const className = classNames('p-contextmenu p-component', props.className);
 
         return (
-            <CSSTransition nodeRef={menuRef} classNames="p-contextmenu" in={visible} timeout={{ enter: 250, exit: 0 }} options={props.transitionOptions}
+            <CSSTransition nodeRef={menuRef} classNames="p-contextmenu" in={visibleState} timeout={{ enter: 250, exit: 0 }} options={props.transitionOptions}
                 unmountOnExit onEnter={onEnter} onEntered={onEntered} onExit={onExit} onExited={onExited}>
                 <div ref={menuRef} id={props.id} className={className} style={props.style} onClick={onMenuClick} onMouseEnter={onMenuMouseEnter}>
-                    <ContextMenuSub model={props.model} root resetMenu={resetMenu} onLeafClick={onLeafClick} />
+                    <ContextMenuSub model={props.model} root resetMenu={resetMenuState} onLeafClick={onLeafClick} />
                 </div>
             </CSSTransition>
-        );
+        )
     }
 
     const element = useContextMenu();
 
-    return <Portal element={element} appendTo={props.appendTo} />;
-})
+    return <Portal element={element} appendTo={props.appendTo} />
+}));
 
 ContextMenu.defaultProps = {
     __TYPE: 'ContextMenu',
@@ -384,7 +342,7 @@ ContextMenu.defaultProps = {
     transitionOptions: null,
     onShow: null,
     onHide: null
-};
+}
 
 ContextMenu.propTypes = {
     __TYPE: PropTypes.string,
@@ -399,4 +357,4 @@ ContextMenu.propTypes = {
     transitionOptions: PropTypes.object,
     onShow: PropTypes.func,
     onHide: PropTypes.func
-};
+}
