@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, classNames } from '../utils/Utils';
 
-export const BreadCrumb = (props) => {
+export const BreadCrumb = memo((props) => {
 
     const itemClick = (event, item) => {
         if (item.disabled) {
@@ -43,9 +43,7 @@ export const BreadCrumb = (props) => {
     }
 
     const useSeparator = () => {
-        return (
-            <li className="p-breadcrumb-chevron pi pi-chevron-right"></li>
-        )
+        return <li className="p-breadcrumb-chevron pi pi-chevron-right"></li>
     }
 
     const useMenuitem = (item) => {
@@ -81,13 +79,14 @@ export const BreadCrumb = (props) => {
             const items = props.model.map((item, index) => {
                 const menuitem = useMenuitem(item);
                 const separator = (index === props.model.length - 1) ? null : useSeparator();
+                const key = item.label + '_' + index;
 
                 return (
-                    <React.Fragment key={item.label + '_' + index}>
+                    <React.Fragment key={key}>
                         {menuitem}
                         {separator}
                     </React.Fragment>
-                );
+                )
             });
 
             return items;
@@ -110,7 +109,7 @@ export const BreadCrumb = (props) => {
             </ul>
         </nav>
     )
-}
+});
 
 BreadCrumb.defaultProps = {
     __TYPE: 'BreadCrumb',

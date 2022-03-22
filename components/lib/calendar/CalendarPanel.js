@@ -12,10 +12,10 @@ export const CalendarPanel = forwardRef((props, ref) => {
                     {props.children}
                 </div>
             </CSSTransition>
-        );
+        )
     }
 
     const element = useElement();
 
     return props.inline ? element : <Portal element={element} appendTo={props.appendTo} />;
-})
+});

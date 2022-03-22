@@ -2,12 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, classNames } from '../utils/Utils';
 
-export const Card = (props) =>  {
-    const className = classNames('p-card p-component', props.className);
+export const Card = (props) => {
 
     const useHeader = () => {
         if (props.header) {
-            return <div className="p-card-header">{ObjectUtils.getJSXElement(props.header, props)}</div>;
+            return <div className="p-card-header">{ObjectUtils.getJSXElement(props.header, props)}</div>
         }
 
         return null;
@@ -26,9 +25,10 @@ export const Card = (props) =>  {
                 {children}
                 {footer}
             </div>
-        );
+        )
     }
 
+    const className = classNames('p-card p-component', props.className);
     const header = useHeader();
     const body = useBody();
 
@@ -37,7 +37,7 @@ export const Card = (props) =>  {
             {header}
             {body}
         </div>
-    );
+    )
 }
 
 Card.defaultProps = {

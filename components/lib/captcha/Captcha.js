@@ -1,5 +1,6 @@
-import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef } from 'react';
+import React, { forwardRef, memo, useImperativeHandle, useRef } from 'react';
 import PropTypes from 'prop-types';
+import { useMountEffect, useUnmountEffect } from '../hooks/Hooks';
 
 export const Captcha = memo(forwardRef((props, ref) => {
     const elementRef = useRef(null);
@@ -20,31 +21,19 @@ export const Captcha = memo(forwardRef((props, ref) => {
     }
 
     const reset = () => {
-        if (instance.current === null)
-            return;
-
-        (window).grecaptcha.reset(instance.current);
+        !!instance.current && (window).grecaptcha.reset(instance.current);
     }
 
     const getResponse = () => {
-        if (instance.current === null)
-            return null;
-
-        return (window).grecaptcha.getResponse(instance.current);
+        return !!instance.current ? (window).grecaptcha.getResponse(instance.current) : null;
     }
 
     const recaptchaCallback = (response) => {
-        if (props.onResponse) {
-            props.onResponse({
-                response
-            });
-        }
+        props.onResponse && props.onResponse({ response });
     }
 
     const recaptchaExpiredCallback = () => {
-        if (props.onExpire) {
-            props.onExpire();
-        }
+        props.onExpire && props.onExpire();
     }
 
     const addRecaptchaScript = () => {
@@ -71,19 +60,19 @@ export const Captcha = memo(forwardRef((props, ref) => {
         }
     }
 
-    useEffect(() => {
+    useMountEffect(() => {
         addRecaptchaScript();
 
         if ((window).grecaptcha) {
             init();
         }
+    });
 
-        return () => {
-            if (recaptchaScript.current) {
-                recaptchaScript.current.parentNode.removeChild(recaptchaScript.current);
-            }
+    useUnmountEffect(() => {
+        if (recaptchaScript.current) {
+            recaptchaScript.current.parentNode.removeChild(recaptchaScript.current);
         }
-    }, []);
+    });
 
     useImperativeHandle(ref, () => ({
         reset,

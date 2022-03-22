@@ -1,8 +1,8 @@
 import { forwardRef, memo, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { ObjectUtils, classNames, IconUtils } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
 import { Ripple } from '../ripple/Ripple';
+import { ObjectUtils, classNames, IconUtils } from '../utils/Utils';
 import { useUnmountEffect } from '../hooks/Hooks';
 
 export const Button = memo(forwardRef((props, ref) => {
@@ -39,6 +39,7 @@ export const Button = memo(forwardRef((props, ref) => {
             'p-button-loading-icon': props.loading,
             [`p-button-icon-${props.iconPos}`]: props.label
         });
+
         return IconUtils.getJSXIcon(icon, { className }, { props });
     }
 
@@ -83,8 +84,8 @@ export const Button = memo(forwardRef((props, ref) => {
             {badge}
             <Ripple />
         </button>
-    );
-}))
+    )
+}));
 
 Button.defaultProps = {
     __TYPE: 'Button',

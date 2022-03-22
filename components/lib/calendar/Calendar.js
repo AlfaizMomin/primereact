@@ -1,19 +1,19 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
+import PrimeReact, { localeOption, localeOptions } from '../api/Api';
+import { CalendarPanel } from './CalendarPanel';
 import { InputText } from '../inputtext/InputText';
 import { Button } from '../button/Button';
-import { CalendarPanel } from './CalendarPanel';
-import { DomHandler, ObjectUtils, classNames, mask, ZIndexUtils } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
 import { Ripple } from '../ripple/Ripple';
-import PrimeReact, { localeOption, localeOptions } from '../api/Api';
 import { OverlayService } from '../overlayservice/OverlayService';
-import { useEventListener, useResizeListener, useOverlayScrollListener, usePrevious } from '../hooks/Hooks';
+import { DomHandler, ObjectUtils, classNames, mask, ZIndexUtils } from '../utils/Utils';
+import { useMountEffect, useUnmountEffect, useUpdateEffect, useEventListener, useResizeListener, useOverlayScrollListener, usePrevious } from '../hooks/Hooks';
 
 export const Calendar = memo((props) => {
-    const [focused, setFocused] = useState(false);
-    const [overlayVisible, setOverlayVisible] = useState(false);
-    const [viewDate, setViewDate] = useState(null);
+    const [focusedState, setFocusedState] = useState(false);
+    const [overlayVisibleState, setOverlayVisibleState] = useState(false);
+    const [viewDateState, setViewDateState] = useState(null);
     const elementRef = useRef(null);
     const overlayRef = useRef(null);
     const inputRef = useRef(props.inputRef);
@@ -28,23 +28,29 @@ export const Calendar = memo((props) => {
     const touchUIMaskClickListener = useRef(null);
     const isOverlayClicked = useRef(false);
     const previousValue = usePrevious(props.value);
-    const visible = props.inline || (props.onVisibleChange ? props.visible : overlayVisible);
+    const visible = props.inline || (props.onVisibleChange ? props.visible : overlayVisibleState);
 
-    const [bindDocumentClick, unbindDocumentClick] = useEventListener({ type: 'click', listener: event => {
-        if (!isOverlayClicked.current && visible && isOutsideClicked(event)) {
-            hide('outside');
-        }
+    const [bindDocumentClick, unbindDocumentClick] = useEventListener({
+        type: 'click', listener: event => {
+            if (!isOverlayClicked.current && visible && isOutsideClicked(event)) {
+                hide('outside');
+            }
 
-        isOverlayClicked.current = false;
-    }});
-    const [bindWindowResize, unbindWindowResize] = useResizeListener({ listener: () => {
-        if (visible && !DomHandler.isTouchDevice()) {
-            hide();
+            isOverlayClicked.current = false;
         }
-    }, when: !props.touchUI });
-    const [bindOverlayScroll, unbindOverlayScroll] = useOverlayScrollListener({ target: elementRef, listener: () => {
-        visible && hide();
-    }});
+    });
+    const [bindWindowResize, unbindWindowResize] = useResizeListener({
+        listener: () => {
+            if (visible && !DomHandler.isTouchDevice()) {
+                hide();
+            }
+        }, when: !props.touchUI
+    });
+    const [bindOverlayScroll, unbindOverlayScroll] = useOverlayScrollListener({
+        target: elementRef, listener: () => {
+            visible && hide();
+        }
+    });
 
     const isOutsideClicked = (event) => {
         return elementRef.current && !(elementRef.current.isSameNode(event.target) || isNavIconClicked(event.target) ||
@@ -62,7 +68,7 @@ export const Calendar = memo((props) => {
 
     const onInputFocus = (event) => {
         if (ignoreFocusFunctionality.current) {
-            setFocused(true);
+            setFocusedState(true);
             ignoreFocusFunctionality.current = false;
         }
         else {
@@ -70,13 +76,13 @@ export const Calendar = memo((props) => {
                 show();
             }
 
-            setFocused(true);
+            setFocusedState(true);
             props.onFocus && props.onFocus(event);
         }
     }
 
     const onInputBlur = (event) => {
-        setFocused(false);
+        setFocusedState(false);
         !props.keepInvalid && updateInputfield(props.value);
         props.onBlur && props.onBlur(event);
     }
@@ -701,12 +707,12 @@ export const Calendar = memo((props) => {
 
     const getViewDate = (date) => {
         let propValue = props.value;
-        let _viewDate = date || (props.onViewDateChange ? props.viewDate : viewDate);
+        let viewDate = date || (props.onViewDateChange ? props.viewDate : viewDateState);
         if (Array.isArray(propValue)) {
             propValue = propValue[0];
         }
 
-        return _viewDate && isValidDate(_viewDate) ? _viewDate : (propValue && isValidDate(propValue) ? propValue : new Date());
+        return viewDate && isValidDate(viewDate) ? viewDate : (propValue && isValidDate(propValue) ? propValue : new Date());
     }
 
     const getCurrentDateTime = () => {
@@ -903,7 +909,7 @@ export const Calendar = memo((props) => {
         }
         else {
             viewStateChanged.current = true;
-            setViewDate(value);
+            setViewDateState(value);
         }
     }
 
@@ -1274,7 +1280,7 @@ export const Calendar = memo((props) => {
             });
         }
         else {
-            setOverlayVisible(true);
+            setOverlayVisibleState(true);
             overlayEventListener.current = (e) => {
                 if (!isOutsideClicked(e)) {
                     isOverlayClicked.current = true;
@@ -1305,7 +1311,7 @@ export const Calendar = memo((props) => {
             });
         }
         else {
-            setOverlayVisible(false);
+            setOverlayVisibleState(false);
             _hideCallback();
         }
     }
@@ -1382,7 +1388,7 @@ export const Calendar = memo((props) => {
         let hasBlockerMasks;
         for (let i = 0; i < bodyChildren.length; i++) {
             let bodyChild = bodyChildren[i];
-            if(DomHandler.hasClass(bodyChild, 'p-datepicker-mask-scrollblocker')) {
+            if (DomHandler.hasClass(bodyChild, 'p-datepicker-mask-scrollblocker')) {
                 hasBlockerMasks = true;
                 break;
             }
@@ -2216,10 +2222,10 @@ export const Calendar = memo((props) => {
         }
     }, [props.tooltip, props.tooltipOptions]);
 
-    useEffect(() => {
-        let _viewDate = getViewDate(props.viewDate);
-        validateDate(_viewDate);
-        setViewDate(_viewDate);
+    useMountEffect(() => {
+        let viewDate = getViewDate(props.viewDate);
+        validateDate(viewDate);
+        setViewDateState(viewDate);
 
         if (props.inline) {
             initFocusableCell();
@@ -2235,23 +2241,9 @@ export const Calendar = memo((props) => {
         if (props.value) {
             updateInputfield(props.value);
         }
+    });
 
-        return () => {
-            if (touchUIMask.current) {
-                disableModality();
-                touchUIMask.current = null;
-            }
-
-            if (tooltipRef.current) {
-                tooltipRef.current.destroy();
-                tooltipRef.current = null;
-            }
-
-            ZIndexUtils.clear(overlayRef.current);
-        }
-    }, []);
-
-    useEffect(() => {
+    useUpdateEffect(() => {
         if (!props.onViewDateChange && !viewStateChanged.current) {
             let propValue = props.value;
             if (Array.isArray(propValue)) {
@@ -2269,44 +2261,58 @@ export const Calendar = memo((props) => {
 
                 validateDate(viewDate);
 
-                setViewDate(viewDate);
+                setViewDateState(viewDate);
                 viewStateChanged.current = true;
             }
         }
     }, [props.onViewDateChange, props.value]);
 
-    useEffect(() => {
+    useUpdateEffect(() => {
         if (previousValue !== props.value && (!viewStateChanged.current || !visible)) {
             updateInputfield(props.value);
         }
     }, [props.value, visible]);
 
-    useEffect(() => {
+    useUpdateEffect(() => {
         updateInputfield(props.value);
     }, [props.dateFormat, props.hourFormat, props.timeOnly, props.showSeconds, props.showMillisec]);
 
-    useEffect(() => {
+    useUpdateEffect(() => {
         overlayRef.current && updateFocus();
     });
 
+    useUnmountEffect(() => {
+        if (touchUIMask.current) {
+            disableModality();
+            touchUIMask.current = null;
+        }
+
+        if (tooltipRef.current) {
+            tooltipRef.current.destroy();
+            tooltipRef.current = null;
+        }
+
+        ZIndexUtils.clear(overlayRef.current);
+    });
+
     const useBackwardNavigator = (isVisible) => {
-        let navigatorProps = isVisible ? { 'onClick': onPrevButtonClick, 'onKeyDown': e => onContainerButtonKeydown(e) } : { 'style': { visibility: 'hidden' } };
+        const navigatorProps = isVisible ? { 'onClick': onPrevButtonClick, 'onKeyDown': e => onContainerButtonKeydown(e) } : { 'style': { visibility: 'hidden' } };
         return (
             <button type="button" className="p-datepicker-prev p-link" {...navigatorProps}>
                 <span className="p-datepicker-prev-icon pi pi-chevron-left"></span>
                 <Ripple />
             </button>
-        );
+        )
     }
 
     const useForwardNavigator = (isVisible) => {
-        let navigatorProps = isVisible ? { 'onClick': onNextButtonClick, 'onKeyDown': e => onContainerButtonKeydown(e) } : { 'style': { visibility: 'hidden' } };
+        const navigatorProps = isVisible ? { 'onClick': onNextButtonClick, 'onKeyDown': e => onContainerButtonKeydown(e) } : { 'style': { visibility: 'hidden' } };
         return (
             <button type="button" className="p-datepicker-next p-link" {...navigatorProps}>
                 <span className="p-datepicker-next-icon pi pi-chevron-right"></span>
                 <Ripple />
             </button>
-        );
+        )
     }
 
     const useTitleMonthElement = (month) => {
@@ -2341,11 +2347,8 @@ export const Calendar = memo((props) => {
 
             return content;
         }
-        else {
-            return (
-                <span className="p-datepicker-month">{monthNames[month]}</span>
-            );
-        }
+
+        return <span className="p-datepicker-month">{monthNames[month]}</span>
     }
 
     const useTitleYearElement = (year) => {
@@ -2387,11 +2390,8 @@ export const Calendar = memo((props) => {
 
             return content;
         }
-        else {
-            return (
-                <span className="p-datepicker-year">{year}</span>
-            );
-        }
+
+        return <span className="p-datepicker-year">{year}</span>
     }
 
     const useTitle = (monthMetaData) => {
@@ -2403,29 +2403,27 @@ export const Calendar = memo((props) => {
                 {month}
                 {year}
             </div>
-        );
+        )
     }
 
     const useDayNames = (weekDays) => {
         const dayNames = weekDays.map((weekDay, index) => (
-                <th key={`${weekDay}-${index}`} scope="col">
-                    <span>{weekDay}</span>
-                </th>
-            )
-        );
+            <th key={`${weekDay}-${index}`} scope="col">
+                <span>{weekDay}</span>
+            </th>
+        ));
 
         if (props.showWeek) {
             const weekHeader = (
-                <th scope="col" key={'wn'} className="p-datepicker-weekheader p-disabled">
+                <th scope="col" key="wn" className="p-datepicker-weekheader p-disabled">
                     <span>{localeOption('weekHeader', props.locale)}</span>
                 </th>
             );
 
             return [weekHeader, ...dayNames];
         }
-        else {
-            return dayNames;
-        }
+
+        return dayNames;
     }
 
     const useDateCellContent = (date, className, groupIndex) => {
@@ -2436,7 +2434,7 @@ export const Calendar = memo((props) => {
                 {content}
                 <Ripple />
             </span>
-        );
+        )
     }
 
     const useWeek = (weekDates, weekNumber, groupIndex) => {
@@ -2450,7 +2448,7 @@ export const Calendar = memo((props) => {
                 <td key={date.day} className={cellClassName}>
                     {content}
                 </td>
-            );
+            )
         });
 
         if (props.showWeek) {
@@ -2464,19 +2462,16 @@ export const Calendar = memo((props) => {
 
             return [weekNumberCell, ...week];
         }
-        else {
-            return week;
-        }
+
+        return week;
     }
 
     const useDates = (monthMetaData, groupIndex) => {
-        return monthMetaData.dates.map((weekDates, index) => {
-            return (
-                <tr key={index}>
-                    {useWeek(weekDates, monthMetaData.weekNumbers[index], groupIndex)}
-                </tr>
-            );
-        });
+        return monthMetaData.dates.map((weekDates, index) => (
+            <tr key={index}>
+                {useWeek(weekDates, monthMetaData.weekNumbers[index], groupIndex)}
+            </tr>
+        ));
     }
 
     const useDateViewGrid = (monthMetaData, weekDays, groupIndex) => {
@@ -2496,7 +2491,7 @@ export const Calendar = memo((props) => {
                     </tbody>
                 </table>
             </div>
-        );
+        )
     }
 
     const useMonth = (monthMetaData, index) => {
@@ -2517,13 +2512,11 @@ export const Calendar = memo((props) => {
                 </div>
                 {dateViewGrid}
             </div>
-        );
+        )
     }
 
     const useMonths = (monthsMetaData) => {
-        const groups = monthsMetaData.map((monthMetaData, index) => {
-            return useMonth(monthMetaData, index);
-        });
+        const groups = monthsMetaData.map(useMonth);
 
         return (
             <div className="p-datepicker-group-container">
@@ -2533,15 +2526,11 @@ export const Calendar = memo((props) => {
     }
 
     const useDateView = () => {
-        let viewDate = getViewDate();
+        const viewDate = getViewDate();
         const monthsMetaData = createMonths(viewDate.getMonth(), viewDate.getFullYear());
         const months = useMonths(monthsMetaData);
 
-        return (
-            <>
-                {months}
-            </>
-        );
+        return months;
     }
 
     const useMonthViewMonth = (index) => {
@@ -2554,7 +2543,7 @@ export const Calendar = memo((props) => {
                 {monthName}
                 <Ripple />
             </span>
-        );
+        )
     }
 
     const useMonthViewMonths = () => {
@@ -2589,7 +2578,7 @@ export const Calendar = memo((props) => {
                     {months}
                 </div>
             </>
-        );
+        )
     }
 
     const useDatePicker = () => {
@@ -2600,10 +2589,9 @@ export const Calendar = memo((props) => {
             else if (props.view === 'month') {
                 return useMonthView();
             }
-            else {
-                return null;
-            }
         }
+
+        return null;
     }
 
     const useHourPicker = () => {
@@ -2633,13 +2621,13 @@ export const Calendar = memo((props) => {
                     <Ripple />
                 </button>
             </div>
-        );
+        )
     }
 
     const useMinutePicker = () => {
-        let currentTime = getCurrentDateTime();
-        let minute = currentTime.getMinutes();
-        let minuteDisplay = minute < 10 ? '0' + minute : minute;
+        const currentTime = getCurrentDateTime();
+        const minute = currentTime.getMinutes();
+        const minuteDisplay = minute < 10 ? '0' + minute : minute;
 
         return (
             <div className="p-minute-picker">
@@ -2655,14 +2643,14 @@ export const Calendar = memo((props) => {
                     <Ripple />
                 </button>
             </div>
-        );
+        )
     }
 
     const useSecondPicker = () => {
         if (props.showSeconds) {
-            let currentTime = getCurrentDateTime();
-            let second = currentTime.getSeconds();
-            let secondDisplay = second < 10 ? '0' + second : second;
+            const currentTime = getCurrentDateTime();
+            const second = currentTime.getSeconds();
+            const secondDisplay = second < 10 ? '0' + second : second;
 
             return (
                 <div className="p-second-picker">
@@ -2678,7 +2666,7 @@ export const Calendar = memo((props) => {
                         <Ripple />
                     </button>
                 </div>
-            );
+            )
         }
 
         return null;
@@ -2686,9 +2674,9 @@ export const Calendar = memo((props) => {
 
     const useMiliSecondPicker = () => {
         if (props.showMillisec) {
-            let currentTime = getCurrentDateTime();
-            let millisecond = currentTime.getMilliseconds();
-            let millisecondDisplay = millisecond < 100 ? (millisecond < 10 ? '00' : '0') + millisecond : millisecond;
+            const currentTime = getCurrentDateTime();
+            const millisecond = currentTime.getMilliseconds();
+            const millisecondDisplay = millisecond < 100 ? (millisecond < 10 ? '00' : '0') + millisecond : millisecond;
 
             return (
                 <div className="p-millisecond-picker">
@@ -2704,7 +2692,7 @@ export const Calendar = memo((props) => {
                         <Ripple />
                     </button>
                 </div>
-            );
+            )
         }
 
         return null;
@@ -2712,9 +2700,9 @@ export const Calendar = memo((props) => {
 
     const useAmPmPicker = () => {
         if (props.hourFormat === '12') {
-            let currentTime = getCurrentDateTime();
-            let hour = currentTime.getHours();
-            let display = hour > 11 ? 'PM' : 'AM';
+            const currentTime = getCurrentDateTime();
+            const hour = currentTime.getHours();
+            const display = hour > 11 ? 'PM' : 'AM';
 
             return (
                 <div className="p-ampm-picker">
@@ -2728,7 +2716,7 @@ export const Calendar = memo((props) => {
                         <Ripple />
                     </button>
                 </div>
-            );
+            )
         }
 
         return null;
@@ -2739,7 +2727,7 @@ export const Calendar = memo((props) => {
             <div className="p-separator">
                 <span>{separator}</span>
             </div>
-        );
+        )
     }
 
     const useTimePicker = () => {
@@ -2768,7 +2756,7 @@ export const Calendar = memo((props) => {
                 <InputText ref={inputRef} id={props.inputId} name={props.name} type="text" className={props.inputClassName} style={props.inputStyle}
                     readOnly={props.readOnlyInput} disabled={props.disabled} required={props.required} autoComplete="off" placeholder={props.placeholder} tabIndex={props.tabIndex}
                     onInput={onUserInput} onFocus={onInputFocus} onBlur={onInputBlur} onKeyDown={onInputKeyDown} aria-labelledby={props.ariaLabelledBy} inputMode={props.inputMode} />
-            );
+            )
         }
 
         return null;
@@ -2776,10 +2764,7 @@ export const Calendar = memo((props) => {
 
     const useButton = () => {
         if (props.showIcon) {
-            return (
-                <Button type="button" icon={props.icon} onClick={onButtonClick} tabIndex="-1"
-                    disabled={props.disabled} className="p-datepicker-trigger" />
-            );
+            return <Button type="button" icon={props.icon} onClick={onButtonClick} tabIndex="-1" disabled={props.disabled} className="p-datepicker-trigger" />
         }
 
         return null;
@@ -2817,7 +2802,7 @@ export const Calendar = memo((props) => {
                     <Button type="button" label={today} onClick={onTodayButtonClick} onKeyDown={e => onContainerButtonKeydown(e)} className={todayClassName} />
                     <Button type="button" label={clear} onClick={onClearButtonClick} onKeyDown={e => onContainerButtonKeydown(e)} className={clearClassName} />
                 </div>
-            );
+            )
         }
 
         return null;
@@ -2842,7 +2827,7 @@ export const Calendar = memo((props) => {
         'p-calendar-disabled': props.disabled,
         'p-calendar-timeonly': props.timeOnly,
         'p-inputwrapper-filled': props.value || (DomHandler.hasClass(inputRef.current, 'p-filled') && inputRef.current.value !== ''),
-        'p-inputwrapper-focus': focused
+        'p-inputwrapper-focus': focusedState
     });
     const panelClassName = classNames('p-datepicker p-component', props.panelClassName, {
         'p-datepicker-inline': props.inline,
@@ -2871,7 +2856,7 @@ export const Calendar = memo((props) => {
             </CalendarPanel>
         </span>
     )
-})
+});
 
 Calendar.defaultProps = {
     __TYPE: 'Calendar',

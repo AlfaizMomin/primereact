@@ -1,30 +1,30 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { DomHandler, ObjectUtils, classNames, UniqueComponentId } from '../utils/Utils';
-import { Ripple } from '../ripple/Ripple';
 import PrimeReact from '../api/Api';
-import { useResizeListener, useUpdateEffect, useUnmountEffect, usePrevious } from '../hooks/Hooks';
+import { Ripple } from '../ripple/Ripple';
+import { DomHandler, ObjectUtils, classNames, UniqueComponentId } from '../utils/Utils';
+import { useMountEffect, useUpdateEffect, useUnmountEffect, useResizeListener, usePrevious } from '../hooks/Hooks';
 
 const CarouselItem = memo((props) => {
     const content = props.template(props.item);
-    const itemClassName = classNames(props.className, 'p-carousel-item', {
+    const className = classNames(props.className, 'p-carousel-item', {
         'p-carousel-item-active': props.active,
         'p-carousel-item-start': props.start,
         'p-carousel-item-end': props.end
     });
 
     return (
-        <div className={itemClassName}>
+        <div className={className}>
             {content}
         </div>
     )
-})
+});
 
 export const Carousel = memo((props) => {
-    const [numVisible, setNumVisible] = useState(props.numVisible);
-    const [numScroll, setNumScroll] = useState(props.numScroll);
-    const [totalShiftedItems, setTotalShiftedItems] = useState((props.page * props.numScroll) * -1);
-    const [page, setPage] = useState(props.page);
+    const [numVisibleState, setNumVisibleState] = useState(props.numVisible);
+    const [numScrollState, setNumScrollState] = useState(props.numScroll);
+    const [totalShiftedItemsState, setTotalShiftedItemsState] = useState((props.page * props.numScroll) * -1);
+    const [pageState, setPageState] = useState(props.page);
     const elementRef = useRef(null);
     const itemsContainerRef = useRef(null);
     const remainingItems = useRef(0);
@@ -37,70 +37,72 @@ export const Carousel = memo((props) => {
     const carouselStyle = useRef(null);
     const isRemainingItemsAdded = useRef(false);
     const responsiveOptions = useRef(null);
-    const isVertical = props.orientation === 'vertical';
-    const isCircular = circular && props.value.length >= numVisible;
-    const isAutoplay = props.autoplayInterval && allowAutoplay.current;
-    const currentPage = props.onPageChange ? props.page : page;
-    const totalIndicators = props.value ? Math.ceil((props.value.length - numVisible) / numScroll) + 1 : 0;
-    const prevNumScroll = usePrevious(numScroll);
-    const prevNumVisible = usePrevious(numVisible);
+    const prevNumScroll = usePrevious(numScrollState);
+    const prevNumVisible = usePrevious(numVisibleState);
     const prevValue = usePrevious(props.value);
     const prevPage = usePrevious(props.page);
+    const isVertical = props.orientation === 'vertical';
+    const isCircular = circular && props.value.length >= numVisibleState;
+    const isAutoplay = props.autoplayInterval && allowAutoplay.current;
+    const currentPage = props.onPageChange ? props.page : pageState;
+    const totalIndicators = props.value ? Math.ceil((props.value.length - numVisibleState) / numScrollState) + 1 : 0;
 
-    const [bindWindowResize, ] = useResizeListener({ listener: () => {
-        calculatePosition();
-    }, when: props.responsiveOptions });
+    const [bindWindowResize,] = useResizeListener({
+        listener: () => {
+            calculatePosition();
+        }, when: props.responsiveOptions
+    });
 
-    const step = (dir, _page) => {
-        let _totalShiftedItems = totalShiftedItems;
-        if (_page != null) {
-            _totalShiftedItems = (numScroll * _page) * -1;
+    const step = (dir, page) => {
+        let totalShiftedItems = totalShiftedItemsState;
+        if (page != null) {
+            totalShiftedItems = (numScrollState * page) * -1;
 
             if (isCircular) {
-                _totalShiftedItems -= numVisible;
+                totalShiftedItems -= numVisibleState;
             }
 
             isRemainingItemsAdded.current = false;
         }
         else {
-            _totalShiftedItems += (numScroll * dir);
+            totalShiftedItems += (numScrollState * dir);
             if (isRemainingItemsAdded.current) {
-                _totalShiftedItems += remainingItems.current - (numScroll * dir);
+                totalShiftedItems += remainingItems.current - (numScrollState * dir);
                 isRemainingItemsAdded.current = false;
             }
 
-            let originalShiftedItems = isCircular ? (_totalShiftedItems + numVisible) : _totalShiftedItems;
-            _page = Math.abs(Math.floor(originalShiftedItems / numScroll));
+            const originalShiftedItems = isCircular ? (totalShiftedItems + numVisibleState) : totalShiftedItems;
+            page = Math.abs(Math.floor(originalShiftedItems / numScrollState));
         }
 
-        if (isCircular && page === (totalIndicators - 1) && dir === -1) {
-            _totalShiftedItems = -1 * (props.value.length + numVisible);
-            _page = 0;
+        if (isCircular && pageState === (totalIndicators - 1) && dir === -1) {
+            totalShiftedItems = -1 * (props.value.length + numVisibleState);
+            page = 0;
         }
-        else if (isCircular && page === 0 && dir === 1) {
-            _totalShiftedItems = 0;
-            _page = (_totalShiftedItems - 1);
+        else if (isCircular && pageState === 0 && dir === 1) {
+            totalShiftedItems = 0;
+            page = (totalShiftedItems - 1);
         }
-        else if (_page === (totalIndicators - 1) && remainingItems.current > 0) {
-            _totalShiftedItems += ((remainingItems.current * -1) - (numScroll * dir));
+        else if (page === (totalIndicators - 1) && remainingItems.current > 0) {
+            totalShiftedItems += ((remainingItems.current * -1) - (numScrollState * dir));
             isRemainingItemsAdded.current = true;
         }
 
         if (itemsContainerRef.current) {
             DomHandler.removeClass(itemsContainerRef.current, 'p-items-hidden');
-            changePosition(_totalShiftedItems);
+            changePosition(totalShiftedItems);
             itemsContainerRef.current.style.transition = 'transform 500ms ease 0s';
         }
 
         if (props.onPageChange) {
-            setTotalShiftedItems(_totalShiftedItems);
+            setTotalShiftedItemsState(totalShiftedItems);
             props.onPageChange({
-                page: _page
+                page
             })
         }
         else {
-            setPage(_page);
-            setTotalShiftedItems(_totalShiftedItems);
+            setPageState(page);
+            setTotalShiftedItemsState(totalShiftedItems);
         }
     }
 
@@ -120,38 +122,36 @@ export const Carousel = memo((props) => {
                 }
             }
 
-            if (numScroll !== matchedResponsiveData.numScroll) {
-                let _page = currentPage;
-                _page = Math.floor((_page * numScroll) / matchedResponsiveData.numScroll);
-
-                let _totalShiftedItems = (matchedResponsiveData.numScroll * _page) * -1;
+            if (numScrollState !== matchedResponsiveData.numScroll) {
+                let page = Math.floor((currentPage * numScrollState) / matchedResponsiveData.numScroll);
+                let totalShiftedItems = (matchedResponsiveData.numScroll * page) * -1;
 
                 if (isCircular) {
-                    _totalShiftedItems -= matchedResponsiveData.numVisible;
+                    totalShiftedItems -= matchedResponsiveData.numVisible;
                 }
 
-                setTotalShiftedItems(_totalShiftedItems);
-                setNumScroll(matchedResponsiveData.numScroll);
+                setTotalShiftedItemsState(totalShiftedItems);
+                setNumScrollState(matchedResponsiveData.numScroll);
 
                 if (props.onPageChange) {
                     props.onPageChange({
-                        page: _page
+                        page
                     })
                 }
                 else {
-                    setPage(_page);
+                    setPageState(page);
                 }
             }
 
-            if (numVisible !== matchedResponsiveData.numVisible) {
-                setNumVisible(matchedResponsiveData.numVisible);
+            if (numVisibleState !== matchedResponsiveData.numVisible) {
+                setNumVisibleState(matchedResponsiveData.numVisible);
             }
         }
     }
 
-    const navBackward = (e, _page) => {
+    const navBackward = (e, page) => {
         if (circular || currentPage !== 0) {
-            step(1, _page);
+            step(1, page);
         }
 
         allowAutoplay.current = false;
@@ -160,9 +160,9 @@ export const Carousel = memo((props) => {
         }
     }
 
-    const navForward = (e, _page) => {
+    const navForward = (e, page) => {
         if (circular || currentPage < (totalIndicators - 1)) {
-            step(-1, _page);
+            step(-1, page);
         }
 
         allowAutoplay.current = false;
@@ -171,12 +171,12 @@ export const Carousel = memo((props) => {
         }
     }
 
-   const onDotClick = (e, _page) => {
-        if (_page > currentPage) {
-            navForward(e, _page);
+    const onDotClick = (e, page) => {
+        if (page > currentPage) {
+            navForward(e, page);
         }
-        else if (_page < currentPage) {
-            navBackward(e, _page);
+        else if (page < currentPage) {
+            navBackward(e, page);
         }
     }
 
@@ -185,8 +185,8 @@ export const Carousel = memo((props) => {
             DomHandler.addClass(itemsContainerRef.current, 'p-items-hidden');
             itemsContainerRef.current.style.transition = '';
 
-            if ((page === 0 || page === (totalIndicators - 1)) && isCircular) {
-                changePosition(totalShiftedItems);
+            if ((pageState === 0 || pageState === (totalIndicators - 1)) && isCircular) {
+                changePosition(totalShiftedItemsState);
             }
         }
     }
@@ -230,11 +230,11 @@ export const Carousel = memo((props) => {
 
     const startAutoplay = () => {
         interval.current = setInterval(() => {
-            if (page === (totalIndicators - 1)) {
+            if (pageState === (totalIndicators - 1)) {
                 step(-1, 0);
             }
             else {
-                step(-1, page + 1);
+                step(-1, pageState + 1);
             }
         }, props.autoplayInterval);
     }
@@ -252,7 +252,7 @@ export const Carousel = memo((props) => {
 
         let innerHTML = `
             .p-carousel[${attributeSelector.current}] .p-carousel-item {
-                flex: 1 0 ${(100 / numVisible)}%
+                flex: 1 0 ${(100 / numVisibleState)}%
             }
         `;
 
@@ -280,13 +280,13 @@ export const Carousel = memo((props) => {
         carouselStyle.current.innerHTML = innerHTML;
     }
 
-    const changePosition = (_totalShiftedItems) => {
+    const changePosition = (totalShiftedItems) => {
         if (itemsContainerRef.current) {
-            itemsContainerRef.current.style.transform = isVertical ? `translate3d(0, ${_totalShiftedItems * (100 / numVisible)}%, 0)` : `translate3d(${_totalShiftedItems * (100 / numVisible)}%, 0, 0)`;
+            itemsContainerRef.current.style.transform = isVertical ? `translate3d(0, ${totalShiftedItems * (100 / numVisibleState)}%, 0)` : `translate3d(${totalShiftedItems * (100 / numVisibleState)}%, 0, 0)`;
         }
     }
 
-    useEffect(() => {
+    useMountEffect(() => {
         if (elementRef.current) {
             attributeSelector.current = UniqueComponentId();
             elementRef.current.setAttribute(attributeSelector.current, '');
@@ -294,71 +294,71 @@ export const Carousel = memo((props) => {
 
         createStyle();
         calculatePosition();
-        changePosition(totalShiftedItems);
+        changePosition(totalShiftedItemsState);
         bindWindowResize();
-    }, []);
+    });
 
     useUpdateEffect(() => {
         let stateChanged = false;
-        let _totalShiftedItems = totalShiftedItems;
+        let totalShiftedItems = totalShiftedItemsState;
 
         if (props.autoplayInterval) {
             stopAutoplay();
         }
 
-        if (prevNumScroll !== numScroll || prevNumVisible !== numVisible || (props.value && prevValue && prevValue.length !== props.value.length)) {
-            remainingItems.current = (props.value.length - numVisible) % numScroll;
+        if (prevNumScroll !== numScrollState || prevNumVisible !== numVisibleState || (props.value && prevValue && prevValue.length !== props.value.length)) {
+            remainingItems.current = (props.value.length - numVisibleState) % numScrollState;
 
-            let _page = currentPage;
-            if (totalIndicators !== 0 && page >= totalIndicators) {
-                _page = totalIndicators - 1;
+            let page = currentPage;
+            if (totalIndicators !== 0 && pageState >= totalIndicators) {
+                page = totalIndicators - 1;
 
                 if (props.onPageChange) {
                     props.onPageChange({
-                        page: _page
+                        page
                     })
                 }
                 else {
-                    setPage(_page);
+                    setPageState(page);
                 }
 
                 stateChanged = true;
             }
 
-            _totalShiftedItems = (page * numScroll) * -1;
+            totalShiftedItems = (page * numScrollState) * -1;
             if (isCircular) {
-                _totalShiftedItems -= numVisible;
+                totalShiftedItems -= numVisibleState;
             }
 
             if (page === (totalIndicators - 1) && remainingItems.current > 0) {
-                _totalShiftedItems += (-1 * remainingItems.current) + numScroll;
+                totalShiftedItems += (-1 * remainingItems.current) + numScrollState;
                 isRemainingItemsAdded.current = true;
             }
             else {
                 isRemainingItemsAdded.current = false;
             }
 
-            if (_totalShiftedItems !== totalShiftedItems) {
-                setTotalShiftedItems(_totalShiftedItems);
+            if (totalShiftedItems !== totalShiftedItemsState) {
+                setTotalShiftedItemsState(totalShiftedItems);
                 stateChanged = true;
             }
 
-            changePosition(_totalShiftedItems);
+            changePosition(totalShiftedItems);
         }
 
         if (isCircular) {
-            if (page === 0) {
-                _totalShiftedItems = -1 * numVisible;
+            if (pageState === 0) {
+                totalShiftedItems = -1 * numVisibleState;
             }
-            else if (_totalShiftedItems === 0) {
-                _totalShiftedItems = -1 * props.value.length;
+            else if (totalShiftedItems === 0) {
+                totalShiftedItems = -1 * props.value.length;
                 if (remainingItems.current > 0) {
                     isRemainingItemsAdded.current = true;
                 }
             }
 
-            if (_totalShiftedItems !== totalShiftedItems) {
-                setTotalShiftedItems(_totalShiftedItems);
+            if (totalShiftedItems !== totalShiftedItemsState) {
+                setTotalShiftedItemsState(totalShiftedItems);
                 stateChanged = true;
             }
         }
@@ -391,31 +391,33 @@ export const Carousel = memo((props) => {
             if (isCircular) {
                 let clonedElements = null;
 
-                clonedElements = props.value.slice(-1 * numVisible);
+                clonedElements = props.value.slice(-1 * numVisibleState);
                 clonedItemsForStarting = clonedElements.map((item, index) => {
-                    let isActive = (totalShiftedItems * -1) === (props.value.length + numVisible),
-                        start = index === 0,
-                        end = index === (clonedElements.length - 1);
+                    const isActive = (totalShiftedItemsState * -1) === (props.value.length + numVisibleState);
+                    const start = index === 0;
+                    const end = index === (clonedElements.length - 1);
+                    const key = index + '_scloned';
 
-                    return <CarouselItem key={index + '_scloned'} className="p-carousel-item-cloned" template={props.itemTemplate} item={item} active={isActive} start={start} end={end} />
+                    return <CarouselItem key={key} className="p-carousel-item-cloned" template={props.itemTemplate} item={item} active={isActive} start={start} end={end} />
                 });
 
-                clonedElements = props.value.slice(0, numVisible);
+                clonedElements = props.value.slice(0, numVisibleState);
                 clonedItemsForFinishing = clonedElements.map((item, index) => {
-                    let isActive = totalShiftedItems === 0,
-                        start = index === 0,
-                        end = index === (clonedElements.length - 1);
+                    const isActive = totalShiftedItemsState === 0;
+                    const start = index === 0;
+                    const end = index === (clonedElements.length - 1);
+                    const key = index + '_fcloned';
 
-                    return <CarouselItem key={index + '_fcloned'} className="p-carousel-item-cloned" template={props.itemTemplate} item={item} active={isActive} start={start} end={end} />
+                    return <CarouselItem key={key} className="p-carousel-item-cloned" template={props.itemTemplate} item={item} active={isActive} start={start} end={end} />
                 });
             }
 
-            let items = props.value.map((item, index) => {
-                let firstIndex = isCircular ? (-1 * (totalShiftedItems + numVisible)) : (totalShiftedItems * -1),
-                    lastIndex = firstIndex + numVisible - 1,
-                    isActive = firstIndex <= index && lastIndex >= index,
-                    start = firstIndex === index,
-                    end = lastIndex === index;
+            const items = props.value.map((item, index) => {
+                const firstIndex = isCircular ? (-1 * (totalShiftedItemsState + numVisibleState)) : (totalShiftedItemsState * -1);
+                const lastIndex = firstIndex + numVisibleState - 1;
+                const isActive = firstIndex <= index && lastIndex >= index;
+                const start = firstIndex === index;
+                const end = lastIndex === index;
 
                 return <CarouselItem key={index} template={props.itemTemplate} item={item} active={isActive} start={start} end={end} />
             });
@@ -448,7 +450,7 @@ export const Carousel = memo((props) => {
                 <div className="p-carousel-footer">
                     {props.footer}
                 </div>
-            );
+            )
         }
 
         return null;
@@ -459,10 +461,10 @@ export const Carousel = memo((props) => {
         const height = isVertical ? props.verticalViewPortHeight : 'auto';
         const backwardNavigator = useBackwardNavigator();
         const forwardNavigator = useForwardNavigator();
-        const containerClassName = classNames('p-carousel-container', props.containerClassName);
+        const className = classNames('p-carousel-container', props.containerClassName);
 
         return (
-            <div className={containerClassName}>
+            <div className={className}>
                 {backwardNavigator}
                 <div className="p-carousel-items-content" style={{ 'height': height }} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
                     <div ref={itemsContainerRef} className="p-carousel-items-container" onTransitionEnd={onTransitionEnd}>
@@ -475,17 +477,17 @@ export const Carousel = memo((props) => {
     }
 
     const useBackwardNavigator = () => {
-        let isDisabled = (!circular || (props.value && props.value.length < numVisible)) && currentPage === 0;
-        let buttonClassName = classNames('p-carousel-prev p-link', {
+        const isDisabled = (!circular || (props.value && props.value.length < numVisibleState)) && currentPage === 0;
+        const className = classNames('p-carousel-prev p-link', {
             'p-disabled': isDisabled
-        }),
-        iconClassName = classNames('p-carousel-prev-icon pi', {
+        });
+        const iconClassName = classNames('p-carousel-prev-icon pi', {
             'pi-chevron-left': !isVertical,
             'pi-chevron-up': isVertical
         });
 
         return (
-            <button type="button" className={buttonClassName} onClick={navBackward} disabled={isDisabled}>
+            <button type="button" className={className} onClick={navBackward} disabled={isDisabled}>
                 <span className={iconClassName}></span>
                 <Ripple />
             </button>
@@ -493,17 +495,17 @@ export const Carousel = memo((props) => {
     }
 
     const useForwardNavigator = () => {
-        let isDisabled = (!circular || (props.value && props.value.length < numVisible)) && (currentPage === (totalIndicators - 1) || totalIndicators === 0);
-        let buttonClassName = classNames('p-carousel-next p-link', {
+        const isDisabled = (!circular || (props.value && props.value.length < numVisibleState)) && (currentPage === (totalIndicators - 1) || totalIndicators === 0);
+        const className = classNames('p-carousel-next p-link', {
             'p-disabled': isDisabled
-        }),
-        iconClassName = classNames('p-carousel-next-icon pi', {
+        });
+        const iconClassName = classNames('p-carousel-next-icon pi', {
             'pi-chevron-right': !isVertical,
             'pi-chevron-down': isVertical
         });
 
         return (
-            <button type="button" className={buttonClassName} onClick={navForward} disabled={isDisabled}>
+            <button type="button" className={className} onClick={navForward} disabled={isDisabled}>
                 <span className={iconClassName}></span>
                 <Ripple />
             </button>
@@ -511,13 +513,14 @@ export const Carousel = memo((props) => {
     }
 
     const useIndicator = (index) => {
-        let isActive = currentPage === index,
-        indicatorItemClassName = classNames('p-carousel-indicator', {
+        const isActive = currentPage === index;
+        const key = 'p-carousel-indicator-' + index;
+        const className = classNames('p-carousel-indicator', {
             'p-highlight': isActive
         });
 
         return (
-            <li className={indicatorItemClassName} key={'p-carousel-indicator-' + index}>
+            <li key={key} className={className}>
                 <button type="button" className="p-link" onClick={(e) => onDotClick(e, index)}>
                     <Ripple />
                 </button>
@@ -526,7 +529,7 @@ export const Carousel = memo((props) => {
     }
 
     const useIndicators = () => {
-        const indicatorsContentClassName = classNames('p-carousel-indicators p-reset', props.indicatorsContentClassName);
+        const className = classNames('p-carousel-indicators p-reset', props.indicatorsContentClassName);
         let indicators = [];
 
         for (let i = 0; i < totalIndicators; i++) {
@@ -534,7 +537,7 @@ export const Carousel = memo((props) => {
         }
 
         return (
-            <ul className={indicatorsContentClassName}>
+            <ul className={className}>
                 {indicators}
             </ul>
         )
@@ -545,7 +548,6 @@ export const Carousel = memo((props) => {
         'p-carousel-horizontal': !isVertical
     }, props.className);
     const contentClassName = classNames('p-carousel-content', props.contentClassName);
-
     const content = useContent();
     const indicators = useIndicators();
     const header = useHeader();
@@ -561,7 +563,7 @@ export const Carousel = memo((props) => {
             {footer}
         </div>
     )
-})
+});
 
 Carousel.defaultProps = {
     __TYPE: 'Carousel',
