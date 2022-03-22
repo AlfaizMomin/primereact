@@ -35,7 +35,7 @@ export class ConfirmPopupDemo extends Component {
     }
 
     reject() {
-        this.toast.show({ severity: 'info', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+        this.toast.show({ severity: 'warn', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
     }
 
     confirm1(event) {
@@ -97,7 +97,7 @@ const ConfirmPopupDemo = () => {
     };
 
     const reject = () => {
-        toast.current.show({ severity: 'info', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+        toast.current.show({ severity: 'warn', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
     };
 
     const confirm1 = (event) => {
@@ -157,7 +157,7 @@ const ConfirmPopupDemo = () => {
     };
 
     const reject = () => {
-        toast.current.show({ severity: 'info', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+        toast.current.show({ severity: 'warn', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
     };
 
     const confirm1 = (event) => {
@@ -221,7 +221,7 @@ const ConfirmPopupDemo = () => {
     };
 
     const reject = () => {
-        toast.current.show({ severity: 'info', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+        toast.current.show({ severity: 'warn', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
     };
 
     const confirm1 = (event) => {

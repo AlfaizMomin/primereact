@@ -1,12 +1,12 @@
-import React, { Component, forwardRef } from 'react';
+import React, { forwardRef } from 'react';
+import { Portal } from '../portal/Portal';
 import { classNames } from '../utils/Utils';
 import { CSSTransition } from '../csstransition/CSSTransition';
-import { Portal } from '../portal/Portal';
 
 export const ColorPickerPanel = forwardRef((props, ref) => {
 
     const useElement = () => {
-        let className = classNames('p-colorpicker-panel', {
+        const className = classNames('p-colorpicker-panel', {
             'p-colorpicker-overlay-panel': !props.inline,
             'p-disabled': props.disabled
         });
@@ -18,10 +18,10 @@ export const ColorPickerPanel = forwardRef((props, ref) => {
                     {props.children}
                 </div>
             </CSSTransition>
-        );
+        )
     }
 
     const element = useElement();
 
     return props.inline ? element : <Portal element={element} appendTo={props.appendTo} />;
-})
+});

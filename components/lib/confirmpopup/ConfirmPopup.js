@@ -1,26 +1,26 @@
-import React, { useRef, useState, forwardRef } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import { DomHandler, ObjectUtils, classNames, ZIndexUtils, IconUtils } from '../utils/Utils';
-import { Button } from '../button/Button';
-import { CSSTransition } from '../csstransition/CSSTransition';
 import PrimeReact, { localeOption } from '../api/Api';
-import { OverlayService } from '../overlayservice/OverlayService';
+import { Button } from '../button/Button';
 import { Portal } from '../portal/Portal';
-import { useMountEffect, useUnmountEffect, useUpdateEffect, useResizeListener, useEventListener, useOverlayScrollListener } from '../hooks/Hooks';
+import { CSSTransition } from '../csstransition/CSSTransition';
+import { OverlayService } from '../overlayservice/OverlayService';
+import { DomHandler, ObjectUtils, classNames, ZIndexUtils, IconUtils } from '../utils/Utils';
+import { useUnmountEffect, useOverlayListener } from '../hooks/Hooks';
 
 export function confirmPopup(props) {
-    let appendTo = props.appendTo || document.body;
+    const appendTo = props.appendTo || document.body;
 
-    let confirmPopupWrapper = document.createDocumentFragment();
+    const confirmPopupWrapper = document.createDocumentFragment();
     DomHandler.appendChild(confirmPopupWrapper, appendTo);
 
-    props = {...props, ...{visible: props.visible === undefined ? true : props.visible}};
+    props = {...props, ...{ visible: props.visible === undefined ? true : props.visible }};
 
-    let confirmPopupEl = React.createElement(ConfirmPopup, props);
+    const confirmPopupEl = React.createElement(ConfirmPopup, props);
     ReactDOM.render(confirmPopupEl, confirmPopupWrapper);
 
-    let updateConfirmPopup = (newProps) => {
+    const updateConfirmPopup = (newProps) => {
         props = { ...props, ...newProps };
         ReactDOM.render(React.cloneElement(confirmPopupEl, props), confirmPopupWrapper);
     };
@@ -43,50 +43,29 @@ export function confirmPopup(props) {
     }
 }
 
-export const ConfirmPopup = (props) => {
-
-    const [visible, setVisible] = useState(false);
-    const isPanelClicked = useRef(false);
+export const ConfirmPopup = memo((props) => {
+    const [visibleState, setVisibleState] = useState(false);
     const overlayRef = useRef(null);
     const acceptBtnRef = useRef(null);
+    const isPanelClicked = useRef(false);
     const overlayEventListener = useRef(null);
-    const currentResult = useRef('');
+    const acceptLabel = props.acceptLabel || localeOption('accept');
+    const rejectLabel = props.rejectLabel || localeOption('reject');
 
-    const [bindResizeListener, unbindResizeListener] = useResizeListener({ listener: () => {
-        if (visible) {
-            hide();
-        }
-    }});
-
-    const [bindDocumentClickListener, unbindDocumentClickListener] = useEventListener({ type: 'click', listener: event => {
-        if (!isPanelClicked.current && isOutsideClicked(event.target)) {
-            hide();
-        }
-
-        isPanelClicked.current = false;
-    }});
-
-    const [bindScrollListener, unbindScrollListener] = useOverlayScrollListener({target: props.target, listener: (event) => {
-        if (visible) {
-            hide(event);
-        }
-    }});
-
-    const acceptLabel = () => {
-        return props.acceptLabel || localeOption('accept');
-    }
-
-    const rejectLabel = () => {
-        return props.rejectLabel || localeOption('reject');
-    }
-
-    const isOutsideClicked = (target) => {
-        return overlayRef && overlayRef.current && !(overlayRef.current.isSameNode(target) || overlayRef.current.contains(target));
-    }
+    const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({
+        target: props.target, overlay: overlayRef, listener: (event, type) => {
+            if (type === 'outside') {
+                !isPanelClicked.current && hide();
+                isPanelClicked.current = false;
+            }
+            else {
+                hide();
+            }
+        }, when: visibleState
+    });
 
     const onCloseClick = (event) => {
         hide();
-
         event.preventDefault();
     }
 
@@ -100,28 +79,29 @@ export const ConfirmPopup = (props) => {
     }
 
     const accept = () => {
-        if (props.accept) {
-            props.accept();
-        }
-
+        props.accept && props.accept();
         hide('accept');
     }
 
     const reject = () => {
-        if (props.reject) {
-            props.reject();
-        }
-
+        props.reject && props.reject();
         hide('reject');
     }
 
     const show = () => {
-        setVisible(true);
+        setVisibleState(true);
+        overlayEventListener.current = (e) => {
+            !isOutsideClicked(e.target) && (isPanelClicked.current = true);
+        };
+
+        OverlayService.on('overlay-click', overlayEventListener.current);
     }
 
     const hide = (result) => {
-        currentResult.current = result;
-        setVisible(false);
+        setVisibleState(false);
+        OverlayService.off('overlay-click', overlayEventListener.current);
+        overlayEventListener.current = null;
+        props.onHide && props.onHide(result);
     }
 
     const onEnter = () => {
@@ -130,9 +110,7 @@ export const ConfirmPopup = (props) => {
     }
 
     const onEntered = () => {
-        bindDocumentClickListener();
-        bindScrollListener();
-        bindResizeListener();
+        bindOverlayListener();
 
         if (acceptBtnRef && acceptBtnRef.current) {
             acceptBtnRef.current.focus();
@@ -142,9 +120,7 @@ export const ConfirmPopup = (props) => {
     }
 
     const onExit = () => {
-        unbindDocumentClickListener();
-        unbindScrollListener();
-        unbindResizeListener();
+        unbindOverlayListener();
     }
 
     const onExited = () => {
@@ -170,45 +146,15 @@ export const ConfirmPopup = (props) => {
         }
     }
 
-    useMountEffect(() => {
-        if (props.visible) {
-            setVisible(true);
-        }
-    });
+    const isOutsideClicked = (target) => {
+        return overlayRef && overlayRef.current && !(overlayRef.current.isSameNode(target) || overlayRef.current.contains(target));
+    }
 
-
-    useUpdateEffect(() => {
-        if (visible) {
-            overlayEventListener.current = (e) => {
-                if (!isOutsideClicked(e.target)) {
-                    isPanelClicked = true;
-                }
-            };
-
-            OverlayService.on('overlay-click', overlayEventListener.current);
-        }
-        else {
-            OverlayService.off('overlay-click', overlayEventListener.current);
-            overlayEventListener.current = null;
-
-            if (props.onHide) {
-                props.onHide(currentResult.current);
-            }
-        }
-    }, [visible]);
-
-    useUpdateEffect(() => {
-        if (props.visible)
-            setVisible(true);
-        else
-            setVisible(false);
+    useEffect(() => {
+        setVisibleState(props.visible);
     }, [props.visible]);
 
     useUnmountEffect(() => {
-        unbindDocumentClickListener();
-        unbindResizeListener();
-        unbindScrollListener();
-
         if (overlayEventListener.current) {
             OverlayService.off('overlay-click', overlayEventListener.current);
             overlayEventListener.current = null;
@@ -219,13 +165,14 @@ export const ConfirmPopup = (props) => {
 
     const useContent = () => {
         const message = ObjectUtils.getJSXElement(props.message, props);
+        const icon = IconUtils.getJSXIcon(props.icon, { className: 'p-confirm-popup-icon' }, { props });
 
         return (
             <div className="p-confirm-popup-content">
-                {IconUtils.getJSXIcon(props.icon, { className: 'p-confirm-popup-icon' }, { props: props })}
+                {icon}
                 <span className="p-confirm-popup-message">{message}</span>
             </div>
-        );
+        )
     }
 
     const useFooter = () => {
@@ -236,8 +183,8 @@ export const ConfirmPopup = (props) => {
 
         const content = (
             <div className="p-confirm-popup-footer">
-                <Button label={rejectLabel()} icon={props.rejectIcon} className={rejectClassName} onClick={reject} />
-                <Button ref={acceptBtnRef} label={acceptLabel()} icon={props.acceptIcon} className={acceptClassName} onClick={accept} />
+                <Button label={rejectLabel} icon={props.rejectIcon} className={rejectClassName} onClick={reject} />
+                <Button ref={acceptBtnRef} label={acceptLabel} icon={props.acceptIcon} className={acceptClassName} onClick={accept} />
             </div>
         )
 
@@ -248,10 +195,10 @@ export const ConfirmPopup = (props) => {
                 className: 'p-confirm-popup-footer',
                 acceptClassName,
                 rejectClassName,
-                acceptLabel: acceptLabel(),
-                rejectLabel: rejectLabel(),
+                acceptLabel,
+                rejectLabel,
                 element: content,
-                props: props
+                props
             };
 
             return ObjectUtils.getJSXElement(props.footer, defaultContentOptions);
@@ -266,20 +213,20 @@ export const ConfirmPopup = (props) => {
         const footer = useFooter();
 
         return (
-            <CSSTransition nodeRef={overlayRef} classNames="p-connected-overlay" in={visible} timeout={{ enter: 120, exit: 100 }} options={props.transitionOptions}
+            <CSSTransition nodeRef={overlayRef} classNames="p-connected-overlay" in={visibleState} timeout={{ enter: 120, exit: 100 }} options={props.transitionOptions}
                 unmountOnExit onEnter={onEnter} onEntered={onEntered} onExit={onExit} onExited={onExited}>
                 <div ref={overlayRef} id={props.id} className={className} style={props.style} onClick={onPanelClick}>
                     {content}
                     {footer}
                 </div>
             </CSSTransition>
-        );
+        )
     }
 
-    let element = useElement();
+    const element = useElement();
 
-    return <Portal element={element} appendTo={props.appendTo} visible={props.visible} />;
-}
+    return <Portal element={element} appendTo={props.appendTo} visible={props.visible} />
+});
 
 ConfirmPopup.defaultProps = {
     __TYPE: 'ConfirmPopup',

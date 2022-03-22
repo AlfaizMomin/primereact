@@ -1,6 +1,7 @@
 import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { classNames } from '../utils/Utils';
+import { useUnmountEffect } from '../hooks/Hooks';
 
 export const Chart = memo(forwardRef((props, ref) => {
     const chartRef = useRef(null);
@@ -33,16 +34,14 @@ export const Chart = memo(forwardRef((props, ref) => {
     }));
 
     useEffect(() => {
-        return () => {
-            if (chartRef.current) {
-                chartRef.current.destroy();
-                chartRef.current = null;
-            }
-        }
-    }, []);
-
-    useEffect(() => {
         initChart();
+    });
+
+    useUnmountEffect(() => {
+        if (chartRef.current) {
+            chartRef.current.destroy();
+            chartRef.current = null;
+        }
     });
 
     const className = classNames('p-chart', props.className);

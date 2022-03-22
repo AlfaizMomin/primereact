@@ -1,8 +1,6 @@
 import PropTypes from 'prop-types';
 
-export const Column = () => {
-    // NOOP
-}
+export const Column = () => { }
 
 Column.defaultProps = {
     __TYPE: 'Column',

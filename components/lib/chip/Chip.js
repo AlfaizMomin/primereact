@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { classNames, ObjectUtils, IconUtils } from '../utils/Utils';
 
 export const Chip = memo((props) => {
-    const [visible, setVisible] = useState(true);
+    const [visibleState, setVisibleState] = useState(true);
 
     const onKeyDown = (event) => {
         if (event.keyCode === 13) { // enter
@@ -12,7 +12,7 @@ export const Chip = memo((props) => {
     }
 
     const close = (event) => {
-        setVisible(false);
+        setVisibleState(false);
 
         if (props.onRemove) {
             props.onRemove(event);
@@ -23,13 +23,7 @@ export const Chip = memo((props) => {
         let content = [];
 
         if (props.image) {
-            const onError = (e) => {
-                if (props.onImageError) {
-                    props.onImageError(e);
-                }
-            }
-
-            content.push(<img key="image" src={props.image} alt={props.imageAlt} onError={onError}></img>);
+            content.push(<img key="image" src={props.image} alt={props.imageAlt} onError={props.onImageError}></img>);
         }
         else if (props.icon) {
             content.push(IconUtils.getJSXIcon(props.icon, { key: 'icon', className: 'p-chip-icon' }, { props }));
@@ -47,20 +41,20 @@ export const Chip = memo((props) => {
     }
 
     const useElement = () => {
-        const containerClassName = classNames('p-chip p-component', {
+        const className = classNames('p-chip p-component', {
             'p-chip-image': props.image != null
         }, props.className);
 
         const content = props.template ? ObjectUtils.getJSXElement(props.template, props) : useContent();
 
         return (
-            <div className={containerClassName} style={props.style}>
+            <div className={className} style={props.style}>
                 {content}
             </div>
         )
     }
 
-    return visible && useElement();
+    return visibleState && useElement();
 });
 
 Chip.defaultProps = {

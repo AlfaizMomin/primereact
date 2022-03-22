@@ -1,11 +1,11 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { classNames, IconUtils, ObjectUtils } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
-import { useUnmountEffect } from '../hooks/Hooks';
+import { classNames, IconUtils, ObjectUtils } from '../utils/Utils';
+import { useUpdateEffect, useUnmountEffect } from '../hooks/Hooks';
 
 export const Checkbox = memo((props) => {
-    const [focused, setFocused] = useState(false);
+    const [focusedState, setFocusedState] = useState(false);
     const elementRef = useRef(null);
     const inputRef = useRef(props.inputRef);
     const tooltipRef = useRef(null);
@@ -38,11 +38,11 @@ export const Checkbox = memo((props) => {
     }
 
     const onFocus = () => {
-        setFocused(true);
+        setFocusedState(true);
     }
 
     const onBlur = () => {
-        setFocused(false);
+        setFocusedState(false);
     }
 
     const onKeyDown = (event) => {
@@ -73,7 +73,7 @@ export const Checkbox = memo((props) => {
         }
     }, [props.tooltip, props.tooltipOptions]);
 
-    useEffect(() => {
+    useUpdateEffect(() => {
         inputRef.current.checked = isChecked();
     }, [props.checked, props.trueValue]);
 
@@ -85,20 +85,20 @@ export const Checkbox = memo((props) => {
     });
 
     const checked = isChecked();
-    const containerClass = classNames('p-checkbox p-component', {
+    const className = classNames('p-checkbox p-component', {
         'p-checkbox-checked': checked,
         'p-checkbox-disabled': props.disabled,
-        'p-checkbox-focused': focused
+        'p-checkbox-focused': focusedState
     }, props.className);
     const boxClass = classNames('p-checkbox-box', {
         'p-highlight': checked,
         'p-disabled': props.disabled,
-        'p-focus': focused
+        'p-focus': focusedState
     });
     const icon = IconUtils.getJSXIcon(checked && props.icon, { className: 'p-checkbox-icon p-c' }, { props, checked });
 
     return (
-        <div ref={elementRef} id={props.id} className={containerClass} style={props.style} onClick={onClick} onContextMenu={props.onContextMenu} onMouseDown={props.onMouseDown}>
+        <div ref={elementRef} id={props.id} className={className} style={props.style} onClick={onClick} onContextMenu={props.onContextMenu} onMouseDown={props.onMouseDown}>
             <div className="p-hidden-accessible">
                 <input ref={inputRef} type="checkbox" id={props.inputId} name={props.name} tabIndex={props.tabIndex} defaultChecked={checked} aria-labelledby={props.ariaLabelledBy}
                     onKeyDown={onKeyDown} onFocus={onFocus} onBlur={onBlur} disabled={props.disabled} readOnly={props.readOnly} required={props.required} />

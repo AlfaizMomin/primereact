@@ -1,11 +1,11 @@
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { classNames, ObjectUtils } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
+import { classNames, ObjectUtils } from '../utils/Utils';
 import { useUnmountEffect } from '../hooks/Hooks';
 
 export const Chips = memo((props) => {
-    const [focused, setFocused] = useState(false);
+    const [focusedState, setFocusedState] = useState(false);
     const elementRef = useRef(null);
     const listRef = useRef(null);
     const inputRef = useRef(props.inputRef);
@@ -59,9 +59,9 @@ export const Chips = memo((props) => {
                     });
                 }
             }
-            updateInput(event, values, preventDefault)
-        }
 
+            updateInput(event, values, preventDefault);
+        }
     }
 
     const onWrapperClick = () => {
@@ -91,10 +91,8 @@ export const Chips = memo((props) => {
                 if (isMaxedOut()) {
                     event.preventDefault();
                 }
-                else if (props.separator) {
-                    if (props.separator === ',' && event.which === 188) {
-                        addItem(event, inputValue, true);
-                    }
+                else if (props.separator === ',' && event.which === 188) {
+                    addItem(event, inputValue, true);
                 }
                 break;
         }
@@ -116,10 +114,7 @@ export const Chips = memo((props) => {
         }
 
         inputRef.current.value = '';
-
-        if (preventDefault) {
-            event.preventDefault();
-        }
+        preventDefault && event.preventDefault();
     }
 
     const onPaste = (event) => {
@@ -134,24 +129,17 @@ export const Chips = memo((props) => {
 
                 updateInput(event, values, true);
             }
-
         }
     }
 
     const onFocus = (event) => {
-        setFocused(true);
-
-        if (props.onFocus) {
-            props.onFocus(event);
-        }
+        setFocusedState(true);
+        props.onFocus && props.onFocus(event);
     }
 
     const onBlur = (event) => {
-        setFocused(false);
-
-        if (props.onBlur) {
-            props.onBlur(event);
-        }
+        setFocusedState(false);
+        props.onBlur && props.onBlur(event);
     }
 
     const isMaxedOut = () => {
@@ -184,13 +172,6 @@ export const Chips = memo((props) => {
         }
     }, [props.tooltip, props.tooltipOptions]);
 
-    useEffect(() => {
-        if (tooltipRef.current) {
-            tooltipRef.current.deactivate();
-            tooltipRef.current.activate();
-        }
-    }, [props.value]);
-
     useUnmountEffect(() => {
         if (tooltipRef.current) {
             tooltipRef.current.destroy();
@@ -200,9 +181,7 @@ export const Chips = memo((props) => {
 
     const useRemoveIcon = (value, index) => {
         if (!props.disabled && !props.readOnly && isRemovable(value, index)) {
-            return (
-                <span className="p-chips-token-icon pi pi-times-circle" onClick={(event) => removeItem(event, index)}></span>
-            )
+            return <span className="p-chips-token-icon pi pi-times-circle" onClick={(event) => removeItem(event, index)}></span>
         }
 
         return null;
@@ -210,14 +189,15 @@ export const Chips = memo((props) => {
 
     const useItem = (value, index) => {
         const content = props.itemTemplate ? props.itemTemplate(value) : value;
+        const label = <span className="p-chips-token-label">{content}</span>;
         const icon = useRemoveIcon(value, index);
 
         return (
             <li key={index} className="p-chips-token p-highlight">
-                <span className="p-chips-token-label">{content}</span>
+                {label}
                 {icon}
             </li>
-        );
+        )
     }
 
     const useInput = () => {
@@ -227,23 +207,17 @@ export const Chips = memo((props) => {
                     onKeyDown={onKeyDown} onPaste={onPaste} onFocus={onFocus} onBlur={onBlur} aria-labelledby={props.ariaLabelledBy}
                     readOnly={props.readOnly} />
             </li>
-        );
+        )
     }
 
     const useItems = () => {
-        if (props.value) {
-            return props.value.map((value, index) => {
-                return useItem(value, index);
-            });
-        }
-
-        return null;
+        return props.value ? props.value.map(useItem) : null;
     }
 
     const useList = () => {
         const className = classNames('p-inputtext p-chips-multiple-container', {
             'p-disabled': props.disabled,
-            'p-focus': focused
+            'p-focus': focusedState
         });
         const items = useItems();
         const input = useInput();
@@ -253,13 +227,13 @@ export const Chips = memo((props) => {
                 {items}
                 {input}
             </ul>
-        );
+        )
     }
 
-    const className = classNames('p-chips p-component p-inputwrapper', props.className, {
+    const className = classNames('p-chips p-component p-inputwrapper', {
         'p-inputwrapper-filled': isFilled,
-        'p-inputwrapper-focus': focused
-    });
+        'p-inputwrapper-focus': focusedState
+    }, props.className);
     const list = useList();
 
     return (

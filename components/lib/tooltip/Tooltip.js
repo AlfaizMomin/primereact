@@ -7,17 +7,17 @@ import PrimeReact from '../api/Api';
 import { useResizeListener, useOverlayScrollListener, useUpdateEffect, useUnmountEffect } from '../hooks/Hooks';
 
 export const tip = (props) => {
-    let appendTo = props.appendTo || document.body;
+    const appendTo = props.appendTo || document.body;
 
-    let tooltipWrapper = document.createDocumentFragment();
+    const tooltipWrapper = document.createDocumentFragment();
     DomHandler.appendChild(tooltipWrapper, appendTo);
 
     props = { ...props, ...props.options };
 
-    let tooltipEl = React.createElement(Tooltip, props);
+    const tooltipEl = React.createElement(Tooltip, props);
     ReactDOM.render(tooltipEl, tooltipWrapper);
 
-    let updateTooltip = (newProps) => {
+    const updateTooltip = (newProps) => {
         props = { ...props, ...newProps };
         ReactDOM.render(React.cloneElement(tooltipEl, props), tooltipWrapper);
     };

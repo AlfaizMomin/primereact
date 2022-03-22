@@ -1,10 +1,10 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
-import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
+import React, { memo, useRef, useState } from 'react';
 import { Ripple } from '../ripple/Ripple';
-import { useUpdateEffect } from '../hooks/Hooks';
+import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
+import { useMountEffect, useUpdateEffect } from '../hooks/Hooks';
 
 export const CascadeSelectSub = memo((props) => {
-    const [activeOption, setActiveOption] = useState(null);
+    const [activeOptionState, setActiveOptionState] = useState(null);
     const elementRef = useRef(null);
 
     const position = () => {
@@ -46,18 +46,18 @@ export const CascadeSelectSub = memo((props) => {
             case 'Right':
             case 'ArrowRight':
                 if (isOptionGroup(option)) {
-                    if (activeOption === option) {
+                    if (activeOptionState === option) {
                         listItem.children[1].children[0].children[0].focus();
                     }
                     else {
-                        setActiveOption(option);
+                        setActiveOptionState(option);
                     }
                 }
                 break;
 
             case 'Left':
             case 'ArrowLeft':
-                setActiveOption(null);
+                setActiveOptionState(null);
 
                 const parentList = event.currentTarget.parentElement.parentElement.previousElementSibling;
                 if (parentList) {
@@ -96,7 +96,7 @@ export const CascadeSelectSub = memo((props) => {
 
     const onOptionClick = (event, option) => {
         if (isOptionGroup(option)) {
-            setActiveOption(prevActiveOption => (prevActiveOption === option) ? null : option);
+            setActiveOptionState(prevActiveOption => (prevActiveOption === option) ? null : option);
 
             if (props.onOptionGroupSelect) {
                 props.onOptionGroupSelect({
@@ -143,31 +143,31 @@ export const CascadeSelectSub = memo((props) => {
         return isOptionGroup(option) ? getOptionGroupLabel(option) : getOptionLabel(option);
     }
 
-    useEffect(() => {
+    useMountEffect(() => {
         if (props.selectionPath && props.options && !props.dirty) {
-            for (let option of props.options) {
-                if (props.selectionPath.includes(option)) {
-                    setActiveOption(option);
-                    break;
-                }
-            }
+            const activeOption = props.options.find(o => props.selectionPath.includes(o));
+            activeOption && setActiveOptionState(activeOption);
         }
 
         if (!props.root) {
             position();
         }
-    }, []);
+    });
 
     useUpdateEffect(() => {
-        setActiveOption(null);
+        setActiveOptionState(null);
     }, [props.parentActive]);
 
     const useSubmenu = (option) => {
-        if (isOptionGroup(option) && activeOption === option) {
+        if (isOptionGroup(option) && activeOptionState === option) {
+            const options = getOptionGroupChildren(option);
+            const parentActive = activeOptionState === option;
+            const level = props.level + 1;
+
             return (
-                <CascadeSelectSub options={getOptionGroupChildren(option)} className="p-cascadeselect-sublist" selectionPath={props.selectionPath} optionLabel={props.optionLabel}
-                    optionValue={props.optionValue} level={props.level + 1} onOptionSelect={onOptionSelect} onOptionGroupSelect={onOptionGroupSelect}
-                    parentActive={activeOption === option} optionGroupLabel={props.optionGroupLabel} optionGroupChildren={props.optionGroupChildren}
+                <CascadeSelectSub options={options} className="p-cascadeselect-sublist" selectionPath={props.selectionPath} optionLabel={props.optionLabel}
+                    optionValue={props.optionValue} level={level} onOptionSelect={onOptionSelect} onOptionGroupSelect={onOptionGroupSelect}
+                    parentActive={parentActive} optionGroupLabel={props.optionGroupLabel} optionGroupChildren={props.optionGroupChildren}
                     dirty={props.dirty} template={props.template} onPanelHide={props.onPanelHide} />
             )
         }
@@ -178,15 +178,16 @@ export const CascadeSelectSub = memo((props) => {
     const useOption = (option, index) => {
         const className = classNames('p-cascadeselect-item', {
             'p-cascadeselect-item-group': isOptionGroup(option),
-            'p-cascadeselect-item-active p-highlight': activeOption === option
+            'p-cascadeselect-item-active p-highlight': activeOptionState === option
         }, option.className);
         const submenu = useSubmenu(option);
         const content = props.template ? ObjectUtils.getJSXElement(props.template, getOptionValue(option)) :
             <span className="p-cascadeselect-item-text">{getOptionLabelToRender(option)}</span>;
         const optionGroup = isOptionGroup(option) && <span className="p-cascadeselect-group-icon pi pi-angle-right" />
+        const key = getOptionLabelToRender(option) + '_' + index;
 
         return (
-            <li key={getOptionLabelToRender(option) + '_' + index} className={className} style={option.style} role="none">
+            <li key={key} className={className} style={option.style} role="none">
                 <div className="p-cascadeselect-item-content" onClick={event => onOptionClick(event, option)} tabIndex={0} onKeyDown={event => onKeyDown(event, option)}>
                     {content}
                     {optionGroup}
@@ -201,7 +202,7 @@ export const CascadeSelectSub = memo((props) => {
         return props.options ? props.options.map(useOption) : null;
     }
 
-    const className = classNames('p-cascadeselect-panel p-cascadeselect-items', props.className)
+    const className = classNames('p-cascadeselect-panel p-cascadeselect-items', props.className);
     const submenu = useMenu();
 
     return (

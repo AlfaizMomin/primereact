@@ -127,7 +127,7 @@ const ConfirmDialogDemo = () => {
     }
 
     const reject = () => {
-        toast.currents.show({ severity: 'info', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+        toast.current.show({ severity: 'info', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
     }
 
     const confirm1 = () => {
@@ -309,7 +309,7 @@ const ConfirmDialogDemo = () => {
     }
 
     const reject = () => {
-        toast.currents.show({ severity: 'info', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+        toast.current.show({ severity: 'info', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
     }
 
     const confirm1 = () => {

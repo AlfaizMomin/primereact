@@ -1,16 +1,16 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { DomHandler, ObjectUtils, classNames, ZIndexUtils } from '../utils/Utils';
+import PrimeReact from '../api/Api';
+import { Portal } from '../portal/Portal';
 import { CSSTransition } from '../csstransition/CSSTransition';
 import { CascadeSelectSub } from './CascadeSelectSub';
 import { OverlayService } from '../overlayservice/OverlayService';
-import { Portal } from '../portal/Portal';
-import PrimeReact from '../api/Api';
+import { DomHandler, ObjectUtils, classNames, ZIndexUtils } from '../utils/Utils';
 import { useOverlayListener, useUnmountEffect } from '../hooks/Hooks';
 
 export const CascadeSelect = memo((props) => {
-    const [focused, setFocused] = useState(false);
-    const [overlayVisible, setOverlayVisible] = useState(false);
+    const [focusedState, setFocusedState] = useState(false);
+    const [overlayVisibleState, setOverlayVisibleState] = useState(false);
     const elementRef = useRef(null);
     const overlayRef = useRef(null);
     const inputRef = useRef(null);
@@ -20,7 +20,7 @@ export const CascadeSelect = memo((props) => {
 
     const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({ target: elementRef, overlay: overlayRef, listener: () => {
         hide();
-    }, when: overlayVisible });
+    }, when: overlayVisibleState });
 
     const onOptionSelect = (event) => {
         if (props.onChange) {
@@ -95,23 +95,23 @@ export const CascadeSelect = memo((props) => {
 
         if (!overlayRef.current || !overlayRef.current.contains(event.target)) {
             inputRef.current.focus();
-            overlayVisible ? hide() : show();
+            overlayVisibleState ? hide() : show();
         }
     }
 
     const onInputFocus = () => {
-        setFocused(true);
+        setFocusedState(true);
     }
 
     const onInputBlur = () => {
-        setFocused(false);
+        setFocusedState(false);
     }
 
     const onInputKeyDown = (event) => {
         switch (event.which) {
             //down
             case 40:
-                if (overlayVisible) {
+                if (overlayVisibleState) {
                     DomHandler.findSingle(overlayRef.current, '.p-cascadeselect-item').children[0].focus();
                 }
                 else if (event.altKey && props.options && props.options.length) {
@@ -122,7 +122,7 @@ export const CascadeSelect = memo((props) => {
 
             //space
             case 32:
-                overlayVisible ? hide() : show();
+                overlayVisibleState ? hide() : show();
 
                 event.preventDefault();
                 break;
@@ -146,12 +146,12 @@ export const CascadeSelect = memo((props) => {
 
     const show = () => {
         props.onBeforeShow && props.onBeforeShow();
-        setOverlayVisible(true);
+        setOverlayVisibleState(true);
     }
 
     const hide = () => {
         props.onBeforeHide && props.onBeforeHide();
-        setOverlayVisible(false);
+        setOverlayVisibleState(false);
         inputRef.current.focus();
     }
 
@@ -211,14 +211,14 @@ export const CascadeSelect = memo((props) => {
             'p-cascadeselect-label-empty': !props.value && label === 'p-emptylabel'
         });
 
-        return <span ref={labelRef} className={labelClassName}>{label}</span>;
+        return <span ref={labelRef} className={labelClassName}>{label}</span>
     }
 
     const useDropdownIcon = () => {
         const iconClassName = classNames('p-cascadeselect-trigger-icon', props.dropdownIcon);
 
         return (
-            <div className="p-cascadeselect-trigger" role="button" aria-haspopup="listbox" aria-expanded={overlayVisible}>
+            <div className="p-cascadeselect-trigger" role="button" aria-haspopup="listbox" aria-expanded={overlayVisibleState}>
                 <span className={iconClassName}></span>
             </div>
         )
@@ -226,7 +226,7 @@ export const CascadeSelect = memo((props) => {
 
     const useOverlay = () => {
         const overlay = (
-            <CSSTransition nodeRef={overlayRef} classNames="p-connected-overlay" in={overlayVisible} timeout={{ enter: 120, exit: 100 }} options={props.transitionOptions}
+            <CSSTransition nodeRef={overlayRef} classNames="p-connected-overlay" in={overlayVisibleState} timeout={{ enter: 120, exit: 100 }} options={props.transitionOptions}
                 unmountOnExit onEnter={onOverlayEnter} onEntered={onOverlayEntered} onExit={onOverlayExit} onExited={onOverlayExited}>
                 <div ref={overlayRef} className="p-cascadeselect-panel p-component" onClick={onPanelClick}>
                     <div className="p-cascadeselect-items-wrapper">
@@ -238,16 +238,16 @@ export const CascadeSelect = memo((props) => {
             </CSSTransition>
         );
 
-        return <Portal element={overlay} appendTo={props.appendTo} />;
+        return <Portal element={overlay} appendTo={props.appendTo} />
     }
 
     const useElement = () => {
-        const className = classNames('p-cascadeselect p-component p-inputwrapper', props.className, {
+        const className = classNames('p-cascadeselect p-component p-inputwrapper', {
             'p-disabled': props.disabled,
-            'p-focus': focused,
+            'p-focus': focusedState,
             'p-inputwrapper-filled': props.value,
-            'p-inputwrapper-focus': focused || overlayVisible
-        });
+            'p-inputwrapper-focus': focusedState || overlayVisibleState
+        }, props.className);
 
         const keyboardHelper = useKeyboardHelper();
         const labelElement = useLabel();

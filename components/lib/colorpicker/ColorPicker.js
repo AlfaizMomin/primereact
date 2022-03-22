@@ -1,14 +1,14 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { DomHandler, ObjectUtils, classNames, ZIndexUtils } from '../utils/Utils';
+import PrimeReact from '../api/Api';
 import { ColorPickerPanel } from './ColorPickerPanel';
 import { tip } from '../tooltip/Tooltip';
 import { OverlayService } from '../overlayservice/OverlayService';
-import PrimeReact from '../api/Api';
-import { useEventListener, useOverlayScrollListener, useResizeListener, useUnmountEffect } from '../hooks/Hooks';
+import { DomHandler, ObjectUtils, classNames, ZIndexUtils } from '../utils/Utils';
+import { useUnmountEffect, useEventListener, useOverlayListener } from '../hooks/Hooks';
 
 export const ColorPicker = memo((props) => {
-    const [overlayVisible, setOverlayVisible] = useState(false);
+    const [overlayVisibleState, setOverlayVisibleState] = useState(false);
     const elementRef = useRef(null);
     const overlayRef = useRef(null);
     const inputRef = useRef(props.inputRef);
@@ -20,29 +20,26 @@ export const ColorPicker = memo((props) => {
     const hueDragging = useRef(false);
     const hsbValue = useRef(null);
     const colorDragging = useRef(false);
-    const [bindDocumentClick, unbindDocumentClick] = useEventListener({ type: 'click', listener: event => {
-        if (overlayVisible && isOutsideClicked(event)) {
+
+    const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({
+        target: elementRef, overlay: overlayRef, listener: () => {
             hide();
+        }, when: overlayVisibleState
+    });
+    const [bindDocumentMouseMove, unbindDocumentMouseMove] = useEventListener({
+        type: 'mousemove', listener: event => {
+            colorDragging.current && pickColor(event);
+            hueDragging.current && pickHue(event);
         }
-    }});
-    const [bindDocumentMouseMove, unbindDocumentMouseMove] = useEventListener({ type: 'mousemove', listener: event => {
-        colorDragging.current && pickColor(event);
-        hueDragging.current && pickHue(event);
-    }});
-    const [bindDocumentMouseUp, unbindDocumentMouseUp] = useEventListener({ type: 'mouseup', listener: () => {
-        colorDragging.current = hueDragging.current = false;
-        DomHandler.removeClass(elementRef.current, 'p-colorpicker-dragging');
-        unbindDocumentMouseMove();
-        unbindDocumentMouseUp();
-    }});
-    const [bindWindowResize, unbindWindowResize] = useResizeListener({ listener: () => {
-        if (overlayVisible && !DomHandler.isTouchDevice()) {
-            hide();
+    });
+    const [bindDocumentMouseUp, unbindDocumentMouseUp] = useEventListener({
+        type: 'mouseup', listener: () => {
+            colorDragging.current = hueDragging.current = false;
+            DomHandler.removeClass(elementRef.current, 'p-colorpicker-dragging');
+            unbindDocumentMouseMove();
+            unbindDocumentMouseUp();
         }
-    }});
-    const [bindOverlayScroll, unbindOverlayScroll] = useOverlayScrollListener({ target: elementRef, listener: () => {
-        overlayVisible && hide();
-    }});
+    });
 
     const onPanelClick = (event) => {
         if (!props.inline) {
@@ -217,18 +214,19 @@ export const ColorPicker = memo((props) => {
                     id: props.id,
                     value: value
                 }
-            })
+            });
         }
     }
 
     const updateColorSelector = () => {
         if (colorSelectorRef.current) {
-            let _hsbValue = validateHSB({
+            let newHsbValue = validateHSB({
                 h: hsbValue.current.h,
                 s: 100,
                 b: 100
             });
-            colorSelectorRef.current.style.backgroundColor = '#' + HSBtoHEX(_hsbValue);
+
+            colorSelectorRef.current.style.backgroundColor = '#' + HSBtoHEX(newHsbValue);
         }
     }
 
@@ -252,11 +250,11 @@ export const ColorPicker = memo((props) => {
     }
 
     const show = () => {
-        setOverlayVisible(true);
+        setOverlayVisibleState(true);
     }
 
     const hide = () => {
-        setOverlayVisible(false);
+        setOverlayVisibleState(false);
     }
 
     const onOverlayEnter = () => {
@@ -265,17 +263,13 @@ export const ColorPicker = memo((props) => {
     }
 
     const onOverlayEntered = () => {
-        bindDocumentClick();
-        bindOverlayScroll();
-        bindWindowResize();
+        bindOverlayListener();
 
         props.onShow && props.onShow();
     }
 
     const onOverlayExit = () => {
-        unbindDocumentClick();
-        unbindOverlayScroll();
-        unbindWindowResize();
+        unbindOverlayListener();
     }
 
     const onOverlayExited = () => {
@@ -289,7 +283,7 @@ export const ColorPicker = memo((props) => {
     }
 
     const togglePanel = () => {
-        overlayVisible ? hide() : show();
+        overlayVisibleState ? hide() : show();
     }
 
     const onInputKeydown = (event) => {
@@ -311,17 +305,12 @@ export const ColorPicker = memo((props) => {
         }
     }
 
-    const isOutsideClicked = (event) => {
-        return elementRef.current && !(elementRef.current.isSameNode(event.target) || elementRef.current.contains(event.target)
-            || (overlayRef.current && overlayRef.current.contains(event.target)));
-    }
-
     const validateHSB = (hsb) => {
         return {
             h: Math.min(360, Math.max(0, hsb.h)),
             s: Math.min(100, Math.max(0, hsb.s)),
             b: Math.min(100, Math.max(0, hsb.b))
-        };
+        }
     }
 
     const validateRGB = (rgb) => {
@@ -329,7 +318,7 @@ export const ColorPicker = memo((props) => {
             r: Math.min(255, Math.max(0, rgb.r)),
             g: Math.min(255, Math.max(0, rgb.g)),
             b: Math.min(255, Math.max(0, rgb.b))
-        };
+        }
     }
 
     const validateHEX = (hex) => {
@@ -453,20 +442,6 @@ export const ColorPicker = memo((props) => {
     }, [inputRef]);
 
     useEffect(() => {
-        if (!colorDragging.current && !hueDragging.current) {
-            updateHSBValue(props.value);
-        }
-    }, [props.value]);
-
-    useEffect(() => {
-        updateUI();
-
-        return () => {
-            ZIndexUtils.clear(overlayRef.current);
-        }
-    });
-
-    useEffect(() => {
         if (tooltipRef.current) {
             tooltipRef.current.update({ content: props.tooltip, ...(props.tooltipOptions || {}) });
         }
@@ -479,11 +454,23 @@ export const ColorPicker = memo((props) => {
         }
     }, [props.tooltip, props.tooltipOptions]);
 
+    useEffect(() => {
+        if (!colorDragging.current && !hueDragging.current) {
+            updateHSBValue(props.value);
+        }
+    }, [props.value]);
+
+    useEffect(() => {
+        updateUI();
+    });
+
     useUnmountEffect(() => {
         if (tooltipRef.current) {
             tooltipRef.current.destroy();
             tooltipRef.current = null;
         }
+
+        ZIndexUtils.clear(overlayRef.current);
     });
 
     const useColorSelector = () => {
@@ -494,7 +481,7 @@ export const ColorPicker = memo((props) => {
                     <div ref={colorHandleRef} className="p-colorpicker-color-handle"></div>
                 </div>
             </div>
-        );
+        )
     }
 
     const useHue = () => {
@@ -503,7 +490,7 @@ export const ColorPicker = memo((props) => {
                 onTouchStart={onHueDragStart} onTouchMove={onDrag} onTouchEnd={onDragEnd}>
                 <div ref={hueHandleRef} className="p-colorpicker-hue-handle"></div>
             </div>
-        );
+        )
     }
 
     const useContent = () => {
@@ -515,7 +502,7 @@ export const ColorPicker = memo((props) => {
                 {colorSelector}
                 {hue}
             </div>
-        );
+        )
     }
 
     const useInput = () => {
@@ -535,24 +522,23 @@ export const ColorPicker = memo((props) => {
         return null;
     }
 
-    const containerClassName = classNames('p-colorpicker p-component', {
+    const className = classNames('p-colorpicker p-component', {
         'p-colorpicker-overlay': !props.inline
     }, props.className);
-
     const content = useContent();
     const input = useInput();
 
     return (
-        <div ref={elementRef} id={props.id} style={props.style} className={containerClassName}>
+        <div ref={elementRef} id={props.id} style={props.style} className={className}>
             {input}
             <ColorPickerPanel ref={overlayRef} appendTo={props.appendTo} inline={props.inline} disabled={props.disabled} onClick={onPanelClick}
-                in={props.inline || overlayVisible} onEnter={onOverlayEnter} onEntered={onOverlayEntered} onExit={onOverlayExit} onExited={onOverlayExited}
+                in={props.inline || overlayVisibleState} onEnter={onOverlayEnter} onEntered={onOverlayEntered} onExit={onOverlayExit} onExited={onOverlayExited}
                 transitionOptions={props.transitionOptions}>
                 {content}
             </ColorPickerPanel>
         </div>
-    );
-})
+    )
+});
 
 ColorPicker.defaultProps = {
     __TYPE: 'ColorPicker',
