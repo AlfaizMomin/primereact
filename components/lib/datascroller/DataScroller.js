@@ -1,22 +1,21 @@
-import React, { useRef, useState, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, useState, forwardRef, useImperativeHandle, memo } from 'react';
 import PropTypes from 'prop-types';
 import { classNames, ObjectUtils } from '../utils/Utils';
 import { localeOption } from '../api/Api';
 import { useMountEffect, useUpdateEffect, useUnmountEffect } from '../hooks/Hooks';
 
-export const DataScroller = forwardRef((props, ref) => {
-
-    const [dataToRender, setDataToRender] = useState([]);
+export const DataScroller = memo(forwardRef((props, ref) => {
+    const [dataToRenderState, setDataToRenderState] = useState([]);
     const value = useRef(props.value);
-    const dataToRenderRef = useRef([]);
+    const dataToRender = useRef([]);
     const first = useRef(0);
     const scrollFunction = useRef(null);
     const contentElement = useRef(null);
 
     const handleDataChange = () => {
         if (props.lazy) {
-            dataToRenderRef.current = value.current;
-            setDataToRender([...dataToRenderRef.current]);
+            dataToRender.current = value.current;
+            setDataToRenderState([...dataToRender.current]);
         }
         else {
             load();
@@ -29,7 +28,7 @@ export const DataScroller = forwardRef((props, ref) => {
                 props.onLazyLoad(createLazyLoadMetadata());
             }
 
-            first.current= first.current+ props.rows;
+            first.current += props.rows;
         }
         else {
             if (value.current) {
@@ -38,27 +37,27 @@ export const DataScroller = forwardRef((props, ref) => {
                         break;
                     }
 
-                    dataToRenderRef.current.push(value.current[i]);
+                    dataToRender.current.push(value.current[i]);
                 }
 
                 if (value.current.length !== 0) {
-                    first.current = first.current + props.rows;
+                    first.current += props.rows;
                 }
 
-                setDataToRender([...dataToRenderRef.current]);
+                setDataToRenderState([...dataToRender.current]);
             }
         }
     }
 
     const reset = () => {
         first.current = 0;
-        dataToRenderRef.current = [];
-        setDataToRender([...dataToRenderRef.current]);
+        dataToRender.current = [];
+        setDataToRenderState([...dataToRender.current]);
         load();
     }
 
     const isEmpty = () => {
-        return !dataToRenderRef.current || (dataToRenderRef.current.length === 0);
+        return !dataToRender.current || (dataToRender.current.length === 0);
     }
 
     const createLazyLoadMetadata = () => {
@@ -126,7 +125,7 @@ export const DataScroller = forwardRef((props, ref) => {
             value.current = props.value;
 
             first.current = 0;
-            dataToRenderRef.current = [];
+            dataToRender.current = [];
             handleDataChange();
         }
     }, [props.value]);
@@ -135,7 +134,6 @@ export const DataScroller = forwardRef((props, ref) => {
         if (props.loader) {
             unbindScrollListener();
         }
-
     }, [props.loader]);
 
     useUnmountEffect(() => {
@@ -172,17 +170,17 @@ export const DataScroller = forwardRef((props, ref) => {
             <li key={index + '_datascrollitem'}>
                 {content}
             </li>
-        );
+        )
     }
 
     const useEmptyMessage = () => {
         const content = ObjectUtils.getJSXElement(props.emptyMessage, props) || localeOption('emptyMessage');
 
-        return <li>{content}</li>;
+        return <li>{content}</li>
     }
 
     const useContent = () => {
-        const content = dataToRender && dataToRender.length ? dataToRender.map((val, i) => useItem(val, i)) : useEmptyMessage();
+        const content = ObjectUtils.isNotEmpty(dataToRenderState) ? dataToRenderState.map(useItem) : useEmptyMessage();
 
         return (
             <div ref={contentElement} className="p-datascroller-content" style={{ 'maxHeight': props.scrollHeight }}>
@@ -207,8 +205,8 @@ export const DataScroller = forwardRef((props, ref) => {
             {content}
             {footer}
         </div>
-    );
-})
+    )
+}));
 
 DataScroller.defaultProps = {
     __TYPE: 'DataScroller',

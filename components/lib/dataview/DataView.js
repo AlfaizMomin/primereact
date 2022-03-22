@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { memo, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Paginator } from '../paginator/Paginator';
 import { ObjectUtils, classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
 import PrimeReact, { localeOption } from '../api/Api';
 
-export const DataViewLayoutOptions = (props) => {
+export const DataViewLayoutOptions = memo((props) => {
 
     const changeLayout = (event, layoutMode) => {
         props.onChange({
@@ -30,40 +30,36 @@ export const DataViewLayoutOptions = (props) => {
                 <Ripple />
             </button>
         </div>
-    );
-}
+    )
+});
 
-export const DataViewItem = (props) => {
+export const DataViewItem = memo((props) => {
     return props.template(props.item, props.layout);
-}
+});
 
-export const DataView = (props) => {
-
-    const [first, setFirst] = useState(!props.onPage ? props.first : null);
-    const [rows, setRows] = useState(!props.onPage ? props.rows : null);
+export const DataView = memo((props) => {
+    const [firstState, setFirstState] = useState(props.first);
+    const [rowsState, setRowsState] = useState(props.rows);
+    const first = props.onPage ? props.first : firstState;
+    const rows = props.onPage ? props.rows : rowsState;
 
     const getItemRenderKey = (value) => {
         return props.dataKey ? ObjectUtils.resolveFieldData(value, props.dataKey) : null;
     }
 
     const getTotalRecords = () => {
-        if (props.totalRecords)
-            return props.totalRecords;
-        else
-            return props.value ? props.value.length : 0;
+        return props.totalRecords ? props.totalRecords : (props.value ? props.value.length : 0);
     }
 
     const createPaginator = (position) => {
         const className = classNames('p-paginator-' + position, props.paginatorClassName);
-        const _first = props.onPage ? props.first : first;
-        const _rows = props.onPage ? props.rows : rows;
         const totalRecords = getTotalRecords();
 
         return (
-            <Paginator first={_first} rows={_rows} pageLinkSize={props.pageLinkSize} className={className} onPageChange={onPageChange} template={props.paginatorTemplate}
+            <Paginator first={first} rows={rows} pageLinkSize={props.pageLinkSize} className={className} onPageChange={onPageChange} template={props.paginatorTemplate}
                 totalRecords={totalRecords} rowsPerPageOptions={props.rowsPerPageOptions} currentPageReportTemplate={props.currentPageReportTemplate}
                 leftContent={props.paginatorLeft} rightContent={props.paginatorRight} alwaysShow={props.alwaysShowPaginator} dropdownAppendTo={props.paginatorDropdownAppendTo} />
-        );
+        )
     }
 
     const onPageChange = (event) => {
@@ -71,13 +67,9 @@ export const DataView = (props) => {
             props.onPage(event);
         }
         else {
-            setFirst(event.first)
-            setRows(event.rows);
+            setFirstState(event.first)
+            setRowsState(event.rows);
         }
-    }
-
-    const isEmpty = () => {
-        return (!props.value || props.value.length === 0);
     }
 
     const sort = () => {
@@ -92,9 +84,8 @@ export const DataView = (props) => {
 
             return value;
         }
-        else {
-            return null;
-        }
+
+        return null;
     }
 
     const useLoader = () => {
@@ -105,7 +96,7 @@ export const DataView = (props) => {
                 <div className="p-dataview-loading-overlay p-component-overlay">
                     <i className={iconClassName}></i>
                 </div>
-            );
+            )
         }
 
         return null;
@@ -132,7 +123,7 @@ export const DataView = (props) => {
         if (!props.loading) {
             const content = props.emptyMessage || localeOption('emptyMessage');
 
-            return <div className="p-col-12 col-12 p-dataview-emptymessage">{content}</div>;
+            return <div className="p-col-12 col-12 p-dataview-emptymessage">{content}</div>
         }
 
         return null;
@@ -140,7 +131,7 @@ export const DataView = (props) => {
 
     const useHeader = () => {
         if (props.header) {
-            return <div className="p-dataview-header">{props.header}</div>;
+            return <div className="p-dataview-header">{props.header}</div>
         }
 
         return null;
@@ -148,38 +139,35 @@ export const DataView = (props) => {
 
     const useFooter = () => {
         if (props.footer) {
-            return <div className="p-dataview-footer"> {props.footer}</div>;
+            return <div className="p-dataview-footer">{props.footer}</div>
         }
 
         return null;
     }
 
     const useItems = (value) => {
-        if (value && value.length) {
+        if (ObjectUtils.isNotEmpty(value)) {
             if (props.paginator) {
-                const _rows = props.onPage ? props.rows : rows;
-                const _first = props.lazy ? 0 : props.onPage ? props.first : first;
+                const currentFirst = props.lazy ? 0 : first;
                 const totalRecords = getTotalRecords();
-                const last = Math.min(_rows + _first, totalRecords);
+                const last = Math.min(rows + currentFirst, totalRecords);
                 let items = [];
 
-                for (let i = first; i < last; i++) {
+                for (let i = currentFirst; i < last; i++) {
                     const val = value[i];
                     val && items.push(<DataViewItem key={getItemRenderKey(value) || i} template={props.itemTemplate} layout={props.layout} item={val} />);
                 }
                 return items;
             }
-            else {
-                return (
-                    value.map((item, index) => {
-                        return <DataViewItem key={getItemRenderKey(item) || index} template={props.itemTemplate} layout={props.layout} item={item} />
-                    })
-                );
-            }
+
+            return (
+                value.map((item, index) => {
+                    return <DataViewItem key={getItemRenderKey(item) || index} template={props.itemTemplate} layout={props.layout} item={item} />
+                })
+            )
         }
-        else {
-            return useEmptyMessage();
-        }
+
+        return useEmptyMessage();
     }
 
     const useContent = (value) => {
@@ -191,29 +179,29 @@ export const DataView = (props) => {
                     {items}
                 </div>
             </div>
-        );
+        )
     }
 
-    const processData = () => {
+    const processData = useMemo(() => {
         let data = props.value;
 
-        if (data && data.length) {
-            if (props.sortField) {
-                data = sort();
-            }
+        if (ObjectUtils.isNotEmpty(data) && props.sortField) {
+            data = sort();
         }
 
         return data;
-    }
+    });
 
-    const value = processData();
-    const className = classNames('p-dataview p-component', { 'p-dataview-list': (props.layout === 'list'), 'p-dataview-grid': (props.layout === 'grid'), 'p-dataview-loading': props.loading }, props.className);
+    const className = classNames('p-dataview p-component', {
+        [`p-dataview-${props.layout}`]: !!props.layout,
+        'p-dataview-loading': props.loading
+    }, props.className);
     const loader = useLoader();
     const topPaginator = useTopPaginator();
     const bottomPaginator = useBottomPaginator();
     const header = useHeader();
     const footer = useFooter();
-    const content = useContent(value);
+    const content = useContent(processData);
 
     return (
         <div id={props.id} style={props.style} className={className}>
@@ -224,8 +212,8 @@ export const DataView = (props) => {
             {bottomPaginator}
             {footer}
         </div>
-    );
-}
+    )
+});
 
 DataView.defaultProps = {
     __TYPE: 'DataView',
