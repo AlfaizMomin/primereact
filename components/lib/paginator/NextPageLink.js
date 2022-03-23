@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
 
-export const NextPageLink = (props) => {
+export const NextPageLink = memo((props) => {
     const className = classNames('p-paginator-next p-paginator-element p-link', { 'p-disabled': props.disabled });
     const iconClassName = 'p-paginator-icon pi pi-angle-right';
     const element = (
@@ -20,14 +20,14 @@ export const NextPageLink = (props) => {
             iconClassName,
             disabled: props.disabled,
             element,
-            props: props
+            props
         };
 
         return ObjectUtils.getJSXElement(props.template, defaultOptions);
     }
 
     return element;
-}
+});
 
 NextPageLink.defaultProps = {
     __TYPE: 'NextPageLink',

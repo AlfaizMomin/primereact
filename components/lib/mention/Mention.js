@@ -1,51 +1,39 @@
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { classNames, DomHandler, ObjectUtils, ZIndexUtils } from '../utils/Utils';
+import PrimeReact from '../api/Api';
 import { Ripple } from '../ripple/Ripple';
 import { OverlayService } from '../overlayservice/OverlayService';
 import { CSSTransition } from '../csstransition/CSSTransition';
 import { Portal } from '../portal/Portal';
 import { InputTextarea } from '../inputtextarea/InputTextarea';
-import PrimeReact from '../api/Api';
-import { useEventListener, useOverlayScrollListener, useResizeListener } from '../hooks/Hooks';
+import { classNames, DomHandler, ObjectUtils, ZIndexUtils } from '../utils/Utils';
+import { useUpdateEffect, useUnmountEffect, useOverlayListener } from '../hooks/Hooks';
 
 export const Mention = memo((props) => {
-    const [overlayVisible, setOverlayVisible] = useState(false);
-    const [focused, setFocused] = useState(false);
-    const [searching, setSearching] = useState(false);
-    const [trigger, setTrigger] = useState(null);
+    const [overlayVisibleState, setOverlayVisibleState] = useState(false);
+    const [focusedState, setFocusedState] = useState(false);
+    const [searchingState, setSearchingState] = useState(false);
+    const [triggerState, setTriggerState] = useState(null);
     const elementRef = useRef(null);
     const overlayRef = useRef(null);
     const inputRef = useRef(props.inputRef);
     const listRef = useRef(null);
     const timeout = useRef(null);
 
-    const [bindDocumentClick, unbindDocumentClick] = useEventListener({ type: 'click', listener: event => {
-        if (event.which === 3) { // right click
-            return;
-        }
-
-        if (overlayVisible && isOutsideClicked(event)) {
+    const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({
+        target: elementRef, overlay: overlayRef, listener: () => {
             hide();
-        }
-    }});
-    const [bindOverlayScroll, unbindOverlayScroll] = useOverlayScrollListener({ target: elementRef.current, listener: () => {
-        overlayVisible && hide();
-    }});
-    const [bindWindowResize, unbindWindowResize] = useResizeListener({ listener: () => {
-        if (overlayVisible && !DomHandler.isTouchDevice()) {
-            hide();
-        }
-    }});
+        }, when: overlayVisibleState
+    });
 
     const show = () => {
-        setOverlayVisible(true);
+        setOverlayVisibleState(true);
     }
 
     const hide = () => {
-        setOverlayVisible(false);
-        setSearching(false);
-        setTrigger(null);
+        setOverlayVisibleState(false);
+        setSearchingState(false);
+        setTriggerState(null);
     }
 
     const onOverlayEnter = () => {
@@ -60,17 +48,12 @@ export const Mention = memo((props) => {
     }
 
     const onOverlayEntered = () => {
-        bindDocumentClick();
-        bindOverlayScroll();
-        bindWindowResize();
-
+        bindOverlayListener();
         props.onShow && props.onShow();
     }
 
     const onOverlayExit = () => {
-        unbindDocumentClick();
-        unbindOverlayScroll();
-        unbindWindowResize();
+        unbindOverlayListener();
     }
 
     const onOverlayExited = () => {
@@ -80,7 +63,7 @@ export const Mention = memo((props) => {
     }
 
     const alignOverlay = () => {
-        const { key, index } = trigger;
+        const { key, index } = triggerState;
         const value = inputRef.current.value;
         const position = DomHandler.getCursorOffset(inputRef.current, value.substring(0, index - 1), value.substring(index), key);
         overlayRef.current.style.transformOrigin = 'top';
@@ -96,7 +79,7 @@ export const Mention = memo((props) => {
     }
 
     const getTrigger = (value, key, start) => {
-        if (!trigger) {
+        if (!triggerState) {
             const triggerKey = Array.isArray(props.trigger) ? props.trigger.find(t => t === key) : (props.trigger === key ? props.trigger : null);
 
             if (triggerKey) {
@@ -114,7 +97,7 @@ export const Mention = memo((props) => {
             }
         }
 
-        return trigger;
+        return triggerState;
     }
 
     const getLatestTrigger = (value, start) => {
@@ -165,13 +148,13 @@ export const Mention = memo((props) => {
         }
     }
 
-    const search = (event, query, _trigger) => {
+    const search = (event, query, trigger) => {
         if (props.onSearch) {
-            setSearching(true);
-            setTrigger(_trigger);
+            setSearchingState(true);
+            setTriggerState(trigger);
             props.onSearch({
                 originalEvent: event,
-                trigger: _trigger.key,
+                trigger: trigger.key,
                 query
             });
         }
@@ -180,8 +163,8 @@ export const Mention = memo((props) => {
     const selectItem = (event, suggestion) => {
         const value = inputRef.current.value;
         const selectionStart = event.target.selectionStart;
-        const spaceIndex = value.indexOf(' ', trigger.index);
-        const currentText = value.substring(trigger.index, spaceIndex > -1 ? spaceIndex : selectionStart);
+        const spaceIndex = value.indexOf(' ', triggerState.index);
+        const currentText = value.substring(triggerState.index, spaceIndex > -1 ? spaceIndex : selectionStart);
         const selectedText = formatValue(suggestion).replace(/\s+/g, '');
 
         if (currentText.trim() !== selectedText) {
@@ -196,14 +179,14 @@ export const Mention = memo((props) => {
                     break;
             }
 
-            const prevText = value.substring(0, trigger.index);
-            const nextText = value.substring(trigger.index + diff);
+            const prevText = value.substring(0, triggerState.index);
+            const nextText = value.substring(triggerState.index + diff);
 
             inputRef.current.value = `${prevText}${selectedText} ${nextText}`;
             props.onChange && props.onChange(event);
         }
 
-        const cursorStart = trigger.index + selectedText.length + 1;
+        const cursorStart = triggerState.index + selectedText.length + 1;
         inputRef.current.setSelectionRange(cursorStart, cursorStart);
 
         hide();
@@ -213,7 +196,7 @@ export const Mention = memo((props) => {
 
     const formatValue = (value) => {
         if (value) {
-            const field = Array.isArray(props.field) ? props.field[props.trigger.findIndex(f => f === trigger.key)] : props.field;
+            const field = Array.isArray(props.field) ? props.field[props.trigger.findIndex(f => f === triggerState.key)] : props.field;
             return field ? ObjectUtils.resolveFieldData(value, field) : value;
         }
 
@@ -226,12 +209,12 @@ export const Mention = memo((props) => {
     }
 
     const onFocus = (event) => {
-        setFocused(true);
+        setFocusedState(true);
         props.onFocus && props.onFocus(event);
     }
 
     const onBlur = (event) => {
-        setFocused(false);
+        setFocusedState(false);
         props.onBlur && props.onBlur(event);
     }
 
@@ -257,7 +240,7 @@ export const Mention = memo((props) => {
     }
 
     const onKeyDown = (event) => {
-        if (overlayVisible) {
+        if (overlayVisibleState) {
             let highlightItem = DomHandler.findSingle(overlayRef.current, 'li.p-highlight');
 
             switch (event.which) {
@@ -299,7 +282,7 @@ export const Mention = memo((props) => {
                 case 8:
                     const { value, selectionStart } = event.target;
                     const key = value.substring(selectionStart - 1, selectionStart);
-                    if (key === trigger.key) {
+                    if (key === triggerState.key) {
                         hide();
                     }
 
@@ -326,10 +309,6 @@ export const Mention = memo((props) => {
         }
     }
 
-    const isOutsideClicked = (event) => {
-        return elementRef.current && (overlayRef.current && !overlayRef.current.contains(event.target));
-    }
-
     const isFilled = useMemo(() => (
         ObjectUtils.isNotEmpty(props.value) || ObjectUtils.isNotEmpty(props.defaultValue) || (inputRef.current && ObjectUtils.isNotEmpty(inputRef.current.value))
     ), [props.value, props.defaultValue, inputRef]);
@@ -338,29 +317,32 @@ export const Mention = memo((props) => {
         ObjectUtils.combinedRefs(inputRef, props.inputRef);
     }, [inputRef]);
 
-    useEffect(() => {
-        if (searching) {
+    useUpdateEffect(() => {
+        if (searchingState) {
             props.suggestions && props.suggestions.length ? show() : hide();
-            overlayVisible && alignOverlay();
-            setSearching(false);
+            overlayVisibleState && alignOverlay();
+            setSearchingState(false);
         }
     }, [props.suggestions]);
 
-    useEffect(() => {
+    useUpdateEffect(() => {
         if (!isFilled && DomHandler.hasClass(elementRef.current, 'p-inputwrapper-filled')) {
             DomHandler.removeClass(elementRef.current, 'p-inputwrapper-filled');
         }
-
-        return () => ZIndexUtils.clear(overlayRef.current);
     }, [isFilled]);
 
+    useUnmountEffect(() => {
+        ZIndexUtils.clear(overlayRef.current);
+    });
+
     const useItem = (suggestion, index) => {
+        const key = index + '_item';
         const content = props.itemTemplate ?
-            ObjectUtils.getJSXElement(props.itemTemplate, suggestion, { trigger: trigger ? trigger.key : '', index }) :
+            ObjectUtils.getJSXElement(props.itemTemplate, suggestion, { trigger: triggerState ? triggerState.key : '', index }) :
             formatValue(suggestion);
 
         return (
-            <li key={index + '_item'} className="p-mention-item" onClick={(e) => onItemClick(e, suggestion)}>
+            <li key={key} className="p-mention-item" onClick={(e) => onItemClick(e, suggestion)}>
                 {content}
                 <Ripple />
             </li>
@@ -369,7 +351,8 @@ export const Mention = memo((props) => {
 
     const useList = () => {
         if (props.suggestions) {
-            const items = props.suggestions.map((suggestion, index) => useItem(suggestion, index));
+            const items = props.suggestions.map(useItem);
+
             return (
                 <ul ref={listRef} className="p-mention-items">
                     {items}
@@ -388,7 +371,7 @@ export const Mention = memo((props) => {
         const list = useList();
 
         const panel = (
-            <CSSTransition nodeRef={overlayRef} classNames="p-connected-overlay" in={overlayVisible} timeout={{ enter: 120, exit: 100 }} options={props.transitionOptions}
+            <CSSTransition nodeRef={overlayRef} classNames="p-connected-overlay" in={overlayVisibleState} timeout={{ enter: 120, exit: 100 }} options={props.transitionOptions}
                 unmountOnExit onEnter={onOverlayEnter} onEntering={onOverlayEntering} onEntered={onOverlayEntered} onExit={onOverlayExit} onExited={onOverlayExited}>
                 <div ref={overlayRef} className={panelClassName} style={panelStyle} onClick={onPanelClick}>
                     {header}
@@ -398,15 +381,14 @@ export const Mention = memo((props) => {
             </CSSTransition>
         )
 
-        return <Portal element={panel} appendTo="self" />;
+        return <Portal element={panel} appendTo="self" />
     }
 
     const className = classNames('p-mention p-component p-inputwrapper', {
         'p-inputwrapper-filled': isFilled,
-        'p-inputwrapper-focus': focused
+        'p-inputwrapper-focus': focusedState
     }, props.className);
     const inputClassName = classNames('p-mention-input', props.inputClassName)
-
     const inputProps = ObjectUtils.findDiffKeys(props, Mention.defaultProps);
     const panel = usePanel();
 
@@ -417,7 +399,7 @@ export const Mention = memo((props) => {
             {panel}
         </div>
     )
-})
+});
 
 Mention.defaultProps = {
     __TYPE: 'Mention',

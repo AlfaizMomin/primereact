@@ -1,48 +1,40 @@
 import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { DomHandler, ZIndexUtils, classNames, UniqueComponentId } from '../utils/Utils';
-import { CSSTransition } from '../csstransition/CSSTransition';
-import { Ripple } from '../ripple/Ripple';
-import { OverlayService } from '../overlayservice/OverlayService';
-import { Portal } from '../portal/Portal';
 import PrimeReact from '../api/Api';
-import { useMountEffect, useUnmountEffect, useUpdateEffect, useResizeListener, useEventListener, useOverlayScrollListener } from '../hooks/Hooks';
+import { Ripple } from '../ripple/Ripple';
+import { Portal } from '../portal/Portal';
+import { CSSTransition } from '../csstransition/CSSTransition';
+import { OverlayService } from '../overlayservice/OverlayService';
+import { DomHandler, ZIndexUtils, classNames, UniqueComponentId } from '../utils/Utils';
+import { useMountEffect, useUnmountEffect, useOverlayListener } from '../hooks/Hooks';
 
 export const OverlayPanel = forwardRef((props, ref) => {
-    const [visible, setVisible] = useState(false);
-    const attributeSelector = useRef(UniqueComponentId());
-    const isPanelClicked = useRef(false);
+    const [visibleState, setVisibleState] = useState(false);
+    const attributeSelector = useRef('');
     const overlayRef = useRef(null);
-    const currentTarget = useRef(null);
+    const currentTargetRef = useRef(null);
+    const isPanelClicked = useRef(false);
     const styleElement = useRef(null);
     const overlayEventListener = useRef(null);
 
-    const [bindResizeListener, unbindResizeListener] = useResizeListener({ listener: () => {
-        if (visible) {
-            hide();
-        }
-    }});
-
-    const [bindDocumentClickListener, unbindDocumentClickListener] = useEventListener({ type: 'click', listener: event => {
-        if (!isPanelClicked.current && isOutsideClicked(event.target)) {
-            hide();
-        }
-
-        isPanelClicked.current = false;
-    }});
-
-    const [bindScrollListener, unbindScrollListener] = useOverlayScrollListener({target: currentTarget.current, listener: () => {
-        if (visible && !DomHandler.isTouchDevice()) {
-            hide();
-        }
-    }});
+    const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({
+        target: currentTargetRef, overlay: overlayRef, listener: (event, type) => {
+            if (type === 'outside') {
+                !isPanelClicked.current && hide();
+                isPanelClicked.current = false;
+            }
+            else {
+                hide();
+            }
+        }, when: visibleState
+    });
 
     const isOutsideClicked = (target) => {
         return overlayRef && overlayRef.current && !(overlayRef.current.isSameNode(target) || overlayRef.current.contains(target));
     }
 
     const hasTargetChanged = (event, target) => {
-        return currentTarget.current != null && currentTarget.current !== (target||event.currentTarget||event.target);
+        return currentTargetRef.current != null && currentTargetRef.current !== (target || event.currentTarget || event.target);
     }
 
     const onCloseClick = (event) => {
@@ -56,7 +48,7 @@ export const OverlayPanel = forwardRef((props, ref) => {
 
         OverlayService.emit('overlay-click', {
             originalEvent: event,
-            target: currentTarget.current
+            target: currentTargetRef.current
         });
     }
 
@@ -65,14 +57,14 @@ export const OverlayPanel = forwardRef((props, ref) => {
     }
 
     const toggle = (event, target) => {
-        if (visible) {
+        if (visibleState) {
             hide();
 
             if (hasTargetChanged(event, target)) {
-                currentTarget.current = target||event.currentTarget||event.target;
+                currentTargetRef.current = target || event.currentTarget || event.target;
 
                 setTimeout(() => {
-                    show(event, currentTarget.current);
+                    show(event, currentTargetRef.current);
                 }, 200);
             }
         }
@@ -82,38 +74,45 @@ export const OverlayPanel = forwardRef((props, ref) => {
     }
 
     const show = (event, target) => {
-        currentTarget.current = target||event.currentTarget||event.target;
+        currentTargetRef.current = target || event.currentTarget || event.target;
 
-        if (visible) {
+        if (visibleState) {
             align();
         }
         else {
-            setVisible(true);
+            setVisibleState(true);
+
+            overlayEventListener.current = (e) => {
+                if (!isOutsideClicked(e.target)) {
+                    isPanelClicked.current = true;
+                }
+            };
+
+            OverlayService.on('overlay-click', overlayEventListener.current);
         }
     }
 
     const hide = () => {
-        setVisible(false);
+        setVisibleState(false);
+
+        OverlayService.off('overlay-click', overlayEventListener.current);
+        overlayEventListener.current = null;
     }
 
     const onEnter = () => {
-        ZIndexUtils.set('overlay', overlayRef.current, PrimeReact.autoZIndex, PrimeReact.zIndex['overlay']);
         overlayRef.current.setAttribute(attributeSelector.current, '');
+        ZIndexUtils.set('overlay', overlayRef.current, PrimeReact.autoZIndex, PrimeReact.zIndex['overlay']);
         align();
     }
 
     const onEntered = () => {
-        bindDocumentClickListener();
-        bindScrollListener();
-        bindResizeListener();
+        bindOverlayListener();
 
         props.onShow && props.onShow();
     }
 
     const onExit = () => {
-        unbindDocumentClickListener();
-        unbindScrollListener();
-        unbindResizeListener();
+        unbindOverlayListener();
     }
 
     const onExited = () => {
@@ -123,11 +122,11 @@ export const OverlayPanel = forwardRef((props, ref) => {
     }
 
     const align = () => {
-        if (currentTarget.current) {
-            DomHandler.absolutePosition(overlayRef.current, currentTarget.current);
+        if (currentTargetRef.current) {
+            DomHandler.absolutePosition(overlayRef.current, currentTargetRef.current);
 
             const containerOffset = DomHandler.getOffset(overlayRef.current);
-            const targetOffset = DomHandler.getOffset(currentTarget.current);
+            const targetOffset = DomHandler.getOffset(currentTargetRef.current);
             let arrowLeft = 0;
 
             if (containerOffset.left < targetOffset.left) {
@@ -161,32 +160,14 @@ export const OverlayPanel = forwardRef((props, ref) => {
     }
 
     useMountEffect(() => {
+        attributeSelector.current = UniqueComponentId();
+
         if (props.breakpoints) {
             createStyle();
         }
     });
 
-    useUpdateEffect(() => {
-        if (visible) {
-            overlayEventListener.current = (e) => {
-                if (!isOutsideClicked(e.target)) {
-                    isPanelClicked.current = true;
-                }
-            };
-
-            OverlayService.on('overlay-click', overlayEventListener.current);
-        }
-        else {
-            OverlayService.off('overlay-click', overlayEventListener.current);
-            overlayEventListener.current = null;
-        }
-
-    }, [visible]);
-
     useUnmountEffect(() => {
-        unbindDocumentClickListener();
-        unbindResizeListener();
-
         styleElement.current = DomHandler.removeInlineStyle(styleElement.current);
 
         if (overlayEventListener.current) {
@@ -204,24 +185,24 @@ export const OverlayPanel = forwardRef((props, ref) => {
     }));
 
     const useCloseIcon = () => {
-        if(props.showCloseIcon) {
+        if (props.showCloseIcon) {
             return (
                 <button type="button" className="p-overlaypanel-close p-link" onClick={onCloseClick} aria-label={props.ariaCloseLabel}>
                     <span className="p-overlaypanel-close-icon pi pi-times"></span>
                     <Ripple />
                 </button>
-            );
+            )
         }
 
         return null;
     }
 
     const useElement = () => {
-        let className = classNames('p-overlaypanel p-component', props.className);
-        let closeIcon = useCloseIcon();
+        const className = classNames('p-overlaypanel p-component', props.className);
+        const closeIcon = useCloseIcon();
 
         return (
-            <CSSTransition nodeRef={overlayRef} classNames="p-overlaypanel" in={visible} timeout={{ enter: 120, exit: 100 }} options={props.transitionOptions}
+            <CSSTransition nodeRef={overlayRef} classNames="p-overlaypanel" in={visibleState} timeout={{ enter: 120, exit: 100 }} options={props.transitionOptions}
                 unmountOnExit onEnter={onEnter} onEntered={onEntered} onExit={onExit} onExited={onExited}>
                 <div ref={overlayRef} id={props.id} className={className} style={props.style} onClick={onPanelClick}>
                     <div className="p-overlaypanel-content" onClick={onContentClick} onMouseDown={onContentClick}>
@@ -230,14 +211,13 @@ export const OverlayPanel = forwardRef((props, ref) => {
                     {closeIcon}
                 </div>
             </CSSTransition>
-        );
+        )
     }
 
-    let element = useElement();
+    const element = useElement();
 
-    return <Portal element={element} appendTo={props.appendTo} />;
-
-})
+    return <Portal element={element} appendTo={props.appendTo} />
+});
 
 OverlayPanel.defaultProps = {
     __TYPE: 'OverlayPanel',

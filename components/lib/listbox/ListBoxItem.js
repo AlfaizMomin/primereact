@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
-import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
+import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 
 export const ListBoxItem = memo((props) => {
 
@@ -56,21 +56,13 @@ export const ListBoxItem = memo((props) => {
     }
 
     const findNextItem = (item) => {
-        let nextItem = item.nextElementSibling;
-
-        if (nextItem)
-            return DomHandler.hasClass(nextItem, 'p-disabled') || DomHandler.hasClass(nextItem, 'p-listbox-item-group') ? findNextItem(nextItem) : nextItem;
-        else
-            return null;
+        const nextItem = item.nextElementSibling;
+        return nextItem ? (DomHandler.hasClass(nextItem, 'p-disabled') || DomHandler.hasClass(nextItem, 'p-listbox-item-group') ? findNextItem(nextItem) : nextItem) : null;
     }
 
     const findPrevItem = (item) => {
-        let prevItem = item.previousElementSibling;
-
-        if (prevItem)
-            return DomHandler.hasClass(prevItem, 'p-disabled') || DomHandler.hasClass(prevItem, 'p-listbox-item-group') ? findPrevItem(prevItem) : prevItem;
-        else
-            return null;
+        const prevItem = item.previousElementSibling;
+        return prevItem ? (DomHandler.hasClass(prevItem, 'p-disabled') || DomHandler.hasClass(prevItem, 'p-listbox-item-group') ? findPrevItem(prevItem) : prevItem) : null;
     }
 
     const className = classNames('p-listbox-item', {
@@ -86,4 +78,4 @@ export const ListBoxItem = memo((props) => {
             <Ripple />
         </li>
     )
-})
+});

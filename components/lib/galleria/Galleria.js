@@ -1,44 +1,44 @@
 import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { classNames, DomHandler, ZIndexUtils } from '../utils/Utils';
+import PrimeReact from '../api/Api';
 import { GalleriaItem } from './GalleriaItem';
 import { GalleriaThumbnails } from './GalleriaThumbnails';
-import { CSSTransition } from '../csstransition/CSSTransition';
 import { Ripple } from '../ripple/Ripple';
 import { Portal } from '../portal/Portal';
-import PrimeReact from '../api/Api';
+import { CSSTransition } from '../csstransition/CSSTransition';
+import { classNames, DomHandler, ObjectUtils, ZIndexUtils } from '../utils/Utils';
 import { useUnmountEffect, useInterval } from '../hooks/Hooks';
 
 export const Galleria = memo(forwardRef((props, ref) => {
-    const [visible, setVisible] = useState(false);
-    const [numVisible, setNumVisible] = useState(props.numVisible);
-    const [slideShowActive, setSlideShowActive] = useState(false);
-    const [activeIndex, setActiveIndex] = useState(props.activeIndex);
+    const [visibleState, setVisibleState] = useState(false);
+    const [numVisibleState, setNumVisibleState] = useState(props.numVisible);
+    const [slideShowActiveState, setSlideShowActiveState] = useState(false);
+    const [activeIndexState, setActiveIndexState] = useState(props.activeIndex);
     const elementRef = useRef(null);
     const previewContentRef = useRef(null);
     const maskRef = useRef(null);
-    const activeItemIndex = props.onItemChange ? props.activeIndex : activeIndex;
+    const activeItemIndex = props.onItemChange ? props.activeIndex : activeIndexState;
     const isVertical = props.thumbnailsPosition === 'left' || props.thumbnailsPosition === 'right';
 
     useInterval(() => {
         onActiveItemChange({ index: (props.circular && (props.value.length - 1) === activeItemIndex) ? 0 : (activeItemIndex + 1) });
-    }, props.transitionInterval, slideShowActive);
+    }, props.transitionInterval, slideShowActiveState);
 
     const onActiveItemChange = (event) => {
         if (props.onItemChange) {
             props.onItemChange(event);
         }
         else {
-            setActiveIndex(event.index);
+            setActiveIndexState(event.index);
         }
     }
 
     const show = () => {
-        setVisible(true);
+        setVisibleState(true);
     }
 
     const hide = () => {
-        setVisible(false);
+        setVisibleState(false);
     }
 
     const onEnter = () => {
@@ -66,15 +66,15 @@ export const Galleria = memo(forwardRef((props, ref) => {
     }
 
     const isAutoPlayActive = () => {
-        return slideShowActive;
+        return slideShowActiveState;
     }
 
     const startSlideShow = () => {
-        setSlideShowActive(true);
+        setSlideShowActiveState(true);
     }
 
     const stopSlideShow = () => {
-        setSlideShowActive(false);
+        setSlideShowActiveState(false);
     }
 
     const getPositionClassName = (preClassName, position) => {
@@ -85,17 +85,17 @@ export const Galleria = memo(forwardRef((props, ref) => {
     }
 
     useEffect(() => {
-        if (props.value && props.value.length < numVisible) {
-            setNumVisible(props.value.length);
+        if (props.value && props.value.length < numVisibleState) {
+            setNumVisibleState(props.value.length);
         }
     }, [props.value]);
 
     useEffect(() => {
-        setNumVisible(props.numVisible);
+        setNumVisibleState(props.numVisible);
     }, [props.numVisible]);
 
     useUnmountEffect(() => {
-        if (slideShowActive) {
+        if (slideShowActiveState) {
             stopSlideShow();
         }
 
@@ -116,7 +116,7 @@ export const Galleria = memo(forwardRef((props, ref) => {
                 <div className="p-galleria-header">
                     {props.header}
                 </div>
-            );
+            )
         }
 
         return null;
@@ -128,7 +128,7 @@ export const Galleria = memo(forwardRef((props, ref) => {
                 <div className="p-galleria-footer">
                     {props.footer}
                 </div>
-            );
+            )
         }
 
         return null;
@@ -160,14 +160,14 @@ export const Galleria = memo(forwardRef((props, ref) => {
                     <GalleriaItem ref={previewContentRef} value={props.value} activeItemIndex={activeItemIndex} onActiveItemChange={onActiveItemChange}
                         itemTemplate={props.item} circular={props.circular} caption={props.caption}
                         showIndicators={props.showIndicators} changeItemOnIndicatorHover={props.changeItemOnIndicatorHover} indicator={props.indicator}
-                        showItemNavigators={props.showItemNavigators} autoPlay={props.autoPlay} slideShowActive={slideShowActive}
+                        showItemNavigators={props.showItemNavigators} autoPlay={props.autoPlay} slideShowActive={slideShowActiveState}
                         startSlideShow={startSlideShow} stopSlideShow={stopSlideShow} />
 
                     {
                         props.showThumbnails && <GalleriaThumbnails value={props.value} activeItemIndex={activeItemIndex} onActiveItemChange={onActiveItemChange}
-                            itemTemplate={props.thumbnail} numVisible={numVisible} responsiveOptions={props.responsiveOptions} circular={props.circular}
+                            itemTemplate={props.thumbnail} numVisible={numVisibleState} responsiveOptions={props.responsiveOptions} circular={props.circular}
                             isVertical={isVertical} contentHeight={props.verticalThumbnailViewPortHeight} showThumbnailNavigators={props.showThumbnailNavigators}
-                            autoPlay={props.autoPlay} slideShowActive={slideShowActive} stopSlideShow={stopSlideShow} />
+                            autoPlay={props.autoPlay} slideShowActive={slideShowActiveState} stopSlideShow={stopSlideShow} />
                     }
                 </div>
                 {footer}
@@ -182,27 +182,26 @@ export const Galleria = memo(forwardRef((props, ref) => {
 
         if (props.fullScreen) {
             const maskClassName = classNames('p-galleria-mask', {
-                'p-galleria-visible': visible
+                'p-galleria-visible': visibleState
             });
 
             const galleriaWrapper = (
                 <div ref={maskRef} className={maskClassName}>
-                    <CSSTransition nodeRef={elementRef} classNames="p-galleria" in={visible} timeout={{ enter: 150, exit: 150 }} options={props.transitionOptions}
+                    <CSSTransition nodeRef={elementRef} classNames="p-galleria" in={visibleState} timeout={{ enter: 150, exit: 150 }} options={props.transitionOptions}
                         unmountOnExit onEnter={onEnter} onEntering={onEntering} onEntered={onEntered} onExit={onExit} onExited={onExited}>
                         {element}
                     </CSSTransition>
                 </div>
             );
 
-            return <Portal element={galleriaWrapper} />;
+            return <Portal element={galleriaWrapper} />
         }
-        else {
-            return element;
-        }
+
+        return element;
     }
 
-    return props.value && props.value.length > 0 && useGalleria();
-}))
+    return ObjectUtils.isNotEmpty(props.value) && useGalleria();
+}));
 
 Galleria.defaultProps = {
     __TYPE: 'Galleria',

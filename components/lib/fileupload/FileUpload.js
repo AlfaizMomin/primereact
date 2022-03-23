@@ -1,61 +1,40 @@
 import React, { forwardRef, memo, useImperativeHandle, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
+import { localeOption } from '../api/Api';
+import { Ripple } from '../ripple/Ripple';
 import { Button } from '../button/Button';
 import { Messages } from '../messages/Messages';
 import { ProgressBar } from '../progressbar/ProgressBar';
 import { DomHandler, ObjectUtils, IconUtils, classNames } from '../utils/Utils';
-import { Ripple } from '../ripple/Ripple';
-import { localeOption } from '../api/Api';
 
 export const FileUpload = memo(forwardRef((props, ref) => {
-    const [files, setFiles] = useState([]);
-    const [progress, setProgress] = useState(0);
-    const [focused, setFocused] = useState(false);
+    const [filesState, setFilesState] = useState([]);
+    const [progressState, setProgressState] = useState(0);
+    const [focusedState, setFocusedState] = useState(false);
     const fileInputRef = useRef(null);
     const messagesRef = useRef(null);
     const contentRef = useRef(null);
     const duplicateIEEvent = useRef(false);
     const uploadedFileCount = useRef(0);
-
-    const hasFiles = () => {
-        return ObjectUtils.isNotEmpty(files);
-    }
+    const hasFiles = ObjectUtils.isNotEmpty(filesState);
+    const chooseButtonLabel = props.chooseLabel || props.chooseOptions.label || localeOption('choose');
+    const uploadButtonLabel = props.uploadLabel || props.uploadOptions.label || localeOption('upload');
+    const cancelButtonLabel = props.cancelLabel || props.cancelOptions.label || localeOption('cancel');
+    const chooseDisabled = props.disabled || (props.fileLimit && props.fileLimit <= filesState.length + uploadedFileCount);
+    const uploadDisabled = props.disabled || !hasFiles;
+    const cancelDisabled = props.disabled || !hasFiles;
 
     const isImage = (file) => {
         return /^image\//.test(file.type);
     }
 
-    const chooseDisabled = () => {
-        return props.disabled || (props.fileLimit && props.fileLimit <= files.length + uploadedFileCount);
-    }
-
-    const uploadDisabled = () => {
-        return props.disabled || !hasFiles();
-    }
-
-    const cancelDisabled = () => {
-        return props.disabled || !hasFiles();
-    }
-
-    const chooseButtonLabel = () => {
-        return props.chooseLabel || props.chooseOptions.label || localeOption('choose');
-    }
-
-    const uploadButtonLabel = () => {
-        return props.uploadLabel || props.uploadOptions.label || localeOption('upload');
-    }
-
-    const cancelButtonLabel = () => {
-        return props.cancelLabel || props.cancelOptions.label || localeOption('cancel');
-    }
-
     const remove = (event, index) => {
         clearInput();
-        let currentFiles = [...files];
-        let removedFile = files[index];
+        let currentFiles = [...filesState];
+        let removedFile = filesState[index];
 
         currentFiles.splice(index, 1);
-        setFiles(currentFiles);
+        setFilesState(currentFiles);
 
         if (props.onRemove) {
             props.onRemove({
@@ -96,7 +75,7 @@ export const FileUpload = memo(forwardRef((props, ref) => {
             return;
         }
 
-        let currentFiles = files ? [...files] : [];
+        let currentFiles = filesState ? [...filesState] : [];
         let selectedFiles = event.dataTransfer ? event.dataTransfer.files : event.target.files;
         for (let i = 0; i < selectedFiles.length; i++) {
             let file = selectedFiles[i];
@@ -109,14 +88,14 @@ export const FileUpload = memo(forwardRef((props, ref) => {
             }
         }
 
-        setFiles(currentFiles);
+        setFilesState(currentFiles);
 
         if (ObjectUtils.isNotEmpty(currentFiles) && props.auto) {
             upload();
         }
 
         if (props.onSelect) {
-            props.onSelect({ originalEvent: event, files: [...selectedFiles] });
+            props.onSelect({ originalEvent: event, files: selectedFiles });
         }
 
         if (event.type !== 'drop' && isIE11()) {
@@ -131,12 +110,8 @@ export const FileUpload = memo(forwardRef((props, ref) => {
         }
     }
 
-    const isFileSelected = (_file) => {
-        for (let sFile of files) {
-            if ((sFile.name + sFile.type + sFile.size) === (_file.name + _file.type + _file.size))
-                return true;
-        }
-        return false;
+    const isFileSelected = (file) => {
+        return filesState.some((f) => (f.name + f.type + f.size) === (file.name + file.type + file.size));
     }
 
     const isIE11 = () => {
@@ -156,9 +131,7 @@ export const FileUpload = memo(forwardRef((props, ref) => {
                 messagesRef.current.show(message);
             }
 
-            if (props.onValidationFail) {
-                props.onValidationFail(file);
-            }
+            props.onValidationFail && props.onValidationFail(file);
 
             return false;
         }
@@ -169,12 +142,12 @@ export const FileUpload = memo(forwardRef((props, ref) => {
     const upload = () => {
         if (props.customUpload) {
             if (props.fileLimit) {
-                uploadedFileCount += files.length;
+                uploadedFileCount += filesState.length;
             }
 
             if (props.uploadHandler) {
                 props.uploadHandler({
-                    files,
+                    files: filesState,
                     options: {
                         clear,
                         props
@@ -193,38 +166,46 @@ export const FileUpload = memo(forwardRef((props, ref) => {
                 });
             }
 
-            for (let file of files) {
+            for (let file of filesState) {
                 formData.append(props.name, file, file.name);
             }
 
             xhr.upload.addEventListener('progress', (event) => {
                 if (event.lengthComputable) {
-                    setProgress(Math.round((event.loaded * 100) / event.total));
+                    const progress = Math.round((event.loaded * 100) / event.total);
+                    setProgressState(progress);
+
                     if (props.onProgress) {
                         props.onProgress({
                             originalEvent: event,
                             progress
                         });
-                    };
+                    }
                 }
             });
 
             xhr.onreadystatechange = () => {
                 if (xhr.readyState === 4) {
-                    setProgress(0);
+                    setProgressState(0);
 
                     if (xhr.status >= 200 && xhr.status < 300) {
                         if (props.fileLimit) {
-                            uploadedFileCount += files.length;
+                            uploadedFileCount += filesState.length;
                         }
 
                         if (props.onUpload) {
-                            props.onUpload({ xhr, files });
+                            props.onUpload({
+                                xhr,
+                                files: filesState
+                            });
                         }
                     }
                     else {
                         if (props.onError) {
-                            props.onError({ xhr, files });
+                            props.onError({
+                                xhr,
+                                files: filesState
+                            });
                         }
                     }
 
@@ -248,10 +229,8 @@ export const FileUpload = memo(forwardRef((props, ref) => {
     }
 
     const clear = () => {
-        setFiles([]);
-        if (props.onClear) {
-            props.onClear();
-        }
+        setFilesState([]);
+        props.onClear && props.onClear();
         clearInput();
     }
 
@@ -260,11 +239,11 @@ export const FileUpload = memo(forwardRef((props, ref) => {
     }
 
     const onFocus = () => {
-        setFocused(true);
+        setFocusedState(true);
     }
 
     const onBlur = () => {
-        setFocused(false);
+        setFocusedState(false);
     }
 
     const onKeyDown = (event) => {
@@ -275,7 +254,7 @@ export const FileUpload = memo(forwardRef((props, ref) => {
 
     const onDragEnter = (event) => {
         if (!props.disabled) {
-            event.dataTransfer.dropEffect = "copy";
+            event.dataTransfer.dropEffect = 'copy';
             event.stopPropagation();
             event.preventDefault();
         }
@@ -283,7 +262,7 @@ export const FileUpload = memo(forwardRef((props, ref) => {
 
     const onDragOver = (event) => {
         if (!props.disabled) {
-            event.dataTransfer.dropEffect = "copy";
+            event.dataTransfer.dropEffect = 'copy';
             DomHandler.addClass(contentRef.current, 'p-fileupload-highlight');
             event.stopPropagation();
             event.preventDefault();
@@ -292,7 +271,7 @@ export const FileUpload = memo(forwardRef((props, ref) => {
 
     const onDragLeave = (event) => {
         if (!props.disabled) {
-            event.dataTransfer.dropEffect = "copy";
+            event.dataTransfer.dropEffect = 'copy';
             DomHandler.removeClass(contentRef.current, 'p-fileupload-highlight');
         }
     }
@@ -303,50 +282,44 @@ export const FileUpload = memo(forwardRef((props, ref) => {
             event.stopPropagation();
             event.preventDefault();
 
-            let files = event.dataTransfer ? event.dataTransfer.files : event.target.files;
-            let allowDrop = props.multiple || (files && files.length === 0);
+            const files = event.dataTransfer ? event.dataTransfer.files : event.target.files;
+            const allowDrop = props.multiple || (files && files.length === 0);
 
-            if (allowDrop) {
-                onFileSelect(event);
-            }
+            allowDrop && onFileSelect(event);
         }
     }
 
     const onSimpleUploaderClick = () => {
-        if (hasFiles()) {
-            upload();
-        }
-        else {
-            fileInputRef.current.click();
-        }
+        hasFiles ? upload() : fileInputRef.current.click();
     }
 
     const useChooseButton = () => {
-        const { className, style, icon, iconOnly } = props.chooseOptions;
+        const { className, style, icon: _icon, iconOnly } = props.chooseOptions;
         const chooseClassName = classNames('p-button p-fileupload-choose p-component', {
             'p-disabled': props.disabled,
-            'p-focus': focused,
+            'p-focus': focusedState,
             'p-button-icon-only': iconOnly
         }, className);
         const labelClassName = 'p-button-label p-clickable';
-        const label = iconOnly ? <span className={labelClassName} dangerouslySetInnerHTML={{ __html: "&nbsp;" }} /> : <span className={labelClassName}>{chooseButtonLabel()}</span>;
-
+        const label = iconOnly ? <span className={labelClassName} dangerouslySetInnerHTML={{ __html: "&nbsp;" }} /> : <span className={labelClassName}>{chooseButtonLabel}</span>;
+        const input = <input ref={fileInputRef} type="file" onChange={onFileSelect} multiple={props.multiple} accept={props.accept} disabled={chooseDisabled} />;
+        const icon = IconUtils.getJSXIcon(_icon || 'pi pi-fw pi-plus', { className: 'p-button-icon p-button-icon-left p-clickable' }, { props })
         return (
             <span className={chooseClassName} style={style} onClick={choose} onKeyDown={onKeyDown} onFocus={onFocus} onBlur={onBlur} tabIndex={0}>
-                <input ref={fileInputRef} type="file" onChange={onFileSelect}
-                    multiple={props.multiple} accept={props.accept} disabled={chooseDisabled()} />
-                {IconUtils.getJSXIcon(icon || 'pi pi-fw pi-plus', { className: 'p-button-icon p-button-icon-left p-clickable' }, { props })}
+                {input}
+                {icon}
                 {label}
                 <Ripple />
             </span>
-        );
+        )
     }
 
     const useFile = (file, index) => {
-        let preview = isImage(file) ? <div><img alt={file.name} role="presentation" src={file.objectURL} width={props.previewWidth} /></div> : null;
-        let fileName = <div className="p-fileupload-filename">{file.name}</div>;
-        let size = <div>{formatSize(file.size)}</div>;
-        let removeButton = <div><Button type="button" icon="pi pi-times" onClick={(e) => remove(e, index)} /></div>
+        const key = file.name + file.type + file.size;
+        const preview = isImage(file) ? <div><img alt={file.name} role="presentation" src={file.objectURL} width={props.previewWidth} /></div> : null;
+        const fileName = <div className="p-fileupload-filename">{file.name}</div>;
+        const size = <div>{formatSize(file.size)}</div>;
+        const removeButton = <div><Button type="button" icon="pi pi-times" onClick={(e) => remove(e, index)} /></div>
         let content = (
             <>
                 {preview}
@@ -372,26 +345,24 @@ export const FileUpload = memo(forwardRef((props, ref) => {
         }
 
         return (
-            <div className="p-fileupload-row" key={file.name + file.type + file.size}>
+            <div className="p-fileupload-row" key={key}>
                 {content}
             </div>
         )
     }
 
     const useFiles = () => {
+        const content = filesState.map(useFile);
+
         return (
             <div className="p-fileupload-files">
-                {files.map((file, index) => useFile(file, index))}
+                {content}
             </div>
-        );
+        )
     }
 
     const useEmptyContent = () => {
-        if (props.emptyTemplate && !hasFiles()) {
-            return ObjectUtils.getJSXElement(props.emptyTemplate, props);
-        }
-
-        return null;
+        return props.emptyTemplate && !hasFiles ? ObjectUtils.getJSXElement(props.emptyTemplate, props) : null;
     }
 
     const useProgressBarContent = () => {
@@ -399,28 +370,28 @@ export const FileUpload = memo(forwardRef((props, ref) => {
             return ObjectUtils.getJSXElement(props.progressBarTemplate, props);
         }
 
-        return <ProgressBar value={progress} showValue={false} />;
+        return <ProgressBar value={progressState} showValue={false} />
     }
 
     const useAdvanced = () => {
         const className = classNames('p-fileupload p-fileupload-advanced p-component', props.className);
         const headerClassName = classNames('p-fileupload-buttonbar', props.headerClassName);
         const contentClassName = classNames('p-fileupload-content', props.contentClassName);
-        let uploadButton, cancelButton, filesList, progressBar;
         const chooseButton = useChooseButton();
         const emptyContent = useEmptyContent();
+        let uploadButton, cancelButton, filesList, progressBar;
 
         if (!props.auto) {
             const uploadOptions = props.uploadOptions;
             const cancelOptions = props.cancelOptions;
-            const uploadLabel = !uploadOptions.iconOnly ? uploadButtonLabel() : '';
-            const cancelLabel = !cancelOptions.iconOnly ? cancelButtonLabel() : '';
+            const uploadLabel = !uploadOptions.iconOnly ? uploadButtonLabel : '';
+            const cancelLabel = !cancelOptions.iconOnly ? cancelButtonLabel : '';
 
-            uploadButton = <Button type="button" label={uploadLabel} icon={uploadOptions.icon || 'pi pi-upload'} onClick={upload} disabled={uploadDisabled()} style={uploadOptions.style} className={uploadOptions.className} />;
-            cancelButton = <Button type="button" label={cancelLabel} icon={cancelOptions.icon || 'pi pi-times'} onClick={clear} disabled={cancelDisabled()} style={cancelOptions.style} className={cancelOptions.className} />;
+            uploadButton = <Button type="button" label={uploadLabel} icon={uploadOptions.icon || 'pi pi-upload'} onClick={upload} disabled={uploadDisabled} style={uploadOptions.style} className={uploadOptions.className} />;
+            cancelButton = <Button type="button" label={cancelLabel} icon={cancelOptions.icon || 'pi pi-times'} onClick={clear} disabled={cancelDisabled} style={cancelOptions.style} className={cancelOptions.className} />;
         }
 
-        if (hasFiles()) {
+        if (hasFiles) {
             filesList = useFiles();
             progressBar = useProgressBarContent();
         }
@@ -457,23 +428,23 @@ export const FileUpload = memo(forwardRef((props, ref) => {
                     {emptyContent}
                 </div>
             </div>
-        );
+        )
     }
 
     const useBasic = () => {
-        const _hasFiles = hasFiles();
         const chooseOptions = props.chooseOptions;
         const className = classNames('p-fileupload p-fileupload-basic p-component', props.className);
-        const buttonClassName = classNames('p-button p-component p-fileupload-choose', { 'p-fileupload-choose-selected': _hasFiles, 'p-disabled': props.disabled, 'p-focus': focused }, chooseOptions.className);
-        const chooseIcon = chooseOptions.icon || classNames({ 'pi pi-plus': !chooseOptions.icon && (!_hasFiles || props.auto), 'pi pi-upload': !chooseOptions.icon && _hasFiles && !props.auto });
+        const buttonClassName = classNames('p-button p-component p-fileupload-choose', { 'p-fileupload-choose-selected': hasFiles, 'p-disabled': props.disabled, 'p-focus': focusedState }, chooseOptions.className);
+        const chooseIcon = chooseOptions.icon || classNames({ 'pi pi-plus': !chooseOptions.icon && (!hasFiles || props.auto), 'pi pi-upload': !chooseOptions.icon && hasFiles && !props.auto });
         const labelClassName = 'p-button-label p-clickable';
-        const chooseLabel = chooseOptions.iconOnly ? <span className={labelClassName} dangerouslySetInnerHTML={{ __html: "&nbsp;" }} /> : <span className={labelClassName}>{chooseButtonLabel()}</span>;
+        const chooseLabel = chooseOptions.iconOnly ? <span className={labelClassName} dangerouslySetInnerHTML={{ __html: "&nbsp;" }} /> : <span className={labelClassName}>{chooseButtonLabel}</span>;
         const label = props.auto ? chooseLabel : (
             <span className={labelClassName}>
-                {_hasFiles ? files[0].name : chooseLabel}
+                {hasFiles ? filesState[0].name : chooseLabel}
             </span>
         );
-        const icon = IconUtils.getJSXIcon(chooseIcon, { className: 'p-button-icon p-button-icon-left' }, { props, hasFiles: _hasFiles });
+        const icon = IconUtils.getJSXIcon(chooseIcon, { className: 'p-button-icon p-button-icon-left' }, { props, hasFiles });
+        const input = !hasFiles && <input ref={fileInputRef} type="file" accept={props.accept} multiple={props.multiple} disabled={props.disabled} onChange={onFileSelect} />;
 
         return (
             <div className={className} style={props.style}>
@@ -481,11 +452,11 @@ export const FileUpload = memo(forwardRef((props, ref) => {
                 <span className={buttonClassName} style={chooseOptions.style} onMouseUp={onSimpleUploaderClick} onKeyDown={onKeyDown} onFocus={onFocus} onBlur={onBlur} tabIndex={0}>
                     {icon}
                     {label}
-                    {!_hasFiles && <input ref={fileInputRef} type="file" accept={props.accept} multiple={props.multiple} disabled={props.disabled} onChange={onFileSelect} />}
+                    {input}
                     <Ripple />
                 </span>
             </div>
-        );
+        )
     }
 
     useImperativeHandle(ref, () => ({
@@ -498,7 +469,7 @@ export const FileUpload = memo(forwardRef((props, ref) => {
         return useAdvanced();
     else if (props.mode === 'basic')
         return useBasic();
-}))
+}));
 
 FileUpload.defaultProps = {
     __TYPE: 'FileUpload',

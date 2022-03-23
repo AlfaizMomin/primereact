@@ -1,11 +1,11 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { ObjectUtils, classNames } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
+import { ObjectUtils, classNames } from '../utils/Utils';
 import { useUnmountEffect } from '../hooks/Hooks';
 
 export const InputSwitch = memo((props) => {
-    const [focused, setFocused] = useState(false);
+    const [focusedState, setFocusedState] = useState(false);
     const elementRef = useRef(null);
     const inputRef = useRef(props.inputRef);
     const tooltipRef = useRef(null);
@@ -41,12 +41,12 @@ export const InputSwitch = memo((props) => {
     }
 
     const onFocus = (event) => {
-        setFocused(true);
+        setFocusedState(true);
         props.onFocus && props.onFocus(event);
     }
 
     const onBlur = (event) => {
-        setFocused(false);
+        setFocusedState(false);
         props.onBlur && props.onBlur(event);
     }
 
@@ -83,7 +83,7 @@ export const InputSwitch = memo((props) => {
     const className = classNames('p-inputswitch p-component', {
         'p-inputswitch-checked': checked,
         'p-disabled': props.disabled,
-        'p-inputswitch-focus': focused
+        'p-inputswitch-focus': focusedState
     }, props.className);
 
     const inputSwitchProps = ObjectUtils.findDiffKeys(props, InputSwitch.defaultProps);
@@ -99,7 +99,7 @@ export const InputSwitch = memo((props) => {
             <span className="p-inputswitch-slider"></span>
         </div>
     )
-})
+});
 
 InputSwitch.defaultProps = {
     __TYPE: 'InputSwitch',

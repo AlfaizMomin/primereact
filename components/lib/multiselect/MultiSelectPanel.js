@@ -1,11 +1,11 @@
 import React, { forwardRef, memo, useRef } from 'react';
-import { ObjectUtils, classNames } from '../utils/Utils';
-import { CSSTransition } from '../csstransition/CSSTransition';
+import { localeOption } from '../api/Api';
 import { Portal } from '../portal/Portal';
 import { MultiSelectHeader } from './MultiSelectHeader';
 import { MultiSelectItem } from './MultiSelectItem';
 import { VirtualScroller } from '../virtualscroller/VirtualScroller';
-import { localeOption } from '../api/Api';
+import { CSSTransition } from '../csstransition/CSSTransition';
+import { ObjectUtils, classNames } from '../utils/Utils';
 
 export const MultiSelectPanel = memo(forwardRef((props, ref) => {
     const virtualScrollerRef = useRef(null);
@@ -48,7 +48,7 @@ export const MultiSelectPanel = memo(forwardRef((props, ref) => {
                 <div className="p-multiselect-footer">
                     {content}
                 </div>
-            );
+            )
         }
 
         return null;
@@ -56,28 +56,31 @@ export const MultiSelectPanel = memo(forwardRef((props, ref) => {
 
     const useGroupChildren = (optionGroup) => {
         const groupChildren = props.getOptionGroupChildren(optionGroup);
+
         return (
             groupChildren.map((option, j) => {
                 const optionLabel = props.getOptionLabel(option);
                 const optionKey = j + '_' + props.getOptionRenderKey(option);
                 const disabled = props.isOptionDisabled(option)
                 const tabIndex = disabled ? null : props.tabIndex || 0;
+                const selected = props.isSelected(option);
 
                 return (
                     <MultiSelectItem key={optionKey} label={optionLabel} option={option} template={props.itemTemplate}
-                        selected={props.isSelected(option)} onClick={props.onOptionSelect} onKeyDown={props.onOptionKeyDown} tabIndex={tabIndex} disabled={disabled} />
-                );
+                        selected={selected} onClick={props.onOptionSelect} onKeyDown={props.onOptionKeyDown} tabIndex={tabIndex} disabled={disabled} />
+                )
             })
         )
     }
 
     const useEmptyFilter = () => {
         const emptyFilterMessage = ObjectUtils.getJSXElement(props.emptyFilterMessage, props) || localeOption('emptyFilterMessage');
+
         return (
             <li className="p-multiselect-empty-message">
                 {emptyFilterMessage}
             </li>
-        );
+        )
     }
 
     const useItem = (option, index) => {
@@ -100,16 +103,17 @@ export const MultiSelectPanel = memo(forwardRef((props, ref) => {
             const optionKey = index + '_' + props.getOptionRenderKey(option);
             const disabled = props.isOptionDisabled(option)
             const tabIndex = disabled ? null : props.tabIndex || 0;
+            const selected = props.isSelected(option);
 
             return (
                 <MultiSelectItem key={optionKey} label={optionLabel} option={option} template={props.itemTemplate}
-                    selected={props.isSelected(option)} onClick={props.onOptionSelect} onKeyDown={props.onOptionKeyDown} tabIndex={tabIndex} disabled={disabled} />
-            );
+                    selected={selected} onClick={props.onOptionSelect} onKeyDown={props.onOptionKeyDown} tabIndex={tabIndex} disabled={disabled} />
+            )
         }
     }
 
     const useItems = () => {
-        if (props.visibleOptions && props.visibleOptions.length) {
+        if (ObjectUtils.isNotEmpty(props.visibleOptions)) {
             return props.visibleOptions.map(useItem);
         }
         else if (props.hasFilter) {
@@ -136,12 +140,12 @@ export const MultiSelectPanel = memo(forwardRef((props, ref) => {
                             <ul ref={options.contentRef} className={className} role="listbox" aria-multiselectable>
                                 {content}
                             </ul>
-                        );
+                        )
                     }
                 }
             };
 
-            return <VirtualScroller ref={virtualScrollerRef} {...virtualScrollerProps} />;
+            return <VirtualScroller ref={virtualScrollerRef} {...virtualScrollerProps} />
         }
         else {
             const items = useItems();
@@ -152,13 +156,14 @@ export const MultiSelectPanel = memo(forwardRef((props, ref) => {
                         {items}
                     </ul>
                 </div>
-            );
+            )
         }
     }
 
     const useElement = () => {
+        const allowOptionSelect = props.allowOptionSelect();
         const panelClassName = classNames('p-multiselect-panel p-component', {
-            'p-multiselect-limited': !props.allowOptionSelect()
+            'p-multiselect-limited': !allowOptionSelect
         }, props.panelClassName);
         const header = useHeader();
         const content = useContent();
@@ -173,11 +178,10 @@ export const MultiSelectPanel = memo(forwardRef((props, ref) => {
                     {footer}
                 </div>
             </CSSTransition>
-
-        );
+        )
     }
 
     const element = useElement();
 
-    return <Portal element={element} appendTo={props.appendTo} />;
-}))
+    return <Portal element={element} appendTo={props.appendTo} />
+}));

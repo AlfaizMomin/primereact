@@ -1,16 +1,16 @@
 import React, { memo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
+import PrimeReact from '../api/Api';
+import { Portal } from '../portal/Portal';
 import { CSSTransition } from '../csstransition/CSSTransition';
 import { DomHandler, classNames, ZIndexUtils, ObjectUtils } from '../utils/Utils';
-import { Portal } from '../portal/Portal';
-import PrimeReact from '../api/Api';
 import { useUnmountEffect } from '../hooks/Hooks';
 
 export const Image = memo((props) => {
-    const [maskVisible, setMaskVisible] = useState(false);
-    const [previewVisible, setPreviewVisible] = useState(false);
-    const [rotate, setRotate] = useState(0);
-    const [scale, setScale] = useState(1);
+    const [maskVisibleState, setMaskVisibleState] = useState(false);
+    const [previewVisibleState, setPreviewVisibleState] = useState(false);
+    const [rotateState, setRotateState] = useState(0);
+    const [scaleState, setScaleState] = useState(1);
     const elementRef = useRef(null);
     const maskRef = useRef(null);
     const previewRef = useRef(null);
@@ -18,9 +18,9 @@ export const Image = memo((props) => {
 
     const onImageClick = () => {
         if (props.preview) {
-            setMaskVisible(true);
+            setMaskVisibleState(true);
             setTimeout(() => {
-                setPreviewVisible(true);
+                setPreviewVisibleState(true);
             }, 25);
         }
     }
@@ -31,9 +31,9 @@ export const Image = memo((props) => {
 
     const onMaskClick = () => {
         if (!previewClick.current) {
-            setPreviewVisible(false);
-            setRotate(0);
-            setScale(1);
+            setPreviewVisibleState(false);
+            setRotateState(0);
+            setScaleState(1);
         }
 
         previewClick.current = false;
@@ -46,22 +46,22 @@ export const Image = memo((props) => {
     }
 
     const rotateRight = () => {
-        setRotate(prevRotate => prevRotate + 90);
+        setRotateState(prevRotate => prevRotate + 90);
         previewClick.current = true;
     }
 
     const rotateLeft = () => {
-        setRotate(prevRotate => prevRotate - 90);
+        setRotateState(prevRotate => prevRotate - 90);
         previewClick.current = true;
     }
 
     const zoomIn = () => {
-        setScale(prevScale => prevScale + 0.1);
+        setScaleState(prevScale => prevScale + 0.1);
         previewClick.current = true;
     }
 
     const zoomOut = () => {
-        setScale(prevScale => prevScale - 0.1);
+        setScaleState(prevScale => prevScale - 0.1);
         previewClick.current = true;
     }
 
@@ -84,18 +84,30 @@ export const Image = memo((props) => {
     const onExited = () => {
         ZIndexUtils.clear(maskRef.current);
 
-        setMaskVisible(false);
+        setMaskVisibleState(false);
     }
 
     useUnmountEffect(() => {
         maskRef.current && ZIndexUtils.clear(maskRef.current);
     });
 
+    const usePreview = () => {
+        if (props.preview) {
+            return (
+                <div className="p-image-preview-indicator" onClick={onImageClick} >
+                    {content}
+                </div>
+            )
+        }
+
+        return null;
+    }
+
     const useElement = () => {
         const { downloadable } = props;
-        const imagePreviewStyle = { transform: 'rotate(' + rotate + 'deg) scale(' + scale + ')' };
-        const zoomDisabled = scale <= 0.5 || scale >= 1.5;
-        // const rotateClassName = 'p-image-preview-rotate-' + rotate;
+        const imagePreviewStyle = { transform: 'rotate(' + rotateState + 'deg) scale(' + scale + ')' };
+        const zoomDisabled = scaleState <= 0.5 || scaleState >= 1.5;
+        // const rotateClassName = 'p-image-preview-rotate-' + rotateScale;
 
         return (
             <div ref={maskRef} className="p-image-mask p-component-overlay p-component-overlay-enter" onClick={onMaskClick}>
@@ -123,7 +135,7 @@ export const Image = memo((props) => {
                         <i className="pi pi-times"></i>
                     </button>
                 </div>
-                <CSSTransition nodeRef={previewRef} classNames="p-image-preview" in={previewVisible} timeout={{ enter: 150, exit: 150 }}
+                <CSSTransition nodeRef={previewRef} classNames="p-image-preview" in={previewVisibleState} timeout={{ enter: 150, exit: 150 }}
                     unmountOnExit onEntering={onEntering} onEntered={onEntered} onExit={onExit} onExiting={onExiting} onExited={onExited}>
                     <div ref={previewRef}>
                         <img src={props.src} className="p-image-preview" style={imagePreviewStyle} onClick={onPreviewImageClick} alt={props.alt} />
@@ -137,23 +149,19 @@ export const Image = memo((props) => {
         'p-image-preview-container': props.preview
     });
     const element = useElement();
-    const content = props.template ? ObjectUtils.getJSXElement(props.template, props) : <i className="p-image-preview-icon pi pi-eye"></i>
-
+    const content = props.template ? ObjectUtils.getJSXElement(props.template, props) : <i className="p-image-preview-icon pi pi-eye"></i>;
+    const preview = usePreview();
+    const image = <img src={src} className={props.imageClassName} width={width} height={height} style={props.imageStyle} alt={alt} />;
     const { src, alt, width, height } = props;
 
     return (
         <span ref={elementRef} className={containerClassName} style={props.style}>
-            <img src={src} className={props.imageClassName} width={width} height={height} style={props.imageStyle} alt={alt} />
-            {
-                props.preview && <div className="p-image-preview-indicator" onClick={onImageClick} >
-                    {content}
-                </div>
-            }
-
-            {maskVisible && <Portal element={element} appendTo={document.body} />}
+            {image}
+            {preview}
+            {maskVisibleState && <Portal element={element} appendTo={document.body} />}
         </span>
     )
-})
+});
 
 Image.defaultProps = {
     __TYPE: 'Image',

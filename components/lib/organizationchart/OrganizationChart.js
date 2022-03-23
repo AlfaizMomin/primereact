@@ -1,53 +1,40 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { classNames } from '../utils/Utils';
-import { OrganizationChartNode  } from './OrganizationChartNode';
+import { OrganizationChartNode } from './OrganizationChartNode';
+import { classNames, DomHandler } from '../utils/Utils';
 
-export const OrganizationChart = (props) => {
+export const OrganizationChart = memo((props) => {
     const root = props.value && props.value.length ? props.value[0] : null;
-    const className = classNames('p-organizationchart p-component', props.className);
 
     const onNodeClick = (event, node) => {
         if (props.selectionMode) {
-            const eventTarget = event.target;
-            if (eventTarget.className && (eventTarget.className.indexOf('p-node-toggler') !== -1 || eventTarget.className.indexOf('p-node-toggler-icon') !== -1)) {
+            const target = event.target;
+            if (node.selectable === false || (!DomHandler.hasClass(target, 'p-node-toggler') || !DomHandler.hasClass(target, 'p-node-toggler-icon'))) {
                 return;
             }
 
-            if (node.selectable === false) {
-                return;
-            }
-
-            let index = findIndexInSelection(node);
-            let selected = (index >= 0);
+            const index = findIndexInSelection(node);
+            const selected = (index >= 0);
             let selection;
 
             if (props.selectionMode === 'single') {
                 if (selected) {
                     selection = null;
-                    if (props.onNodeUnselect) {
-                        props.onNodeUnselect({originalEvent: event, node: node});
-                    }
+                    props.onNodeUnselect && props.onNodeUnselect({ originalEvent: event, node });
                 }
                 else {
                     selection = node;
-                    if (props.onNodeSelect) {
-                        props.onNodeSelect({originalEvent: event, node: node});
-                    }
+                    props.onNodeSelect && props.onNodeSelect({ originalEvent: event, node });
                 }
             }
             else if (props.selectionMode === 'multiple') {
                 if (selected) {
-                    selection = props.selection.filter((val,i) => i !== index);
-                    if (props.onNodeUnselect) {
-                        props.onNodeUnselect({originalEvent: event, node: node});
-                    }
+                    selection = props.selection.filter((_, i) => i !== index);
+                    props.onNodeUnselect && props.onNodeUnselect({ originalEvent: event, node });
                 }
                 else {
-                    selection = [...props.selection||[], node];
-                    if(props.onNodeSelect) {
-                        props.onNodeSelect({originalEvent: event, node: node});
-                    }
+                    selection = [...(props.selection || []), node];
+                    props.onNodeSelect && props.onNodeSelect({ originalEvent: event, node });
                 }
             }
 
@@ -61,36 +48,28 @@ export const OrganizationChart = (props) => {
     }
 
     const findIndexInSelection = (node) => {
-        let index = -1;
-
-        if(props.selectionMode && props.selection) {
-            if(props.selectionMode === 'single') {
-                index = (props.selection === node) ? 0 : - 1;
-            }
-            else if(props.selectionMode === 'multiple') {
-                for(let i = 0; i  < props.selection.length; i++) {
-                    if(props.selection[i] === node) {
-                        index = i;
-                        break;
-                    }
-                }
-            }
+        if (props.selectionMode && props.selection) {
+            if (props.selectionMode === 'single')
+                return (props.selection === node) ? 0 : -1;
+            else if (props.selectionMode === 'multiple')
+                return props.selection.findIndex(selectedNode => selectedNode === node);
         }
 
-        return index;
+        return -1;
     }
 
     const isSelected = (node) => {
         return findIndexInSelection(node) !== -1;
     }
 
+    const className = classNames('p-organizationchart p-component', props.className);
+
     return (
         <div id={props.id} style={props.style} className={className}>
-            <OrganizationChartNode node={root} nodeTemplate={props.nodeTemplate} selectionMode={props.selectionMode}
-                    onNodeClick={onNodeClick} isSelected={isSelected}/>
+            <OrganizationChartNode node={root} nodeTemplate={props.nodeTemplate} selectionMode={props.selectionMode} onNodeClick={onNodeClick} isSelected={isSelected} />
         </div>
-    );
-}
+    )
+});
 
 OrganizationChart.defaultProps = {
     __TYPE: 'OrganizationChart',

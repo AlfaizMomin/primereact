@@ -1,17 +1,17 @@
 /*global google*/
-import React, { useRef, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, forwardRef, useImperativeHandle, memo } from 'react';
 import PropTypes from 'prop-types';
 import { useMountEffect, useUpdateEffect } from '../hooks/Hooks';
 
-export const GMap = forwardRef((props, ref) => {
+export const GMap = memo(forwardRef((props, ref) => {
+    const elementRef = useRef(null);
     const map = useRef(null);
     const prevOverlays = useRef(null);
-    const container = useRef(container);
 
     const initMap = () => {
-        map.current = new google.maps.Map(container.current, props.options);
+        map.current = new google.maps.Map(elementRef.current, props.options);
 
-        if(props.onMapReady) {
+        if (props.onMapReady) {
             props.onMapReady({
                 map: map.current
             });
@@ -25,8 +25,8 @@ export const GMap = forwardRef((props, ref) => {
     }
 
     const initOverlays = (overlays) => {
-        if(overlays) {
-            for(let overlay of overlays) {
+        if (overlays) {
+            for (let overlay of overlays) {
                 overlay.setMap(map.current);
                 bindOverlayEvents(overlay);
             }
@@ -37,7 +37,7 @@ export const GMap = forwardRef((props, ref) => {
 
     const bindOverlayEvents = (overlay) => {
         overlay.addListener('click', (event) => {
-            if(props.onOverlayClick) {
+            if (props.onOverlayClick) {
                 props.onOverlayClick({
                     originalEvent: event,
                     overlay: overlay,
@@ -46,7 +46,7 @@ export const GMap = forwardRef((props, ref) => {
             }
         });
 
-        if(overlay.getDraggable()) {
+        if (overlay.getDraggable()) {
             bindDragEvents(overlay);
         }
     }
@@ -59,15 +59,13 @@ export const GMap = forwardRef((props, ref) => {
 
     const bindMapEvent = (eventName, callback) => {
         map.current.addListener(eventName, (event) => {
-            if(callback) {
-                callback(event);
-            }
+            callback && callback(event);
         });
     }
 
     const bindDragEvent = (overlay, eventName, callback) => {
         overlay.addListener(eventName, (event) => {
-            if(callback) {
+            if (callback) {
                 callback({
                     originalEvent: event,
                     overlay: overlay,
@@ -81,9 +79,13 @@ export const GMap = forwardRef((props, ref) => {
         return map.current;
     }
 
+    useMountEffect(() => {
+        initMap();
+    });
+
     useUpdateEffect(() => {
-        if(prevOverlays.current) {
-            for(let overlay of prevOverlays.current) {
+        if (prevOverlays.current) {
+            for (let overlay of prevOverlays.current) {
                 google.maps.event.clearInstanceListeners(overlay);
                 overlay.setMap(null);
             }
@@ -92,18 +94,12 @@ export const GMap = forwardRef((props, ref) => {
         initOverlays(props.overlays);
     }, [props.overlays]);
 
-    useMountEffect(() => {
-        initMap();
-    });
-
     useImperativeHandle(ref, () => ({
         getMap
     }));
 
-    return (
-        <div ref={container} style={props.style} className={props.className}></div>
-    );
-})
+    return <div ref={elementRef} style={props.style} className={props.className}></div>
+}));
 
 GMap.defaultProps = {
     __TYPE: 'GMap',

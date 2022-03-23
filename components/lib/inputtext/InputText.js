@@ -1,8 +1,8 @@
 import { forwardRef, memo, useEffect, useMemo, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 import { KeyFilter } from '../keyfilter/KeyFilter';
 import { tip } from '../tooltip/Tooltip';
+import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 import { useUnmountEffect } from '../hooks/Hooks';
 
 export const InputText = memo(forwardRef((props, ref) => {
@@ -10,9 +10,7 @@ export const InputText = memo(forwardRef((props, ref) => {
     const tooltipRef = useRef(null);
 
     const onKeyPress = (event) => {
-        if (props.onKeyPress) {
-            props.onKeyPress(event);
-        }
+        props.onKeyPress && props.onKeyPress(event);
 
         if (props.keyfilter) {
             KeyFilter.onKeyPress(event, props.keyfilter, props.validateOnly)
@@ -25,15 +23,11 @@ export const InputText = memo(forwardRef((props, ref) => {
             validatePattern = KeyFilter.validate(event, props.keyfilter);
         }
 
-        if (props.onInput) {
-            props.onInput(event, validatePattern);
-        }
+        props.onInput && props.onInput(event, validatePattern);
 
         if (!props.onChange) {
-            if (event.target.value.length > 0)
-                DomHandler.addClass(event.target, 'p-filled');
-            else
-                DomHandler.removeClass(event.target, 'p-filled');
+            const target = event.target;
+            ObjectUtils.isNotEmpty(target.value) ? DomHandler.addClass(target, 'p-filled') : DomHandler.removeClass(target, 'p-filled');
         }
     }
 
@@ -72,7 +66,7 @@ export const InputText = memo(forwardRef((props, ref) => {
     }, props.className);
 
     return <input ref={elementRef} {...inputProps} className={className} onInput={onInput} onKeyPress={onKeyPress} />;
-}))
+}));
 
 InputText.defaultProps = {
     __TYPE: 'InputText',

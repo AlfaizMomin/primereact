@@ -100,3 +100,5 @@ export * from './terminal/Terminal';
 export * from './dock/Dock';
 export * from './mention/Mention';
 export * from './image/Image';
+export * from './styleclass/StyleClass';
+export * from './hooks/Hooks';

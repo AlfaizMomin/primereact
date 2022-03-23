@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils } from '../utils/Utils';
 
-export const CurrentPageReport = (props) => {
+export const CurrentPageReport = memo((props) => {
     const report = {
         currentPage: props.page + 1,
         totalPages: props.pageCount,
@@ -22,17 +22,20 @@ export const CurrentPageReport = (props) => {
     const element = <span className="p-paginator-current">{text}</span>;
 
     if (props.template) {
-        const defaultOptions = {...report, ...{
-            className: 'p-paginator-current',
-            element,
-            props: props
-        }};
+        const defaultOptions = {
+            ...report,
+            ...{
+                className: 'p-paginator-current',
+                element,
+                props: props
+            }
+        };
 
         return ObjectUtils.getJSXElement(props.template, defaultOptions);
     }
 
     return element;
-}
+});
 
 CurrentPageReport.defaultProps = {
     __TYPE: 'CurrentPageReport',

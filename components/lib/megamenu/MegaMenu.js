@@ -1,27 +1,20 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, memo } from 'react';
 import PropTypes from 'prop-types';
-import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
-import { useEventListener } from '../hooks/Hooks';
+import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
+import { useMountEffect, useEventListener } from '../hooks/Hooks';
 
-export const MegaMenu = (props) => {
+export const MegaMenu = memo((props) => {
+    const [activeItemState, setActiveItemState] = useState(null);
+    const elementRef = useRef(null);
+    const horizontal = props.orientation === 'horizontal';
+    const vertical = props.orientation === 'vertical';
 
-    const [activeItem, setActiveItem] = useState(null);
-    const container = useRef(null);
-
-    const [bindDocumentClickListener, unbindDocumentClickListener] = useEventListener({
-        type: 'click', listener: event => {
-            if (container.current && !container.current.contains(event.target)) {
-                setActiveItem(null)
-            }
+    const [bindDocumentClickListener,] = useEventListener({
+        type: 'click', listener: (event) => {
+            isOutsideClicked(event) && setActiveItemState(null);
         }
     });
-
-    useEffect(() => {
-        bindDocumentClickListener();
-
-        return () => unbindDocumentClickListener();
-    },[])
 
     const onLeafClick = (event, item) => {
         if (item.disabled) {
@@ -40,7 +33,7 @@ export const MegaMenu = (props) => {
             });
         }
 
-        setActiveItem(null)
+        setActiveItemState(null);
     }
 
     const onCategoryMouseEnter = (event, item) => {
@@ -49,8 +42,8 @@ export const MegaMenu = (props) => {
             return;
         }
 
-        if (activeItem) {
-            setActiveItem(item);
+        if (activeItemState) {
+            setActiveItemState(item);
         }
     }
 
@@ -72,58 +65,37 @@ export const MegaMenu = (props) => {
         }
 
         if (item.items) {
-            if (activeItem && activeItem === item) {
-                setActiveItem(null)
-            }
-            else {
-                setActiveItem(item)
-            }
+            (activeItemState && activeItemState === item) ? setActiveItemState(null) : setActiveItemState(item);
         }
 
         event.preventDefault();
     }
 
     const onCategoryKeyDown = (event, item) => {
-        let listItem = event.currentTarget.parentElement;
+        const listItem = event.currentTarget.parentElement;
 
         switch (event.which) {
             //down
             case 40:
-                if (isHorizontal())
-                    expandMenu(item);
-                else
-                    navigateToNextItem(listItem);
-
+                horizontal ? expandMenu(item) : navigateToNextItem(listItem);
                 event.preventDefault();
                 break;
 
             //up
             case 38:
-                if (isVertical())
-                    navigateToPrevItem(listItem);
-                else if (item.items && item === activeItem)
-                    collapseMenu();
-
+                vertical ? navigateToPrevItem(listItem) : (item.items && item === activeItemState && collapseMenu());
                 event.preventDefault();
                 break;
 
             //right
             case 39:
-                if (isHorizontal())
-                    navigateToNextItem(listItem);
-                else
-                    expandMenu(item);
-
-                event.preventDefault()
+                horizontal ? navigateToNextItem(listItem) : expandMenu(item);
+                event.preventDefault();
                 break;
 
             //left
             case 37:
-                if (isHorizontal())
-                    navigateToPrevItem(listItem);
-                else if (item.items && item === activeItem)
-                    collapseMenu();
-
+                horizontal ? navigateToPrevItem(listItem) : (item.items && item === activeItemState && collapseMenu());
                 event.preventDefault();
                 break;
 
@@ -134,56 +106,40 @@ export const MegaMenu = (props) => {
 
     const expandMenu = (item) => {
         if (item.items) {
-            setActiveItem(item);
+            setActiveItemState(item);
         }
     }
 
     const collapseMenu = (item) => {
-        setActiveItem(null);
+        setActiveItemState(null);
     }
 
     const findNextItem = (item) => {
-        let nextItem = item.nextElementSibling;
-
-        if (nextItem)
-            return DomHandler.hasClass(nextItem, 'p-disabled') || !DomHandler.hasClass(nextItem, 'p-menuitem') ? findNextItem(nextItem) : nextItem;
-        else
-            return null;
+        const nextItem = item.nextElementSibling;
+        return nextItem ? (DomHandler.hasClass(nextItem, 'p-disabled') || !DomHandler.hasClass(nextItem, 'p-menuitem') ? findNextItem(nextItem) : nextItem) : null;
     }
 
     const findPrevItem = (item) => {
-        let prevItem = item.previousElementSibling;
-
-        if (prevItem)
-            return DomHandler.hasClass(prevItem, 'p-disabled') || !DomHandler.hasClass(prevItem, 'p-menuitem') ? findPrevItem(prevItem) : prevItem;
-        else
-            return null;
+        const prevItem = item.previousElementSibling;
+        return prevItem ? (DomHandler.hasClass(prevItem, 'p-disabled') || !DomHandler.hasClass(prevItem, 'p-menuitem') ? findPrevItem(prevItem) : prevItem) : null;
     }
 
     const navigateToNextItem = (listItem) => {
-        let nextItem = findNextItem(listItem);
-        if (nextItem) {
-            nextItem.children[0].focus();
-        }
+        const nextItem = findNextItem(listItem);
+        nextItem && nextItem.children[0].focus();
     }
 
     const navigateToPrevItem = (listItem) => {
-        let prevItem = findPrevItem(listItem);
-        if (prevItem) {
-            prevItem.children[0].focus();
-        }
+        const prevItem = findPrevItem(listItem);
+        prevItem && prevItem.children[0].focus();
     }
 
-    const isHorizontal = () => {
-        return props.orientation === 'horizontal';
-    }
-
-    const isVertical = () => {
-        return props.orientation === 'vertical';
+    const isOutsideClicked = (event) => {
+        return elementRef.current && !(elementRef.current.isSameNode(event.target) || elementRef.current.contains(event.target));
     }
 
     const getColumnClassName = (category) => {
-        let length = category.items ? category.items.length : 0;
+        const length = category.items ? category.items.length : 0;
         let columnClass;
 
         switch (length) {
@@ -211,20 +167,23 @@ export const MegaMenu = (props) => {
         return columnClass;
     }
 
+    useMountEffect(() => {
+        bindDocumentClickListener();
+    });
 
     const useSeparator = (index) => {
-        return (
-            <li key={'separator_' + index} className="p-menu-separator" role="separator"></li>
-        );
+        const key = 'separator_' + index;
+        return <li key={key} className="p-menu-separator" role="separator"></li>
     }
 
     const useSubmenuIcon = (item) => {
         if (item.items) {
-            const className = classNames('p-submenu-icon pi', { 'pi-angle-down': isHorizontal(), 'pi-angle-right': isVertical() });
+            const className = classNames('p-submenu-icon pi', {
+                'pi-angle-down': horizontal,
+                'pi-angle-right': vertical
+            });
 
-            return (
-                <span className={className}></span>
-            );
+            return <span className={className}></span>
         }
 
         return null;
@@ -235,6 +194,7 @@ export const MegaMenu = (props) => {
             return useSeparator(index);
         }
         else {
+            const key = item.label + '_' + index;
             const className = classNames('p-menuitem', item.className);
             const linkClassName = classNames('p-menuitem-link', { 'p-disabled': item.disabled });
             const iconClassName = classNames(item.icon, 'p-menuitem-icon');
@@ -262,45 +222,42 @@ export const MegaMenu = (props) => {
             }
 
             return (
-                <li key={item.label + '_' + index} className={className} style={item.style} role="none">
+                <li key={key} className={className} style={item.style} role="none">
                     {content}
                 </li>
-            );
+            )
         }
     }
 
     const useSubmenu = (submenu) => {
-        const className = classNames('p-megamenu-submenu-header', { 'p-disabled': submenu.disabled }, submenu.className);
-        const items = submenu.items.map((item, index) => {
-            return useSubmenuItem(item, index);
-        });
+        const className = classNames('p-megamenu-submenu-header', {
+            'p-disabled': submenu.disabled
+        }, submenu.className);
+        const items = submenu.items.map(useSubmenuItem);
 
         return (
             <React.Fragment key={submenu.label}>
                 <li className={className} style={submenu.style} role="presentation" aria-disabled={submenu.disabled}>{submenu.label}</li>
                 {items}
             </React.Fragment>
-        );
+        )
     }
 
     const useSubmenus = (column) => {
-        return (
-            column.map((submenu, index) => {
-                return useSubmenu(submenu, index);
-            })
-        );
+        return column.map(useSubmenu);
     }
 
     const useColumn = (category, column, index, columnClassName) => {
+        const key = category.label + '_column_' + index;
         const submenus = useSubmenus(column);
 
         return (
-            <div key={category.label + '_column_' + index} className={columnClassName}>
+            <div key={key} className={columnClassName}>
                 <ul className="p-megamenu-submenu" role="menu">
                     {submenus}
                 </ul>
             </div>
-        );
+        )
     }
 
     const useColumns = (category) => {
@@ -311,7 +268,7 @@ export const MegaMenu = (props) => {
                 category.items.map((column, index) => {
                     return useColumn(category, column, index, columnClassName);
                 })
-            );
+            )
         }
 
         return null;
@@ -327,14 +284,14 @@ export const MegaMenu = (props) => {
                         {columns}
                     </div>
                 </div>
-            );
+            )
         }
 
         return null;
     }
 
     const useCategory = (category, index) => {
-        const className = classNames('p-menuitem', { 'p-menuitem-active': category === activeItem }, category.className);
+        const className = classNames('p-menuitem', { 'p-menuitem-active': category === activeItemState }, category.className);
         const linkClassName = classNames('p-menuitem-link', { 'p-disabled': category.disabled });
         const iconClassName = classNames('p-menuitem-icon', category.icon);
         const icon = category.icon && <span className={iconClassName}></span>;
@@ -355,7 +312,7 @@ export const MegaMenu = (props) => {
                 </a>
                 {panel}
             </li>
-        );
+        )
     }
 
     const useMenu = () => {
@@ -364,7 +321,7 @@ export const MegaMenu = (props) => {
                 props.model.map((item, index) => {
                     return useCategory(item, index, true);
                 })
-            );
+            )
         }
 
         return null;
@@ -376,7 +333,7 @@ export const MegaMenu = (props) => {
                 <div className="p-megamenu-custom">
                     {props.children}
                 </div>
-            );
+            )
         }
 
         return null;
@@ -391,15 +348,14 @@ export const MegaMenu = (props) => {
     const customContent = useCustomContent();
 
     return (
-        <div ref={container} id={props.id} className={className} style={props.style}>
+        <div ref={elementRef} id={props.id} className={className} style={props.style}>
             <ul className="p-megamenu-root-list" role="menubar">
                 {menu}
             </ul>
             {customContent}
         </div>
-    );
-
-}
+    )
+});
 
 MegaMenu.defaultProps = {
     __TYPE: 'MegaMenu',

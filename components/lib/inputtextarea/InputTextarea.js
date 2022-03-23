@@ -1,7 +1,7 @@
 import { forwardRef, memo, useEffect, useMemo, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
+import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 import { useUnmountEffect } from '../hooks/Hooks';
 
 export const InputTextarea = memo(forwardRef((props, ref) => {
@@ -14,9 +14,7 @@ export const InputTextarea = memo(forwardRef((props, ref) => {
             resize();
         }
 
-        if (props.onFocus) {
-            props.onFocus(event);
-        }
+        props.onFocus && props.onFocus(event);
     }
 
     const onBlur = (event) => {
@@ -24,9 +22,7 @@ export const InputTextarea = memo(forwardRef((props, ref) => {
             resize();
         }
 
-        if (props.onBlur) {
-            props.onBlur(event);
-        }
+        props.onBlur && props.onBlur(event);
     }
 
     const onKeyUp = (event) => {
@@ -34,9 +30,7 @@ export const InputTextarea = memo(forwardRef((props, ref) => {
             resize();
         }
 
-        if (props.onKeyUp) {
-            props.onKeyUp(event);
-        }
+        props.onKeyUp && props.onKeyUp(event);
     }
 
     const onInput = (event) => {
@@ -44,14 +38,10 @@ export const InputTextarea = memo(forwardRef((props, ref) => {
             resize();
         }
 
-        if (event.target.value.length > 0)
-            DomHandler.addClass(event.target, 'p-filled');
-        else
-            DomHandler.removeClass(event.target, 'p-filled');
+        props.onInput && props.onInput(event);
 
-        if (props.onInput) {
-            props.onInput(event);
-        }
+        const target = event.target;
+        ObjectUtils.isNotEmpty(target.value) ? DomHandler.addClass(target, 'p-filled') : DomHandler.removeClass(target, 'p-filled');
     }
 
     const resize = (initial) => {
@@ -123,8 +113,8 @@ export const InputTextarea = memo(forwardRef((props, ref) => {
 
     return (
         <textarea ref={elementRef} {...textareaProps} className={className} onFocus={onFocus} onBlur={onBlur} onKeyUp={onKeyUp} onInput={onInput}></textarea>
-    );
-}))
+    )
+}));
 
 InputTextarea.defaultProps = {
     __TYPE: 'InputTextarea',

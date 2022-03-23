@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, classNames } from '../utils/Utils';
 
-export const Message = (props) => {
+export const Message = memo((props) => {
 
-    const getContent = () => {
+    const useContent = () => {
         if (props.content) {
             return ObjectUtils.getJSXElement(props.content, props);
         }
@@ -22,9 +22,8 @@ export const Message = (props) => {
                 <span className={icon}></span>
                 <span className="p-inline-message-text">{text}</span>
             </>
-        );
+        )
     }
-
 
     const className = classNames('p-inline-message p-component', {
         'p-inline-message-info': props.severity === 'info',
@@ -33,15 +32,14 @@ export const Message = (props) => {
         'p-inline-message-success': props.severity === 'success',
         'p-inline-message-icon-only': !props.text
     }, props.className);
-
-    const content = getContent();
+    const content = useContent();
 
     return (
         <div id={props.id} aria-live="polite" className={className} style={props.style} role="alert">
             {content}
         </div>
-    );
-}
+    )
+});
 
 Message.defaultProps = {
     __TYPE: 'Message',

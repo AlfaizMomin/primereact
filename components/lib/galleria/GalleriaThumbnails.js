@@ -1,9 +1,8 @@
-import React, { forwardRef, memo, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, memo, useRef, useState } from 'react';
 import PrimeReact from '../api/Api';
-import { DomHandler, classNames, UniqueComponentId } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
-import ObjectUtils from '../utils/ObjectUtils';
-import { useUpdateEffect, usePrevious, useResizeListener } from '../hooks/Hooks';
+import { DomHandler, ObjectUtils, classNames, UniqueComponentId } from '../utils/Utils';
+import { useMountEffect, useUpdateEffect, usePrevious, useResizeListener } from '../hooks/Hooks';
 
 const GalleriaThumbnailItem = memo((props) => {
 
@@ -23,63 +22,67 @@ const GalleriaThumbnailItem = memo((props) => {
         }
     }
 
+    const tabIndex = props.active ? 0 : null;
     const content = props.template && props.template(props.item);
-    const itemClassName = classNames(props.className, 'p-galleria-thumbnail-item', {
+    const className = classNames('p-galleria-thumbnail-item', {
         'p-galleria-thumbnail-item-current': props.current,
         'p-galleria-thumbnail-item-active': props.active,
         'p-galleria-thumbnail-item-start': props.start,
         'p-galleria-thumbnail-item-end': props.end
-    });
+    }, props.className);
 
     return (
-        <div className={itemClassName}>
-            <div className="p-galleria-thumbnail-item-content" tabIndex={props.active ? 0 : null} onClick={onItemClick} onKeyDown={onItemKeyDown}>
-                { content }
+        <div className={className}>
+            <div className="p-galleria-thumbnail-item-content" tabIndex={tabIndex} onClick={onItemClick} onKeyDown={onItemKeyDown}>
+                {content}
             </div>
         </div>
     )
-})
+});
 
 export const GalleriaThumbnails = memo(forwardRef((props, ref) => {
-    const [numVisible, setNumVisible] = useState(props.numVisible);
-    const [totalShiftedItems, setTotalShiftedItems] = useState(0);
-    const [page, setPage] = useState(0);
+    const [numVisibleState, setNumVisibleState] = useState(props.numVisible);
+    const [totalShiftedItemsState, setTotalShiftedItemsState] = useState(0);
     const itemsContainerRef = useRef(null);
     const startPos = useRef(null);
-    const attributeSelector = useRef(''); // TODO UniqueComponentId();
+    const attributeSelector = useRef('');
     const thumbnailsStyle = useRef(null);
     const responsiveOptions = useRef(null);
+    const prevNumVisible = usePrevious(numVisibleState);
+    const prevActiveItemIndex = usePrevious(props.activeItemIndex);
 
-    const [bindWindowResize, ] = useResizeListener({ listener: () => {
-        calculatePosition();
-    }, when: props.responsiveOptions });
+    const [bindWindowResize,] = useResizeListener({
+        listener: () => {
+            calculatePosition();
+        }, when: props.responsiveOptions
+    });
 
     const step = (dir) => {
-        let _totalShiftedItems = totalShiftedItems + dir;
+        let totalShiftedItems = totalShiftedItemsState + dir;
 
-        if (dir < 0 && (-1 * _totalShiftedItems) + numVisible > (props.value.length - 1)) {
-            _totalShiftedItems = numVisible - props.value.length;
+        if (dir < 0 && (-1 * totalShiftedItems) + numVisibleState > (props.value.length - 1)) {
+            totalShiftedItems = numVisibleState - props.value.length;
         }
-        else if (dir > 0 && _totalShiftedItems > 0) {
-            _totalShiftedItems = 0;
+        else if (dir > 0 && totalShiftedItems > 0) {
+            totalShiftedItems = 0;
         }
 
         if (props.circular) {
             if (dir < 0 && props.value.length - 1 === props.activeItemIndex) {
-                _totalShiftedItems = 0;
+                totalShiftedItems = 0;
             }
             else if (dir > 0 && props.activeItemIndex === 0) {
-                _totalShiftedItems = numVisible - props.value.length;
+                totalShiftedItems = numVisibleState - props.value.length;
             }
         }
 
         if (itemsContainerRef.current) {
             DomHandler.removeClass(itemsContainerRef.current, 'p-items-hidden');
-            itemsContainerRef.current.style.transform = props.isVertical ? `translate3d(0, ${_totalShiftedItems * (100/ numVisible)}%, 0)` : `translate3d(${_totalShiftedItems * (100/ numVisible)}%, 0, 0)`;
+            itemsContainerRef.current.style.transform = props.isVertical ? `translate3d(0, ${totalShiftedItems * (100 / numVisibleState)}%, 0)` : `translate3d(${totalShiftedItems * (100 / numVisibleState)}%, 0, 0)`;
             itemsContainerRef.current.style.transition = 'transform 500ms ease 0s';
         }
 
-        setTotalShiftedItems(_totalShiftedItems);
+        setTotalShiftedItemsState(totalShiftedItems);
     }
 
     const stopSlideShow = () => {
@@ -89,17 +92,17 @@ export const GalleriaThumbnails = memo(forwardRef((props, ref) => {
     }
 
     const getMedianItemIndex = () => {
-        let index = Math.floor(numVisible / 2);
+        const index = Math.floor(numVisibleState / 2);
 
-        return (numVisible % 2) ? index : index - 1;
+        return (numVisibleState % 2) ? index : index - 1;
     }
 
     const navBackward = (e) => {
         stopSlideShow();
 
         let prevItemIndex = props.activeItemIndex !== 0 ? props.activeItemIndex - 1 : 0;
-        let diff = prevItemIndex + totalShiftedItems;
-        if ((numVisible - diff - 1) > getMedianItemIndex() && ((-1 * totalShiftedItems) !== 0 || props.circular)) {
+        let diff = prevItemIndex + totalShiftedItemsState;
+        if ((numVisibleState - diff - 1) > getMedianItemIndex() && ((-1 * totalShiftedItemsState) !== 0 || props.circular)) {
             step(1);
         }
 
@@ -116,7 +119,7 @@ export const GalleriaThumbnails = memo(forwardRef((props, ref) => {
         stopSlideShow();
 
         let nextItemIndex = props.activeItemIndex + 1;
-        if (nextItemIndex + totalShiftedItems > getMedianItemIndex() && ((-1 * totalShiftedItems) < getTotalPageNumber() - 1 || props.circular)) {
+        if (nextItemIndex + totalShiftedItemsState > getMedianItemIndex() && ((-1 * totalShiftedItemsState) < getTotalPageNumber() - 1 || props.circular)) {
             step(-1);
         }
 
@@ -134,17 +137,17 @@ export const GalleriaThumbnails = memo(forwardRef((props, ref) => {
 
         let selectedItemIndex = event.index;
         if (selectedItemIndex !== props.activeItemIndex) {
-            const diff = selectedItemIndex + totalShiftedItems;
+            const diff = selectedItemIndex + totalShiftedItemsState;
             let dir = 0;
             if (selectedItemIndex < props.activeItemIndex) {
-                dir = (numVisible - diff - 1) - getMedianItemIndex();
-                if (dir > 0 && (-1 * totalShiftedItems) !== 0) {
+                dir = (numVisibleState - diff - 1) - getMedianItemIndex();
+                if (dir > 0 && (-1 * totalShiftedItemsState) !== 0) {
                     step(dir);
                 }
             }
             else {
                 dir = getMedianItemIndex() - diff;
-                if (dir < 0 && (-1 * totalShiftedItems) < getTotalPageNumber() - 1) {
+                if (dir < 0 && (-1 * totalShiftedItemsState) < getTotalPageNumber() - 1) {
                     step(dir);
                 }
             }
@@ -198,7 +201,7 @@ export const GalleriaThumbnails = memo(forwardRef((props, ref) => {
     }
 
     const getTotalPageNumber = () => {
-        return props.value.length > numVisible ? (props.value.length - numVisible) + 1 : 0;
+        return props.value.length > numVisibleState ? (props.value.length - numVisibleState) + 1 : 0;
     }
 
     const createStyle = () => {
@@ -208,7 +211,7 @@ export const GalleriaThumbnails = memo(forwardRef((props, ref) => {
 
         let innerHTML = `
             .p-galleria-thumbnail-items[${attributeSelector.current}] .p-galleria-thumbnail-item {
-                flex: 1 0 ${ (100/ numVisible) }%
+                flex: 1 0 ${(100 / numVisibleState)}%
             }
         `;
 
@@ -226,7 +229,7 @@ export const GalleriaThumbnails = memo(forwardRef((props, ref) => {
                 innerHTML += `
                     @media screen and (max-width: ${res.breakpoint}) {
                         .p-galleria-thumbnail-items[${attributeSelector.current}] .p-galleria-thumbnail-item {
-                            flex: 1 0 ${ (100/ res.numVisible) }%
+                            flex: 1 0 ${(100 / res.numVisible)}%
                         }
                     }
                 `
@@ -251,13 +254,13 @@ export const GalleriaThumbnails = memo(forwardRef((props, ref) => {
                 }
             }
 
-            if (numVisible !== matchedResponsiveData.numVisible) {
-                setNumVisible(matchedResponsiveData.numVisible);
+            if (numVisibleState !== matchedResponsiveData.numVisible) {
+                setNumVisibleState(matchedResponsiveData.numVisible);
             }
         }
     }
 
-    useEffect(() => {
+    useMountEffect(() => {
         if (itemsContainerRef.current) {
             attributeSelector.current = UniqueComponentId();
             itemsContainerRef.current.setAttribute(attributeSelector.current, '');
@@ -266,33 +269,30 @@ export const GalleriaThumbnails = memo(forwardRef((props, ref) => {
         createStyle();
         calculatePosition();
         bindWindowResize();
-    }, []);
-
-    const prevNumVisible = usePrevious(numVisible);
-    const prevActiveItemIndex = usePrevious(props.activeItemIndex);
+    });
 
     useUpdateEffect(() => {
-        let _totalShiftedItems = totalShiftedItems;
+        let totalShiftedItems = totalShiftedItemsState;
 
-        if (prevNumVisible !== numVisible || prevActiveItemIndex !== props.activeItemIndex) {
+        if (prevNumVisible !== numVisibleState || prevActiveItemIndex !== props.activeItemIndex) {
             if (props.activeItemIndex <= getMedianItemIndex()) {
-                _totalShiftedItems = 0;
+                totalShiftedItems = 0;
             }
-            else if (props.value.length - numVisible + getMedianItemIndex() < props.activeItemIndex) {
-                _totalShiftedItems = numVisible - props.value.length;
+            else if (props.value.length - numVisibleState + getMedianItemIndex() < props.activeItemIndex) {
+                totalShiftedItems = numVisibleState - props.value.length;
             }
-            else if (props.value.length - numVisible < props.activeItemIndex && numVisible % 2 === 0) {
-                _totalShiftedItems = (props.activeItemIndex * -1) + getMedianItemIndex() + 1;
+            else if (props.value.length - numVisibleState < props.activeItemIndex && numVisibleState % 2 === 0) {
+                totalShiftedItems = (props.activeItemIndex * -1) + getMedianItemIndex() + 1;
             }
             else {
-                _totalShiftedItems = (props.activeItemIndex * -1) + getMedianItemIndex();
+                totalShiftedItems = (props.activeItemIndex * -1) + getMedianItemIndex();
             }
 
-            if (_totalShiftedItems !== totalShiftedItems) {
-                setTotalShiftedItems(_totalShiftedItems);
+            if (totalShiftedItems !== totalShiftedItemsState) {
+                setTotalShiftedItemsState(totalShiftedItems);
             }
 
-            itemsContainerRef.current.style.transform = props.isVertical ? `translate3d(0, ${_totalShiftedItems * (100/ numVisible)}%, 0)` : `translate3d(${_totalShiftedItems * (100/ numVisible)}%, 0, 0)`;
+            itemsContainerRef.current.style.transform = props.isVertical ? `translate3d(0, ${totalShiftedItems * (100 / numVisibleState)}%, 0)` : `translate3d(${totalShiftedItems * (100 / numVisibleState)}%, 0, 0)`;
 
             if (prevActiveItemIndex !== props.activeItemIndex) {
                 DomHandler.removeClass(itemsContainerRef.current, 'p-items-hidden');
@@ -303,28 +303,27 @@ export const GalleriaThumbnails = memo(forwardRef((props, ref) => {
 
     const useItems = () => {
         return props.value.map((item, index) => {
-                let firstIndex = totalShiftedItems * -1,
-                lastIndex = firstIndex + numVisible - 1,
-                isActive = firstIndex <= index && lastIndex >= index,
-                start = firstIndex === index,
-                end = lastIndex === index,
-                current = props.activeItemIndex === index;
+            const firstIndex = totalShiftedItemsState * -1;
+            const lastIndex = firstIndex + numVisibleState - 1;
+            const isActive = firstIndex <= index && lastIndex >= index;
+            const start = firstIndex === index;
+            const end = lastIndex === index;
+            const current = props.activeItemIndex === index;
 
-                return <GalleriaThumbnailItem key={index} index={index} template={props.itemTemplate} item={item} active={isActive} start={start} end={end}
-                    onItemClick={onItemClick} current={current}/>
-            });
+            return <GalleriaThumbnailItem key={index} index={index} template={props.itemTemplate} item={item} active={isActive} start={start} end={end} onItemClick={onItemClick} current={current} />
+        });
     }
 
     const useBackwardNavigator = () => {
         if (props.showThumbnailNavigators) {
-            let isDisabled = (!props.circular && props.activeItemIndex === 0) || (props.value.length <= numVisible);
+            let isDisabled = (!props.circular && props.activeItemIndex === 0) || (props.value.length <= numVisibleState);
             let buttonClassName = classNames('p-galleria-thumbnail-prev p-link', {
                 'p-disabled': isDisabled
             }),
-            iconClassName = classNames('p-galleria-thumbnail-prev-icon pi', {
-                'pi-chevron-left': !props.isVertical,
-                'pi-chevron-up': props.isVertical
-            });
+                iconClassName = classNames('p-galleria-thumbnail-prev-icon pi', {
+                    'pi-chevron-left': !props.isVertical,
+                    'pi-chevron-up': props.isVertical
+                });
 
             return (
                 <button className={buttonClassName} onClick={navBackward} disabled={isDisabled}>
@@ -339,11 +338,11 @@ export const GalleriaThumbnails = memo(forwardRef((props, ref) => {
 
     const useForwardNavigator = () => {
         if (props.showThumbnailNavigators) {
-            let isDisabled = (!props.circular && props.activeItemIndex === (props.value.length - 1)) || (props.value.length <= numVisible);
-            let buttonClassName = classNames('p-galleria-thumbnail-next p-link', {
+            const isDisabled = (!props.circular && props.activeItemIndex === (props.value.length - 1)) || (props.value.length <= numVisibleState);
+            const buttonClassName = classNames('p-galleria-thumbnail-next p-link', {
                 'p-disabled': isDisabled
-            }),
-            iconClassName = classNames('p-galleria-thumbnail-next-icon pi', {
+            });
+            const iconClassName = classNames('p-galleria-thumbnail-next-icon pi', {
                 'pi-chevron-right': !props.isVertical,
                 'pi-chevron-down': props.isVertical
             });
@@ -367,23 +366,23 @@ export const GalleriaThumbnails = memo(forwardRef((props, ref) => {
 
         return (
             <div className="p-galleria-thumbnail-container">
-                { backwardNavigator }
-                <div className="p-galleria-thumbnail-items-container" style={{'height': height}}>
+                {backwardNavigator}
+                <div className="p-galleria-thumbnail-items-container" style={{ 'height': height }}>
                     <div ref={itemsContainerRef} className="p-galleria-thumbnail-items" onTransitionEnd={onTransitionEnd}
                         onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
-                        { items }
+                        {items}
                     </div>
                 </div>
-                { forwardNavigator }
+                {forwardNavigator}
             </div>
-        );
+        )
     }
 
     const content = useContent();
 
     return (
         <div className="p-galleria-thumbnail-wrapper">
-            { content }
+            {content}
         </div>
     )
-}))
+}));

@@ -1,6 +1,6 @@
 import React, { forwardRef, memo } from 'react';
-import { classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
+import { classNames } from '../utils/Utils';
 import { useTimeout } from '../hooks/Hooks';
 
 export const UIMessage = memo(forwardRef((props, ref) => {
@@ -70,4 +70,4 @@ export const UIMessage = memo(forwardRef((props, ref) => {
             </div>
         </div>
     )
-}))
+}));

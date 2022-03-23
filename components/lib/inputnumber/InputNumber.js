@@ -1,12 +1,13 @@
 import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { InputText } from '../inputtext/InputText';
-import { classNames, ObjectUtils } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
 import { Ripple } from '../ripple/Ripple';
+import { InputText } from '../inputtext/InputText';
+import { classNames, ObjectUtils } from '../utils/Utils';
+import { useMountEffect, useUpdateEffect, useUnmountEffect } from '../hooks/Hooks';
 
 export const InputNumber = memo(forwardRef((props, ref) => {
-    const [focused, setFocused] = useState(false);
+    const [focusedState, setFocusedState] = useState(false);
     const elementRef = useRef(null);
     const inputRef = useRef(null);
     const tooltipRef = useRef(null);
@@ -27,9 +28,9 @@ export const InputNumber = memo(forwardRef((props, ref) => {
     const _prefix = useRef(null);
     const _index = useRef(null);
 
-    const isStacked = props.showButtons && props.buttonLayout === 'stacked';
-    const isHorizontal = props.showButtons && props.buttonLayout === 'horizontal';
-    const isVertical = props.showButtons && props.buttonLayout === 'vertical';
+    const stacked = props.showButtons && props.buttonLayout === 'stacked';
+    const horizontal = props.showButtons && props.buttonLayout === 'horizontal';
+    const vertical = props.showButtons && props.buttonLayout === 'vertical';
     const inputMode = props.inputMode || ((props.mode === 'decimal' && !props.minFractionDigits) ? 'numeric' : 'decimal');
 
     const getOptions = () => {
@@ -867,12 +868,12 @@ export const InputNumber = memo(forwardRef((props, ref) => {
     }
 
     const onInputFocus = (event) => {
-        setFocused(true);
+        setFocusedState(true);
         props.onFocus && props.onFocus(event);
     }
 
     const onInputBlur = (event) => {
-        setFocused(false);
+        setFocusedState(false);
 
         let currentValue = inputRef.current.value;
         if (isValueChanged(currentValue, props.value)) {
@@ -908,22 +909,6 @@ export const InputNumber = memo(forwardRef((props, ref) => {
     });
 
     useEffect(() => {
-        constructParser();
-
-        const newValue = validateValue(props.value);
-        if (props.value !== null && props.value !== newValue) {
-            updateModel(null, newValue);
-        }
-
-        return () => {
-            if (tooltipRef.current) {
-                tooltipRef.current.destroy();
-                tooltipRef.current = null;
-            }
-        }
-    }, []);
-
-    useEffect(() => {
         ObjectUtils.combinedRefs(inputRef, props.inputRef);
     }, [inputRef]);
 
@@ -940,14 +925,30 @@ export const InputNumber = memo(forwardRef((props, ref) => {
         }
     }, [props.tooltip, props.tooltipOptions]);
 
-    useEffect(() => {
+    useMountEffect(() => {
+        constructParser();
+
+        const newValue = validateValue(props.value);
+        if (props.value !== null && props.value !== newValue) {
+            updateModel(null, newValue);
+        }
+    });
+
+    useUpdateEffect(() => {
         constructParser();
         changeValue();
     }, [props.locale, props.localeMatcher, props.mode, props.currency, props.currencyDisplay, props.useGrouping, props.minFractionDigits, props.maxFractionDigits, props.suffix, props.prefix]);
 
-    useEffect(() => {
+    useUpdateEffect(() => {
         changeValue();
     }, [props.value]);
+
+    useUnmountEffect(() => {
+        if (tooltipRef.current) {
+            tooltipRef.current.destroy();
+            tooltipRef.current = null;
+        }
+    });
 
     const useInputElement = () => {
         const className = classNames('p-inputnumber-input', props.inputClassName);
@@ -998,7 +999,7 @@ export const InputNumber = memo(forwardRef((props, ref) => {
         const upButton = props.showButtons && useUpButton();
         const downButton = props.showButtons && useDownButton();
 
-        if (isStacked) {
+        if (stacked) {
             return (
                 <span className="p-inputnumber-button-group">
                     {upButton}
@@ -1015,13 +1016,13 @@ export const InputNumber = memo(forwardRef((props, ref) => {
         )
     }
 
-    const className = classNames('p-inputnumber p-component p-inputwrapper', props.className, {
+    const className = classNames('p-inputnumber p-component p-inputwrapper', {
         'p-inputwrapper-filled': props.value != null && props.value.toString().length > 0,
-        'p-inputwrapper-focus': focused,
-        'p-inputnumber-buttons-stacked': isStacked,
-        'p-inputnumber-buttons-horizontal': isHorizontal,
-        'p-inputnumber-buttons-vertical': isVertical
-    });
+        'p-inputwrapper-focus': focusedState,
+        'p-inputnumber-buttons-stacked': stacked,
+        'p-inputnumber-buttons-horizontal': horizontal,
+        'p-inputnumber-buttons-vertical': vertical
+    }, props.className);
     const inputElement = useInputElement();
     const buttonGroup = useButtonGroup();
 
@@ -1031,7 +1032,7 @@ export const InputNumber = memo(forwardRef((props, ref) => {
             {buttonGroup}
         </span>
     )
-}))
+}));
 
 InputNumber.defaultProps = {
     __TYPE: 'InputNumber',

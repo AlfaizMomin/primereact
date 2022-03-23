@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
-import { ObjectUtils, classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
+import { ObjectUtils, classNames } from '../utils/Utils';
 
 export const MultiSelectItem = memo((props) => {
 
@@ -24,9 +24,16 @@ export const MultiSelectItem = memo((props) => {
         }
     }
 
-    const className = classNames('p-multiselect-item', { 'p-highlight': props.selected, 'p-disabled': props.disabled }, props.option.className);
-    const checkboxClassName = classNames('p-checkbox-box', { 'p-highlight': props.selected });
-    const checkboxIcon = classNames('p-checkbox-icon p-c', { 'pi pi-check': props.selected });
+    const className = classNames('p-multiselect-item', {
+        'p-highlight': props.selected,
+        'p-disabled': props.disabled
+    }, props.option.className);
+    const checkboxClassName = classNames('p-checkbox-box', {
+        'p-highlight': props.selected
+    });
+    const checkboxIcon = classNames('p-checkbox-icon p-c', {
+        'pi pi-check': props.selected
+    });
     const content = props.template ? ObjectUtils.getJSXElement(props.template, props.option) : props.label;
     const tabIndex = props.disabled ? null : props.tabIndex || 0;
 
@@ -41,4 +48,4 @@ export const MultiSelectItem = memo((props) => {
             <Ripple />
         </li>
     )
-})
+});

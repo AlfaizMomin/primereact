@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { InputNumber } from '../inputnumber/InputNumber';
 import { ObjectUtils } from '../utils/Utils';
 
-export const JumpToPageInput = (props) => {
+export const JumpToPageInput = memo((props) => {
 
     const onChange = (event) => {
         if (props.onChange) {
@@ -21,14 +21,14 @@ export const JumpToPageInput = (props) => {
             disabled: props.disabled,
             className: 'p-paginator-page-input',
             element,
-            props: props
+            props
         };
 
         return ObjectUtils.getJSXElement(props.template, defaultOptions);
     }
 
     return element;
-}
+});
 
 JumpToPageInput.defaultProps = {
     __TYPE: 'JumbToPageInput',

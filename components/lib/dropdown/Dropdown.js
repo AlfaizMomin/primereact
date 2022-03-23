@@ -46,11 +46,13 @@ export const Dropdown = memo((props) => {
                 }
                 return filteredGroups;
             }
-
-            return FilterService.filter(props.options, searchFields, filterValue, props.filterMatchMode, props.filterLocale);
+            else {
+                return FilterService.filter(props.options, searchFields, filterValue, props.filterMatchMode, props.filterLocale);
+            }
         }
-
-        return props.options;
+        else {
+            return props.options;
+        }
     }, [hasFilter, isLazy, props.options]);
 
     const isClearClicked = (event) => {

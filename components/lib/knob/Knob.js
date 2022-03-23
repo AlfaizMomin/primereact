@@ -13,6 +13,41 @@ export const Knob = memo((props) => {
     const elementRef = useRef(null);
     const enabled = !props.disabled && !props.readOnly;
 
+    const [bindWindowMouseMove, unbindWindowMouseMove] = useEventListener({
+        target: 'window', type: 'mousemove', listener: (event) => {
+            updateValue(event.offsetX, event.offsetY);
+            event.preventDefault();
+        }, when: enabled
+    });
+
+    const [bindWindowMouseUp, unbindWindowMouseUp] = useEventListener({
+        target: 'window', type: 'mouseup', listener: (event) => {
+            unbindWindowMouseMove();
+            unbindWindowMouseUp();
+            event.preventDefault();
+        }, when: enabled
+    });
+
+    const [bindWindowTouchMove, unbindWindowTouchMove] = useEventListener({
+        target: 'window', type: 'touchmove', listener: (event) => {
+            if (event.touches.length === 1) {
+                const rect = elementRef.current.getBoundingClientRect();
+                const touch = event.targetTouches.item(0);
+                const offsetX = touch.clientX - rect.left;
+                const offsetY = touch.clientY - rect.top;
+                updateValue(offsetX, offsetY);
+                event.preventDefault();
+            }
+        }, when: enabled
+    });
+
+    const [bindWindowTouchEnd, unbindWindowTouchEnd] = useEventListener({
+        target: 'window', type: 'touchend', listener: () => {
+            unbindWindowTouchMove();
+            unbindWindowTouchEnd();
+        }, when: enabled
+    });
+
     const mapRange = (x, inMin, inMax, outMin, outMax) => (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
 
     const zeroRadians = () => mapRange((props.min > 0 && props.max > 0 ? props.min : 0), props.min, props.max, minRadians, maxRadians);
@@ -69,33 +104,6 @@ export const Knob = memo((props) => {
         }
     }
 
-    const [bindWindowMouseMove, unbindWindowMouseMove] = useEventListener({ target: 'window', type: 'mousemove', listener: (event) => {
-        updateValue(event.offsetX, event.offsetY);
-        event.preventDefault();
-    }, when: enabled });
-
-    const [bindWindowMouseUp, unbindWindowMouseUp] = useEventListener({ target: 'window', type: 'mouseup', listener: (event) => {
-        unbindWindowMouseMove();
-        unbindWindowMouseUp();
-        event.preventDefault();
-    }, when: enabled });
-
-    const [bindWindowTouchMove, unbindWindowTouchMove] = useEventListener({ target: 'window', type: 'touchmove', listener: (event) => {
-        if (event.touches.length === 1) {
-            const rect = elementRef.current.getBoundingClientRect();
-            const touch = event.targetTouches.item(0);
-            const offsetX = touch.clientX - rect.left;
-            const offsetY = touch.clientY - rect.top;
-            updateValue(offsetX, offsetY);
-            event.preventDefault();
-        }
-    }, when: enabled });
-
-    const [bindWindowTouchEnd, unbindWindowTouchEnd] = useEventListener({ target: 'window', type: 'touchend', listener: () => {
-        unbindWindowTouchMove();
-        unbindWindowTouchEnd();
-    }, when: enabled });
-
     const onClick = (event) => {
         if (!props.disabled && !props.readOnly) {
             updateValue(event.nativeEvent.offsetX, event.nativeEvent.offsetY);
@@ -123,14 +131,13 @@ export const Knob = memo((props) => {
         unbindWindowTouchEnd();
     }
 
-    const containerClassName = classNames('p-knob p-component', {
+    const className = classNames('p-knob p-component', {
         'p-disabled': props.disabled,
     }, props.className);
-
-    let text = props.showValue && <text x={50} y={57} textAnchor={'middle'} fill={props.textColor} className={'p-knob-text'} name={props.name}>{valueToDisplay()}</text>
+    const text = props.showValue && <text x={50} y={57} textAnchor={'middle'} fill={props.textColor} className={'p-knob-text'} name={props.name}>{valueToDisplay()}</text>
 
     return (
-        <div ref={elementRef} id={props.id} className={containerClassName} style={props.style}>
+        <div ref={elementRef} id={props.id} className={className} style={props.style}>
             <svg viewBox="0 0 100 100" width={props.size} height={props.size} onClick={onClick} onMouseDown={onMouseDown} onMouseUp={onMouseUp}
                 onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
                 <path d={rangePath} strokeWidth={props.strokeWidth} stroke={props.rangeColor} className={'p-knob-range'}></path>
@@ -139,7 +146,7 @@ export const Knob = memo((props) => {
             </svg>
         </div>
     )
-})
+});
 
 Knob.defaultProps = {
     __TYPE: 'Knob',

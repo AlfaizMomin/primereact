@@ -1,21 +1,20 @@
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { FilterService } from '../api/Api';
-import { ObjectUtils, classNames } from '../utils/Utils';
 import { ListBoxItem } from './ListBoxItem';
 import { ListBoxHeader } from './ListBoxHeader';
 import { tip } from '../tooltip/Tooltip';
 import { VirtualScroller } from '../virtualscroller/VirtualScroller';
+import { ObjectUtils, classNames } from '../utils/Utils';
 import { useUnmountEffect } from '../hooks/Hooks';
 
 export const ListBox = memo((props) => {
-    const [filterValue, setFilterValue] = useState('');
+    const [filterValueState, setFilterValueState] = useState('');
     const elementRef = useRef(null);
     const tooltipRef = useRef(null);
     const virtualScrollerRef = useRef(null);
     const optionTouched = useRef(false);
-
-    const filteredValue = (props.onFilterValueChange ? props.filterValue : filterValue) || '';
+    const filteredValue = (props.onFilterValueChange ? props.filterValue : filterValueState) || '';
     const hasFilter = filteredValue && filteredValue.trim().length > 0;
 
     const onOptionSelect = (event) => {
@@ -122,7 +121,7 @@ export const ListBox = memo((props) => {
             });
         }
         else {
-            setFilterValue(value);
+            setFilterValueState(value);
         }
     }
 
@@ -192,8 +191,8 @@ export const ListBox = memo((props) => {
 
     const visibleOptions = useMemo(() => {
         if (hasFilter) {
-            let filterValue = filteredValue.trim().toLocaleLowerCase(props.filterLocale)
-            let searchFields = props.filterBy ? props.filterBy.split(',') : [props.optionLabel || 'label'];
+            const filterValue = filteredValue.trim().toLocaleLowerCase(props.filterLocale);
+            const searchFields = props.filterBy ? props.filterBy.split(',') : [props.optionLabel || 'label'];
 
             if (props.optionGroupLabel) {
                 let filteredGroups = [];
@@ -240,6 +239,7 @@ export const ListBox = memo((props) => {
 
     const useGroupChildren = (optionGroup) => {
         const groupChildren = getOptionGroupChildren(optionGroup);
+
         return (
             groupChildren.map((option, j) => {
                 const optionLabel = getOptionLabel(option);
@@ -306,7 +306,7 @@ export const ListBox = memo((props) => {
                 }
             };
 
-            return <VirtualScroller ref={virtualScrollerRef} {...virtualScrollerProps} />;
+            return <VirtualScroller ref={virtualScrollerRef} {...virtualScrollerProps} />
         }
         else {
             const items = useItems();
@@ -334,7 +334,7 @@ export const ListBox = memo((props) => {
             </div>
         </div>
     )
-})
+});
 
 ListBox.defaultProps = {
     __TYPE: 'ListBox',

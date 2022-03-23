@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { classNames, UniqueComponentId } from '../utils/Utils';
-import { CSSTransition } from '../csstransition/CSSTransition';
 import { Ripple } from '../ripple/Ripple';
+import { CSSTransition } from '../csstransition/CSSTransition';
+import { classNames, UniqueComponentId } from '../utils/Utils';
+import { useMountEffect } from '../hooks/Hooks';
 
 export const Fieldset = (props) => {
-    const [id, setId] = useState(props.id);
-    const [collapsedState,setCollapsedState] = useState(props.collapsed);
-    const className = classNames('p-fieldset p-component', props.className, { 'p-fieldset-toggleable': props.toggleable });
+    const [idState, setIdState] = useState(props.id);
+    const [collapsedState, setCollapsedState] = useState(props.collapsed);
     const collapsed = props.toggleable ? (props.onToggle ? props.collapsed : collapsedState) : false;
     const contentRef = useRef(null);
     const headerId = id + '_header';
@@ -15,10 +15,7 @@ export const Fieldset = (props) => {
 
     const toggle = (event) => {
         if (props.toggleable) {
-            if (collapsed)
-                expand(event);
-            else
-                collapse(event);
+            collapsed ? expand(event) : collapse(event);
 
             if (props.onToggle) {
                 props.onToggle({
@@ -36,9 +33,7 @@ export const Fieldset = (props) => {
             setCollapsedState(false);
         }
 
-        if (props.onExpand) {
-            props.onExpand(event);
-        }
+        props.onExpand && props.onExpand(event);
     }
 
     const collapse = (event) => {
@@ -46,12 +41,16 @@ export const Fieldset = (props) => {
             setCollapsedState(true);
         }
 
-        if (props.onCollapse) {
-            props.onCollapse(event);
-        }
+        props.onCollapse && props.onCollapse(event);
     }
 
-    const useContent = ()=> {
+    useMountEffect(() => {
+        if (!props.id) {
+            setIdState(UniqueComponentId());
+        }
+    })
+
+    const useContent = () => {
         return (
             <CSSTransition nodeRef={contentRef} classNames="p-toggleable-content" timeout={{ enter: 1000, exit: 450 }} in={!collapsed} unmountOnExit options={props.transitionOptions}>
                 <div ref={contentRef} id={contentId} className="p-toggleable-content" aria-hidden={collapsed} role="region" aria-labelledby={headerId}>
@@ -60,16 +59,17 @@ export const Fieldset = (props) => {
                     </div>
                 </div>
             </CSSTransition>
-        );
+        )
     }
 
     const useToggleIcon = () => {
         if (props.toggleable) {
-            const className = classNames('p-fieldset-toggler pi', { 'pi-plus': collapsed, 'pi-minus': !collapsed });
+            const className = classNames('p-fieldset-toggler pi', {
+                'pi-plus': collapsed,
+                'pi-minus': !collapsed
+            });
 
-            return (
-                <span className={className}></span>
-            );
+            return <span className={className}></span>
         }
 
         return null;
@@ -85,40 +85,36 @@ export const Fieldset = (props) => {
                     <span className="p-fieldset-legend-text">{props.legend}</span>
                     <Ripple />
                 </a>
-            );
+            )
         }
 
-        return (
-            <span className="p-fieldset-legend-text" id={headerId}>{props.legend}</span>
-        );
+        return <span className="p-fieldset-legend-text" id={headerId}>{props.legend}</span>
     }
 
     const useLegend = () => {
-        const legendContent = useLegendContent();
         if (props.legend != null || props.toggleable) {
+            const legendContent = useLegendContent();
+
             return (
                 <legend className="p-fieldset-legend p-unselectable-text" onClick={toggle}>
                     {legendContent}
                 </legend>
-            );
+            )
         }
     }
 
-    useEffect(() => {
-        if (!props.id) {
-            setId(UniqueComponentId());
-        }
-    }, []);
-
+    const className = classNames('p-fieldset p-component', {
+        'p-fieldset-toggleable': props.toggleable
+    }, props.className);
     const legend = useLegend();
     const content = useContent();
 
     return (
-        <fieldset id={id} className={className} style={props.style} onClick={props.onClick}>
+        <fieldset id={idState} className={className} style={props.style} onClick={props.onClick}>
             {legend}
             {content}
         </fieldset>
-    );
+    )
 }
 
 Fieldset.defaultProps = {

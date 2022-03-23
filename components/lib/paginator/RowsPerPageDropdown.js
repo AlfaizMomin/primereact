@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { Dropdown } from '../dropdown/Dropdown';
 import { ObjectUtils } from '../utils/Utils';
 
-export const RowsPerPageDropdown = (props) => {
+export const RowsPerPageDropdown = memo((props) => {
     const hasOptions = props.options && props.options.length > 0;
     const options = hasOptions ? props.options.map(opt => ({ label: String(opt), value: opt })) : [];
     const element = hasOptions ? <Dropdown value={props.value} options={options} onChange={props.onChange} appendTo={props.appendTo} disabled={props.disabled} /> : null;
@@ -26,7 +26,7 @@ export const RowsPerPageDropdown = (props) => {
     }
 
     return element;
-}
+});
 
 RowsPerPageDropdown.defaultProps = {
     __TYPE: 'RowsPerPageDropdown',

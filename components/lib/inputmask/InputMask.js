@@ -1,9 +1,9 @@
 import React, { memo, useCallback, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { DomHandler, classNames, ObjectUtils } from '../utils/Utils';
 import { InputText } from '../inputtext/InputText';
 import { tip } from '../tooltip/Tooltip';
-import { useUpdateEffect } from '../hooks/Hooks';
+import { DomHandler, classNames, ObjectUtils } from '../utils/Utils';
+import { useMountEffect, useUnmountEffect, useUpdateEffect } from '../hooks/Hooks';
 
 export const InputMask = memo((props) => {
     const elementRef = useRef(null);
@@ -406,12 +406,12 @@ export const InputMask = memo((props) => {
             props.onChange({
                 originalEvent: e,
                 value: (defaultBuffer.current !== val) ? val : '',
-                stopPropagation : () =>{},
-                preventDefault : () =>{},
+                stopPropagation: () => { },
+                preventDefault: () => { },
                 target: {
                     name: props.name,
                     id: props.id,
-                    value : (defaultBuffer.current !== val) ? val : '',
+                    value: (defaultBuffer.current !== val) ? val : '',
                 }
             })
         }
@@ -453,8 +453,8 @@ export const InputMask = memo((props) => {
 
     const isValueUpdated = useCallback(() => {
         return props.unmask ?
-                        (props.value !== getUnmaskedValue()) :
-                        (defaultBuffer.current !== elementRef.current.value && elementRef.current.value !== props.value);
+            (props.value !== getUnmaskedValue()) :
+            (defaultBuffer.current !== elementRef.current.value && elementRef.current.value !== props.value);
     }, [props.unmask, props.value]);
 
     const init = () => {
@@ -512,30 +512,6 @@ export const InputMask = memo((props) => {
     }, [elementRef]);
 
     useEffect(() => {
-        init();
-        updateValue();
-
-        return () => {
-            if (tooltipRef.current) {
-                tooltipRef.current.destroy();
-                tooltipRef.current = null;
-            }
-        }
-    }, []);
-
-    useUpdateEffect(() => {
-        init();
-        caret(updateValue(true));
-        updateModel();
-    }, [props.mask]);
-
-    useEffect(() => {
-        if (isValueUpdated()) {
-            updateValue();
-        }
-    }, [isValueUpdated]);
-
-    useEffect(() => {
         if (tooltipRef.current) {
             tooltipRef.current.update({ content: props.tooltip, ...(props.tooltipOptions || {}) });
         }
@@ -548,14 +524,39 @@ export const InputMask = memo((props) => {
         }
     }, [props.tooltip, props.tooltipOptions]);
 
-    const inputMaskClassName = classNames('p-inputmask', props.className);
+    useMountEffect(() => {
+        init();
+        updateValue();
+    });
+
+    useUpdateEffect(() => {
+        init();
+        caret(updateValue(true));
+        updateModel();
+    }, [props.mask]);
+
+    useUpdateEffect(() => {
+        if (isValueUpdated()) {
+            updateValue();
+        }
+    }, [isValueUpdated]);
+
+    useUnmountEffect(() => {
+        if (tooltipRef.current) {
+            tooltipRef.current.destroy();
+            tooltipRef.current = null;
+        }
+    });
+
+    const className = classNames('p-inputmask', props.className);
+
     return (
-        <InputText id={props.id} ref={elementRef} type={props.type} name={props.name} style={props.style} className={inputMaskClassName} placeholder={props.placeholder}
+        <InputText ref={elementRef} id={props.id} type={props.type} name={props.name} style={props.style} className={className} placeholder={props.placeholder}
             size={props.size} maxLength={props.maxLength} tabIndex={props.tabIndex} disabled={props.disabled} readOnly={props.readOnly}
             onFocus={onFocus} onBlur={onBlur} onKeyDown={onKeyDown} onKeyPress={onKeyPress}
             onInput={onInput} onPaste={handleInputChange} required={props.required} aria-labelledby={props.ariaLabelledBy} />
     )
-})
+});
 
 InputMask.defaultProps = {
     __TYPE: 'InputMask',

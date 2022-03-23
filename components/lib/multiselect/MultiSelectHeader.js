@@ -32,7 +32,7 @@ export const MultiSelectHeader = memo((props) => {
                         className="p-multiselect-filter" placeholder={props.filterPlaceholder} />
                     <span className="p-multiselect-filter-icon pi pi-search"></span>
                 </div>
-            );
+            )
         }
 
         return null;
@@ -73,4 +73,4 @@ export const MultiSelectHeader = memo((props) => {
     }
 
     return element;
-})
+});

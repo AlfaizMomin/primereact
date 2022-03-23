@@ -1,14 +1,14 @@
-import React, { forwardRef, memo, useEffect, useState } from 'react';
-import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
+import React, { forwardRef, memo, useState } from 'react';
 import { Ripple } from '../ripple/Ripple';
-import { useEventListener } from '../hooks/Hooks';
+import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
+import { useMountEffect, useUpdateEffect, useEventListener } from '../hooks/Hooks';
 
 export const MenubarSub = memo(forwardRef((props, ref) => {
-    const [activeItem, setActiveItem] = useState(null);
+    const [activeItemState, setActiveItemState] = useState(null);
 
-    const [bindDocumentClick, ] = useEventListener({ type: 'click', listener: (event) => {
+    const [bindDocumentClickListener, ] = useEventListener({ type: 'click', listener: (event) => {
         if (ref && ref.current && !ref.current.contains(event.target)) {
-            setActiveItem(null);
+            setActiveItemState(null);
         }
     }});
 
@@ -19,12 +19,12 @@ export const MenubarSub = memo(forwardRef((props, ref) => {
         }
 
         if (props.root) {
-            if (activeItem || props.popup) {
-                setActiveItem(item);
+            if (activeItemState || props.popup) {
+                setActiveItemState(item);
             }
         }
         else {
-            setActiveItem(item);
+            setActiveItemState(item);
         }
     }
 
@@ -45,58 +45,40 @@ export const MenubarSub = memo(forwardRef((props, ref) => {
             });
         }
 
-        if (item.items) {
-            if (activeItem && item === activeItem) {
-                setActiveItem(null);
-            }
-            else {
-                setActiveItem(item);
-            }
-        }
-        else {
+        if (item.items)
+            (activeItemState && item === activeItemState) ? setActiveItemState(null) : setActiveItemState(item);
+        else
             onLeafClick();
-        }
     }
 
     const onItemKeyDown = (event, item) => {
-        let listItem = event.currentTarget.parentElement;
+        const listItem = event.currentTarget.parentElement;
 
         switch (event.which) {
             //down
             case 40:
-                if (props.root) {
-                    if (item.items) {
-                        expandSubmenu(item, listItem);
-                    }
-                }
-                else {
+                if (props.root)
+                    item.items && expandSubmenu(item, listItem);
+                else
                     navigateToNextItem(listItem);
-                }
 
                 event.preventDefault();
                 break;
 
             //up
             case 38:
-                if (!props.root) {
-                    navigateToPrevItem(listItem);
-                }
-
+                (!props.root) && navigateToPrevItem(listItem);
                 event.preventDefault();
                 break;
 
             //right
             case 39:
                 if (props.root) {
-                    let nextItem = findNextItem(listItem);
-                    if (nextItem) {
-                        nextItem.children[0].focus();
-                    }
+                    const nextItem = findNextItem(listItem);
+                    nextItem && nextItem.children[0].focus();
                 }
                 else {
-                    if (item.items) {
-                        expandSubmenu(item, listItem);
-                    }
+                    item.items && expandSubmenu(item, listItem);
                 }
 
                 event.preventDefault();
@@ -104,10 +86,7 @@ export const MenubarSub = memo(forwardRef((props, ref) => {
 
             //left
             case 37:
-                if (props.root) {
-                    navigateToPrevItem(listItem);
-                }
-
+                props.root && navigateToPrevItem(listItem);
                 event.preventDefault();
                 break;
 
@@ -115,9 +94,7 @@ export const MenubarSub = memo(forwardRef((props, ref) => {
                 break;
         }
 
-        if (props.onKeyDown) {
-            props.onKeyDown(event, listItem);
-        }
+        props.onKeyDown && props.onKeyDown(event, listItem);
     }
 
     const onChildItemKeyDown = (event, childListItem) => {
@@ -136,7 +113,7 @@ export const MenubarSub = memo(forwardRef((props, ref) => {
     }
 
     const expandSubmenu = (item, listItem) => {
-        setActiveItem(item);
+        setActiveItemState(item);
 
         setTimeout(() => {
             listItem.children[1].children[0].children[0].focus();
@@ -144,76 +121,60 @@ export const MenubarSub = memo(forwardRef((props, ref) => {
     }
 
     const collapseMenu = (listItem) => {
-        setActiveItem(null);
+        setActiveItemState(null);
         listItem.parentElement.previousElementSibling.focus();
     }
 
     const navigateToNextItem = (listItem) => {
-        let nextItem = findNextItem(listItem);
-        if (nextItem) {
-            nextItem.children[0].focus();
-        }
+        const nextItem = findNextItem(listItem);
+        nextItem && nextItem.children[0].focus();
     }
 
     const navigateToPrevItem = (listItem) => {
-        let prevItem = findPrevItem(listItem);
-        if (prevItem) {
-            prevItem.children[0].focus();
-        }
+        const prevItem = findPrevItem(listItem);
+        prevItem && prevItem.children[0].focus();
     }
 
     const findNextItem = (item) => {
-        let nextItem = item.nextElementSibling;
-
-        if (nextItem)
-            return DomHandler.hasClass(nextItem, 'p-disabled') || !DomHandler.hasClass(nextItem, 'p-menuitem') ? findNextItem(nextItem) : nextItem;
-        else
-            return null;
+        const nextItem = item.nextElementSibling;
+        return nextItem ? (DomHandler.hasClass(nextItem, 'p-disabled') || !DomHandler.hasClass(nextItem, 'p-menuitem') ? findNextItem(nextItem) : nextItem) : null;
     }
 
     const findPrevItem = (item) => {
-        let prevItem = item.previousElementSibling;
-
-        if (prevItem)
-            return DomHandler.hasClass(prevItem, 'p-disabled') || !DomHandler.hasClass(prevItem, 'p-menuitem') ? findPrevItem(prevItem) : prevItem;
-        else
-            return null;
+        const prevItem = item.previousElementSibling;
+        return prevItem ? (DomHandler.hasClass(prevItem, 'p-disabled') || !DomHandler.hasClass(prevItem, 'p-menuitem') ? findPrevItem(prevItem) : prevItem) : null;
     }
 
     const onLeafClick = () => {
-        setActiveItem(null);
-
-        if (props.onLeafClick) {
-            props.onLeafClick();
-        }
+        setActiveItemState(null);
+        props.onLeafClick && props.onLeafClick();
     }
 
-    useEffect(() => {
-        bindDocumentClick();
-    }, []);
+    useMountEffect(() => {
+        bindDocumentClickListener();
+    });
 
-    useEffect(() => {
-        setActiveItem(null);
+    useUpdateEffect(() => {
+        !props.parentActive && setActiveItemState(null);
     }, [props.parentActive]);
 
     const useSeparator = (index) => {
-        return (
-            <li key={'separator_' + index} className="p-menu-separator" role="separator"></li>
-        )
+        const key = 'separator_' + index;
+
+        return <li key={key} className="p-menu-separator" role="separator"></li>
     }
 
     const useSubmenu = (item) => {
         if (item.items) {
-            return (
-                <MenubarSub model={item.items} mobileActive={props.mobileActive} onLeafClick={onLeafClick} onKeyDown={onChildItemKeyDown} parentActive={item === activeItem} />
-            )
+            return <MenubarSub model={item.items} mobileActive={props.mobileActive} onLeafClick={onLeafClick} onKeyDown={onChildItemKeyDown} parentActive={item === activeItemState} />
         }
 
         return null;
     }
 
     const useMenuitem = (item, index) => {
-        const className = classNames('p-menuitem', { 'p-menuitem-active': activeItem === item }, item.className);
+        const key = item.label + '_' + index;
+        const className = classNames('p-menuitem', { 'p-menuitem-active': activeItemState === item }, item.className);
         const linkClassName = classNames('p-menuitem-link', { 'p-disabled': item.disabled });
         const iconClassName = classNames('p-menuitem-icon', item.icon);
         const submenuIconClassName = classNames('p-submenu-icon pi', { 'pi-angle-down': props.root, 'pi-angle-right': !props.root });
@@ -247,34 +208,31 @@ export const MenubarSub = memo(forwardRef((props, ref) => {
         }
 
         return (
-            <li key={item.label + '_' + index} role="none" className={className} style={item.style} onMouseEnter={(event) => onItemMouseEnter(event, item)}>
+            <li key={key} role="none" className={className} style={item.style} onMouseEnter={(event) => onItemMouseEnter(event, item)}>
                 {content}
                 {submenu}
             </li>
-        );
+        )
     }
 
     const useItem = (item, index) => {
-        if (item.separator)
-            return useSeparator(index);
-        else
-            return useMenuitem(item, index);
+        return item.separator ? useSeparator(index) : useMenuitem(item, index);
     }
 
     const useMenu = () => {
-        if (props.model) {
-            return props.model.map(useItem);
-        }
-
-        return null;
+        return props.model ? props.model.map(useItem) : null;
     }
 
-    const className = classNames({ 'p-submenu-list': !props.root, 'p-menubar-root-list': props.root });
+    const role = props.root ? 'menubar' : 'menu';
+    const className = classNames({
+        'p-submenu-list': !props.root,
+        'p-menubar-root-list': props.root
+    });
     const submenu = useMenu();
 
     return (
-        <ul ref={ref} className={className} role={props.root ? 'menubar' : 'menu'}>
+        <ul ref={ref} className={className} role={role}>
             {submenu}
         </ul>
     )
-}))
+}));

@@ -1,29 +1,31 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { DomHandler, ObjectUtils, ZIndexUtils, classNames, IconUtils } from '../utils/Utils';
+import PrimeReact, { FilterService } from '../api/Api';
 import { tip } from '../tooltip/Tooltip';
 import { MultiSelectPanel } from './MultiSelectPanel';
 import { OverlayService } from '../overlayservice/OverlayService';
-import PrimeReact, { FilterService } from '../api/Api';
-import { useOverlayListener, useUnmountEffect } from '../hooks/Hooks';
+import { DomHandler, ObjectUtils, ZIndexUtils, classNames, IconUtils } from '../utils/Utils';
+import { useUpdateEffect, useUnmountEffect, useOverlayListener } from '../hooks/Hooks';
 
 export const MultiSelect = memo((props) => {
-    const [filter, setFilter] = useState('');
-    const [focused, setFocused] = useState(false);
-    const [overlayVisible, setOverlayVisible] = useState(false);
+    const [filterState, setFilterState] = useState('');
+    const [focusedState, setFocusedState] = useState(false);
+    const [overlayVisibleState, setOverlayVisibleState] = useState(false);
     const elementRef = useRef(null);
     const inputRef = useRef(props.inputRef);
     const labelRef = useRef(null);
     const overlayRef = useRef(null);
     const tooltipRef = useRef(null);
-    const hasFilter = filter && filter.trim().length > 0;
+    const hasFilter = filterState && filterState.trim().length > 0;
+    const empty = ObjectUtils.isEmpty(props.value);
+    const equalityKey = props.optionValue ? null : props.dataKey;
 
     const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({ target: elementRef, overlay: overlayRef, listener: (event, type) => {
         if (type === 'outside')
             !isClearClicked(event) && hide();
         else
             hide();
-    }, when: overlayVisible});
+    }, when: overlayVisibleState});
 
     const onPanelClick = (event) => {
         OverlayService.emit('overlay-click', {
@@ -49,33 +51,27 @@ export const MultiSelect = memo((props) => {
         const allowSelect = allowOptionSelect();
 
         if (selected)
-            updateModel(originalEvent, props.value.filter(val => !ObjectUtils.equals(isUsed ? val : getOptionValue(val), optionValue, equalityKey())));
+            updateModel(originalEvent, props.value.filter(val => !ObjectUtils.equals(isUsed ? val : getOptionValue(val), optionValue, equalityKey)));
         else if (allowSelect)
             updateModel(originalEvent, [...props.value || [], optionValue]);
     }
 
     const onOptionKeyDown = (event) => {
         const originalEvent = event.originalEvent;
-        let listItem = originalEvent.currentTarget;
+        const listItem = originalEvent.currentTarget;
 
         switch (originalEvent.which) {
             //down
             case 40:
-                let nextItem = findNextItem(listItem);
-                if (nextItem) {
-                    nextItem.focus();
-                }
-
+                const nextItem = findNextItem(listItem);
+                nextItem && nextItem.focus();
                 originalEvent.preventDefault();
                 break;
 
             //up
             case 38:
-                let prevItem = findPrevItem(listItem);
-                if (prevItem) {
-                    prevItem.focus();
-                }
-
+                const prevItem = findPrevItem(listItem);
+                prevItem && prevItem.focus();
                 originalEvent.preventDefault();
                 break;
 
@@ -99,19 +95,17 @@ export const MultiSelect = memo((props) => {
 
     const findNextItem = (item) => {
         const nextItem = item.nextElementSibling;
-
-        return DomHandler.hasClass(nextItem, 'p-disabled') || DomHandler.hasClass(nextItem, 'p-multiselect-item-group') ? findNextItem(nextItem) : nextItem
+        return nextItem ? (DomHandler.hasClass(nextItem, 'p-disabled') || DomHandler.hasClass(nextItem, 'p-multiselect-item-group') ? findNextItem(nextItem) : nextItem) : null;
     }
 
     const findPrevItem = (item) => {
         const prevItem = item.previousElementSibling;
-
-        return DomHandler.hasClass(prevItem, 'p-disabled') || DomHandler.hasClass(prevItem, 'p-multiselect-item-group') ? findPrevItem(prevItem) : prevItem;
+        return prevItem ? (DomHandler.hasClass(prevItem, 'p-disabled') || DomHandler.hasClass(prevItem, 'p-multiselect-item-group') ? findPrevItem(prevItem) : prevItem) : null;
     }
 
     const onClick = (event) => {
         if (!props.disabled && !isPanelClicked(event) && !DomHandler.hasClass(event.target, 'p-multiselect-token-icon') && !isClearClicked(event)) {
-            overlayVisible ? hide() : show();
+            overlayVisibleState ? hide() : show();
             inputRef.current.focus();
 
             event.preventDefault();
@@ -122,7 +116,7 @@ export const MultiSelect = memo((props) => {
         switch (event.which) {
             //down
             case 40:
-                if (!overlayVisible && event.altKey) {
+                if (!overlayVisibleState && event.altKey) {
                     show();
                     event.preventDefault();
                 }
@@ -130,8 +124,7 @@ export const MultiSelect = memo((props) => {
 
             //space
             case 32:
-                overlayVisible ? hide() : show();
-
+                overlayVisibleState ? hide() : show();
                 event.preventDefault();
                 break;
 
@@ -142,7 +135,7 @@ export const MultiSelect = memo((props) => {
 
             //tab
             case 9:
-                if (overlayVisible) {
+                if (overlayVisibleState) {
                     const firstFocusableElement = DomHandler.getFirstFocusableElement(overlayRef.current);
                     if (firstFocusableElement) {
                         firstFocusableElement.focus();
@@ -162,7 +155,6 @@ export const MultiSelect = memo((props) => {
         }
         else {
             let value = null;
-            let visibleOptions = getVisibleOptions();
 
             if (event.checked) {
                 value = [];
@@ -173,14 +165,14 @@ export const MultiSelect = memo((props) => {
                 }
             }
             else if (visibleOptions) {
-                visibleOptions = visibleOptions.filter(option => !isOptionDisabled(option));
+                const options = visibleOptions.filter(option => !isOptionDisabled(option));
 
                 if (props.optionGroupLabel) {
                     value = [];
-                    visibleOptions.forEach(optionGroup => value = [...value, ...getOptionGroupChildren(optionGroup).filter((option) => !isOptionDisabled(option)).map(option => getOptionValue(option))]);
+                    options.forEach(optionGroup => value = [...value, ...getOptionGroupChildren(optionGroup).filter((option) => !isOptionDisabled(option)).map(option => getOptionValue(option))]);
                 }
                 else {
-                    value = visibleOptions.map(option => getOptionValue(option));
+                    value = options.map(option => getOptionValue(option));
                 }
             }
 
@@ -205,28 +197,35 @@ export const MultiSelect = memo((props) => {
     }
 
     const onFilterInputChange = (event) => {
-        const _filter = event.query;
-        setFilter(_filter);
+        const filter = event.query;
+        setFilterState(filter);
 
         if (props.onFilter) {
             props.onFilter({
                 originalEvent: event,
-                filter: _filter
+                filter
             });
         }
     }
 
     const resetFilter = () => {
-        setFilter('');
+        setFilterState('');
         props.onFilter && props.onFilter({ filter: '' });
     }
 
+    const scrollInView = () => {
+        const highlightItem = DomHandler.findSingle(overlayRef.current, 'li.p-highlight');
+        if (highlightItem && highlightItem.scrollIntoView) {
+            highlightItem.scrollIntoView({ block: 'nearest', inline: 'start' });
+        }
+    }
+
     const show = () => {
-        setOverlayVisible(true);
+        setOverlayVisibleState(true);
     }
 
     const hide = () => {
-        setOverlayVisible(false);
+        setOverlayVisibleState(false);
     }
 
     const onOverlayEnter = (callback) => {
@@ -238,7 +237,6 @@ export const MultiSelect = memo((props) => {
 
     const onOverlayEntered = () => {
         bindOverlayListener();
-
         props.onShow && props.onShow();
     }
 
@@ -258,13 +256,6 @@ export const MultiSelect = memo((props) => {
 
     const alignOverlay = () => {
         DomHandler.alignOverlay(overlayRef.current, labelRef.current.parentElement, props.appendTo || PrimeReact.appendTo);
-    }
-
-    const scrollInView = () => {
-        const highlightItem = DomHandler.findSingle(overlayRef.current, 'li.p-highlight');
-        if (highlightItem && highlightItem.scrollIntoView) {
-            highlightItem.scrollIntoView({ block: 'nearest', inline: 'start' });
-        }
     }
 
     const isClearClicked = (event) => {
@@ -298,23 +289,18 @@ export const MultiSelect = memo((props) => {
     }
 
     const findOptionIndexInList = (value, list) => {
-        const key = equalityKey();
-
-        return list.findIndex(item => value.some(val => ObjectUtils.equals(val, getOptionValue(item), key)));
+        return list.findIndex(item => value.some(val => ObjectUtils.equals(val, getOptionValue(item), equalityKey)));
     }
 
     const isSelected = (option) => {
-        let selected = false;
-
         if (props.value) {
             const optionValue = getOptionValue(option);
             const isUsed = isOptionValueUsed(option);
-            const key = equalityKey();
 
-            selected = props.value.some(val => ObjectUtils.equals(isUsed ? val : getOptionValue(val), optionValue, key));
+            return props.value.some(val => ObjectUtils.equals(isUsed ? val : getOptionValue(val), optionValue, equalityKey));
         }
 
-        return selected;
+        return false;
     }
 
     const getLabelByValue = (val) => {
@@ -337,17 +323,16 @@ export const MultiSelect = memo((props) => {
     }
 
     const findOptionByValue = (val, list) => {
-        const key = equalityKey();
-        return list.find((option) => ObjectUtils.equals(getOptionValue(option), val, key));
+        return list.find((option) => ObjectUtils.equals(getOptionValue(option), val, equalityKey));
     }
 
     const onFocus = (event) => {
-        setFocused(true);
+        setFocusedState(true);
         props.onFocus && props.onFocus(event);
     }
 
     const onBlur = (event) => {
-        setFocused(false);
+        setFocusedState(false);
         props.onBlur && props.onBlur(event);
     }
 
@@ -356,29 +341,20 @@ export const MultiSelect = memo((props) => {
             return props.selectAll;
         }
         else {
-            let visibleOptions = getVisibleOptions();
             if (ObjectUtils.isEmpty(visibleOptions)) {
                 return false;
             }
 
-            visibleOptions = visibleOptions.filter((option) => !isOptionDisabled(option));
+            const options = visibleOptions.filter((option) => !isOptionDisabled(option));
 
             if (props.optionGroupLabel) {
-                for (let optionGroup of visibleOptions) {
+                for (let optionGroup of options) {
                     const visibleOptionsGroupChildren = getOptionGroupChildren(optionGroup).filter((option) => !isOptionDisabled(option));
-                    for (let option of visibleOptionsGroupChildren) {
-                        if (!isSelected(option)) {
-                            return false;
-                        }
-                    }
+                    return !(visibleOptionsGroupChildren.some((option) => !isSelected(option)));
                 }
             }
             else {
-                for (let option of visibleOptions) {
-                    if (!isSelected(option)) {
-                        return false;
-                    }
-                }
+                return !(options.some((option) => !isSelected(option)));
             }
         }
 
@@ -426,10 +402,85 @@ export const MultiSelect = memo((props) => {
         return props.optionValue || (option && option['value'] !== undefined);
     }
 
-    const getVisibleOptions = () => {
+    const checkValidity = () => {
+        return inputRef.current.checkValidity();
+    }
+
+    const removeChip = (event, item) => {
+        const value = props.value.filter(val => !ObjectUtils.equals(val, item, equalityKey));
+
+        updateModel(event, value);
+    }
+
+    const getSelectedItemsLabel = () => {
+        const pattern = /{(.*?)}/;
+        if (pattern.test(props.selectedItemsLabel)) {
+            return props.selectedItemsLabel.replace(props.selectedItemsLabel.match(pattern)[0], props.value.length + '');
+        }
+
+        return props.selectedItemsLabel;
+    }
+
+    const getLabel = () => {
+        let label;
+
+        if (!empty && !props.fixedPlaceholder) {
+            if (props.maxSelectedLabels && props.value.length > props.maxSelectedLabels) {
+                return getSelectedItemsLabel();
+            }
+            else {
+                return props.value.reduce((acc, value, index) => (acc + (index !== 0 ? ',' : '') + getLabelByValue(value)), '');
+            }
+        }
+
+        return label;
+    }
+
+    const getLabelContent = () => {
+        if (props.selectedItemTemplate) {
+            if (!empty) {
+                if (props.maxSelectedLabels && props.value.length > props.maxSelectedLabels) {
+                    return getSelectedItemsLabel();
+                }
+                else {
+                    return props.value.map((val, index) => {
+                        const item = ObjectUtils.getJSXElement(props.selectedItemTemplate, val);
+
+                        return <React.Fragment key={index}>{item}</React.Fragment>
+                    });
+                }
+            }
+            else {
+                return ObjectUtils.getJSXElement(props.selectedItemTemplate);
+            }
+        }
+        else {
+            if (props.display === 'chip' && !empty) {
+                const value = props.value.slice(0, props.maxSelectedLabels || props.value.length);
+
+                return (
+                    value.map((val) => {
+                        const label = getLabelByValue(val);
+                        const icon = !props.disabled && IconUtils.getJSXIcon(props.removeIcon, { className: 'p-multiselect-token-icon', onClick: (e) => removeChip(e, val) }, { props });
+
+                        return (
+                            <div className="p-multiselect-token" key={label}>
+                                <span className="p-multiselect-token-label">{label}</span>
+                                {icon}
+                            </div>
+                        )
+                    })
+                )
+            }
+
+            return getLabel();
+        }
+    }
+
+    const visibleOptions = useMemo(() => {
         if (hasFilter) {
-            let filterValue = filter.trim().toLocaleLowerCase(props.filterLocale);
-            let searchFields = props.filterBy ? props.filterBy.split(',') : [props.optionLabel || 'label'];
+            const filterValue = filterState.trim().toLocaleLowerCase(props.filterLocale);
+            const searchFields = props.filterBy ? props.filterBy.split(',') : [props.optionLabel || 'label'];
 
             if (props.optionGroupLabel) {
                 let filteredGroups = [];
@@ -448,99 +499,7 @@ export const MultiSelect = memo((props) => {
         else {
             return props.options;
         }
-    }
-
-    const isEmpty = () => {
-        return !props.value || props.value.length === 0;
-    }
-
-    const equalityKey = () => {
-        return props.optionValue ? null : props.dataKey;
-    }
-
-    const checkValidity = () => {
-        return inputRef.current.checkValidity();
-    }
-
-    const removeChip = (event, item) => {
-        let key = equalityKey();
-        let value = props.value.filter(val => !ObjectUtils.equals(val, item, key));
-
-        updateModel(event, value);
-    }
-
-    const getSelectedItemsLabel = () => {
-        let pattern = /{(.*?)}/;
-        if (pattern.test(props.selectedItemsLabel)) {
-            return props.selectedItemsLabel.replace(props.selectedItemsLabel.match(pattern)[0], props.value.length + '');
-        }
-
-        return props.selectedItemsLabel;
-    }
-
-    const getLabel = () => {
-        let label;
-
-        if (!isEmpty() && !props.fixedPlaceholder) {
-            if (props.maxSelectedLabels && props.value.length > props.maxSelectedLabels) {
-                return getSelectedItemsLabel();
-            }
-            else {
-                label = '';
-                for (let i = 0; i < props.value.length; i++) {
-                    if (i !== 0) {
-                        label += ',';
-                    }
-                    label += getLabelByValue(props.value[i]);
-                }
-
-                return label;
-            }
-        }
-
-        return label;
-    }
-
-    const getLabelContent = () => {
-        if (props.selectedItemTemplate) {
-            if (!isEmpty()) {
-                if (props.maxSelectedLabels && props.value.length > props.maxSelectedLabels) {
-                    return getSelectedItemsLabel();
-                }
-                else {
-                    return props.value.map((val, index) => {
-                        const item = ObjectUtils.getJSXElement(props.selectedItemTemplate, val);
-
-                        return (
-                            <React.Fragment key={index}>{item}</React.Fragment>
-                        );
-                    });
-                }
-            }
-            else {
-                return ObjectUtils.getJSXElement(props.selectedItemTemplate);
-            }
-        }
-        else {
-            if (props.display === 'chip' && !isEmpty()) {
-                const value = props.value.slice(0, props.maxSelectedLabels || props.value.length);
-
-                return (
-                    value.map((val) => {
-                        const label = getLabelByValue(val);
-                        return (
-                            <div className="p-multiselect-token" key={label}>
-                                <span className="p-multiselect-token-label">{label}</span>
-                                {!props.disabled && IconUtils.getJSXIcon(props.removeIcon, { className: 'p-multiselect-token-icon', onClick: (e) => removeChip(e, val) }, { props })}
-                            </div>
-                        )
-                    })
-                );
-            }
-
-            return getLabel();
-        }
-    }
+    });
 
     useEffect(() => {
         ObjectUtils.combinedRefs(inputRef, props.inputRef);
@@ -559,11 +518,11 @@ export const MultiSelect = memo((props) => {
         }
     }, [props.tooltip, props.tooltipOptions]);
 
-    useEffect(() => {
-        if (overlayVisible && hasFilter) {
+    useUpdateEffect(() => {
+        if (overlayVisibleState && hasFilter) {
             alignOverlay();
         }
-    }, [overlayVisible, hasFilter]);
+    }, [overlayVisibleState, hasFilter]);
 
     useUnmountEffect(() => {
         ZIndexUtils.clear(overlayRef.current);
@@ -575,20 +534,16 @@ export const MultiSelect = memo((props) => {
     });
 
     const useClearIcon = () => {
-        const empty = isEmpty();
         if (!empty && props.showClear && !props.disabled) {
-            return (
-                <i className="p-multiselect-clear-icon pi pi-times" onClick={(e) => updateModel(e, null)}></i>
-            );
+            return <i className="p-multiselect-clear-icon pi pi-times" onClick={(e) => updateModel(e, null)}></i>
         }
 
         return null;
     }
 
     const useLabel = () => {
-        const empty = isEmpty();
         const content = getLabelContent();
-        const labelClassName = classNames('p-multiselect-label', {
+        const className = classNames('p-multiselect-label', {
             'p-placeholder': empty && props.placeholder,
             'p-multiselect-label-empty': empty && !props.placeholder && !props.selectedItemTemplate,
             'p-multiselect-items-label': !empty && props.display !== 'chip' && props.value.length > props.maxSelectedLabels
@@ -596,21 +551,19 @@ export const MultiSelect = memo((props) => {
 
         return (
             <div ref={labelRef} className="p-multiselect-label-container">
-                <div className={labelClassName}>{content || props.placeholder || 'empty'}</div>
+                <div className={className}>{content || props.placeholder || 'empty'}</div>
             </div>
-        );
+        )
     }
 
     const className = classNames('p-multiselect p-component p-inputwrapper', {
         'p-multiselect-chip': props.display === 'chip',
         'p-disabled': props.disabled,
         'p-multiselect-clearable': props.showClear && !props.disabled,
-        'p-focus': focused,
+        'p-focus': focusedState,
         'p-inputwrapper-filled': props.value && props.value.length > 0,
-        'p-inputwrapper-focus': focused || overlayVisible
+        'p-inputwrapper-focus': focusedState || overlayVisibleState
     }, props.className);
-    const visibleOptions = getVisibleOptions();
-
     const label = useLabel();
     const clearIcon = useClearIcon();
 
@@ -618,7 +571,7 @@ export const MultiSelect = memo((props) => {
         <div ref={elementRef} id={props.id} className={className} onClick={onClick} style={props.style}>
             <div className="p-hidden-accessible">
                 <input ref={inputRef} id={props.inputId} name={props.name} readOnly type="text" onFocus={onFocus} onBlur={onBlur} onKeyDown={onKeyDown}
-                    role="listbox" aria-haspopup="listbox" aria-labelledby={props.ariaLabelledBy} aria-expanded={overlayVisible} disabled={props.disabled} tabIndex={props.tabIndex} />
+                    role="listbox" aria-haspopup="listbox" aria-labelledby={props.ariaLabelledBy} aria-expanded={overlayVisibleState} disabled={props.disabled} tabIndex={props.tabIndex} />
             </div>
             {label}
             {clearIcon}
@@ -626,14 +579,14 @@ export const MultiSelect = memo((props) => {
                 {IconUtils.getJSXIcon(props.dropdownIcon, { className: 'p-multiselect-trigger-icon p-c' }, { props })}
             </div>
             <MultiSelectPanel ref={overlayRef} visibleOptions={visibleOptions} {...props} onClick={onPanelClick} onOverlayHide={hide}
-                filterValue={filter} hasFilter={hasFilter} onFilterInputChange={onFilterInputChange} onCloseClick={onCloseClick} onSelectAll={onSelectAll}
+                filterValue={filterState} hasFilter={hasFilter} onFilterInputChange={onFilterInputChange} onCloseClick={onCloseClick} onSelectAll={onSelectAll}
                 getOptionLabel={getOptionLabel} getOptionRenderKey={getOptionRenderKey} isOptionDisabled={isOptionDisabled}
                 getOptionGroupChildren={getOptionGroupChildren} getOptionGroupLabel={getOptionGroupLabel} getOptionGroupRenderKey={getOptionGroupRenderKey}
                 isSelected={isSelected} getSelectedOptionIndex={getSelectedOptionIndex} isAllSelected={isAllSelected} onOptionSelect={onOptionSelect} allowOptionSelect={allowOptionSelect} onOptionKeyDown={onOptionKeyDown}
-                in={overlayVisible} onEnter={onOverlayEnter} onEntered={onOverlayEntered} onExit={onOverlayExit} onExited={onOverlayExited} />
+                in={overlayVisibleState} onEnter={onOverlayEnter} onEntered={onOverlayEntered} onExit={onOverlayExit} onExited={onOverlayExited} />
         </div>
     )
-})
+});
 
 MultiSelect.defaultProps = {
     __TYPE: 'MultiSelect',

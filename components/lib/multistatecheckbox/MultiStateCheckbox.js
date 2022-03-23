@@ -1,14 +1,15 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { ObjectUtils, classNames } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
+import { ObjectUtils, classNames } from '../utils/Utils';
 import { useMountEffect, useUnmountEffect } from '../hooks/Hooks';
 
 export const MultiStateCheckbox = memo((props) => {
-    const [focused, setFocused] = useState(false);
+    const [focusedState, setFocusedState] = useState(false);
     const elementRef = useRef(null);
     const inputRef = useRef(props.inputRef);
     const tooltipRef = useRef(null);
+    const equalityKey = props.optionValue ? null : props.dataKey;
 
     const onClick = (event) => {
         if (!props.disabled && !props.readOnly) {
@@ -21,25 +22,9 @@ export const MultiStateCheckbox = memo((props) => {
         return props.optionValue ? ObjectUtils.resolveFieldData(option, props.optionValue) : option;
     }
 
-    const equalityKey = () => {
-        return props.optionValue ? null : props.dataKey;
-    }
-
-    const findSelectedOptionMap = () => {
-        let option, index;
-
-        if (props.options) {
-            const key = equalityKey();
-            index = props.options.findIndex(option => ObjectUtils.equals(props.value, getOptionValue(option), key));
-            option = props.options[index];
-        }
-
-        return { option, index };
-    }
-
     const findNextOption = () => {
         if (props.options) {
-            const { index } = findSelectedOptionMap();
+            const { index } = selectedOption;
             return index === props.options.length - 1 ? (props.empty ? null : props.options[0]) : props.options[index + 1];
         }
 
@@ -60,22 +45,27 @@ export const MultiStateCheckbox = memo((props) => {
                     id: props.id,
                     value: newValue
                 }
-            })
+            });
         }
     }
 
     const onFocus = () => {
-        setFocused(true);
+        setFocusedState(true);
     }
 
     const onBlur = () => {
-        setFocused(false);
+        setFocusedState(false);
     }
 
-    useMountEffect(() => {
-        if (!props.empty && props.value === null) {
-            toggle();
+    const selectedOption = useMemo(() => {
+        let option, index;
+
+        if (props.options) {
+            index = props.options.findIndex(option => ObjectUtils.equals(props.value, getOptionValue(option), equalityKey));
+            option = props.options[index];
         }
+
+        return { option, index };
     });
 
     useEffect(() => {
@@ -95,6 +85,12 @@ export const MultiStateCheckbox = memo((props) => {
         }
     }, [props.tooltip, props.tooltipOptions]);
 
+    useMountEffect(() => {
+        if (!props.empty && props.value === null) {
+            toggle();
+        }
+    });
+
     useUnmountEffect(() => {
         if (tooltipRef.current) {
             tooltipRef.current.destroy();
@@ -102,8 +98,8 @@ export const MultiStateCheckbox = memo((props) => {
         }
     });
 
-    const useIcon = (option) => {
-        const icon = (option && option.icon) || '';
+    const useIcon = () => {
+        const icon = (selectedOption && selectedOption.icon) || '';
         const className = classNames('p-checkbox-icon p-c', {
             [`${icon}`]: true
         });
@@ -111,7 +107,7 @@ export const MultiStateCheckbox = memo((props) => {
 
         if (props.iconTemplate) {
             const defaultOptions = {
-                option,
+                option: selectedOption,
                 className,
                 element: content,
                 props
@@ -123,15 +119,13 @@ export const MultiStateCheckbox = memo((props) => {
         return content;
     }
 
-    const { option } = findSelectedOptionMap();
     const className = classNames('p-multistatecheckbox p-checkbox p-component', props.className);
     const boxClassName = classNames('p-checkbox-box', {
-        'p-highlight': !!option,
+        'p-highlight': !!selectedOption,
         'p-disabled': props.disabled,
-        'p-focus': focused
-    }, option && option.className);
-
-    const icon = useIcon(option);
+        'p-focus': focusedState
+    }, selectedOption && selectedOption.className);
+    const icon = useIcon();
 
     return (
         <div ref={elementRef} id={props.id} className={className} style={props.style} onClick={onClick}>
@@ -144,7 +138,7 @@ export const MultiStateCheckbox = memo((props) => {
             </div>
         </div>
     )
-})
+});
 
 MultiStateCheckbox.defaultProps = {
     __TYPE: 'MultiStateCheckbox',

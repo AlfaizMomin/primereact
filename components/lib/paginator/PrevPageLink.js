@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
 
-export const PrevPageLink = (props) => {
+export const PrevPageLink = memo((props) => {
     const className = classNames('p-paginator-prev p-paginator-element p-link', { 'p-disabled': props.disabled });
     const iconClassName = 'p-paginator-icon pi pi-angle-left';
     const element = (
@@ -27,7 +27,7 @@ export const PrevPageLink = (props) => {
     }
 
     return element;
-}
+});
 
 PrevPageLink.defaultProps = {
     __TYPE: 'PrevPageLink',

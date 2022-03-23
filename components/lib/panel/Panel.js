@@ -1,24 +1,21 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
+import { Ripple } from '../ripple/Ripple';
 import { CSSTransition } from '../csstransition/CSSTransition';
 import { ObjectUtils, classNames, IconUtils, UniqueComponentId } from '../utils/Utils';
-import { Ripple } from '../ripple/Ripple';
+import { useMountEffect } from '../hooks/Hooks';
 
 export const Panel = (props) => {
-    const [id, setId] = useState(props.id);
-    const [collapsedState,setCollapsedState] = useState(props.collapsed);
-    const className = classNames('p-panel p-component', props.className, {'p-panel-toggleable': props.toggleable});
-    const collapsed = props.toggleable ? (props.onToggle ? props.collapsed : collapsedState) : false;
+    const [idState, setIdState] = useState(props.id);
+    const [collapsedState, setCollapsedState] = useState(props.collapsed);
     const contentRef = useRef(null);
-    const headerId = id + '_header';
-    const contentId = id + '_content';
+    const collapsed = props.toggleable ? (props.onToggle ? props.collapsed : collapsedState) : false;
+    const headerId = idState + '_header';
+    const contentId = idState + '_content';
 
     const toggle = (event) => {
         if (props.toggleable) {
-            if (collapsed)
-                expand(event);
-            else
-                collapse(event);
+            collapsed ? expand(event) : collapse(event);
 
             if (props.onToggle) {
                 props.onToggle({
@@ -36,9 +33,7 @@ export const Panel = (props) => {
             setCollapsedState(false);
         }
 
-        if (props.onExpand) {
-            props.onExpand(event);
-        }
+        props.onExpand && props.onExpand(event);
     }
 
     const collapse = (event) => {
@@ -46,22 +41,20 @@ export const Panel = (props) => {
             setCollapsedState(true);
         }
 
-        if (props.onCollapse) {
-            props.onCollapse(event);
-        }
+        props.onCollapse && props.onCollapse(event);
     }
 
     const useToggleIcon = () => {
         if (props.toggleable) {
-            const buttonId = id + '_label';
+            const buttonId = idState + '_label';
             const toggleIcon = collapsed ? props.expandIcon : props.collapseIcon;
 
             return (
                 <button className="p-panel-header-icon p-panel-toggler p-link" onClick={toggle} id={buttonId} aria-controls={contentId} aria-expanded={!collapsed} role="tab">
-                    {IconUtils.getJSXIcon(toggleIcon, {props: props, collapsed})}
+                    {IconUtils.getJSXIcon(toggleIcon, { props: props, collapsed })}
                     <Ripple />
                 </button>
-            );
+            )
         }
 
         return null;
@@ -97,7 +90,7 @@ export const Panel = (props) => {
                 iconsElement,
                 togglerElement,
                 element: content,
-                props: props,
+                props,
                 collapsed
             };
 
@@ -119,15 +112,18 @@ export const Panel = (props) => {
                     </div>
                 </div>
             </CSSTransition>
-        );
+        )
     }
 
-    useEffect(() => {
+    useMountEffect(() => {
         if (!props.id) {
-            setId(UniqueComponentId());
+            setIdState(UniqueComponentId());
         }
-    }, []);
+    });
 
+    const className = classNames('p-panel p-component', {
+        'p-panel-toggleable': props.toggleable
+    }, props.className);
     const header = useHeader();
     const content = useContent();
 
@@ -136,7 +132,7 @@ export const Panel = (props) => {
             {header}
             {content}
         </div>
-    );
+    )
 }
 
 Panel.defaultProps = {

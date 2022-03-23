@@ -12,10 +12,6 @@ export const Editor = memo(forwardRef((props, ref) => {
         return quill.current;
     }
 
-    useImperativeHandle(ref, () => {
-        getQuill
-    });
-
     useMountEffect(() => {
         import('quill').then((module) => {
             if (module && module.default && DomHandler.isExist(contentRef.current)) {
@@ -76,6 +72,10 @@ export const Editor = memo(forwardRef((props, ref) => {
         }
     }, [props.value]);
 
+    useImperativeHandle(ref, () => {
+        getQuill
+    });
+
     const useToolbarHeader = () => {
         if (props.showHeader === false) {
             return null;
@@ -135,15 +135,16 @@ export const Editor = memo(forwardRef((props, ref) => {
     }
 
     const className = classNames('p-component p-editor-container', props.className);
-    const toolbarHeader = useToolbarHeader();
+    const header = useToolbarHeader();
+    const content = <div ref={contentRef} className="p-editor-content"></div>
 
     return (
         <div id={props.id} className={className} style={props.style}>
-            {toolbarHeader}
-            <div ref={contentRef} className="p-editor-content"></div>
+            {header}
+            {content}
         </div>
     )
-}))
+}));
 
 Editor.defaultProps = {
     __TYPE: 'Editor',

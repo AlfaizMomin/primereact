@@ -7,39 +7,37 @@ import { CSSTransition } from '../csstransition/CSSTransition';
 let messageIdx = 0;
 
 export const Messages = memo(forwardRef((props, ref) => {
-    const [messages, setMessages] = useState([]);
+    const [messagesState, setMessagesState] = useState([]);
 
     const show = (value) => {
         if (value) {
-            let _messages = [];
+            let messages = [];
 
             if (Array.isArray(value)) {
                 for (let i = 0; i < value.length; i++) {
                     value[i].id = messageIdx++;
-                    _messages = [...messages, ...value];
+                    messages = [...messagesState, ...value];
                 }
             }
             else {
                 value.id = messageIdx++;
-                _messages = messages ? [...messages, value] : [value];
+                messages = messagesState ? [...messagesState, value] : [value];
             }
 
-            setMessages(_messages);
+            setMessagesState(messages);
         }
     }
 
     const clear = () => {
-        setMessages([]);
+        setMessagesState([]);
     }
 
     const replace = (value) => {
-        setMessages(value);
+        setMessagesState(value);
     }
 
     const onClose = (message) => {
-        let _messages = messages.filter(msg => msg.id !== message.id);
-        setMessages(_messages);
-
+        setMessagesState(messagesState.filter(msg => msg.id !== message.id));
         props.onRemove && props.onRemove(message);
     }
 
@@ -53,7 +51,7 @@ export const Messages = memo(forwardRef((props, ref) => {
         <div id={props.id} className={props.className} style={props.style}>
             <TransitionGroup>
                 {
-                    messages.map((message) => {
+                    messagesState.map((message) => {
                         const messageRef = createRef();
 
                         return (
@@ -65,8 +63,8 @@ export const Messages = memo(forwardRef((props, ref) => {
                 }
             </TransitionGroup>
         </div>
-    );
-}))
+    )
+}));
 
 Messages.defaultProps = {
     __TYPE: 'Messages',

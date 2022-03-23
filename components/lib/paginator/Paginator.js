@@ -1,6 +1,5 @@
-import React, { useRef } from 'react';
+import React, { memo, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { ObjectUtils, classNames } from '../utils/Utils';
 import { FirstPageLink } from './FirstPageLink';
 import { NextPageLink } from './NextPageLink';
 import { PrevPageLink } from './PrevPageLink';
@@ -9,11 +8,11 @@ import { PageLinks } from './PageLinks';
 import { RowsPerPageDropdown } from './RowsPerPageDropdown';
 import { CurrentPageReport } from './CurrentPageReport';
 import { JumpToPageInput } from './JumpToPageInput';
+import { ObjectUtils, classNames } from '../utils/Utils';
 import { useUpdateEffect } from '../hooks/Hooks';
 
-export const Paginator = (props) => {
+export const Paginator = memo((props) => {
     const rppChanged = useRef(false);
-
     const page = Math.floor(props.first / props.rows);
     const pageCount = Math.ceil(props.totalRecords / props.rows);
     const isFirstPage = (page === 0);
@@ -197,9 +196,9 @@ export const Paginator = (props) => {
                 {elements}
                 {rightElement}
             </div>
-        );
+        )
     }
-}
+});
 
 Paginator.defaultProps = {
     __TYPE: 'Paginator',

@@ -1,19 +1,19 @@
-import React, { useRef, forwardRef, useEffect, useState, useImperativeHandle, memo } from 'react';
+import React, { useRef, forwardRef, useState, useImperativeHandle, memo } from 'react';
 import PropTypes from 'prop-types';
-import { ObjectUtils, ZIndexUtils, classNames } from '../utils/Utils';
-import { MenubarSub } from './MenubarSub';
 import PrimeReact from '../api/Api';
-import { useEventListener } from '../hooks/Hooks';
+import { MenubarSub } from './MenubarSub';
+import { ObjectUtils, ZIndexUtils, classNames } from '../utils/Utils';
+import { useUpdateEffect, useUnmountEffect, useEventListener } from '../hooks/Hooks';
 
 export const Menubar = memo(forwardRef((props, ref) => {
-    const [mobileActive, setMobileActive] = useState(false);
+    const [mobileActiveState, setMobileActiveState] = useState(false);
     const rootMenuRef = useRef(null);
     const menuButtonRef = useRef(null);
 
     const [bindDocumentClickListener, unbindDocumentClickListener] = useEventListener({
-        type: 'click', listener: event => {
-            if (mobileActive && isOutsideClicked(event)) {
-                setMobileActive(false);
+        type: 'click', listener: (event) => {
+            if (mobileActiveState && isOutsideClicked(event)) {
+                setMobileActiveState(false);
             }
         }
     });
@@ -21,11 +21,20 @@ export const Menubar = memo(forwardRef((props, ref) => {
     const toggle = (event) => {
         event.preventDefault();
 
-        setMobileActive(prevState => !prevState)
+        setMobileActiveState(prevMobileActive => !prevMobileActive);
     }
 
-    useEffect(() => {
-        if (mobileActive) {
+    const onLeafClick = () => {
+        setMobileActive(false);
+    }
+
+    const isOutsideClicked = (event) => {
+        return rootMenuRef.current !== event.target && !rootMenuRef.current.contains(event.target)
+            && menuButtonRef.current !== event.target && !menuButtonRef.current.contains(event.target);
+    }
+
+    useUpdateEffect(() => {
+        if (mobileActiveState) {
             ZIndexUtils.set('menu', rootMenuRef.current, PrimeReact.autoZIndex, PrimeReact.zIndex['menu']);
             bindDocumentClickListener();
         }
@@ -33,23 +42,16 @@ export const Menubar = memo(forwardRef((props, ref) => {
             unbindDocumentClickListener();
             ZIndexUtils.clear(rootMenuRef.current);
         }
-    }, [mobileActive])
+    }, [mobileActiveState]);
 
+    useUnmountEffect(() => {
+        ZIndexUtils.clear(rootMenuRef.current);
+    });
 
-    const isOutsideClicked = (event) => {
-        return rootMenuRef.current !== event.target && !rootMenuRef.current.contains(event.target)
-            && menuButtonRef.current !== event.target && !menuButtonRef.current.contains(event.target)
-    }
-
-    const onLeafClick = () => {
-        setMobileActive(false);
-    }
-
-    useEffect(() => {
-        return () => {
-            ZIndexUtils.clear(rootMenuRef.current);
-        }
-    }, [])
+    useImperativeHandle(ref, () => ({
+        toggle,
+        useCustomContent
+    }));
 
     const useCustomContent = () => {
         if (props.children) {
@@ -57,7 +59,7 @@ export const Menubar = memo(forwardRef((props, ref) => {
                 <div className="p-menubar-custom">
                     {props.children}
                 </div>
-            );
+            )
         }
 
         return null;
@@ -71,7 +73,7 @@ export const Menubar = memo(forwardRef((props, ref) => {
                 <div className="p-menubar-start">
                     {start}
                 </div>
-            );
+            )
         }
 
         return null;
@@ -85,7 +87,7 @@ export const Menubar = memo(forwardRef((props, ref) => {
                 <div className="p-menubar-end">
                     {end}
                 </div>
-            );
+            )
         }
 
         return null;
@@ -97,31 +99,29 @@ export const Menubar = memo(forwardRef((props, ref) => {
             <a ref={menuButtonRef} href={'#'} role="button" tabIndex={0} className="p-menubar-button" onClick={toggle}>
                 <i className="pi pi-bars" />
             </a>
-        );
+        )
         /* eslint-enable */
 
         return button;
     }
 
-    useImperativeHandle(ref, () => ({
-        toggle,
-        useCustomContent
-    }));
-
-    const className = classNames('p-menubar p-component', { 'p-menubar-mobile-active': mobileActive }, props.className);
+    const className = classNames('p-menubar p-component', {
+        'p-menubar-mobile-active': mobileActiveState
+    }, props.className);
     const start = useStartContent();
     const end = useEndContent();
     const menuButton = useMenuButton();
+    const submenu =  <MenubarSub ref={rootMenuRef} model={props.model} root mobileActive={mobileActiveState} onLeafClick={onLeafClick} />;
 
     return (
         <div id={props.id} className={className} style={props.style}>
             {start}
             {menuButton}
-            <MenubarSub ref={rootMenuRef} model={props.model} root mobileActive={mobileActive} onLeafClick={onLeafClick} />
+            {submenu}
             {end}
         </div>
-    );
-}))
+    )
+}));
 
 Menubar.defaultProps = {
     __TYPE: 'Menubar',

@@ -1,23 +1,25 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { classNames } from '../utils/Utils';
 import { Button } from '../button/Button';
+import { classNames } from '../utils/Utils';
 
-export const InplaceDisplay = props => props.children;
-export const InplaceContent = props => props.children;
+export const InplaceDisplay = (props) => props.children;
+export const InplaceContent = (props) => props.children;
 
 export const Inplace = (props) => {
+    const [activeState, setActiveState] = useState(false);
+    const active = props.onToggle ? props.active : activeState;
 
-    const [active, setActive] = useState(false);
+    const shouldUseInplaceContent = (child) => child && child.props.__TYPE === 'InplaceContent';
+    const shouldUseInplaceDisplay = (child) => child && child.props.__TYPE === 'InplaceDisplay';
 
     const open = (event) => {
         if (props.disabled) {
             return;
         }
 
-        if (props.onOpen) {
-            props.onOpen(event);
-        }
+        props.onOpen && props.onOpen(event);
+
         if (props.onToggle) {
             props.onToggle({
                 originalEvent: event,
@@ -25,14 +27,12 @@ export const Inplace = (props) => {
             });
         }
         else {
-            setActive(true);
+            setActiveState(true);
         }
     }
 
     const close = (event) => {
-        if (props.onClose) {
-            props.onClose(event);
-        }
+        props.onClose && props.onClose(event);
 
         if (props.onToggle) {
             props.onToggle({
@@ -41,7 +41,7 @@ export const Inplace = (props) => {
             });
         }
         else {
-            setActive(false);
+            setActiveState(false);
         }
     }
 
@@ -52,25 +52,21 @@ export const Inplace = (props) => {
         }
     }
 
-    const isActive = () => {
-        return props.onToggle ? props.active : active;
-    }
-
     const useDisplay = (content) => {
-        const className = classNames('p-inplace-display', { 'p-disabled': props.disabled });
+        const className = classNames('p-inplace-display', {
+            'p-disabled': props.disabled
+        });
 
         return (
             <div className={className} onClick={open} onKeyDown={onDisplayKeyDown} tabIndex={props.tabIndex} aria-label={props.ariaLabel}>
                 {content}
             </div>
-        );
+        )
     }
 
     const useCloseButton = () => {
         if (props.closable) {
-            return (
-                <Button type="button" className="p-inplace-content-close" icon="pi pi-times" onClick={close} />
-            )
+            return <Button type="button" className="p-inplace-content-close" icon="pi pi-times" onClick={close} />
         }
 
         return null;
@@ -84,32 +80,49 @@ export const Inplace = (props) => {
                 {content}
                 {closeButton}
             </div>
-        );
+        )
     }
 
     const useChildren = () => {
-        const active = isActive();
-
         return (
-            React.Children.map(props.children, (child, i) => {
-                if (active && child.type === InplaceContent) {
+            React.Children.map(props.children, (child) => {
+                if (active && shouldUseInplaceContent(child)) {
                     return useContent(child);
                 }
-                else if (!active && child.type === InplaceDisplay) {
+                else if (!active && shouldUseInplaceDisplay(child)) {
                     return useDisplay(child);
                 }
             })
         );
     }
 
-    const className = classNames('p-inplace p-component', { 'p-inplace-closable': props.closable }, props.className);
+    const children = useChildren();
+    const className = classNames('p-inplace p-component', {
+        'p-inplace-closable': props.closable
+    }, props.className);
 
     return (
         <div className={className}>
-            {useChildren()}
+            {children}
         </div>
-    );
+    )
 
+}
+
+InplaceDisplay.defaultProps = {
+    __TYPE: 'InplaceDisplay'
+}
+
+InplaceDisplay.propTypes = {
+    __TYPE: PropTypes.string
+}
+
+InplaceContent.defaultProps = {
+    __TYPE: 'InplaceContent'
+}
+
+InplaceContent.propTypes = {
+    __TYPE: PropTypes.string
 }
 
 Inplace.defaultProps = {
@@ -138,4 +151,4 @@ Inplace.propTypes = {
     onOpen: PropTypes.func,
     onClose: PropTypes.func,
     onToggle: PropTypes.func,
-};
+}

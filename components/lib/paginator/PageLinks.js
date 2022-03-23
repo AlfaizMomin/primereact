@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
 
-export const PageLinks = (props) => {
+export const PageLinks = memo((props) => {
 
     const onPageLinkClick = (event, pageLink) => {
         if (props.onClick) {
@@ -19,10 +19,10 @@ export const PageLinks = (props) => {
     let elements;
 
     if (props.value) {
-        let startPageInView = props.value[0];
-        let endPageInView = props.value[props.value.length - 1];
+        const startPageInView = props.value[0];
+        const endPageInView = props.value[props.value.length - 1];
 
-        elements = props.value.map((pageLink, i) => {
+        elements = props.value.map((pageLink) => {
             const className = classNames('p-paginator-page p-paginator-element p-link', {
                 'p-paginator-page-start': pageLink === startPageInView,
                 'p-paginator-page-end': pageLink === endPageInView,
@@ -48,7 +48,7 @@ export const PageLinks = (props) => {
                     currentPage: props.page,
                     totalPages: props.pageCount,
                     element,
-                    props: props
+                    props
                 };
 
                 element = ObjectUtils.getJSXElement(props.template, defaultOptions);
@@ -62,8 +62,8 @@ export const PageLinks = (props) => {
         });
     }
 
-    return <span className="p-paginator-pages">{elements}</span>;
-}
+    return <span className="p-paginator-pages">{elements}</span>
+});
 
 PageLinks.defaultProps = {
     __TYPE: 'PageLinks',
