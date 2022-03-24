@@ -1,8 +1,8 @@
 import React, { memo, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { classNames, IconUtils } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
 import { Ripple } from '../ripple/Ripple';
+import { classNames, IconUtils } from '../utils/Utils';
 import { useUnmountEffect } from '../hooks/Hooks';
 
 export const ToggleButton = memo((props) => {
@@ -69,24 +69,24 @@ export const ToggleButton = memo((props) => {
         return null;
     }
 
+    const tabIndex = !props.disabled && props.tabIndex;
     const className = classNames('p-button p-togglebutton p-component', {
         'p-button-icon-only': hasIcon && !hasLabel,
         'p-highlight': props.checked,
-        'p-disabled': props.disabled,
+        'p-disabled': props.disabled
     }, props.className);
-
-    const _icon = useIcon();
+    const iconElement = useIcon();
 
     return (
         <div ref={elementRef} id={props.id} className={className} style={props.style}
             onClick={toggle} onFocus={props.onFocus} onBlur={props.onBlur} onKeyDown={onKeyDown}
-            tabIndex={!props.disabled && props.tabIndex} aria-labelledby={props.ariaLabelledBy}>
-            {_icon}
+            tabIndex={tabIndex} aria-labelledby={props.ariaLabelledBy}>
+            {iconElement}
             <span className="p-button-label">{label}</span>
             <Ripple />
         </div>
     )
-})
+});
 
 ToggleButton.defaultProps = {
     __TYPE: 'ToggleButton',

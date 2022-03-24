@@ -1,9 +1,9 @@
 import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import { DomHandler, classNames, ZIndexUtils } from '../utils/Utils';
-import { Portal } from '../portal/Portal';
 import PrimeReact from '../api/Api';
+import { Portal } from '../portal/Portal';
+import { DomHandler, classNames, ZIndexUtils } from '../utils/Utils';
 import { useResizeListener, useOverlayScrollListener, useUpdateEffect, useUnmountEffect } from '../hooks/Hooks';
 
 export const tip = (props) => {
@@ -37,8 +37,8 @@ export const tip = (props) => {
 }
 
 export const Tooltip = memo(forwardRef((props, ref) => {
-    const [visible, setVisible] = useState(false);
-    const [position, setPosition] = useState(props.position);
+    const [visibleState, setVisibleState] = useState(false);
+    const [positionState, setPositionState] = useState(props.position);
     const elementRef = useRef(null);
     const textRef = useRef(null);
     const currentTargetRef = useRef(null);
@@ -47,15 +47,15 @@ export const Tooltip = memo(forwardRef((props, ref) => {
     const timeouts = useRef({});
 
     const [bindWindowResizeListener, unbindWindowResizeListener] = useResizeListener({
-        listener: (e) => {
-            !DomHandler.isTouchDevice() && hide(e);
+        listener: (event) => {
+            !DomHandler.isTouchDevice() && hide(event);
         }
     });
 
     const [bindOverlayScrollListener, unbindOverlayScrollListener] = useOverlayScrollListener({
-        target: currentTargetRef.current, listener: (e) => {
-            visible && hide(e);
-        }
+        target: currentTargetRef.current, listener: (event) => {
+            hide(event);
+        }, when: visibleState
     });
 
     const isTargetContentEmpty = (target) => {
@@ -110,7 +110,7 @@ export const Tooltip = memo(forwardRef((props, ref) => {
     }
 
     const getPosition = (target) => {
-        return getTargetOption(target, 'position') || position;
+        return getTargetOption(target, 'position') || positionState;
     }
 
     const getMouseTrackPosition = (target) => {
@@ -164,14 +164,14 @@ export const Tooltip = memo(forwardRef((props, ref) => {
             });
         }
 
-        if (visible) {
+        if (visibleState) {
             applyDelay('updateDelay', updateTooltipState);
         }
         else {
             sendCallback(props.onBeforeShow, { originalEvent: e, target: currentTargetRef.current });
             applyDelay('showDelay', () => {
-                setVisible(true);
-                setPosition(getPosition(currentTargetRef.current));
+                setVisibleState(true);
+                setPositionState(getPosition(currentTargetRef.current));
                 updateTooltipState();
                 sendCallback(props.onShow, { originalEvent: e, target: currentTargetRef.current });
                 DomHandler.addClass(currentTargetRef.current, getTargetOption(currentTargetRef.current, 'classname'));
@@ -182,7 +182,7 @@ export const Tooltip = memo(forwardRef((props, ref) => {
     const hide = (e) => {
         clearTimeouts();
 
-        if (visible) {
+        if (visibleState) {
             DomHandler.removeClass(currentTargetRef.current, getTargetOption(currentTargetRef.current, 'classname'));
 
             sendCallback(props.onBeforeHide, { originalEvent: e, target: currentTargetRef.current });
@@ -194,8 +194,8 @@ export const Tooltip = memo(forwardRef((props, ref) => {
                     return;
                 }
 
-                setVisible(false);
-                setPosition(props.position);
+                setVisibleState(false);
+                setPositionState(props.position);
                 currentTargetRef.current = null;
                 containerSize.current = null;
                 allowHide.current = true;
@@ -218,7 +218,7 @@ export const Tooltip = memo(forwardRef((props, ref) => {
 
             let { top: mouseTrackTop, left: mouseTrackLeft } = getMouseTrackPosition(target);
 
-            switch (position) {
+            switch (positionState) {
                 case 'left':
                     left -= (_containerSize.width + mouseTrackLeft);
                     top -= (_containerSize.height / 2) - mouseTrackTop;
@@ -252,7 +252,7 @@ export const Tooltip = memo(forwardRef((props, ref) => {
             DomHandler.addClass(elementRef.current, 'p-tooltip-active');
         }
         else {
-            const pos = DomHandler.findCollisionPosition(position);
+            const pos = DomHandler.findCollisionPosition(positionState);
             const my = (getTargetOption(target, 'my') || props.my || pos.my);
             const at = (getTargetOption(target, 'at') || props.at || pos.at);
 
@@ -265,7 +265,7 @@ export const Tooltip = memo(forwardRef((props, ref) => {
 
                 elementRef.current.style.padding = '';
 
-                setPosition(newPosition);
+                setPositionState(newPosition);
                 updateContainerPosition();
                 DomHandler.addClass(elementRef.current, 'p-tooltip-active');
             });
@@ -276,9 +276,9 @@ export const Tooltip = memo(forwardRef((props, ref) => {
         if (elementRef.current) {
             const style = getComputedStyle(elementRef.current);
 
-            if (position === 'left')
+            if (positionState === 'left')
                 elementRef.current.style.left = (parseFloat(style.left) - (parseFloat(style.paddingLeft) * 2)) + 'px';
-            else if (position === 'top')
+            else if (positionState === 'top')
                 elementRef.current.style.top = (parseFloat(style.top) - (parseFloat(style.paddingTop) * 2)) + 'px';
         }
     }
@@ -400,8 +400,14 @@ export const Tooltip = memo(forwardRef((props, ref) => {
         }
     }, [show, hide, props.target]);
 
+    useEffect(() => {
+        if (visibleState && currentTargetRef.current && isDisabled(currentTargetRef.current)) {
+            hide();
+        }
+    });
+
     useUpdateEffect(() => {
-        if (visible) {
+        if (visibleState) {
             bindWindowResizeListener();
             bindOverlayScrollListener();
         }
@@ -413,10 +419,10 @@ export const Tooltip = memo(forwardRef((props, ref) => {
             unbindWindowResizeListener();
             unbindOverlayScrollListener();
         }
-    }, [visible]);
+    }, [visibleState]);
 
     useUpdateEffect(() => {
-        if (visible) {
+        if (visibleState) {
             applyDelay('updateDelay', () => {
                 updateText(currentTargetRef.current, () => {
                     align(currentTargetRef.current);
@@ -424,12 +430,6 @@ export const Tooltip = memo(forwardRef((props, ref) => {
             });
         }
     }, [props.content]);
-
-    useEffect(() => {
-        if (visible && currentTargetRef.current && isDisabled(currentTargetRef.current)) {
-            hide();
-        }
-    });
 
     useUnmountEffect(() => {
         clearTimeouts();
@@ -446,12 +446,12 @@ export const Tooltip = memo(forwardRef((props, ref) => {
 
     const useElement = () => {
         const tooltipClassName = classNames('p-tooltip p-component', {
-            [`p-tooltip-${position}`]: true
+            [`p-tooltip-${positionState}`]: true
         }, props.className);
         const empty = isTargetContentEmpty(currentTargetRef.current);
 
         return (
-            <div id={props.id} ref={elementRef} className={tooltipClassName} style={props.style} role="tooltip" aria-hidden={visible}
+            <div id={props.id} ref={elementRef} className={tooltipClassName} style={props.style} role="tooltip" aria-hidden={visibleState}
                 onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
                 <div className="p-tooltip-arrow"></div>
                 <div ref={textRef} className="p-tooltip-text">
@@ -461,7 +461,7 @@ export const Tooltip = memo(forwardRef((props, ref) => {
         )
     }
 
-    if (visible) {
+    if (visibleState) {
         const element = useElement();
 
         return <Portal element={element} appendTo={props.appendTo} visible />;

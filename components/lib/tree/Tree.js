@@ -1,16 +1,16 @@
 import React, { forwardRef, memo, useImperativeHandle, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { ObjectUtils, classNames } from '../utils/Utils';
 import { UITreeNode } from './UITreeNode';
+import { ObjectUtils, classNames } from '../utils/Utils';
 
 export const Tree = memo(forwardRef((props, ref) => {
-    const [filterValue, setFilterValue] = useState('');
-    const [expandedKeys, setExpandedKeys] = useState(props.expandedKeys);
+    const [filterValueState, setFilterValueState] = useState('');
+    const [expandedKeysState, setExpandedKeysState] = useState(props.expandedKeys);
     const filteredNodes = useRef([]);
     const dragState = useRef(null);
     const filterChanged = useRef(false);
-    const filteredValue = props.onFilterValueChange ? props.filterValue : filterValue;
-    const _expandedKeys = props.onToggle ? props.expandedKeys : expandedKeys;
+    const filteredValue = props.onFilterValueChange ? props.filterValue : filterValueState;
+    const expandedKeys = props.onToggle ? props.expandedKeys : expandedKeysState;
 
     const getRootNode = () => {
         return (props.filter && filteredNodes.current) ? filteredNodes.current : props.value;
@@ -21,7 +21,7 @@ export const Tree = memo(forwardRef((props, ref) => {
             props.onToggle(event);
         }
         else {
-            setExpandedKeys(event.value);
+            setExpandedKeysState(event.value);
         }
     }
 
@@ -40,7 +40,9 @@ export const Tree = memo(forwardRef((props, ref) => {
         if (validateDropNode(dragState.current.path, event.path)) {
             let value = JSON.parse(JSON.stringify(props.value));
             let dragPaths = dragState.current.path.split('-');
+
             dragPaths.pop();
+
             let dragNodeParent = findNode(value, dragPaths);
             let dragNode = dragNodeParent ? dragNodeParent.children[dragState.current.index] : value[dragState.current.index];
             let dropNode = findNode(value, event.path.split('-'));
@@ -71,9 +73,13 @@ export const Tree = memo(forwardRef((props, ref) => {
         if (validateDropPoint(event)) {
             let value = JSON.parse(JSON.stringify(props.value));
             let dragPaths = dragState.current.path.split('-');
+
             dragPaths.pop();
+
             let dropPaths = event.path.split('-');
+
             dropPaths.pop();
+
             let dragNodeParent = findNode(value, dragPaths);
             let dropNodeParent = findNode(value, dropPaths);
             let dragNode = dragNodeParent ? dragNodeParent.children[dragState.current.index] : value[dragState.current.index];
@@ -197,7 +203,7 @@ export const Tree = memo(forwardRef((props, ref) => {
     }
 
     const onFilterInputChange = (event) => {
-        filterChanged = true;
+        filterChanged.current = true;
         const value = event.target.value;
 
         if (props.onFilterValueChange) {
@@ -207,12 +213,12 @@ export const Tree = memo(forwardRef((props, ref) => {
             });
         }
         else {
-            setFilterValue(value);
+            setFilterValueState(value);
         }
     }
 
     const filter = (value) => {
-        setFilterValue(ObjectUtils.isNotEmpty(value) ? value : '');
+        setFilterValueState(ObjectUtils.isNotEmpty(value) ? value : '');
         _filter();
     }
 
@@ -239,7 +245,7 @@ export const Tree = memo(forwardRef((props, ref) => {
             }
         }
 
-        filterChanged = false;
+        filterChanged.current = false;
     }
 
     const findFilteredNodes = (node, paramsWithoutNode) => {
@@ -291,10 +297,10 @@ export const Tree = memo(forwardRef((props, ref) => {
                 contextMenuSelectionKey={props.contextMenuSelectionKey} onContextMenuSelectionChange={props.onContextMenuSelectionChange} onContextMenu={props.onContextMenu}
                 propagateSelectionDown={props.propagateSelectionDown} propagateSelectionUp={props.propagateSelectionUp}
                 onExpand={props.onExpand} onCollapse={props.onCollapse} onSelect={props.onSelect} onUnselect={props.onUnselect}
-                expandedKeys={_expandedKeys} onToggle={onToggle} nodeTemplate={props.nodeTemplate} togglerTemplate={props.togglerTemplate} isNodeLeaf={isNodeLeaf}
+                expandedKeys={expandedKeys} onToggle={onToggle} nodeTemplate={props.nodeTemplate} togglerTemplate={props.togglerTemplate} isNodeLeaf={isNodeLeaf}
                 dragdropScope={props.dragdropScope} onDragStart={onDragStart} onDragEnd={onDragEnd} onDrop={onDrop} onDropPoint={onDropPoint}
                 onNodeClick={props.onNodeClick} onNodeDoubleClick={props.onNodeDoubleClick} />
-        );
+        )
     }
 
     const useRootChildren = () => {
@@ -304,6 +310,7 @@ export const Tree = memo(forwardRef((props, ref) => {
         }
 
         const value = getRootNode();
+
         return (
             value.map((node, index) => useRootChild(node, index, (index === value.length - 1)))
         )
@@ -414,7 +421,7 @@ export const Tree = memo(forwardRef((props, ref) => {
             {footer}
         </div>
     )
-}))
+}));
 
 Tree.defaultProps = {
     __TYPE: 'Tree',

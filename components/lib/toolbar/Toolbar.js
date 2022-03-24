@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, classNames } from '../utils/Utils';
 
-export const Toolbar = (props) => {
+export const Toolbar = memo((props) => {
     const toolbarClass = classNames('p-toolbar p-component', props.className);
     const left = ObjectUtils.getJSXElement(props.left, props);
     const right = ObjectUtils.getJSXElement(props.right, props);
@@ -16,8 +16,8 @@ export const Toolbar = (props) => {
                 {right}
             </div>
         </div>
-    );
-}
+    )
+});
 
 Toolbar.defaultProps = {
     __TYPE: 'Toolbar',

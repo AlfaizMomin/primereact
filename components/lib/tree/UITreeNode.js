@@ -1,6 +1,6 @@
 import React, { memo, useRef } from 'react';
-import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
+import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 
 export const UITreeNode = memo((props) => {
     const contentRef = useRef(null);
@@ -83,10 +83,8 @@ export const UITreeNode = memo((props) => {
                         focusNode(nextNodeElement);
                     }
                     else {
-                        let nextSiblingAncestor = findNextSiblingOfAncestor(nodeElement);
-                        if (nextSiblingAncestor) {
-                            focusNode(nextSiblingAncestor);
-                        }
+                        const nextSiblingAncestor = findNextSiblingOfAncestor(nodeElement);
+                        nextSiblingAncestor && focusNode(nextSiblingAncestor);
                     }
                 }
 
@@ -99,10 +97,8 @@ export const UITreeNode = memo((props) => {
                     focusNode(findLastVisibleDescendant(nodeElement.previousElementSibling));
                 }
                 else {
-                    let parentNodeElement = getParentNodeElement(nodeElement);
-                    if (parentNodeElement) {
-                        focusNode(parentNodeElement);
-                    }
+                    const parentNodeElement = getParentNodeElement(nodeElement);
+                    parentNodeElement && focusNode(parentNodeElement);
                 }
 
                 event.preventDefault();
@@ -139,23 +135,14 @@ export const UITreeNode = memo((props) => {
     }
 
     const findNextSiblingOfAncestor = (nodeElement) => {
-        let parentNodeElement = getParentNodeElement(nodeElement);
-        if (parentNodeElement) {
-            if (parentNodeElement.nextElementSibling)
-                return parentNodeElement.nextElementSibling;
-            else
-                return findNextSiblingOfAncestor(parentNodeElement);
-        }
-        else {
-            return null;
-        }
+        const parentNodeElement = getParentNodeElement(nodeElement);
+        return parentNodeElement ? (parentNodeElement.nextElementSibling || findNextSiblingOfAncestor(parentNodeElement)) : null;
     }
 
     const findLastVisibleDescendant = (nodeElement) => {
         const childrenListElement = nodeElement.children[1];
         if (childrenListElement) {
             const lastChildElement = childrenListElement.children[childrenListElement.children.length - 1];
-
             return findLastVisibleDescendant(lastChildElement);
         }
         else {
@@ -165,7 +152,6 @@ export const UITreeNode = memo((props) => {
 
     const getParentNodeElement = (nodeElement) => {
         const parentNodeElement = nodeElement.parentElement.parentElement;
-
         return DomHandler.hasClass(parentNodeElement, 'p-treenode') ? parentNodeElement : null;
     }
 
@@ -180,8 +166,7 @@ export const UITreeNode = memo((props) => {
                 node: props.node
             });
         }
-
-        if ((event.target.className && event.target.className.constructor === String && event.target.className.indexOf('p-tree-toggler') === 0) || props.disabled) {
+        if (DomHandler.hasClass(event.target, 'p-tree-toggler') || props.disabled) {
             return;
         }
 
@@ -583,14 +568,12 @@ export const UITreeNode = memo((props) => {
     }
 
     const useIcon = () => {
-        let icon = props.node.icon || (expanded ? props.node.expandedIcon : props.node.collapsedIcon);
+        const icon = props.node.icon || (expanded ? props.node.expandedIcon : props.node.collapsedIcon);
 
         if (icon) {
-            let className = classNames('p-treenode-icon', icon);
+            const className = classNames('p-treenode-icon', icon);
 
-            return (
-                <span className={className}></span>
-            );
+            return <span className={className}></span>
         }
 
         return null;
@@ -611,7 +594,7 @@ export const UITreeNode = memo((props) => {
                 containerClassName: 'p-tree-toggler p-link',
                 iconClassName: 'p-tree-toggler-icon',
                 element: content,
-                props: props,
+                props,
                 expanded
             };
 
@@ -662,7 +645,7 @@ export const UITreeNode = memo((props) => {
     }
 
     const useChildren = () => {
-        if (props.node.children && props.node.children.length && expanded) {
+        if (ObjectUtils.isNotEmpty(props.node.children) && expanded) {
             return (
                 <ul className="p-treenode-children" role="group">
                     {
@@ -686,7 +669,9 @@ export const UITreeNode = memo((props) => {
     }
 
     const useNode = () => {
-        const className = classNames('p-treenode', { 'p-treenode-leaf': isLeaf }, props.node.className)
+        const className = classNames('p-treenode', {
+            'p-treenode-leaf': isLeaf
+        }, props.node.className)
         const content = useContent();
         const children = useChildren();
 
@@ -714,4 +699,4 @@ export const UITreeNode = memo((props) => {
     }
 
     return node;
-})
+});

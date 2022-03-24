@@ -117,7 +117,7 @@ const DataTableExportDemo = () => {
 
     const saveAsExcelFile = (buffer, fileName) => {
         import('file-saver').then(module => {
-            if (modeule && module.default) {
+            if (module && module.default) {
                 let EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
                 let EXCEL_EXTENSION = '.xlsx';
                 const data = new Blob([buffer], {
@@ -356,7 +356,7 @@ export class DataTableExportDemo extends Component {
 
     saveAsExcelFile(buffer, fileName) {
         import('file-saver').then(module => {
-            if (modeule && module.default) {
+            if (module && module.default) {
                 let EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
                 let EXCEL_EXTENSION = '.xlsx';
                 const data = new Blob([buffer], {
@@ -559,7 +559,7 @@ export const DataTableExportDemo = () => {
 
     const saveAsExcelFile = (buffer, fileName) => {
         import('file-saver').then(module => {
-            if (modeule && module.default) {
+            if (module && module.default) {
                 let EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
                 let EXCEL_EXTENSION = '.xlsx';
                 const data = new Blob([buffer], {
@@ -757,7 +757,7 @@ export const DataTableExportDemo = () => {
 
     const saveAsExcelFile = (buffer, fileName) => {
         import('file-saver').then(module => {
-            if (modeule && module.default) {
+            if (module && module.default) {
                 let EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
                 let EXCEL_EXTENSION = '.xlsx';
                 const data = new Blob([buffer], {
@@ -968,7 +968,7 @@ const DataTableExportDemo = () => {
 
     const saveAsExcelFile = (buffer, fileName) => {
         import('file-saver').then(module => {
-            if (modeule && module.default) {
+            if (module && module.default) {
                 let EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
                 let EXCEL_EXTENSION = '.xlsx';
                 const data = new Blob([buffer], {

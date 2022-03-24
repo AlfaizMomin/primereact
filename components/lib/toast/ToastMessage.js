@@ -29,7 +29,7 @@ export const ToastMessage = memo(forwardRef((props, ref) => {
                     <span className="p-toast-icon-close-icon pi pi-times"></span>
                     <Ripple />
                 </button>
-            );
+            )
         }
 
         return null;
@@ -63,7 +63,6 @@ export const ToastMessage = memo(forwardRef((props, ref) => {
         [`p-toast-message-${severity}`]: severity
     }, _className);
     const contentClassName = classNames('p-toast-message-content', _contentClassName);
-
     const message = useMessage();
     const closeIcon = useCloseIcon();
 
@@ -75,4 +74,4 @@ export const ToastMessage = memo(forwardRef((props, ref) => {
             </div>
         </div>
     )
-}))
+}));
