@@ -1,74 +1,70 @@
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { DomHandler, ObjectUtils, ZIndexUtils, classNames } from '../utils/Utils';
+import PrimeReact, { localeOption } from '../api/Api';
 import { tip } from '../tooltip/Tooltip';
 import { InputText } from '../inputtext/InputText';
 import { CSSTransition } from '../csstransition/CSSTransition';
-import PrimeReact, { localeOption } from '../api/Api';
 import { OverlayService } from '../overlayservice/OverlayService';
 import { Portal } from '../portal/Portal';
-import { useOverlayScrollListener, useResizeListener, useUnmountEffect } from '../hooks/Hooks';
+import { DomHandler, ObjectUtils, ZIndexUtils, classNames } from '../utils/Utils';
+import { useUnmountEffect, useOverlayListener } from '../hooks/Hooks';
 
 export const Password = memo((props) => {
-    const promptLabel = () => props.promptLabel || localeOption('passwordPrompt');
-    const weakLabel = () => props.weakLabel || localeOption('weak');
-    const mediumLabel = () => props.mediumLabel || localeOption('medium');
-    const strongLabel = () => props.strongLabel || localeOption('strong');
+    const promptLabel = props.promptLabel || localeOption('passwordPrompt');
+    const weakLabel = props.weakLabel || localeOption('weak');
+    const mediumLabel = props.mediumLabel || localeOption('medium');
+    const strongLabel = props.strongLabel || localeOption('strong');
 
-    const [overlayVisible, setOverlayVisible] = useState(false);
-    const [meter, setMeter] = useState(null);
-    const [infoText, setInfoText] = useState(promptLabel);
-    const [focused, setFocused] = useState(false);
-    const [unmasked, setUnmasked] = useState(false);
+    const [overlayVisibleState, setOverlayVisibleState] = useState(false);
+    const [meterState, setMeterState] = useState(null);
+    const [infoTextState, setInfoTextState] = useState(promptLabel);
+    const [focusedState, setFocusedState] = useState(false);
+    const [unmaskedState, setUnmaskedState] = useState(false);
     const elementRef = useRef(null);
     const overlayRef = useRef(null);
     const inputRef = useRef(props.inputRef);
     const tooltipRef = useRef(null);
     const mediumCheckRegExp = useRef(new RegExp(props.mediumRegex));
     const strongCheckRegExp = useRef(new RegExp(props.strongRegex));
-    const type = unmasked ? 'text' : 'password';
+    const type = unmaskedState ? 'text' : 'password';
 
-    const [bindOverlayScroll, unbindOverlayScroll] = useOverlayScrollListener({ target: elementRef, listener: () => {
-        overlayVisible && hide();
-    }});
-    const [bindWindowResize, unbindWindowResize] = useResizeListener({ listener: () => {
-        if (overlayVisible && !DomHandler.isTouchDevice()) {
+    const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({
+        target: elementRef, overlay: overlayRef, listener: () => {
             hide();
-        }
-    }});
+        }, when: overlayVisibleState
+    });
 
     const isFilled = useMemo(() => (
         ObjectUtils.isNotEmpty(props.value) || ObjectUtils.isNotEmpty(props.defaultValue) || (inputRef.current && ObjectUtils.isNotEmpty(inputRef.current.value))
     ), [props.value, props.defaultValue, inputRef]);
 
     const updateLabels = () => {
-        if (meter) {
+        if (meterState) {
             let label = null;
-            switch (meter.strength) {
+            switch (meterState.strength) {
                 case 'weak':
-                    label = weakLabel();
+                    label = weakLabel;
                     break;
 
                 case 'medium':
-                    label = mediumLabel();
+                    label = mediumLabel;
                     break;
 
                 case 'strong':
-                    label = strongLabel();
+                    label = strongLabel;
                     break;
 
                 default:
                     break;
             }
 
-            if (label && infoText !== label) {
-                setInfoText(label);
+            if (label && infoTextState !== label) {
+                setInfoTextState(label);
             }
         }
         else {
-            const _promptLabel = promptLabel();
-            if (infoText !== _promptLabel) {
-                setInfoText(_promptLabel);
+            if (infoTextState !== promptLabel) {
+                setInfoTextState(promptLabel);
             }
         }
     }
@@ -83,16 +79,16 @@ export const Password = memo((props) => {
     }
 
     const onMaskToggle = () => {
-        setUnmasked((prevState) => !prevState);
+        setUnmaskedState((prevUnmasked) => !prevUnmasked);
     }
 
     const show = () => {
         updateLabels();
-        setOverlayVisible(true);
+        setOverlayVisibleState(true);
     }
 
     const hide = () => {
-        setOverlayVisible(false);
+        setOverlayVisibleState(false);
     }
 
     const alignOverlay = () => {
@@ -102,20 +98,18 @@ export const Password = memo((props) => {
     }
 
     const onOverlayEnter = () => {
-        ZIndexUtils.set('overlay', overlayRef.current,  PrimeReact.autoZIndex, PrimeReact.zIndex['overlay']);
+        ZIndexUtils.set('overlay', overlayRef.current, PrimeReact.autoZIndex, PrimeReact.zIndex['overlay']);
         alignOverlay();
     }
 
     const onOverlayEntered = () => {
-        bindOverlayScroll();
-        bindWindowResize();
+        bindOverlayListener();
 
         props.onShow && props.onShow();
     }
 
     const onOverlayExit = () => {
-        unbindOverlayScroll();
-        unbindWindowResize();
+        unbindOverlayListener();
     }
 
     const onOverlayExited = () => {
@@ -125,7 +119,7 @@ export const Password = memo((props) => {
     }
 
     const onFocus = (event) => {
-        setFocused(true);
+        setFocusedState(true);
 
         if (props.feedback) {
             show();
@@ -135,7 +129,7 @@ export const Password = memo((props) => {
     }
 
     const onBlur = (event) => {
-        setFocused(false);
+        setFocusedState(false);
 
         if (props.feedback) {
             hide();
@@ -150,43 +144,43 @@ export const Password = memo((props) => {
         if (props.feedback) {
             let value = e.target.value;
             let label = null;
-            let _meter = null;
+            let meter = null;
 
             switch (testStrength(value)) {
                 case 1:
-                    label = weakLabel();
-                    _meter = {
+                    label = weakLabel;
+                    meter = {
                         strength: 'weak',
                         width: '33.33%'
                     };
                     break;
 
                 case 2:
-                    label = mediumLabel();
-                    _meter = {
+                    label = mediumLabel;
+                    meter = {
                         strength: 'medium',
                         width: '66.66%'
                     };
                     break;
 
                 case 3:
-                    label = strongLabel();
-                    _meter = {
+                    label = strongLabel;
+                    meter = {
                         strength: 'strong',
                         width: '100%'
                     };
                     break;
 
                 default:
-                    label = promptLabel();
-                    _meter = null;
+                    label = promptLabel;
+                    meter = null;
                     break;
             }
 
-            setMeter(_meter);
-            setInfoText(label);
+            setMeterState(meter);
+            setInfoTextState(label);
 
-            if (!!keyCode && !overlayVisible) {
+            if (!!keyCode && !overlayVisibleState) {
                 show();
             }
         }
@@ -246,13 +240,11 @@ export const Password = memo((props) => {
         if (!isFilled && DomHandler.hasClass(elementRef.current, 'p-inputwrapper-filled')) {
             DomHandler.removeClass(elementRef.current, 'p-inputwrapper-filled');
         }
-
-        return () => {
-            ZIndexUtils.clear(overlayRef.current);
-        }
     }, [isFilled]);
 
     useUnmountEffect(() => {
+        ZIndexUtils.clear(overlayRef.current);
+
         if (tooltipRef.current) {
             tooltipRef.current.destroy();
             tooltipRef.current = null;
@@ -261,7 +253,7 @@ export const Password = memo((props) => {
 
     const useIcon = () => {
         if (props.toggleMask) {
-            const iconClassName = unmasked ? 'pi pi-eye-slash' : 'pi pi-eye';
+            const iconClassName = unmaskedState ? 'pi pi-eye-slash' : 'pi pi-eye';
             let content = <i className={iconClassName} onClick={onMaskToggle} />
 
             if (props.icon) {
@@ -283,7 +275,7 @@ export const Password = memo((props) => {
 
     const usePanel = () => {
         const panelClassName = classNames('p-password-panel p-component', props.panelClassName);
-        const { strength, width } = meter || { strength: '', width: '0%' };
+        const { strength, width } = meterState || { strength: '', width: '0%' };
         const header = ObjectUtils.getJSXElement(props.header, props);
         const footer = ObjectUtils.getJSXElement(props.footer, props);
         const content = props.content ? ObjectUtils.getJSXElement(props.content, props) : (
@@ -292,13 +284,13 @@ export const Password = memo((props) => {
                     <div className={`p-password-strength ${strength}`} style={{ width }}></div>
                 </div>
                 <div className="p-password-info">
-                    {infoText}
+                    {infoTextState}
                 </div>
             </>
         );
 
         const panel = (
-            <CSSTransition nodeRef={overlayRef} classNames="p-connected-overlay" in={overlayVisible} timeout={{ enter: 120, exit: 100 }} options={props.transitionOptions}
+            <CSSTransition nodeRef={overlayRef} classNames="p-connected-overlay" in={overlayVisibleState} timeout={{ enter: 120, exit: 100 }} options={props.transitionOptions}
                 unmountOnExit onEnter={onOverlayEnter} onEntered={onOverlayEntered} onExit={onOverlayExit} onExited={onOverlayExited}>
                 <div ref={overlayRef} className={panelClassName} style={props.panelStyle} onClick={onPanelClick}>
                     {header}
@@ -313,11 +305,10 @@ export const Password = memo((props) => {
 
     const className = classNames('p-password p-component p-inputwrapper', {
         'p-inputwrapper-filled': isFilled,
-        'p-inputwrapper-focus': focused,
+        'p-inputwrapper-focus': focusedState,
         'p-input-icon-right': props.toggleMask
     }, props.className);
     const inputClassName = classNames('p-password-input', props.inputClassName)
-
     const inputProps = ObjectUtils.findDiffKeys(props, Password.defaultProps);
     const icon = useIcon();
     const panel = usePanel();
@@ -330,7 +321,7 @@ export const Password = memo((props) => {
             {panel}
         </div>
     )
-})
+});
 
 Password.defaultProps = {
     __TYPE: 'Password',
@@ -372,7 +363,7 @@ Password.propTypes = {
     promptLabel: PropTypes.string,
     weakLabel: PropTypes.string,
     mediumLabel: PropTypes.string,
-    strongLabel:PropTypes.string,
+    strongLabel: PropTypes.string,
     mediumRegex: PropTypes.string,
     strongRegex: PropTypes.string,
     feedback: PropTypes.bool,

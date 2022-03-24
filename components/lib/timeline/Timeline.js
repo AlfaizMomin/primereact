@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, classNames } from '../utils/Utils';
 
-export const Timeline = (props) => {
+export const Timeline = memo((props) => {
+
     const getKey = (item, index) => {
         return props.dataKey ? ObjectUtils.resolveFieldData(item, props.dataKey) : `pr_id__${index}`;
     }
@@ -31,7 +32,7 @@ export const Timeline = (props) => {
         });
     }
 
-    const containerClassName = classNames('p-timeline p-component', {
+    const className = classNames('p-timeline p-component', {
         [`p-timeline-${props.align}`]: true,
         [`p-timeline-${props.layout}`]: true
     }, props.className);
@@ -39,11 +40,11 @@ export const Timeline = (props) => {
     const events = useEvents();
 
     return (
-        <div id={props.id} className={containerClassName} style={props.style}>
+        <div id={props.id} className={className} style={props.style}>
             {events}
         </div>
     )
-}
+});
 
 Timeline.defaultProps = {
     __TYPE: 'Timeline',

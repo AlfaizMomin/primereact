@@ -1,14 +1,13 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { DomHandler, classNames, ObjectUtils } from '../utils/Utils';
-import { useEventListener } from '../hooks/Hooks';
+import { useMountEffect, useEventListener } from '../hooks/Hooks';
 
-export const SplitterPanel = () => {}
+export const SplitterPanel = () => { }
 
-export const Splitter = (props) => {
-    const className = classNames(`p-splitter p-component p-splitter-${props.layout}`, props.className);
-    const container = useRef(null);
-    const gutterEl = useRef(null);
+export const Splitter = memo((props) => {
+    const elementRef = useRef(null);
+    const gutterRef = useRef(null);
     const size = useRef(null);
     const dragging = useRef(null);
     const startPos = useRef(null);
@@ -19,11 +18,14 @@ export const Splitter = (props) => {
     const prevPanelIndex = useRef(null);
     const panelSizes = useRef(null);
     const isStateful = props.stateKey != null;
-    const [bindDocumentMouseMove, unbindDocumentMouseMove] = useEventListener({ type: 'mousemove', listener: event => onResize(event) });
-    const [bindDocumentMouseUp, unbindDocumentMouseUp] = useEventListener({ type: 'mouseup', listener: event => {
-        onResizeEnd(event);
-        unbindMouseListeners();
-    }});
+
+    const [bindDocumentMouseMove, unbindDocumentMouseMove] = useEventListener({ type: 'mousemove', listener: (event) => onResize(event) });
+    const [bindDocumentMouseUp, unbindDocumentMouseUp] = useEventListener({
+        type: 'mouseup', listener: event => {
+            onResizeEnd(event);
+            unbindMouseListeners();
+        }
+    });
 
     const bindMouseListeners = () => {
         bindDocumentMouseMove();
@@ -81,7 +83,7 @@ export const Splitter = (props) => {
 
         if (stateString) {
             panelSizes.current = JSON.parse(stateString);
-            let children = [...container.current.children].filter(child => DomHandler.hasClass(child, 'p-splitter-panel'));
+            let children = [...elementRef.current.children].filter(child => DomHandler.hasClass(child, 'p-splitter-panel'));
             children.forEach((child, i) => {
                 child.style.flexBasis = 'calc(' + panelSizes[i] + '% - ' + ((props.children.length - 1) * props.gutterSize) + 'px)';
             });
@@ -95,16 +97,16 @@ export const Splitter = (props) => {
     const onResizeStart = (event, index) => {
         let pageX = event.type === 'touchstart' ? event.touches[0].pageX : event.pageX;
         let pageY = event.type === 'touchstart' ? event.touches[0].pageY : event.pageY;
-        size.current = props.layout === 'horizontal' ? DomHandler.getWidth(container.current) : DomHandler.getHeight(container.current);
+        size.current = props.layout === 'horizontal' ? DomHandler.getWidth(elementRef.current) : DomHandler.getHeight(elementRef.current);
         dragging.current = true;
         startPos.current = props.layout === 'horizontal' ? pageX : pageY;
-        prevPanelElement.current = gutterEl.current.previousElementSibling;
-        nextPanelElement.current = gutterEl.current.nextElementSibling;
+        prevPanelElement.current = gutterRef.current.previousElementSibling;
+        nextPanelElement.current = gutterRef.current.nextElementSibling;
         prevPanelSize.current = 100 * (props.layout === 'horizontal' ? DomHandler.getOuterWidth(prevPanelElement.current, true) : DomHandler.getOuterHeight(prevPanelElement.current, true)) / size.current;
         nextPanelSize.current = 100 * (props.layout === 'horizontal' ? DomHandler.getOuterWidth(nextPanelElement.current, true) : DomHandler.getOuterHeight(nextPanelElement.current, true)) / size.current;
         prevPanelIndex.current = index;
-        DomHandler.addClass(gutterEl.current, 'p-splitter-gutter-resizing');
-        DomHandler.addClass(container.current, 'p-splitter-resizing');
+        DomHandler.addClass(gutterRef.current, 'p-splitter-gutter-resizing');
+        DomHandler.addClass(elementRef.current, 'p-splitter-resizing');
     }
 
     const onResize = (event) => {
@@ -140,8 +142,8 @@ export const Splitter = (props) => {
             })
         }
 
-        DomHandler.removeClass(gutterEl.current, 'p-splitter-gutter-resizing');
-        DomHandler.removeClass(container.current, 'p-splitter-resizing');
+        DomHandler.removeClass(gutterRef.current, 'p-splitter-gutter-resizing');
+        DomHandler.removeClass(elementRef.current, 'p-splitter-resizing');
         clear();
     }
 
@@ -167,37 +169,8 @@ export const Splitter = (props) => {
         window.removeEventListener('touchend', onGutterTouchEnd);
     }
 
-    const usePanel = (panel, index) => {
-        const panelClassName = classNames('p-splitter-panel', panel.props.className);
-        const gutterStyle = props.layout === 'horizontal' ? { width: props.gutterSize + 'px' } : { height: props.gutterSize + 'px' }
-        const gutter = (index !== props.children.length - 1) && (
-            <div ref={gutterEl} className="p-splitter-gutter" style={gutterStyle} onMouseDown={event => onGutterMouseDown(event, index)}
-                onTouchStart={event => onGutterTouchStart(event, index)} onTouchMove={event => onGutterTouchMove(event)} onTouchEnd={event => onGutterTouchEnd(event)}>
-                <div className="p-splitter-gutter-handle"></div>
-            </div>
-        );
-
-        return (
-            <React.Fragment>
-                <div key={index} className={panelClassName} style={panel.props.style}>
-                    {panel.props.children}
-                </div>
-                {gutter}
-            </React.Fragment>
-        );
-    }
-
-
-    const usePanels = () => {
-        return (
-            React.Children.map(props.children, (panel, index) => {
-                return usePanel(panel, index);
-            })
-        )
-    }
-
-    useEffect(() => {
-        let panelElements = [...container.current.children].filter(child => DomHandler.hasClass(child, 'p-splitter-panel'));
+    useMountEffect(() => {
+        let panelElements = [...elementRef.current.children].filter(child => DomHandler.hasClass(child, 'p-splitter-panel'));
         panelElements.map(panelElement => {
             if (panelElement.childNodes && ObjectUtils.isNotEmpty(DomHandler.find(panelElement, '.p-splitter'))) {
                 DomHandler.addClass(panelElement, 'p-splitter-panel-nested');
@@ -224,16 +197,42 @@ export const Splitter = (props) => {
                 panelSizes.current = _panelSizes;
             }
         }
-    }, []);
+    });
 
+    const usePanel = (panel, index) => {
+        const panelClassName = classNames('p-splitter-panel', panel.props.className);
+        const gutterStyle = props.layout === 'horizontal' ? { width: props.gutterSize + 'px' } : { height: props.gutterSize + 'px' }
+        const gutter = (index !== props.children.length - 1) && (
+            <div ref={gutterRef} className="p-splitter-gutter" style={gutterStyle} onMouseDown={event => onGutterMouseDown(event, index)}
+                onTouchStart={event => onGutterTouchStart(event, index)} onTouchMove={event => onGutterTouchMove(event)} onTouchEnd={event => onGutterTouchEnd(event)}>
+                <div className="p-splitter-gutter-handle"></div>
+            </div>
+        );
+
+        return (
+            <React.Fragment>
+                <div key={index} className={panelClassName} style={panel.props.style}>
+                    {panel.props.children}
+                </div>
+                {gutter}
+            </React.Fragment>
+        )
+    }
+
+
+    const usePanels = () => {
+        return React.Children.map(props.children, usePanel);
+    }
+
+    const className = classNames(`p-splitter p-component p-splitter-${props.layout}`, props.className);
     const panels = usePanels();
 
     return (
-        <div ref={container} id={props.id} className={className} style={props.style}>
+        <div ref={elementRef} id={props.id} className={className} style={props.style}>
             {panels}
         </div>
-    );
-}
+    )
+});
 
 SplitterPanel.defaultProps = {
     __TYPE: 'SplitterPanel',

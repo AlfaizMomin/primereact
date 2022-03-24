@@ -1,48 +1,30 @@
-import React, { useRef, forwardRef, useState } from 'react';
-import PropTypes from 'prop-types';
-import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
+import React, { memo, useRef, useState } from 'react';
 import { Ripple } from '../ripple/Ripple';
-import { useEventListener, useMountEffect, useUnmountEffect, useUpdateEffect } from '../hooks/Hooks';
+import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
+import { useEventListener, useMountEffect, useUpdateEffect } from '../hooks/Hooks';
 
-export const TieredMenuSub = forwardRef((props, ref) => {
+export const TieredMenuSub = memo((props) => {
+    const [activeItemState, setActiveItemState] = useState(null);
+    const elementRef = useRef(null);
 
-    const [activeItem, setActiveItem] = useState(null);
-    const element = useRef(null);
-
-    const [bindDocumentClickListener, unbindDocumentClickListener] = useEventListener({
+    const [bindDocumentClickListener, ] = useEventListener({
         type: 'click', listener: event => {
-            if (element.current && !element.current.contains(event.target)) {
-                setActiveItem(null);
+            if (elementRef.current && !elementRef.current.contains(event.target)) {
+                setActiveItemState(null);
             }
         }
     });
 
-    useMountEffect(() => {
-        bindDocumentClickListener();
-    })
-
-    useUnmountEffect(() => {
-        unbindDocumentClickListener();
-    })
-
-    useUpdateEffect(() => {
-        setActiveItem(null);
-
-        if (!props.root && props.parentActive) {
-            position();
-        }
-    }, [props.parentActive])
-
     const position = () => {
-        if (element.current) {
-            const parentItem = element.current.parentElement;
+        if (elementRef.current) {
+            const parentItem = elementRef.current.parentElement;
             const containerOffset = DomHandler.getOffset(parentItem);
             const viewport = DomHandler.getViewport();
-            const sublistWidth = element.current.offsetParent ? element.current.offsetWidth : DomHandler.getHiddenElementOuterWidth(element.current);
+            const sublistWidth = elementRef.current.offsetParent ? elementRef.current.offsetWidth : DomHandler.getHiddenElementOuterWidth(elementRef.current);
             const itemOuterWidth = DomHandler.getOuterWidth(parentItem.children[0]);
 
             if ((parseInt(containerOffset.left, 10) + itemOuterWidth + sublistWidth) > (viewport.width - DomHandler.calculateScrollbarWidth())) {
-                DomHandler.addClass(element.current, 'p-submenu-list-flipped');
+                DomHandler.addClass(elementRef.current, 'p-submenu-list-flipped');
             }
         }
     }
@@ -54,12 +36,12 @@ export const TieredMenuSub = forwardRef((props, ref) => {
         }
 
         if (props.root) {
-            if (activeItem || props.popup) {
-                setActiveItem(item);
+            if (activeItemState || props.popup) {
+                setActiveItemState(item);
             }
         }
         else {
-            setActiveItem(item);
+            setActiveItemState(item);
         }
     }
 
@@ -82,12 +64,10 @@ export const TieredMenuSub = forwardRef((props, ref) => {
 
         if (props.root) {
             if (item.items) {
-                if (activeItem && item === activeItem) {
-                    setActiveItem(null);
-                }
-                else {
-                    setActiveItem(item);
-                }
+                if (activeItemState && item === activeItemState)
+                    setActiveItemState(null);
+                else
+                    setActiveItemState(item);
             }
         }
 
@@ -102,28 +82,22 @@ export const TieredMenuSub = forwardRef((props, ref) => {
         switch (event.which) {
             //down
             case 40:
-                let nextItem = findNextItem(listItem);
-                if (nextItem) {
-                    nextItem.children[0].focus();
-                }
-
+                const nextItem = findNextItem(listItem);
+                nextItem && nextItem.children[0].focus();
                 event.preventDefault();
                 break;
 
             //up
             case 38:
-                let prevItem = findPrevItem(listItem);
-                if (prevItem) {
-                    prevItem.children[0].focus();
-                }
-
+                const prevItem = findPrevItem(listItem);
+                prevItem && prevItem.children[0].focus();
                 event.preventDefault();
                 break;
 
             //right
             case 39:
                 if (item.items) {
-                    setActiveItem(item)
+                    setActiveItemState(item)
 
                     setTimeout(() => {
                         listItem.children[1].children[0].children[0].focus();
@@ -137,74 +111,75 @@ export const TieredMenuSub = forwardRef((props, ref) => {
                 break;
         }
 
-        if (props.onKeyDown) {
-            props.onKeyDown(event, listItem);
-        }
+        props.onKeyDown && props.onKeyDown(event, listItem);
     }
 
     const onChildItemKeyDown = (event, childListItem) => {
         //left
         if (event.which === 37) {
-            setActiveItem(null)
+            setActiveItemState(null)
             childListItem.parentElement.previousElementSibling.focus();
         }
     }
 
     const findNextItem = (item) => {
-        let nextItem = item.nextElementSibling;
-
-        if (nextItem)
-            return DomHandler.hasClass(nextItem, 'p-disabled') || !DomHandler.hasClass(nextItem, 'p-menuitem') ? findNextItem(nextItem) : nextItem;
-        else
-            return null;
+        const nextItem = item.nextElementSibling;
+        return nextItem ? (DomHandler.hasClass(nextItem, 'p-disabled') || !DomHandler.hasClass(nextItem, 'p-menuitem') ? findNextItem(nextItem) : nextItem) : null;
     }
 
     const findPrevItem = (item) => {
-        let prevItem = item.previousElementSibling;
-
-        if (prevItem)
-            return DomHandler.hasClass(prevItem, 'p-disabled') || !DomHandler.hasClass(prevItem, 'p-menuitem') ? findPrevItem(prevItem) : prevItem;
-        else
-            return null;
+        const prevItem = item.previousElementSibling;
+        return prevItem ? (DomHandler.hasClass(prevItem, 'p-disabled') || !DomHandler.hasClass(prevItem, 'p-menuitem') ? findPrevItem(prevItem) : prevItem) : null;
     }
 
     const onLeafClick = () => {
-        setActiveItem(null);
-
-        if (props.onLeafClick) {
-            props.onLeafClick();
-        }
+        setActiveItemState(null);
+        props.onLeafClick && props.onLeafClick();
     }
 
+    useMountEffect(() => {
+        bindDocumentClickListener();
+    });
+
+    useUpdateEffect(() => {
+        if (!props.parentActive) {
+            setActiveItemState(null);
+        }
+
+        if (!props.root && props.parentActive) {
+            position();
+        }
+    }, [props.parentActive]);
+
     const useSeparator = (index) => {
-        return (
-            <li key={'separator_' + index} className="p-menu-separator" role="separator"></li>
-        );
+        const key = 'separator_' + index;
+
+        return <li key={key} className="p-menu-separator" role="separator"></li>
     }
 
     const useSubmenu = (item) => {
         if (item.items) {
-            return (
-                <TieredMenuSub model={item.items} onLeafClick={onLeafClick} popup={props.popup} onKeyDown={onChildItemKeyDown} parentActive={item === activeItem} />
-            );
+            return <TieredMenuSub model={item.items} onLeafClick={onLeafClick} popup={props.popup} onKeyDown={onChildItemKeyDown} parentActive={item === activeItemState} />
         }
 
         return null;
     }
 
     const useMenuItem = (item, index) => {
-        const active = activeItem === item;
-        const className = classNames('p-menuitem', { 'p-menuitem-active': active }, item.className);
-        const linkClassName = classNames('p-menuitem-link', { 'p-disabled': item.disabled });
-        const iconClassName = classNames('p-menuitem-icon', item.icon);
+        const { className: _className, style, disabled, icon: _icon, label: _label, items, target, url, template } = item;
+        const key = _label + '_' + index;
+        const active = activeItemState === item;
+        const className = classNames('p-menuitem', { 'p-menuitem-active': active }, _className);
+        const linkClassName = classNames('p-menuitem-link', { 'p-disabled': disabled });
+        const iconClassName = classNames('p-menuitem-icon', _icon);
         const submenuIconClassName = 'p-submenu-icon pi pi-angle-right';
-        const icon = item.icon && <span className={iconClassName}></span>;
-        const label = item.label && <span className="p-menuitem-text">{item.label}</span>;
-        const submenuIcon = item.items && <span className={submenuIconClassName}></span>;
+        const icon = _icon && <span className={iconClassName}></span>;
+        const label = _label && <span className="p-menuitem-text">{_label}</span>;
+        const submenuIcon = items && <span className={submenuIconClassName}></span>;
         const submenu = useSubmenu(item);
         let content = (
-            <a href={item.url || '#'} className={linkClassName} target={item.target} role="menuitem" aria-haspopup={item.items != null}
-                onClick={(event) => onItemClick(event, item)} onKeyDown={(event) => onItemKeyDown(event, item)} aria-disabled={item.disabled}>
+            <a href={url || '#'} className={linkClassName} target={target} role="menuitem" aria-haspopup={items != null}
+                onClick={(event) => onItemClick(event, item)} onKeyDown={(event) => onItemKeyDown(event, item)} aria-disabled={disabled}>
                 {icon}
                 {label}
                 {submenuIcon}
@@ -212,7 +187,7 @@ export const TieredMenuSub = forwardRef((props, ref) => {
             </a>
         );
 
-        if (item.template) {
+        if (template) {
             const defaultContentOptions = {
                 onClick: (event) => onItemClick(event, item),
                 onKeyDown: (event) => onItemKeyDown(event, item),
@@ -221,47 +196,37 @@ export const TieredMenuSub = forwardRef((props, ref) => {
                 iconClassName,
                 submenuIconClassName,
                 element: content,
-                props: props,
+                props,
                 active
             };
 
-            content = ObjectUtils.getJSXElement(item.template, item, defaultContentOptions);
+            content = ObjectUtils.getJSXElement(template, item, defaultContentOptions);
         }
 
         return (
-            <li key={item.label + '_' + index} className={className} style={item.style} onMouseEnter={(event) => onItemMouseEnter(event, item)} role="none">
+            <li key={key} className={className} style={style} onMouseEnter={(event) => onItemMouseEnter(event, item)} role="none">
                 {content}
                 {submenu}
             </li>
-        );
+        )
     }
 
     const useItem = (item, index) => {
-        if (item.separator)
-            return useSeparator(index);
-        else
-            return useMenuItem(item, index);
+        return item.separator ? useSeparator(index) : useMenuItem(item, index);
     }
 
     const useMenu = () => {
-        if (props.model) {
-            return (
-                props.model.map((item, index) => {
-                    return useItem(item, index);
-                })
-            );
-        }
-
-        return null;
+        return props.model ? props.model.map(useItem) : null;
     }
 
-
-    const className = classNames({ 'p-submenu-list': !props.root });
+    const className = classNames({
+        'p-submenu-list': !props.root
+    });
     const submenu = useMenu();
 
     return (
-        <ul ref={element} className={className} role={props.root ? 'menubar' : 'menu'} aria-orientation="horizontal">
+        <ul ref={elementRef} className={className} role={props.root ? 'menubar' : 'menu'} aria-orientation="horizontal">
             {submenu}
         </ul>
-    );
-})
+    )
+});

@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, classNames } from '../utils/Utils';
 
-export const Steps = (props) => {
+export const Steps = memo((props) => {
+
     const itemClick = (event, item, index) => {
         if (props.readOnly || item.disabled) {
             event.preventDefault();
@@ -31,6 +32,8 @@ export const Steps = (props) => {
     }
 
     const useItem = (item, index) => {
+        const key = item.label + '_' + index;
+        const tabIndex = disabled ? -1 : '';
         const active = index === props.activeIndex;
         const disabled = (item.disabled || (index !== props.activeIndex && props.readOnly))
         const className = classNames('p-steps-item', item.className, {
@@ -38,7 +41,6 @@ export const Steps = (props) => {
             'p-disabled': disabled
         });
         const label = item.label && <span className="p-steps-title">{item.label}</span>;
-        const tabIndex = disabled ? -1 : '';
         let content = (
             <a href={item.url || '#'} className="p-menuitem-link" role="presentation" target={item.target} onClick={event => itemClick(event, item, index)} tabIndex={tabIndex} aria-disabled={disabled}>
                 <span className="p-steps-number">{index + 1}</span>
@@ -63,29 +65,29 @@ export const Steps = (props) => {
         }
 
         return (
-            <li key={item.label + '_' + index} className={className} style={item.style} role="tab" aria-selected={active} aria-expanded={active}>
+            <li key={key} className={className} style={item.style} role="tab" aria-selected={active} aria-expanded={active}>
                 {content}
             </li>
-        );
+        )
     }
 
     const useItems = () => {
         if (props.model) {
-            const items = props.model.map((item, index) => {
-                return useItem(item, index);
-            });
+            const items = props.model.map(useItem);
 
             return (
                 <ul role="tablist">
                     {items}
                 </ul>
-            );
+            )
         }
 
         return null;
     }
 
-    const className = classNames('p-steps p-component', props.className, { 'p-readonly': props.readOnly });
+    const className = classNames('p-steps p-component', {
+        'p-readonly': props.readOnly
+    }, props.className);
     const items = useItems();
 
     return (
@@ -93,7 +95,7 @@ export const Steps = (props) => {
             {items}
         </div>
     )
-}
+});
 
 Steps.defaultProps = {
     __TYPE: 'Steps',

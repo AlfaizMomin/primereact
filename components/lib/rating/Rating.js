@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { classNames } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
+import { classNames } from '../utils/Utils';
 import { useUnmountEffect } from '../hooks/Hooks';
 
 export const Rating = memo((props) => {
@@ -80,22 +80,20 @@ export const Rating = memo((props) => {
 
     const useStars = () => {
         return Array.from({ length: props.stars }, (_, i) => i + 1).map((value) => {
-            let iconClass = classNames('p-rating-icon', {
+            const iconClassName = classNames('p-rating-icon', {
                 'pi pi-star': (!props.value || value > props.value),
                 'pi pi-star-fill': (value <= props.value)
             });
 
             return (
-                <span className={iconClass} onClick={(e) => rate(e, value)} key={value} tabIndex={tabIndex} onKeyDown={(e) => onStarKeyDown(e, value)}></span>
+                <span className={iconClassName} onClick={(e) => rate(e, value)} key={value} tabIndex={tabIndex} onKeyDown={(e) => onStarKeyDown(e, value)}></span>
             )
-        })
+        });
     }
 
     const useCancelIcon = () => {
         if (props.cancel) {
-            return (
-                <span className="p-rating-icon p-rating-cancel pi pi-ban" onClick={clear} tabIndex={tabIndex} onKeyDown={onCancelKeyDown}></span>
-            )
+            return <span className="p-rating-icon p-rating-cancel pi pi-ban" onClick={clear} tabIndex={tabIndex} onKeyDown={onCancelKeyDown}></span>
         }
 
         return null;
@@ -114,7 +112,7 @@ export const Rating = memo((props) => {
             {stars}
         </div>
     )
-})
+});
 
 Rating.defaultProps = {
     __TYPE: 'Rating',

@@ -1,26 +1,28 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { DomHandler, ObjectUtils, ZIndexUtils, classNames } from '../utils/Utils';
-import { CSSTransition } from '../csstransition/CSSTransition';
+import PrimeReact from '../api/Api';
 import { Ripple } from '../ripple/Ripple';
 import { Portal } from '../portal/Portal';
-import PrimeReact from '../api/Api';
-import { useMountEffect, useUpdateEffect, useEventListener } from '../hooks/Hooks';
+import { CSSTransition } from '../csstransition/CSSTransition';
+import { DomHandler, ObjectUtils, ZIndexUtils, classNames } from '../utils/Utils';
+import { useMountEffect, useUpdateEffect, useUnmountEffect, useEventListener } from '../hooks/Hooks';
 
 export const Sidebar = (props) => {
-    const [maskVisible, setMaskVisible] = useState(props.visible);
-    const [visible, setVisible] = useState(props.visible);
+    const [maskVisibleState, setMaskVisibleState] = useState(false);
+    const [visibleState, setVisibleState] = useState(false);
     const sidebarRef = useRef(null);
     const maskRef = useRef(null);
     const closeIconRef = useRef(null);
 
-    const [bindDocumentEscapeListener, unbindDocumentEscapeListener] = useEventListener({ type: 'keydown', listener: event => {
-        if (event.which === 27) {
-            if (ZIndexUtils.get(maskRef.current) === ZIndexUtils.getCurrent('modal', PrimeReact.autoZIndex)) {
-                onClose(event);
+    const [bindDocumentEscapeListener, unbindDocumentEscapeListener] = useEventListener({
+        type: 'keydown', listener: event => {
+            if (event.which === 27) {
+                if (ZIndexUtils.get(maskRef.current) === ZIndexUtils.getCurrent('modal', PrimeReact.autoZIndex)) {
+                    onClose(event);
+                }
             }
         }
-    }});
+    });
 
     const getPositionClass = () => {
         const positions = ['left', 'right', 'top', 'bottom'];
@@ -30,8 +32,8 @@ export const Sidebar = (props) => {
     }
 
     const focus = () => {
-        let activeElement = document.activeElement;
-        let isActiveElementInDialog = activeElement && sidebarRef && sidebarRef.current.contains(activeElement);
+        const activeElement = document.activeElement;
+        const isActiveElementInDialog = activeElement && sidebarRef && sidebarRef.current.contains(activeElement);
         if (!isActiveElementInDialog && props.showCloseIcon) {
             closeIconRef.current.focus();
         }
@@ -49,12 +51,8 @@ export const Sidebar = (props) => {
     }
 
     const onEntered = () => {
-        if (props.onShow) {
-            props.onShow();
-        }
-
+        props.onShow && props.onShow();
         focus();
-
         enableDocumentSettings();
     }
 
@@ -66,12 +64,14 @@ export const Sidebar = (props) => {
 
     const onExited = () => {
         ZIndexUtils.clear(maskRef.current);
-        setMaskVisible(false);
+        setMaskVisibleState(false);
         disableDocumentSettings();
     }
 
     const enableDocumentSettings = () => {
-        bindGlobalListeners();
+        if (props.closeOnEscape) {
+            bindDocumentEscapeListener();
+        }
 
         if (props.blockScroll) {
             DomHandler.addClass(document.body, 'p-overflow-hidden');
@@ -79,48 +79,40 @@ export const Sidebar = (props) => {
     }
 
     const disableDocumentSettings = () => {
-        unbindGlobalListeners();
+        unbindDocumentEscapeListener();
 
         if (props.blockScroll) {
             DomHandler.removeClass(document.body, 'p-overflow-hidden');
         }
     }
 
-    const bindGlobalListeners = () => {
-        if (props.closeOnEscape) {
-            bindDocumentEscapeListener();
-        }
-    }
-
-    const unbindGlobalListeners = () => {
-        unbindDocumentEscapeListener();
-    }
-
     useMountEffect(() => {
         if (props.visible) {
-            setVisible(true);
-            setMaskVisible(true);
-        }
-
-        return () => {
-            disableDocumentSettings();
-            maskRef.current && ZIndexUtils.clear(maskRef.current);
+            setMaskVisibleState(true);
         }
     });
 
     useUpdateEffect(() => {
-        if (props.visible)
-            setMaskVisible(true);
-        else
-            setVisible(false);
-    }, [props.visible]);
+        if (props.visible && !maskVisibleState) {
+            setMaskVisibleState(true);
+        }
+
+        if (props.visible !== visibleState && maskVisibleState) {
+            setVisibleState(props.visible);
+        }
+    });
 
     useUpdateEffect(() => {
-        if (maskVisible) {
-            setVisible(true);
+        if (maskVisibleState) {
             ZIndexUtils.set('modal', maskRef.current, PrimeReact.autoZIndex, props.baseZIndex || PrimeReact.zIndex['modal']);
+            setVisibleState(true);
         }
-    }, [maskVisible]);
+    }, [maskVisibleState]);
+
+    useUnmountEffect(() => {
+        disableDocumentSettings();
+        maskRef.current && ZIndexUtils.clear(maskRef.current);
+    });
 
     const useCloseIcon = () => {
         if (props.showCloseIcon) {
@@ -129,18 +121,14 @@ export const Sidebar = (props) => {
                     <span className="p-sidebar-close-icon pi pi-times" />
                     <Ripple />
                 </button>
-            );
+            )
         }
 
         return null;
     }
 
     const useIcons = () => {
-        if (props.icons) {
-            return ObjectUtils.getJSXElement(props.icons, props);
-        }
-
-        return null;
+        return props.icons ? ObjectUtils.getJSXElement(props.icons, props) : null;
     }
 
     const useElement = () => {
@@ -148,9 +136,9 @@ export const Sidebar = (props) => {
         const maskClassName = classNames('p-sidebar-mask', {
             'p-component-overlay p-component-overlay-enter': props.modal,
             'p-sidebar-mask-scrollblocker': props.blockScroll,
-            'p-sidebar-visible': maskVisible,
+            'p-sidebar-visible': maskVisibleState,
             'p-sidebar-full': props.fullScreen
-        }, props.maskClassName, getPositionClass());
+        }, getPositionClass(), props.maskClassName);
 
         const closeIcon = useCloseIcon();
         const icons = useIcons();
@@ -162,7 +150,7 @@ export const Sidebar = (props) => {
 
         return (
             <div ref={maskRef} style={props.maskStyle} className={maskClassName} onClick={onMaskClick}>
-                <CSSTransition nodeRef={sidebarRef} classNames="p-sidebar" in={visible} timeout={transitionTimeout} options={props.transitionOptions}
+                <CSSTransition nodeRef={sidebarRef} classNames="p-sidebar" in={visibleState} timeout={transitionTimeout} options={props.transitionOptions}
                     unmountOnExit onEntered={onEntered} onExiting={onExiting} onExited={onExited}>
                     <div ref={sidebarRef} id={props.id} className={className} style={props.style} role="complementary">
                         <div className="p-sidebar-header">
@@ -175,7 +163,7 @@ export const Sidebar = (props) => {
                     </div>
                 </CSSTransition>
             </div>
-        );
+        )
     }
 
     const useSidebar = () => {
@@ -184,7 +172,7 @@ export const Sidebar = (props) => {
         return <Portal element={element} appendTo={props.appendTo} visible />;
     }
 
-    return maskVisible && useSidebar();
+    return maskVisibleState && useSidebar();
 }
 
 Sidebar.defaultProps = {
@@ -209,7 +197,7 @@ Sidebar.defaultProps = {
     transitionOptions: null,
     onShow: null,
     onHide: null
-};
+}
 
 Sidebar.propTypes = {
     __TYPE: PropTypes.string,
@@ -233,4 +221,4 @@ Sidebar.propTypes = {
     transitionOptions: PropTypes.object,
     onShow: PropTypes.func,
     onHide: PropTypes.func.isRequired
-};
+}

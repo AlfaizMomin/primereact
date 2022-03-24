@@ -16,17 +16,15 @@ export const SplitButtonItem = memo((props) => {
     }
 
     const useSeparator = () => {
-        return (
-            <li className="p-menu-separator" role="separator"></li>
-        )
+        return <li className="p-menu-separator" role="separator"></li>
     }
 
     const useMenuitem = () => {
-        let { disabled, icon, label, template, url, target } = props.menuitem;
+        const { disabled, icon: _icon, label: _label, template, url, target } = props.menuitem;
         const className = classNames('p-menuitem-link', { 'p-disabled': disabled });
-        const iconClassName = classNames('p-menuitem-icon', icon);
-        icon = icon && <span className={iconClassName}></span>;
-        label = label && <span className="p-menuitem-text">{label}</span>;
+        const iconClassName = classNames('p-menuitem-icon', _icon);
+        const icon = _icon && <span className={iconClassName}></span>;
+        const label = _label && <span className="p-menuitem-text">{_label}</span>;
         let content = (
             <a href={url || '#'} role="menuitem" className={className} target={target} onClick={onClick}>
                 {icon}
@@ -51,18 +49,14 @@ export const SplitButtonItem = memo((props) => {
             <li className="p-menuitem" role="none">
                 {content}
             </li>
-        );
+        )
     }
 
     const useItem = () => {
-        if (props.menuitem.separator) {
-            return useSeparator();
-        }
-
-        return useMenuitem();
+        return props.menuitem.separator ? useSeparator() : useMenuitem();
     }
 
     const item = useItem();
 
     return item;
-})
+});

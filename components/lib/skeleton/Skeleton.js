@@ -3,23 +3,17 @@ import PropTypes from 'prop-types';
 import { classNames } from '../utils/Utils';
 
 export const Skeleton = memo((props) => {
-    const skeletonStyle = () => {
-        if (props.size)
-            return { width: props.size, height: props.size, borderRadius: props.borderRadius };
-        else
-            return { width: props.width, height: props.height, borderRadius: props.borderRadius };
-    }
 
-    const skeletonClassName = classNames('p-skeleton p-component', {
+    const style = props.size ?
+        { width: props.size, height: props.size, borderRadius: props.borderRadius } :
+        { width: props.width, height: props.height, borderRadius: props.borderRadius };
+    const className = classNames('p-skeleton p-component', {
         'p-skeleton-circle': props.shape === 'circle',
         'p-skeleton-none': props.animation === 'none'
     }, props.className);
-    const style = skeletonStyle();
 
-    return (
-        <div style={style} className={skeletonClassName}></div>
-    );
-})
+    return <div style={style} className={className}></div>
+});
 
 Skeleton.defaultProps = {
     __TYPE: 'Skeleton',
@@ -43,4 +37,4 @@ Skeleton.propTypes = {
     animation: PropTypes.string,
     style: PropTypes.object,
     className: PropTypes.string
-};
+}

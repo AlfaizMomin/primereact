@@ -1,15 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
+import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 
-export const TabMenu = (props) => {
-
+export const TabMenu = memo((props) => {
     const [activeIndexState, setActiveIndexState] = useState(props.activeIndex);
-    const activeIndex = props.onTabChange ? props.activeIndex : activeIndexState;
     const inkbarRef = useRef(null);
     const navRef = useRef(null);
-    const tabsRef = useRef({})
+    const tabsRef = useRef({});
+    const activeIndex = props.onTabChange ? props.activeIndex : activeIndexState;
 
     const itemClick = (event, item, index) => {
         if (item.disabled) {
@@ -36,20 +35,15 @@ export const TabMenu = (props) => {
             });
         }
         else {
-            setActiveIndexState(index)
+            setActiveIndexState(index);
         }
     }
 
-    const getActiveIndex = () => {
-        return props.onTabChange ? props.activeIndex : activeIndex;
-    }
-
     const isSelected = (index) => {
-        return (index === (getActiveIndex() || 0));
+        return (index === (activeIndex || 0));
     }
 
     const updateInkBar = () => {
-        const activeIndex = getActiveIndex();
         const tabHeader = tabsRef.current[`tab_${activeIndex}`];
 
         inkbarRef.current.style.width = DomHandler.getWidth(tabHeader) + 'px';
@@ -58,53 +52,51 @@ export const TabMenu = (props) => {
 
     useEffect(() => {
         updateInkBar();
-    })
+    });
 
     const useMenuItem = (item, index) => {
+        const { className: _className, disabled, icon: _icon, label: _label, template, url, target } = item;
+        const key = _label + '_' + index;
         const active = isSelected(index);
         const className = classNames('p-tabmenuitem', {
             'p-highlight': active,
-            'p-disabled': item.disabled
-        }, item.className);
-        const iconClassName = classNames('p-menuitem-icon', item.icon);
-        const icon = item.icon && <span className={iconClassName}></span>;
-        const label = item.label && <span className="p-menuitem-text">{item.label}</span>;
+            'p-disabled': disabled
+        }, _className);
+        const iconClassName = classNames('p-menuitem-icon', _icon);
+        const icon = _icon && <span className={iconClassName}></span>;
+        const label = _label && <span className="p-menuitem-text">{_label}</span>;
         let content = (
-            <a href={item.url || '#'} className="p-menuitem-link" target={item.target} onClick={(event) => itemClick(event, item, index)} role="presentation">
+            <a href={url || '#'} className="p-menuitem-link" target={target} onClick={(event) => itemClick(event, item, index)} role="presentation">
                 {icon}
                 {label}
                 <Ripple />
             </a>
         );
 
-        if (item.template) {
+        if (template) {
             const defaultContentOptions = {
                 onClick: (event) => itemClick(event, item, index),
                 className: 'p-menuitem-link',
                 labelClassName: 'p-menuitem-text',
                 iconClassName,
                 element: content,
-                props: props,
+                props,
                 active,
                 index
             };
 
-            content = ObjectUtils.getJSXElement(item.template, item, defaultContentOptions);
+            content = ObjectUtils.getJSXElement(template, item, defaultContentOptions);
         }
 
         return (
-            <li ref={tabsRef.current[`tab_${index}`]} key={item.label + '_' + index} className={className} style={item.style} role="tab" aria-selected={active} aria-expanded={active} aria-disabled={item.disabled}>
+            <li ref={tabsRef.current[`tab_${index}`]} key={key} className={className} style={style} role="tab" aria-selected={active} aria-expanded={active} aria-disabled={disabled}>
                 {content}
             </li>
-        );
+        )
     }
 
     const useItems = () => {
-        return (
-            props.model.map((item, index) => {
-                return useMenuItem(item, index);
-            })
-        );
+        return props.model.map(useMenuItem);
     }
 
     if (props.model) {
@@ -122,7 +114,7 @@ export const TabMenu = (props) => {
     }
 
     return null;
-}
+});
 
 TabMenu.defaultProps = {
     __TYPE: 'TabMenu',

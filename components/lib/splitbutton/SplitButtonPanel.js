@@ -17,10 +17,10 @@ export const SplitButtonPanel = forwardRef((props, ref) => {
                     </ul>
                 </div>
             </CSSTransition>
-        );
+        )
     }
 
     const element = useElement();
 
-    return <Portal element={element} appendTo={props.appendTo} />;
-})
+    return <Portal element={element} appendTo={props.appendTo} />
+});

@@ -1,270 +1,90 @@
-import React, { useState, useRef, useEffect, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useRef, useImperativeHandle, forwardRef, memo } from 'react';
 import PropTypes from 'prop-types';
-import { DomHandler, ObjectUtils, classNames, ZIndexUtils } from '../utils/Utils';
+import PrimeReact from '../api/Api';
+import { SlideMenuSub } from './SlideMenuSub';
+import { Portal } from '../portal/Portal';
 import { CSSTransition } from '../csstransition/CSSTransition';
 import { OverlayService } from '../overlayservice/OverlayService';
-import { Portal } from '../portal/Portal';
-import PrimeReact from '../api/Api';
-import { useUpdateEffect, useUnmountEffect, useEventListener, useResizeListener, useOverlayScrollListener } from '../hooks/Hooks';
+import { DomHandler, classNames, ZIndexUtils } from '../utils/Utils';
+import { useUpdateEffect, useUnmountEffect, useOverlayListener } from '../hooks/Hooks';
 
-export const SlideMenuSub = (props) => {
-
-    const [activeItem, setActiveItem] = useState(null);
-
-    const onItemClick = (event, item) => {
-        if (item.disabled) {
-            event.preventDefault();
-            return;
-        }
-
-        if (!item.url) {
-            event.preventDefault();
-        }
-
-        if (item.command) {
-            item.command({
-                originalEvent: event,
-                item: item
-            });
-        }
-
-        if (item.items) {
-            setActiveItem(item)
-            props.onForward();
-        }
-    }
-
-    const useSeparator = (index) => {
-        return (
-            <li key={'separator_' + index} className="p-menu-separator"></li>
-        );
-    }
-
-    const useSubmenu = (item) => {
-        if (item.items) {
-            return (
-                <SlideMenuSub model={item.items} index={props.index + 1} menuWidth={props.menuWidth} effectDuration={props.effectDuration}
-                    onForward={props.onForward} parentActive={item === activeItem} />
-            );
-        }
-
-        return null;
-    }
-
-    const useMenuitem = (item, index) => {
-        const active = activeItem === item;
-        const className = classNames('p-menuitem', { 'p-menuitem-active': active, 'p-disabled': item.disabled }, item.className);
-        const iconClassName = classNames('p-menuitem-icon', item.icon);
-        const submenuIconClassName = 'p-submenu-icon pi pi-fw pi-angle-right';
-        const icon = item.icon && <span className={iconClassName}></span>;
-        const label = item.label && <span className="p-menuitem-text">{item.label}</span>;
-        const submenuIcon = item.items && <span className={submenuIconClassName}></span>;
-        const submenu = useSubmenu(item);
-        let content = (
-            <a href={item.url || '#'} className="p-menuitem-link" target={item.target} onClick={(event) => onItemClick(event, item, index)} aria-disabled={item.disabled}>
-                {icon}
-                {label}
-                {submenuIcon}
-            </a>
-        );
-
-        if (item.template) {
-            const defaultContentOptions = {
-                onClick: (event) => onItemClick(event, item, index),
-                className: 'p-menuitem-link',
-                labelClassName: 'p-menuitem-text',
-                iconClassName,
-                submenuIconClassName,
-                element: content,
-                props: props,
-                active
-            };
-
-            content = ObjectUtils.getJSXElement(item.template, item, defaultContentOptions);
-        }
-
-        return (
-            <li key={item.label + '_' + index} className={className} style={item.style}>
-                {content}
-                {submenu}
-            </li>
-        );
-    }
-
-    const useItem = (item, index) => {
-        if (item.separator)
-            return useSeparator(index);
-        else
-            return useMenuitem(item, index);
-    }
-
-    const useItems = () => {
-        if (props.model) {
-            return (
-                props.model.map((item, index) => {
-                    return useItem(item, index);
-                })
-            );
-        }
-
-        return null;
-    }
-
-    const className = classNames({ 'p-slidemenu-rootlist': props.root, 'p-submenu-list': !props.root, 'p-active-submenu': props.parentActive });
-    const style = {
-        width: props.menuWidth + 'px',
-        left: props.root ? (-1 * props.level * props.menuWidth) + 'px' : props.menuWidth + 'px',
-        transitionProperty: props.root ? 'left' : 'none',
-        transitionDuration: props.effectDuration + 'ms',
-        transitionTimingFunction: props.easing
-    };
-    const items = useItems();
-
-    return (
-        <ul className={className} style={style}>
-            {items}
-        </ul>
-    );
-}
-
-export const SlideMenu = forwardRef((props, ref) => {
-
-    const [level, setLevel] = useState(0);
-    const [visible, setVisible] = useState(false);
+export const SlideMenu = memo(forwardRef((props, ref) => {
+    const [levelState, setLevelState] = useState(0);
+    const [visibleState, setVisibleState] = useState(false);
     const menuRef = useRef(null);
-    const target = useRef(null);
+    const targetRef = useRef(null);
     const backward = useRef(null);
-    const currentEvent = useRef(null);
     const slideMenuContent = useRef(null);
 
-    const [bindDocumentClickListener, unbindDocumentClickListener] = useEventListener({
-        type: 'click', listener: event => {
-            if (visible && isOutsideClicked(event)) {
-                hide(event);
-            }
-        }
-    });
-
-    const [bindDocumentResizeListener, unbindDocumentResizeListener] = useResizeListener({
-        listener: event => {
-            if (visible && !DomHandler.isTouchDevice()) {
-                hide(event);
-            }
-        }
-    });
-
-    const [bindScrollListener, unbindScrollListener] = useOverlayScrollListener({
-        target: target.current, listener: (event) => {
-            if (visible) {
-                hide(event);
-            }
-        }
+    const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({
+        target: targetRef, overlay: menuRef, listener: (event) => {
+            hide(event);
+        }, when: visibleState
     });
 
     const onPanelClick = (event) => {
         if (props.popup) {
             OverlayService.emit('overlay-click', {
                 originalEvent: event,
-                target: target.current
+                target: targetRef.current
             });
         }
     }
 
     const navigateForward = () => {
-        setLevel(prevProps => prevProps + 1)
+        setLevelState(prevLevel => prevLevel + 1);
     }
 
     const navigateBack = () => {
-        setLevel(prevProps => prevProps - 1)
-
-    }
-
-    const useBackward = () => {
-        const className = classNames('p-slidemenu-backward', { 'p-hidden': level === 0 });
-
-        return (
-            <div ref={backward} className={className} onClick={navigateBack}>
-                <span className="p-slidemenu-backward-icon pi pi-fw pi-chevron-left"></span>
-                <span>{props.backLabel}</span>
-            </div>
-        );
+        setLevelState(prevLevel => prevLevel - 1);
     }
 
     const toggle = (event) => {
         if (props.popup) {
-            if (visible)
-                hide(event);
-            else
-                show(event);
+            visibleState ? hide(event) : show(event);
         }
     }
 
     const show = (event) => {
-        target.current = event.currentTarget;
-        currentEvent = event;
-
-        setVisible(true);
+        targetRef.current = event.currentTarget;
+        setVisibleState(true);
+        props.onShow && props.onShow(event);
     }
 
     const hide = (event) => {
-        target.current = event.currentTarget;
-        currentEvent = event;
-
-        setVisible(false);
+        targetRef.current = event.currentTarget;
+        setVisibleState(false);
+        props.onHide && props.onHide(event);
     }
-
-    useEffect(() => {
-        if (visible && props.onShow) {
-            props.onShow(currentEvent);
-        }
-
-        if (!visible && props.onHide) {
-            props.onHide(currentEvent);
-        }
-
-    },[visible])
 
     const onEnter = () => {
         if (props.autoZIndex) {
             ZIndexUtils.set('menu', menuRef.current, PrimeReact.autoZIndex, props.baseZIndex || PrimeReact.zIndex['menu']);
         }
-        DomHandler.absolutePosition(menuRef.current, target.current);
+        DomHandler.absolutePosition(menuRef.current, targetRef.current);
     }
 
     const onEntered = () => {
-        bindDocumentClickListener();
-        bindDocumentResizeListener();
-        bindScrollListener();
+        bindOverlayListener();
     }
 
     const onExit = () => {
-        target.current = null;
-        unbindDocumentClickListener();
-        unbindDocumentResizeListener();
-        unbindScrollListener();
+        targetRef.current = null;
+        unbindOverlayListener();
     }
 
     const onExited = () => {
         ZIndexUtils.clear(menuRef.current);
-
-        setLevel(0)
+        setLevelState(0);
     }
-
-    const isOutsideClicked = (event) => {
-        return menuRef && menuRef.current && !(menuRef.current.isSameNode(event.target) || menuRef.current.contains(event.target));
-    }
-
 
     useUpdateEffect(() => {
-        setLevel(0)
+        setLevelState(0);
     }, [props.model])
 
     useUnmountEffect(() => {
-        unbindDocumentClickListener();
-        unbindDocumentResizeListener();
-
         ZIndexUtils.clear(menuRef.current);
-    })
+    });
 
     useImperativeHandle(ref, () => ({
         toggle,
@@ -272,30 +92,46 @@ export const SlideMenu = forwardRef((props, ref) => {
         hide
     }));
 
+    const useBackward = () => {
+        const className = classNames('p-slidemenu-backward', {
+            'p-hidden': levelState === 0
+        });
+
+        return (
+            <div ref={backward} className={className} onClick={navigateBack}>
+                <span className="p-slidemenu-backward-icon pi pi-fw pi-chevron-left"></span>
+                <span>{props.backLabel}</span>
+            </div>
+        )
+    }
+
     const useElement = () => {
-        const className = classNames('p-slidemenu p-component', { 'p-slidemenu-overlay': props.popup }, props.className);
+        const className = classNames('p-slidemenu p-component', {
+            'p-slidemenu-overlay': props.popup
+        }, props.className);
+        const wrapperStyle = { height: props.viewportHeight + 'px' };
         const backward = useBackward();
 
         return (
-            <CSSTransition nodeRef={menuRef} classNames="p-connected-overlay" in={!props.popup || visible} timeout={{ enter: 120, exit: 100 }} options={props.transitionOptions}
+            <CSSTransition nodeRef={menuRef} classNames="p-connected-overlay" in={!props.popup || visibleState} timeout={{ enter: 120, exit: 100 }} options={props.transitionOptions}
                 unmountOnExit onEnter={onEnter} onEntered={onEntered} onExit={onExit} onExited={onExited}>
                 <div ref={menuRef} id={props.id} className={className} style={props.style} onClick={onPanelClick}>
-                    <div className="p-slidemenu-wrapper" style={{ height: props.viewportHeight + 'px' }}>
+                    <div className="p-slidemenu-wrapper" style={wrapperStyle}>
                         <div className="p-slidemenu-content" ref={slideMenuContent}>
                             <SlideMenuSub model={props.model} root index={0} menuWidth={props.menuWidth} effectDuration={props.effectDuration}
-                                level={level} parentActive={level === 0} onForward={navigateForward} />
+                                level={levelState} parentActive={levelState === 0} onForward={navigateForward} />
                         </div>
                         {backward}
                     </div>
                 </div>
             </CSSTransition>
-        );
+        )
     }
 
     const element = useElement();
 
     return props.popup ? <Portal element={element} appendTo={props.appendTo} /> : element;
-})
+}));
 
 SlideMenu.defaultProps = {
     __TYPE: 'SlideMenu',

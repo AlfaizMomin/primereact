@@ -8,53 +8,61 @@ export const StyleClass = (props) => {
     const animating = useRef(false);
     const elementRef = useRef(null);
 
-    const [bindTargetEnter, unbindTargetEnter] = useEventListener({ type: 'animationend', listener: () => {
-        DomHandler.removeClass(targetRef.current, props.enterActiveClassName);
-        if (props.enterToClassName) {
-            DomHandler.addClass(targetRef.current, props.enterToClassName);
-        }
-        unbindTargetEnter();
+    const [bindTargetEnter, unbindTargetEnter] = useEventListener({
+        type: 'animationend', listener: () => {
+            DomHandler.removeClass(targetRef.current, props.enterActiveClassName);
+            if (props.enterToClassName) {
+                DomHandler.addClass(targetRef.current, props.enterToClassName);
+            }
+            unbindTargetEnter();
 
-        if (props.enterActiveClassName === 'slidedown') {
-            targetRef.current.style.maxHeight = '';
-        }
-        animating.current = false;
-    }, when: false });
+            if (props.enterActiveClassName === 'slidedown') {
+                targetRef.current.style.maxHeight = '';
+            }
+            animating.current = false;
+        }, when: false
+    });
 
-    const [bindTargetLeave, unbindTargetLeave] = useEventListener({ type: 'animationend', listener: () => {
-        DomHandler.removeClass(targetRef.current, props.leaveActiveClassName);
-        if (props.leaveToClassName) {
-            DomHandler.addClass(targetRef.current, props.leaveToClassName);
-        }
-        unbindTargetLeave();
-        animating.current = false;
-    }, when: false});
+    const [bindTargetLeave, unbindTargetLeave] = useEventListener({
+        type: 'animationend', listener: () => {
+            DomHandler.removeClass(targetRef.current, props.leaveActiveClassName);
+            if (props.leaveToClassName) {
+                DomHandler.addClass(targetRef.current, props.leaveToClassName);
+            }
+            unbindTargetLeave();
+            animating.current = false;
+        }, when: false
+    });
 
-    const [bindDocumentClick, unbindDocumentClick] = useEventListener({ type: 'animationend', listener: (event) => {
-        if (getComputedStyle(targetRef.current).getPropertyValue('position') === 'static') {
-            unbindDocumentClick();
-        }
-        else if (!elementRef.current.isSameNode(event.target) && !elementRef.current.contains(event.target) && !targetRef.current.contains(event.target)) {
-            leave();
-        }
-    }, when: false });
-
-    const [bindClick, unbindClick] = useEventListener({ type: 'click', listener: () => {
-        targetRef.current = resolveTarget();
-
-        if (props.toggleClassName) {
-            if (DomHandler.hasClass(targetRef.current, props.toggleClassName))
-                DomHandler.removeClass(targetRef.current, props.toggleClassName);
-            else
-                DomHandler.addClass(targetRef.current, props.toggleClassName);
-        }
-        else {
-            if (targetRef.current.offsetParent === null)
-                enter();
-            else
+    const [bindDocumentClick, unbindDocumentClick] = useEventListener({
+        type: 'animationend', listener: (event) => {
+            if (getComputedStyle(targetRef.current).getPropertyValue('position') === 'static') {
+                unbindDocumentClick();
+            }
+            else if (!elementRef.current.isSameNode(event.target) && !elementRef.current.contains(event.target) && !targetRef.current.contains(event.target)) {
                 leave();
-        }
-    }, when: false });
+            }
+        }, when: false
+    });
+
+    const [bindClick, unbindClick] = useEventListener({
+        type: 'click', listener: () => {
+            targetRef.current = resolveTarget();
+
+            if (props.toggleClassName) {
+                if (DomHandler.hasClass(targetRef.current, props.toggleClassName))
+                    DomHandler.removeClass(targetRef.current, props.toggleClassName);
+                else
+                    DomHandler.addClass(targetRef.current, props.toggleClassName);
+            }
+            else {
+                if (targetRef.current.offsetParent === null)
+                    enter();
+                else
+                    leave();
+            }
+        }, when: false
+    });
 
     const enter = () => {
         if (props.enterActiveClassName) {

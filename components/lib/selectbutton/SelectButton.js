@@ -1,8 +1,8 @@
 import React, { memo, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { ObjectUtils, classNames } from '../utils/Utils';
 import { SelectButtonItem } from './SelectButtonItem';
 import { tip } from '../tooltip/Tooltip';
+import { ObjectUtils, classNames } from '../utils/Utils';
 import { useUnmountEffect } from '../hooks/Hooks';
 
 export const SelectButton = memo((props) => {
@@ -103,10 +103,11 @@ export const SelectButton = memo((props) => {
                 const optionLabel = getOptionLabel(option);
                 const tabIndex = isDisabled ? null : 0;
                 const selected = isSelected(option);
+                const key = optionLabel + '_' + index;
 
-                return <SelectButtonItem key={`${optionLabel}_${index}`} label={optionLabel} className={option.className} option={option} onClick={onOptionClick} template={props.itemTemplate}
-                    selected={selected} tabIndex={tabIndex} disabled={isDisabled} ariaLabelledBy={props.ariaLabelledBy} />;
-            })
+                return <SelectButtonItem key={key} label={optionLabel} className={option.className} option={option} onClick={onOptionClick} template={props.itemTemplate}
+                    selected={selected} tabIndex={tabIndex} disabled={isDisabled} ariaLabelledBy={props.ariaLabelledBy} />
+            });
         }
 
         return null;

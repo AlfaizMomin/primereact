@@ -1,36 +1,27 @@
 import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button } from '../button/Button';
-import { DomHandler, ObjectUtils, classNames, UniqueComponentId, ZIndexUtils } from '../utils/Utils';
+import PrimeReact from '../api/Api';
 import { SplitButtonItem } from './SplitButtonItem';
 import { SplitButtonPanel } from './SplitButtonPanel';
+import { Button } from '../button/Button';
 import { tip } from '../tooltip/Tooltip';
 import { OverlayService } from '../overlayservice/OverlayService';
-import PrimeReact from '../api/Api';
-import { useEventListener, useOverlayScrollListener, useResizeListener } from '../hooks/Hooks';
+import { DomHandler, ObjectUtils, classNames, UniqueComponentId, ZIndexUtils } from '../utils/Utils';
+import { useMountEffect, useUnmountEffect, useOverlayListener } from '../hooks/Hooks';
 
 export const SplitButton = memo(forwardRef((props, ref) => {
-    const [id, setId] = useState(props.id);
-    const [overlayVisible, setOverlayVisible] = useState(false);
+    const [idState, setIdState] = useState(props.id);
+    const [overlayVisibleState, setOverlayVisibleState] = useState(false);
     const elementRef = useRef(null);
     const defaultButtonRef = useRef(null);
     const overlayRef = useRef(null);
     const tooltipRef = useRef(null);
-    const [bindDocumentClick, unbindDocumentClick] = useEventListener({ type: 'click', listener: event => {
-        if (overlayVisible && isOutsideClicked(event)) {
+
+    const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({
+        target: elementRef, overlay: overlayRef, listener: () => {
             hide();
-        }
-    }});
-    const [bindWindowResize, unbindWindowResize] = useResizeListener({ listener: () => {
-        if (overlayVisible && !DomHandler.isTouchDevice()) {
-            hide();
-        }
-    }});
-    const [bindOverlayScroll, unbindOverlayScroll] = useOverlayScrollListener({ target: elementRef, listener: () => {
-        if (overlayVisible) {
-            hide();
-        }
-    }});
+        }, when: overlayVisibleState
+    });
 
     const onPanelClick = (event) => {
         OverlayService.emit('overlay-click', {
@@ -40,7 +31,7 @@ export const SplitButton = memo(forwardRef((props, ref) => {
     }
 
     const onDropdownButtonClick = () => {
-        overlayVisible ? hide() : show();
+        overlayVisibleState ? hide() : show();
     }
 
     const onItemClick = () => {
@@ -48,11 +39,11 @@ export const SplitButton = memo(forwardRef((props, ref) => {
     }
 
     const show = () => {
-        setOverlayVisible(true);
+        setOverlayVisibleState(true);
     }
 
     const hide = () => {
-        setOverlayVisible(false);
+        setOverlayVisibleState(false);
     }
 
     const onOverlayEnter = () => {
@@ -61,17 +52,13 @@ export const SplitButton = memo(forwardRef((props, ref) => {
     }
 
     const onOverlayEntered = () => {
-        bindDocumentClick();
-        bindOverlayScroll();
-        bindWindowResize();
+        bindOverlayListener();
 
         props.onShow && props.onShow();
     }
 
     const onOverlayExit = () => {
-        unbindDocumentClick();
-        unbindOverlayScroll();
-        unbindWindowResize();
+        unbindOverlayListener();
     }
 
     const onOverlayExited = () => {
@@ -83,25 +70,6 @@ export const SplitButton = memo(forwardRef((props, ref) => {
     const alignOverlay = () => {
         DomHandler.alignOverlay(overlayRef.current, defaultButtonRef.current.parentElement, props.appendTo || PrimeReact.appendTo);
     }
-
-    const isOutsideClicked = (event) => {
-        return elementRef.current && (overlayRef.current && !overlayRef.current.contains(event.target));
-    }
-
-    useEffect(() => {
-        if (!id) {
-            setId(UniqueComponentId());
-        }
-
-        return () => {
-            ZIndexUtils.clear(overlayRef.current);
-
-            if (tooltipRef.current) {
-                tooltipRef.current.destroy();
-                tooltipRef.current = null;
-            }
-        }
-    }, []);
 
     useEffect(() => {
         if (tooltipRef.current) {
@@ -115,6 +83,21 @@ export const SplitButton = memo(forwardRef((props, ref) => {
             });
         }
     }, [props.tooltip, props.tooltipOptions]);
+
+    useMountEffect(() => {
+        if (!idState) {
+            setIdState(UniqueComponentId());
+        }
+    });
+
+    useUnmountEffect(() => {
+        ZIndexUtils.clear(overlayRef.current);
+
+        if (tooltipRef.current) {
+            tooltipRef.current.destroy();
+            tooltipRef.current = null;
+        }
+    });
 
     useImperativeHandle(ref, () => ({
         show,
@@ -134,24 +117,24 @@ export const SplitButton = memo(forwardRef((props, ref) => {
     const className = classNames('p-splitbutton p-component', props.className, { 'p-disabled': props.disabled });
     const buttonClassName = classNames('p-splitbutton-defaultbutton', props.buttonClassName);
     const menuButtonClassName = classNames('p-splitbutton-menubutton', props.menuButtonClassName);
-    const panelId = id + '_overlay';
-    const items = useItems();
     const buttonContent = props.buttonTemplate ? ObjectUtils.getJSXElement(props.buttonTemplate, props) : null;
+    const items = useItems();
+    const panelId = idState + '_overlay';
 
     return (
-        <div id={id} className={className} style={props.style} ref={elementRef}>
+        <div id={idState} className={className} style={props.style} ref={elementRef}>
             <Button ref={defaultButtonRef} type="button" className={buttonClassName} icon={props.icon} label={props.label} onClick={props.onClick} disabled={props.disabled} tabIndex={props.tabIndex}>
                 {buttonContent}
             </Button>
             <Button type="button" className={menuButtonClassName} icon={props.dropdownIcon} onClick={onDropdownButtonClick} disabled={props.disabled}
-                aria-expanded={overlayVisible} aria-haspopup aria-owns={panelId} />
+                aria-expanded={overlayVisibleState} aria-haspopup aria-owns={panelId} />
             <SplitButtonPanel ref={overlayRef} appendTo={props.appendTo} id={panelId} menuStyle={props.menuStyle} menuClassName={props.menuClassName} onClick={onPanelClick}
-                in={overlayVisible} onEnter={onOverlayEnter} onEntered={onOverlayEntered} onExit={onOverlayExit} onExited={onOverlayExited} transitionOptions={props.transitionOptions}>
+                in={overlayVisibleState} onEnter={onOverlayEnter} onEntered={onOverlayEntered} onExit={onOverlayExit} onExited={onOverlayExited} transitionOptions={props.transitionOptions}>
                 {items}
             </SplitButtonPanel>
         </div>
     )
-}))
+}));
 
 SplitButton.defaultProps = {
     __TYPE: 'SplitButton',

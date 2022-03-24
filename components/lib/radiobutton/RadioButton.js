@@ -1,11 +1,11 @@
 import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { classNames, ObjectUtils } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
+import { classNames, ObjectUtils } from '../utils/Utils';
 import { useUnmountEffect } from '../hooks/Hooks';
 
 export const RadioButton = memo(forwardRef((props, ref) => {
-    const [focused, setFocused] = useState(false);
+    const [focusedState, setFocusedState] = useState(false);
     const elementRef = useRef(null);
     const inputRef = useRef(props.inputRef);
     const tooltipRef = useRef(null);
@@ -37,11 +37,11 @@ export const RadioButton = memo(forwardRef((props, ref) => {
     }
 
     const onFocus = () => {
-        setFocused(true);
+        setFocusedState(true);
     }
 
     const onBlur = () => {
-        setFocused(false);
+        setFocusedState(false);
     }
 
     useEffect(() => {
@@ -81,12 +81,12 @@ export const RadioButton = memo(forwardRef((props, ref) => {
     const className = classNames('p-radiobutton p-component', {
         'p-radiobutton-checked': props.checked,
         'p-radiobutton-disabled': props.disabled,
-        'p-radiobutton-focused': focused
+        'p-radiobutton-focused': focusedState
     }, props.className);
-    const boxClass = classNames('p-radiobutton-box', {
+    const boxClassName = classNames('p-radiobutton-box', {
         'p-highlight': props.checked,
         'p-disabled': props.disabled,
-        'p-focus': focused
+        'p-focus': focusedState
     });
 
     return (
@@ -95,12 +95,12 @@ export const RadioButton = memo(forwardRef((props, ref) => {
                 <input ref={inputRef} id={props.inputId} type="radio" aria-labelledby={props.ariaLabelledBy} name={props.name} defaultChecked={props.checked}
                     onFocus={onFocus} onBlur={onBlur} disabled={props.disabled} required={props.required} tabIndex={props.tabIndex} />
             </div>
-            <div className={boxClass} role="radio" aria-checked={props.checked}>
+            <div className={boxClassName} role="radio" aria-checked={props.checked}>
                 <div className="p-radiobutton-icon"></div>
             </div>
         </div>
     )
-}))
+}));
 
 RadioButton.defaultProps = {
     __TYPE: 'RadioButton',

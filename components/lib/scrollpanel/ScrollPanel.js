@@ -1,13 +1,13 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { DomHandler, classNames } from '../utils/Utils';
+import { useMountEffect, useUnmountEffect } from '../hooks/Hooks';
 
 export const ScrollPanel = forwardRef((props, ref) => {
-    const className = classNames('p-scrollpanel p-component', props.className);
-    const container = useRef(null);
-    const content = useRef(null);
-    const xBar = useRef(null);
-    const yBar = useRef(null);
+    const containerRef = useRef(null);
+    const contentRef = useRef(null);
+    const xBarRef = useRef(null);
+    const yBarRef = useRef(null);
     const isXBarClicked = useRef(false);
     const isYBarClicked = useRef(false);
     const lastPageX = useRef(null);
@@ -18,48 +18,48 @@ export const ScrollPanel = forwardRef((props, ref) => {
     const initialized = useRef(false);
 
     const calculateContainerHeight = () => {
-        let containerStyles = getComputedStyle(container.current),
-        xBarStyles = getComputedStyle(xBar.current),
-        pureContainerHeight = DomHandler.getHeight(container.current) - parseInt(xBarStyles['height'], 10);
+        const containerStyles = getComputedStyle(containerRef.current);
+        const xBarStyles = getComputedStyle(xBarRef.current);
+        const pureContainerHeight = DomHandler.getHeight(containerRef.current) - parseInt(xBarStyles['height'], 10);
 
-        if (containerStyles['max-height'] !== "none" && pureContainerHeight === 0) {
-            if(content.current.offsetHeight + parseInt(xBarStyles['height'], 10) > parseInt(containerStyles['max-height'], 10)) {
-                container.current.style.height = containerStyles['max-height'];
+        if (containerStyles['max-height'] !== 'none' && pureContainerHeight === 0) {
+            if (contentRef.current.offsetHeight + parseInt(xBarStyles['height'], 10) > parseInt(containerStyles['max-height'], 10)) {
+                containerRef.current.style.height = containerStyles['max-height'];
             }
             else {
-                container.current.style.height = content.current.offsetHeight + parseFloat(containerStyles.paddingTop) + parseFloat(containerStyles.paddingBottom) + parseFloat(containerStyles.borderTopWidth) + parseFloat(containerStyles.borderBottomWidth) + "px";
+                containerRef.current.style.height = contentRef.current.offsetHeight + parseFloat(containerStyles.paddingTop) + parseFloat(containerStyles.paddingBottom) + parseFloat(containerStyles.borderTopWidth) + parseFloat(containerStyles.borderBottomWidth) + "px";
             }
         }
     }
 
     const moveBar = () => {
         // horizontal scroll
-        let totalWidth = content.current.scrollWidth;
-        let ownWidth = content.current.clientWidth;
-        let bottom = (container.current.clientHeight - xBar.current.clientHeight) * -1;
+        const totalWidth = contentRef.current.scrollWidth;
+        const ownWidth = contentRef.current.clientWidth;
+        const bottom = (containerRef.current.clientHeight - xBarRef.current.clientHeight) * -1;
         scrollXRatio.current = ownWidth / totalWidth;
 
         // vertical scroll
-        let totalHeight = content.current.scrollHeight;
-        let ownHeight = content.current.clientHeight;
-        let right = (container.current.clientWidth - yBar.current.clientWidth) * -1;
+        const totalHeight = contentRef.current.scrollHeight;
+        const ownHeight = contentRef.current.clientHeight;
+        const right = (containerRef.current.clientWidth - yBarRef.current.clientWidth) * -1;
         scrollYRatio.current = ownHeight / totalHeight;
 
-        frame.current =  window.requestAnimationFrame(() => {
+        frame.current = window.requestAnimationFrame(() => {
             if (scrollXRatio.current >= 1) {
-                DomHandler.addClass(xBar.current, 'p-scrollpanel-hidden');
+                DomHandler.addClass(xBarRef.current, 'p-scrollpanel-hidden');
             }
             else {
-                DomHandler.removeClass(xBar.current, 'p-scrollpanel-hidden');
-                xBar.current.style.cssText = 'width:' + Math.max(scrollXRatio.current * 100, 10) + '%; left:' + (content.current.scrollLeft / totalWidth) * 100 + '%;bottom:' + bottom + 'px;';
+                DomHandler.removeClass(xBarRef.current, 'p-scrollpanel-hidden');
+                xBarRef.current.style.cssText = 'width:' + Math.max(scrollXRatio.current * 100, 10) + '%; left:' + (contentRef.current.scrollLeft / totalWidth) * 100 + '%;bottom:' + bottom + 'px;';
             }
 
             if (scrollYRatio.current >= 1) {
-                DomHandler.addClass(yBar.current, 'p-scrollpanel-hidden');
+                DomHandler.addClass(yBarRef.current, 'p-scrollpanel-hidden');
             }
             else {
-                DomHandler.removeClass(yBar.current, 'p-scrollpanel-hidden');
-                yBar.current.style.cssText = 'height:' + Math.max(scrollYRatio.current * 100, 10) + '%; top: calc(' + (content.current.scrollTop / totalHeight) * 100 + '% - ' + xBar.current.clientHeight + 'px);right:' + right + 'px;';
+                DomHandler.removeClass(yBarRef.current, 'p-scrollpanel-hidden');
+                yBarRef.current.style.cssText = 'height:' + Math.max(scrollYRatio.current * 100, 10) + '%; top: calc(' + (contentRef.current.scrollTop / totalHeight) * 100 + '% - ' + xBarRef.current.clientHeight + 'px);right:' + right + 'px;';
             }
         });
     }
@@ -67,7 +67,7 @@ export const ScrollPanel = forwardRef((props, ref) => {
     const onYBarMouseDown = (event) => {
         isYBarClicked.current = true;
         lastPageY.current = event.pageY;
-        DomHandler.addClass(yBar.current, 'p-scrollpanel-grabbed');
+        DomHandler.addClass(yBarRef.current, 'p-scrollpanel-grabbed');
         DomHandler.addClass(document.body, 'p-scrollpanel-grabbed');
 
         document.addEventListener('mousemove', onDocumentMouseMove);
@@ -78,7 +78,7 @@ export const ScrollPanel = forwardRef((props, ref) => {
     const onXBarMouseDown = (event) => {
         isXBarClicked.current = true;
         lastPageX.current = event.pageX;
-        DomHandler.addClass(xBar.current, 'p-scrollpanel-grabbed');
+        DomHandler.addClass(xBarRef.current, 'p-scrollpanel-grabbed');
         DomHandler.addClass(document.body, 'p-scrollpanel-grabbed');
 
         document.addEventListener('mousemove', onDocumentMouseMove);
@@ -87,10 +87,10 @@ export const ScrollPanel = forwardRef((props, ref) => {
     }
 
     const onDocumentMouseMove = (event) => {
-        if(isXBarClicked) {
+        if (isXBarClicked) {
             onMouseMoveForXBar(event);
         }
-        else if(isYBarClicked) {
+        else if (isYBarClicked) {
             onMouseMoveForYBar(event);
         }
         else {
@@ -100,26 +100,26 @@ export const ScrollPanel = forwardRef((props, ref) => {
     }
 
     const onMouseMoveForXBar = (event) => {
-        let deltaX = event.pageX - lastPageX.current;
+        const deltaX = event.pageX - lastPageX.current;
         lastPageX.current = event.pageX;
 
-        frame.current =  window.requestAnimationFrame(() => {
-            content.current.scrollLeft += deltaX / scrollXRatio.current;
+        frame.current = window.requestAnimationFrame(() => {
+            contentRef.current.scrollLeft += deltaX / scrollXRatio.current;
         });
     }
 
     const onMouseMoveForYBar = (event) => {
-        let deltaY = event.pageY - lastPageY.current;
+        const deltaY = event.pageY - lastPageY.current;
         lastPageY.current = e.pageY;
 
-        frame.current =  window.requestAnimationFrame(() => {
-            content.current.scrollTop += deltaY / scrollYRatio.current;
+        frame.current = window.requestAnimationFrame(() => {
+            contentRef.current.scrollTop += deltaY / scrollYRatio.current;
         });
     }
 
     const onDocumentMouseUp = (event) => {
-        DomHandler.removeClass(yBar.current, 'p-scrollpanel-grabbed');
-        DomHandler.removeClass(xBar.current, 'p-scrollpanel-grabbed');
+        DomHandler.removeClass(yBarRef.current, 'p-scrollpanel-grabbed');
+        DomHandler.removeClass(xBarRef.current, 'p-scrollpanel-grabbed');
         DomHandler.removeClass(document.body, 'p-scrollpanel-grabbed');
 
         document.removeEventListener('mousemove', onDocumentMouseMove);
@@ -132,39 +132,41 @@ export const ScrollPanel = forwardRef((props, ref) => {
         moveBar();
     }
 
-    useEffect(() => {
+    useMountEffect(() => {
         moveBar();
         window.addEventListener('resize', moveBar);
         calculateContainerHeight();
-        initialized = true;
+        initialized.current = true;
+    });
 
-        return () => {
-            if (initialized) {
-                window.removeEventListener('resize', moveBar);
-            }
+    useUnmountEffect(() => {
+        if (initialized.current) {
+            window.removeEventListener('resize', moveBar);
+        }
 
-            if (frame.current) {
-                window.cancelAnimationFrame(frame.current);
-            }
-        };
-    }, []);
+        if (frame.current) {
+            window.cancelAnimationFrame(frame.current);
+        }
+    });
 
     useImperativeHandle(ref, () => ({
         refresh
     }));
 
+    const className = classNames('p-scrollpanel p-component', props.className);
+
     return (
-        <div ref={container} id={props.id} className={className} style={props.style}>
+        <div ref={containerRef} id={props.id} className={className} style={props.style}>
             <div className="p-scrollpanel-wrapper">
-                <div ref={content} className="p-scrollpanel-content" onScroll={moveBar} onMouseEnter={moveBar}>
+                <div ref={contentRef} className="p-scrollpanel-content" onScroll={moveBar} onMouseEnter={moveBar}>
                     {props.children}
                 </div>
             </div>
-            <div ref={xBar} className="p-scrollpanel-bar p-scrollpanel-bar-x" onMouseDown={onXBarMouseDown}></div>
-            <div ref={yBar} className="p-scrollpanel-bar p-scrollpanel-bar-y" onMouseDown={onYBarMouseDown}></div>
+            <div ref={xBarRef} className="p-scrollpanel-bar p-scrollpanel-bar-x" onMouseDown={onXBarMouseDown}></div>
+            <div ref={yBarRef} className="p-scrollpanel-bar p-scrollpanel-bar-y" onMouseDown={onYBarMouseDown}></div>
         </div>
-    );
-})
+    )
+});
 
 ScrollPanel.defaultProps = {
     __TYPE: 'ScrollPanel',

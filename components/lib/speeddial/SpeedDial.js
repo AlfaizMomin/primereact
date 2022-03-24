@@ -1,36 +1,39 @@
-import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, memo, useImperativeHandle, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '../button/Button';
 import { Ripple } from '../ripple/Ripple';
 import { classNames, DomHandler, ObjectUtils } from '../utils/Utils';
-import { useEventListener } from '../hooks/Hooks';
+import { useMountEffect, useUnmountEffect, useEventListener } from '../hooks/Hooks';
 
 export const SpeedDial = memo(forwardRef((props, ref) => {
-    const [visible, setVisible] = useState(false);
+    const [visibleState, setVisibleState] = useState(false);
     const isItemClicked = useRef(false);
     const elementRef = useRef(null);
     const listRef = useRef(null);
-    const isVisible = props.onVisibleChange ? props.visible : visible;
-    const [bindDocumentClick, unbindDocumentClick] = useEventListener({ type: 'click', listener: event => {
-        if (isVisible && isOutsideClicked(event)) {
-            hide();
-        }
+    const visible = props.onVisibleChange ? props.visible : visibleState;
 
-        isItemClicked.current = false;
-    }});
+    const [bindDocumentClick, unbindDocumentClick] = useEventListener({
+        type: 'click', listener: (event) => {
+            if (!isItemClicked.current && isOutsideClicked(event)) {
+                hide();
+            }
+
+            isItemClicked.current = false;
+        }, when: visibleState
+    });
 
     const show = () => {
-        props.onVisibleChange ? props.onVisibleChange(true) : setVisible(true);
+        props.onVisibleChange ? props.onVisibleChange(true) : setVisibleState(true);
         props.onShow && props.onShow();
     }
 
     const hide = () => {
-        props.onVisibleChange ? props.onVisibleChange(false) : setVisible(false);
+        props.onVisibleChange ? props.onVisibleChange(false) : setVisibleState(false);
         props.onHide && props.onHide();
     }
 
     const onClick = (e) => {
-        isVisible ? hide() : show();
+        visible ? hide() : show();
         props.onClick && props.onClick(e);
 
         isItemClicked.current = true;
@@ -45,12 +48,12 @@ export const SpeedDial = memo(forwardRef((props, ref) => {
     }
 
     const isOutsideClicked = (event) => {
-        return elementRef.current && !(elementRef.current.isSameNode(event.target) || elementRef.current.contains(event.target) || isItemClicked.current);
+        return elementRef.current && !(elementRef.current.isSameNode(event.target) || elementRef.current.contains(event.target));
     }
 
     const calculateTransitionDelay = (index) => {
         const length = props.model.length;
-        return (isVisible ? index : length - index - 1) * props.transitionDelay;
+        return (visible ? index : length - index - 1) * props.transitionDelay;
     }
 
     const calculatePointStyle = (index) => {
@@ -119,7 +122,7 @@ export const SpeedDial = memo(forwardRef((props, ref) => {
         };
     }
 
-    useEffect(() => {
+    useMountEffect(() => {
         if (props.type !== 'linear') {
             const button = DomHandler.findSingle(elementRef.current, '.p-speeddial-button');
             const firstItem = DomHandler.findSingle(listRef.current, '.p-speeddial-item');
@@ -133,11 +136,11 @@ export const SpeedDial = memo(forwardRef((props, ref) => {
         }
 
         props.hideOnClickOutside && bindDocumentClick();
+    });
 
-        return () => {
-            props.hideOnClickOutside && unbindDocumentClick();
-        }
-    }, []);
+    useUnmountEffect(() => {
+        props.hideOnClickOutside && unbindDocumentClick();
+    });
 
     useImperativeHandle(ref, () => ({
         show,
@@ -164,7 +167,7 @@ export const SpeedDial = memo(forwardRef((props, ref) => {
                 iconClassName,
                 element: content,
                 props,
-                visible: isVisible
+                visible
             };
 
             content = ObjectUtils.getJSXElement(template, item, defaultContentOptions);
@@ -178,11 +181,7 @@ export const SpeedDial = memo(forwardRef((props, ref) => {
     }
 
     const useItems = () => {
-        if (props.model) {
-            return props.model.map(useItem);
-        }
-
-        return null;
+        return props.model ? props.model.map(useItem) : null;
     }
 
     const useList = () => {
@@ -200,8 +199,8 @@ export const SpeedDial = memo(forwardRef((props, ref) => {
             'p-speeddial-rotate': props.rotateAnimation && !props.hideIcon
         }, props.buttonClassName);
         const iconClassName = classNames({
-            [`${props.showIcon}`]: (!isVisible && !!props.showIcon) || !props.hideIcon,
-            [`${props.hideIcon}`]: isVisible && !!props.hideIcon,
+            [`${props.showIcon}`]: (!visible && !!props.showIcon) || !props.hideIcon,
+            [`${props.hideIcon}`]: visible && !!props.hideIcon,
         });
         const content = <Button type="button" style={props.buttonStyle} className={className} icon={iconClassName} onClick={onClick} disabled={props.disabled} />;
 
@@ -224,12 +223,10 @@ export const SpeedDial = memo(forwardRef((props, ref) => {
     const useMask = () => {
         if (props.mask) {
             const className = classNames('p-speeddial-mask', {
-                'p-speeddial-mask-visible': isVisible
+                'p-speeddial-mask-visible': visible
             }, props.maskClassName);
 
-            return (
-                <div className={className} style={props.maskStyle}></div>
-            );
+            return <div className={className} style={props.maskStyle}></div>
         }
 
         return null;
@@ -237,7 +234,7 @@ export const SpeedDial = memo(forwardRef((props, ref) => {
 
     const className = classNames(`p-speeddial p-component p-speeddial-${props.type}`, {
         [`p-speeddial-direction-${props.direction}`]: props.type !== 'circle',
-        'p-speeddial-opened': isVisible,
+        'p-speeddial-opened': visible,
         'p-disabled': props.disabled
     }, props.className);
     const button = useButton();
@@ -252,8 +249,8 @@ export const SpeedDial = memo(forwardRef((props, ref) => {
             </div>
             {mask}
         </React.Fragment>
-    );
-}))
+    )
+}));
 
 SpeedDial.defaultProps = {
     __TYPE: 'SpeedDial',

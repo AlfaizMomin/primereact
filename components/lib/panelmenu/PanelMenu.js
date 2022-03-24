@@ -1,10 +1,15 @@
-import React, { useState, Component } from 'react';
+import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
+import { PanelMenuSub } from './PanelMenuSub';
 import { ObjectUtils, classNames, UniqueComponentId } from '../utils/Utils';
 import { CSSTransition } from '../csstransition/CSSTransition';
 import { useMountEffect } from '../hooks/Hooks';
 
-const PanelMenuSub = (props) => {
+export const PanelMenu = memo((props) => {
+    const [idState, setIdState] = useState(props.id);
+    const [activeItemState, setActiveItemState] = useState(null);
+    const headerId = idState + '_header';
+    const contentId = idState + '_content';
 
     const findActiveItem = () => {
         if (props.model) {
@@ -29,8 +34,6 @@ const PanelMenuSub = (props) => {
         return null;
     }
 
-    const [activeItem, setActiveItem] = useState(findActiveItem());
-
     const onItemClick = (event, item) => {
         if (item.disabled) {
             event.preventDefault();
@@ -48,12 +51,12 @@ const PanelMenuSub = (props) => {
             });
         }
 
-        let activeItem = activeItem;
+        let activeItem = activeItemState;
         let active = isItemActive(item);
 
         if (active) {
             item.expanded = false;
-            setActiveItem(props.multiple ? activeItem.filter(a_item => a_item !== item) : null)
+            setActiveItemState(props.multiple ? activeItem.filter(a_item => a_item !== item) : null)
         }
         else {
             if (!props.multiple && activeItem) {
@@ -61,179 +64,24 @@ const PanelMenuSub = (props) => {
             }
 
             item.expanded = true;
-            setActiveItem(props.multiple ? [...(activeItem || []), item] : item)
+            setActiveItemState(props.multiple ? [...(activeItem || []), item] : item)
         }
     }
 
     const isItemActive = (item) => {
-        return activeItem && (props.multiple ? activeItem.indexOf(item) > -1 : activeItem === item);
-    }
-
-    const useSeparator = (index) => {
-        return <li key={'separator_' + index} className="p-menu-separator"></li>;
-    }
-
-    const useSubmenu = (item, active) => {
-        const submenuWrapperClassName = classNames('p-toggleable-content', { 'p-toggleable-content-collapsed': !active });
-        const submenuContentRef = React.createRef();
-
-        if (item.items) {
-            return (
-                <CSSTransition nodeRef={submenuContentRef} classNames="p-toggleable-content" timeout={{ enter: 1000, exit: 450 }} in={active} unmountOnExit>
-                    <div ref={submenuContentRef} className={submenuWrapperClassName}>
-                        <PanelMenuSub model={item.items} multiple={props.multiple} />
-                    </div>
-                </CSSTransition>
-            );
-        }
-
-        return null;
-    }
-
-    const useMenuItem = (item, index) => {
-        const active = isItemActive(item);
-        const className = classNames('p-menuitem', item.className);
-        const linkClassName = classNames('p-menuitem-link', { 'p-disabled': item.disabled });
-        const iconClassName = classNames('p-menuitem-icon', item.icon);
-        const submenuIconClassName = classNames('p-panelmenu-icon pi pi-fw', { 'pi-angle-right': !active, 'pi-angle-down': active });
-        const icon = item.icon && <span className={iconClassName}></span>;
-        const label = item.label && <span className="p-menuitem-text">{item.label}</span>;
-        const submenuIcon = item.items && <span className={submenuIconClassName}></span>;
-        const submenu = useSubmenu(item, active);
-        let content = (
-            <a href={item.url || '#'} className={linkClassName} target={item.target} onClick={(event) => onItemClick(event, item, index)} role="menuitem" aria-disabled={item.disabled}>
-                {submenuIcon}
-                {icon}
-                {label}
-            </a>
-        );
-
-        if (item.template) {
-            const defaultContentOptions = {
-                onClick: (event) => onItemClick(event, item, index),
-                className: linkClassName,
-                labelClassName: 'p-menuitem-text',
-                iconClassName,
-                submenuIconClassName,
-                element: content,
-                props: props,
-                leaf: !item.items,
-                active
-            };
-
-            content = ObjectUtils.getJSXElement(item.template, item, defaultContentOptions);
-        }
-
-        return (
-            <li key={item.label + '_' + index} className={className} style={item.style} role="none">
-                {content}
-                {submenu}
-            </li>
-        );
-    }
-
-    const useItem = (item, index) => {
-        if (item.separator)
-            return useSeparator(index);
-        else
-            return useMenuItem(item, index);
-    }
-
-    const useMenu = () => {
-        if (props.model) {
-            return (
-                props.model.map((item, index) => {
-                    return useItem(item, index);
-                })
-            );
-        }
-
-        return null;
-    }
-
-    const className = classNames('p-submenu-list', props.className);
-    const menu = useMenu();
-
-    return (
-        <ul className={className} role="tree">
-            {menu}
-        </ul>
-    );
-}
-
-export const PanelMenu = (props) => {
-
-    const findActiveItem = () => {
-        if (props.model) {
-            if (props.multiple) {
-                return props.model.filter(item => item.expanded);
-            }
-            else {
-                let activeItem = null;
-                props.model.forEach(item => {
-                    if (item.expanded) {
-                        if (!activeItem)
-                            activeItem = item;
-                        else
-                            item.expanded = false;
-                    }
-                });
-
-                return activeItem;
-            }
-        }
-
-        return null;
-    }
-
-    const [id, setId] = useState(props.id);
-    const [activeItem, setActiveItem] = useState(findActiveItem())
-
-    const onItemClick = (event, item) => {
-        if (item.disabled) {
-            event.preventDefault();
-            return;
-        }
-
-        if (!item.url) {
-            event.preventDefault();
-        }
-
-        if (item.command) {
-            item.command({
-                originalEvent: event,
-                item: item
-            });
-        }
-
-        let activeItem = activeItem;
-        let active = isItemActive(item);
-
-        if (active) {
-            item.expanded = false;
-            setActiveItem(props.multiple ? activeItem.filter(a_item => a_item !== item) : null)
-        }
-        else {
-            if (!props.multiple && activeItem) {
-                activeItem.expanded = false;
-            }
-
-            item.expanded = true;
-            setActiveItem(props.multiple ? [...(activeItem || []), item] : item)
-        }
-    }
-
-    const isItemActive = (item) => {
-        return activeItem && (props.multiple ? activeItem.indexOf(item) > -1 : activeItem === item);
+        return activeItemState && (props.multiple ? activeItemState.indexOf(item) > -1 : activeItemState === item);
     }
 
     useMountEffect(() => {
-        if (!id) {
-            setId(UniqueComponentId())
+        if (!idState) {
+            setIdState(UniqueComponentId());
         }
-    })
+
+        setActiveItemState(findActiveItem());
+    });
 
     const usePanel = (item, index) => {
+        const key = item.label + '_' + index;
         const active = isItemActive(item);
         const className = classNames('p-panelmenu-panel', item.className);
         const headerClassName = classNames('p-component p-panelmenu-header', { 'p-highlight': active, 'p-disabled': item.disabled });
@@ -246,7 +94,7 @@ export const PanelMenu = (props) => {
         const menuContentRef = React.createRef();
         let content = (
             <a href={item.url || '#'} className="p-panelmenu-header-link" onClick={(e) => onItemClick(e, item)} aria-expanded={active}
-                id={id + '_header'} aria-controls={id + 'content'} aria-disabled={item.disabled}>
+                id={headerId} aria-controls={contentId} aria-disabled={item.disabled}>
                 {submenuIcon}
                 {itemIcon}
                 {label}
@@ -270,12 +118,12 @@ export const PanelMenu = (props) => {
         }
 
         return (
-            <div key={item.label + '_' + index} className={className} style={item.style}>
+            <div key={key} className={className} style={item.style}>
                 <div className={headerClassName} style={item.style}>
                     {content}
                 </div>
                 <CSSTransition nodeRef={menuContentRef} classNames="p-toggleable-content" timeout={{ enter: 1000, exit: 450 }} in={active} unmountOnExit options={props.transitionOptions}>
-                    <div ref={menuContentRef} className={contentWrapperClassName} role="region" id={id + '_content'} aria-labelledby={id + '_header'}>
+                    <div ref={menuContentRef} className={contentWrapperClassName} role="region" id={contentId} aria-labelledby={headerId}>
                         <div className="p-panelmenu-content">
                             <PanelMenuSub model={item.items} className="p-panelmenu-root-submenu" multiple={props.multiple} />
                         </div>
@@ -286,15 +134,7 @@ export const PanelMenu = (props) => {
     }
 
     const usePanels = () => {
-        if (props.model) {
-            return (
-                props.model.map((item, index) => {
-                    return usePanel(item, index);
-                })
-            );
-        }
-
-        return null;
+        return props.model ? props.model.map(usePanel) : null;
     }
 
     const className = classNames('p-panelmenu p-component', props.className);
@@ -304,8 +144,8 @@ export const PanelMenu = (props) => {
         <div id={props.id} className={className} style={props.style}>
             {panels}
         </div>
-    );
-}
+    )
+});
 
 PanelMenu.defaultProps = {
     __TYPE: 'Panel',

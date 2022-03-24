@@ -13,31 +13,13 @@ export const Slider = memo((props) => {
     const barWidth = useRef(0);
     const barHeight = useRef(0);
     const value = props.range ? props.value || [0, 100] : props.value || 0;
+    const horizontal = props.orientation === 'horizontal';
+    const vertical = props.orientation === 'vertical';
 
-    const onDrag = (event) => {
-        if (dragging.current) {
-            setValue(event);
-            event.preventDefault();
-        }
-    }
-
-    const onDragEnd = (event) => {
-        if (dragging.current) {
-            dragging.current = false;
-
-            props.onSlideEnd && props.onSlideEnd({ originalEvent: event, value: props.value });
-
-            unbindDocumentMouseMove();
-            unbindDocumentMouseUp();
-            unbindDocumentTouchMove();
-            unbindDocumentTouchEnd();
-        }
-    }
-
-    const [bindDocumentMouseMove, unbindDocumentMouseMove] = useEventListener({ type: 'mousemove', listener: onDrag });
-    const [bindDocumentMouseUp, unbindDocumentMouseUp] = useEventListener({ type: 'mouseup', listener: onDragEnd });
-    const [bindDocumentTouchMove, unbindDocumentTouchMove] = useEventListener({ type: 'touchmove', listener: onDrag });
-    const [bindDocumentTouchEnd, unbindDocumentTouchEnd] = useEventListener({ type: 'touchend', listener: onDragEnd });
+    const [bindDocumentMouseMove, unbindDocumentMouseMove] = useEventListener({ type: 'mousemove', listener: (event) => onDrag(event) });
+    const [bindDocumentMouseUp, unbindDocumentMouseUp] = useEventListener({ type: 'mouseup', listener: (event) => onDragEnd(event) });
+    const [bindDocumentTouchMove, unbindDocumentTouchMove] = useEventListener({ type: 'touchmove', listener: (event) => onDrag(event) });
+    const [bindDocumentTouchEnd, unbindDocumentTouchEnd] = useEventListener({ type: 'touchend', listener: (event) => onDragEnd(event) });
 
     const spin = (event, dir) => {
         const val = props.range ? value[handleIndex.current] : value;
@@ -57,6 +39,26 @@ export const Slider = memo((props) => {
         sliderHandleClick.current = true;
         handleIndex.current = index;
         //event.preventDefault();
+    }
+
+    const onDrag = (event) => {
+        if (dragging.current) {
+            setValue(event);
+            event.preventDefault();
+        }
+    }
+
+    const onDragEnd = (event) => {
+        if (dragging.current) {
+            dragging.current = false;
+
+            props.onSlideEnd && props.onSlideEnd({ originalEvent: event, value: props.value });
+
+            unbindDocumentMouseMove();
+            unbindDocumentMouseUp();
+            unbindDocumentTouchMove();
+            unbindDocumentTouchEnd();
+        }
     }
 
     const onMouseDown = (event, index) => {
@@ -103,7 +105,7 @@ export const Slider = memo((props) => {
     }
 
     const updateDomData = () => {
-        let rect = elementRef.current.getBoundingClientRect();
+        const rect = elementRef.current.getBoundingClientRect();
         initX.current = rect.left + DomHandler.getWindowScrollLeft();
         initY.current = rect.top + DomHandler.getWindowScrollTop();
         barWidth.current = elementRef.current.offsetWidth;
@@ -115,7 +117,7 @@ export const Slider = memo((props) => {
         let pageX = event.touches ? event.touches[0].pageX : event.pageX;
         let pageY = event.touches ? event.touches[0].pageY : event.pageY;
 
-        if (props.orientation === 'horizontal')
+        if (horizontal)
             handleValue = ((pageX - initX.current) * 100) / (barWidth.current);
         else
             handleValue = (((initY.current + barHeight.current) - pageY) * 100) / (barHeight.current);
@@ -186,21 +188,25 @@ export const Slider = memo((props) => {
     }
 
     const useHandle = (leftValue, bottomValue, index) => {
-        const handleClassName = classNames('p-slider-handle', {
+        const style = {
+            transition: dragging.current ? 'none' : null,
+            left: leftValue !== null && (leftValue + '%'),
+            bottom: bottomValue && (bottomValue + '%')
+        };
+        const className = classNames('p-slider-handle', {
             'p-slider-handle-start': index === 0,
             'p-slider-handle-end': index === 1,
             'p-slider-handle-active': handleIndex.current === index
         });
 
         return (
-            <span onMouseDown={event => onMouseDown(event, index)} onTouchStart={event => onTouchStart(event, index)} onKeyDown={event => onKeyDown(event, index)} tabIndex={props.tabIndex}
-                className={handleClassName} style={{ transition: dragging.current ? 'none' : null, left: leftValue !== null && (leftValue + '%'), bottom: bottomValue && (bottomValue + '%') }}
-                role="slider" aria-valuemin={props.min} aria-valuemax={props.max} aria-valuenow={leftValue || bottomValue} aria-labelledby={props.ariaLabelledBy}></span>
+            <span className={className} style={style} tabIndex={props.tabIndex} role="slider"
+                onMouseDown={(event) => onMouseDown(event, index)} onTouchStart={(event) => onTouchStart(event, index)} onKeyDown={(event) => onKeyDown(event, index)}
+                aria-valuemin={props.min} aria-valuemax={props.max} aria-valuenow={leftValue || bottomValue} aria-labelledby={props.ariaLabelledBy}></span>
         )
     }
 
     const useRangeSlider = () => {
-        const horizontal = (props.orientation === 'horizontal');
         const handleValueStart = (value[0] < props.min ? 0 : value[0] - props.min) * 100 / (props.max - props.min);
         const handleValueEnd = (value[1] > props.max ? 100 : value[1] - props.min) * 100 / (props.max - props.min);
         const rangeStartHandle = horizontal ? useHandle(handleValueStart, null, 0) : useHandle(null, handleValueStart, 0);
@@ -226,23 +232,22 @@ export const Slider = memo((props) => {
         else
             handleValue = (value - props.min) * 100 / (props.max - props.min);
 
-        const rangeStyle = props.orientation === 'horizontal' ? { width: handleValue + '%' } : { height: handleValue + '%' };
-        const handle = props.orientation === 'horizontal' ? useHandle(handleValue, null, null) : useHandle(null, handleValue, null);
+        const rangeStyle = horizontal ? { width: handleValue + '%' } : { height: handleValue + '%' };
+        const handle = horizontal ? useHandle(handleValue, null, null) : useHandle(null, handleValue, null);
 
         return (
             <>
                 <span className="p-slider-range" style={rangeStyle}></span>
                 {handle}
             </>
-        );
+        )
     }
 
     const className = classNames('p-slider p-component', props.className, {
         'p-disabled': props.disabled,
-        'p-slider-horizontal': props.orientation === 'horizontal',
-        'p-slider-vertical': props.orientation === 'vertical'
+        'p-slider-horizontal': horizontal,
+        'p-slider-vertical': vertical
     });
-
     const content = props.range ? useRangeSlider() : useSingleSlider();
 
     return (
@@ -250,7 +255,7 @@ export const Slider = memo((props) => {
             {content}
         </div>
     )
-})
+});
 
 Slider.defaultProps = {
     __TYPE: 'Slider',

@@ -4,10 +4,10 @@ import { TerminalService } from '../terminalservice/TerminalService';
 import { classNames } from '../utils/Utils';
 
 export const Terminal = memo((props) => {
-    const [commandText, setCommandText] = useState('');
-    const [commands, setCommands] = useState([]);
-    const [index, setIndex] = useState(0);
-    const [emittedText, setEmittedText] = useState('');
+    const [commandTextState, setCommandTextState] = useState('');
+    const [commandsState, setCommandsState] = useState([]);
+    const [indexState, setIndexState] = useState(0);
+    const [emittedTextState, setEmittedTextState] = useState('');
     const elementRef = useRef(null);
     const inputRef = useRef(null);
     const isEmitted = useRef(false);
@@ -17,7 +17,7 @@ export const Terminal = memo((props) => {
     }
 
     const onInputChange = (e) => {
-        setCommandText(e.target.value);
+        setCommandTextState(e.target.value);
     }
 
     const onInputKeyDown = (e) => {
@@ -25,26 +25,26 @@ export const Terminal = memo((props) => {
         switch (code) {
             //up
             case 38:
-                if (commands && commands.length) {
-                    const prevIndex = index - 1 < 0 ? commands.length - 1 : index - 1;
-                    const command = commands[prevIndex];
+                if (commandsState && commandsState.length) {
+                    const prevIndex = indexState - 1 < 0 ? commandsState.length - 1 : indexState - 1;
+                    const command = commandsState[prevIndex];
 
-                    setIndex(prevIndex);
-                    setCommandText(command.text);
+                    setIndexState(prevIndex);
+                    setCommandTextState(command.text);
                 }
                 break;
 
             //enter
             case 13:
-                if (!!commandText) {
-                    let newCommands = [...commands];
+                if (!!commandTextState) {
+                    let newCommands = [...commandsState];
 
-                    newCommands.push({ text: commandText });
+                    newCommands.push({ text: commandTextState });
 
-                    setIndex((prevIndex) => prevIndex + 1);
-                    setCommandText('');
-                    setCommands(newCommands);
-                    setEmittedText(commandText);
+                    setIndexState((prevIndex) => prevIndex + 1);
+                    setCommandTextState('');
+                    setCommandsState(newCommands);
+                    setEmittedTextState(commandTextState);
                     isEmitted.current = true;
                 }
 
@@ -57,17 +57,17 @@ export const Terminal = memo((props) => {
 
     useEffect(() => {
         const response = (res) => {
-            if (commands && commands.length > 0) {
-                let _commands = [...commands];
-                _commands[_commands.length - 1].response = res;
+            if (commandsState && commandsState.length > 0) {
+                let commands = [...commandsState];
+                commands[commands.length - 1].response = res;
 
-                setCommands(_commands);
+                setCommandsState(commands);
             }
         }
 
         const clear = () => {
-            setCommands([]);
-            setIndex(0);
+            setCommandsState([]);
+            setIndexState(0);
         }
 
         TerminalService.on('response', response);
@@ -77,11 +77,11 @@ export const Terminal = memo((props) => {
             TerminalService.off('response', response);
             TerminalService.off('clear', clear);
         }
-    }, [commands]);
+    }, [commandsState]);
 
     useEffect(() => {
         if (isEmitted.current) {
-            TerminalService.emit('command', emittedText);
+            TerminalService.emit('command', emittedTextState);
             isEmitted.current = false;
         }
 
@@ -98,9 +98,10 @@ export const Terminal = memo((props) => {
 
     const useCommand = (command, index) => {
         const { text, response } = command;
+        const key = text + '_' + index;
 
         return (
-            <div key={`${text}${index}`}>
+            <div key={key}>
                 <span className="p-terminal-prompt">{props.prompt}&nbsp;</span>
                 <span className="p-terminal-command">{text}</span>
                 <div className="p-terminal-response">{response}</div>
@@ -109,7 +110,7 @@ export const Terminal = memo((props) => {
     }
 
     const useContent = () => {
-        const content = commands.map(useCommand);
+        const content = commandsState.map(useCommand);
 
         return (
             <div className="p-terminal-content">
@@ -122,7 +123,7 @@ export const Terminal = memo((props) => {
         return (
             <div className="p-terminal-prompt-container">
                 <span className="p-terminal-prompt">{props.prompt}&nbsp;</span>
-                <input ref={inputRef} type="text" value={commandText} className="p-terminal-input"
+                <input ref={inputRef} type="text" value={commandTextState} className="p-terminal-input"
                     autoComplete="off" onChange={onInputChange} onKeyDown={onInputKeyDown} />
             </div>
         )
@@ -140,7 +141,7 @@ export const Terminal = memo((props) => {
             {prompt}
         </div>
     )
-})
+});
 
 Terminal.defaultProps = {
     __TYPE: 'Terminal',
