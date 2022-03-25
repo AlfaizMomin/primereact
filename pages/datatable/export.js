@@ -10,6 +10,7 @@ import { Tooltip } from '../../components/lib/tooltip/Tooltip';
 import { Toast } from '../../components/lib/toast/Toast';
 import { DocActions } from '../../components/doc/common/docactions';
 import Head from 'next/head';
+import getConfig from 'next/config';
 
 const DataTableExportDemo = () => {
     const [products, setProducts] = useState([]);
@@ -20,6 +21,7 @@ const DataTableExportDemo = () => {
     const dt = useRef(null);
     const toast = useRef(null);
     const productService = new ProductService();
+    const uploadPath = getConfig().publicRuntimeConfig.uploadPath;
 
     const cols = [
         { field: 'code', header: 'Code' },
@@ -39,7 +41,7 @@ const DataTableExportDemo = () => {
         const reader = new FileReader();
         reader.onload = (e) => {
             const csv = e.target.result;
-            const data = csv.split('\\n');
+            const data = csv.split('\n');
 
             // Prepare DataTable
             const cols = data[0].replace(/['"]+/g, '').split(',');
@@ -97,37 +99,44 @@ const DataTableExportDemo = () => {
     }
 
     const exportPdf = () => {
-        import('jspdf').then(jsPDF => {
-            import('jspdf-autotable').then(() => {
-                const doc = new jsPDF.default(0, 0);
-                doc.autoTable(exportColumns, products);
-                doc.save('products.pdf');
-            })
-        })
-    }
+        import("jspdf").then((jsPDF) => {
+          import("jspdf-autotable").then(() => {
+            const doc = new jsPDF.default(0, 0);
+            doc.autoTable(exportColumns, products);
+            doc.save("products.pdf");
+          });
+        });
+    };
 
     const exportExcel = () => {
-        import('xlsx').then(xlsx => {
+        import("xlsx").then((xlsx) => {
             const worksheet = xlsx.utils.json_to_sheet(products);
-            const workbook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
-            const excelBuffer = xlsx.write(workbook, { bookType: 'xlsx', type: 'array' });
-            saveAsExcelFile(excelBuffer, 'products');
+            const workbook = { Sheets: { data: worksheet }, SheetNames: ["data"] };
+            const excelBuffer = xlsx.write(workbook, {
+            bookType: "xlsx",
+            type: "array"
+            });
+            saveAsExcelFile(excelBuffer, "products");
         });
-    }
+    };
 
     const saveAsExcelFile = (buffer, fileName) => {
-        import('file-saver').then(module => {
+        import("file-saver").then((module) => {
             if (module && module.default) {
-                let EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
-                let EXCEL_EXTENSION = '.xlsx';
-                const data = new Blob([buffer], {
-                    type: EXCEL_TYPE
-                });
+            let EXCEL_TYPE =
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
+            let EXCEL_EXTENSION = ".xlsx";
+            const data = new Blob([buffer], {
+                type: EXCEL_TYPE
+            });
 
-                module.default.saveAs(data, fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION);
+            module.default.saveAs(
+                data,
+                fileName + "_export_" + new Date().getTime() + EXCEL_EXTENSION
+            );
             }
         });
-    }
+    };
 
     const toCapitalize = (s) => {
         return s.charAt(0).toUpperCase() + s.slice(1);
@@ -180,8 +189,8 @@ const DataTableExportDemo = () => {
                     <Toast ref={toast} />
 
                     <div className="flex align-items-center py-2">
-                        <FileUpload chooseOptions={{ label: 'CSV', icon: 'pi pi-file' }} mode="basic" name="demo[]" auto url="https://primefaces.org/primereact/showcase/upload.php" accept=".csv" className="mr-2" onUpload={importCSV} />
-                        <FileUpload chooseOptions={{ label: 'Excel', icon: 'pi pi-file-excel', className: 'p-button-success' }} mode="basic" name="demo[]" auto url="https://primefaces.org/primereact/showcase/upload.php"
+                        <FileUpload chooseOptions={{ label: 'CSV', icon: 'pi pi-file' }} mode="basic" name="demo[]" auto url={uploadPath} accept=".csv" className="mr-2" onUpload={importCSV} />
+                        <FileUpload chooseOptions={{ label: 'Excel', icon: 'pi pi-file-excel', className: 'p-button-success' }} mode="basic" name="demo[]" auto url={uploadPath}
                             accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" className="mr-2" onUpload={importExcel} />
                         <Button type="button" label="Clear" icon="pi pi-times" onClick={clear} className="p-button-info ml-auto" />
                     </div>

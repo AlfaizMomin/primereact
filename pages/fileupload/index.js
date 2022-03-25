@@ -23,8 +23,9 @@ const FileUploadDemo = () => {
 
     const onTemplateSelect = (e) => {
         let _totalSize = totalSize;
-        e.files.forEach(file => {
-            _totalSize += file.size;
+        let files = e.files;
+        Object.keys(files).forEach(key => {
+            _totalSize += (files[key].size || 0);
         });
 
         setTotalSize(_totalSize);
