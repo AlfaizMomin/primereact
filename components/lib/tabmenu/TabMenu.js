@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, memo } from 'react';
 import PropTypes from 'prop-types';
 import { Ripple } from '../ripple/Ripple';
 import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
@@ -55,7 +55,7 @@ export const TabMenu = memo((props) => {
     });
 
     const createMenuItem = (item, index) => {
-        const { className: _className, disabled, icon: _icon, label: _label, template, url, target } = item;
+        const { className: _className, style, disabled, icon: _icon, label: _label, template, url, target } = item;
         const key = _label + '_' + index;
         const active = isSelected(index);
         const className = classNames('p-tabmenuitem', {
