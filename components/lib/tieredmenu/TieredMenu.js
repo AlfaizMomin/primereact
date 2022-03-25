@@ -1,11 +1,11 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle, memo } from 'react';
 import PropTypes from 'prop-types';
-import { DomHandler, classNames, ZIndexUtils } from '../utils/Utils';
+import PrimeReact from '../api/Api';
 import { TieredMenuSub } from './TieredMenuSub';
 import { CSSTransition } from '../csstransition/CSSTransition';
 import { OverlayService } from '../overlayservice/OverlayService';
 import { Portal } from '../portal/Portal';
-import PrimeReact from '../api/Api';
+import { DomHandler, classNames, ZIndexUtils } from '../utils/Utils';
 import { useOverlayListener, useUnmountEffect } from '../hooks/Hooks';
 
 export const TieredMenu = memo(forwardRef((props, ref) => {

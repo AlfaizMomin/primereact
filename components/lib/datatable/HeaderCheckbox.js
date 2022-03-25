@@ -2,19 +2,19 @@ import React, { memo, useState } from 'react';
 import { classNames } from '../utils/Utils';
 
 export const HeaderCheckbox = memo((props) => {
-    const [focused, setFocused] = useState(false);
+    const [focusedState, setFocusedState] = useState(false);
 
     const onFocus = () => {
-        setFocused(true);
+        setFocusedState(true);
     }
 
     const onBlur = () => {
-        setFocused(false);
+        setFocusedState(false);
     }
 
     const onClick = (event) => {
         if (!props.disabled) {
-            setFocused(true);
+            setFocusedState(true);
 
             props.onChange({
                 originalEvent: event,
@@ -33,7 +33,7 @@ export const HeaderCheckbox = memo((props) => {
     const boxClassName = classNames('p-checkbox-box p-component', {
         'p-highlight': props.checked,
         'p-disabled': props.disabled,
-        'p-focus': focused
+        'p-focus': focusedState
     });
     const iconClassName = classNames('p-checkbox-icon', {
         'pi pi-check': props.checked
@@ -47,4 +47,4 @@ export const HeaderCheckbox = memo((props) => {
             </div>
         </div>
     )
-})
+});

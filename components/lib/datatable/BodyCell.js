@@ -1,21 +1,24 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
-import { ObjectUtils, DomHandler, classNames } from '../utils/Utils';
-import { OverlayService } from '../overlayservice/OverlayService';
 import { RowRadioButton } from './RowRadioButton';
 import { RowCheckbox } from './RowCheckbox';
 import { Ripple } from '../ripple/Ripple';
+import { OverlayService } from '../overlayservice/OverlayService';
+import { ObjectUtils, DomHandler, classNames } from '../utils/Utils';
 import { useEventListener, useUpdateEffect, useUnmountEffect } from '../hooks/Hooks';
 
 export const BodyCell = memo((props) => {
-    const [editing, setEditing] = useState(props.editing);
-    const [editingRowData, setEditingRowData] = useState(props.rowData);
-    const [styleObject, setStyleObject] = useState({});
+    const [editingState, setEditingState] = useState(props.editing);
+    const [editingRowDataState, setEditingRowDataState] = useState(props.rowData);
+    const [styleObjectState, setStyleObjectState] = useState({});
     const elementRef = useRef(null);
     const keyHelperRef = useRef(null);
     const overlayEventListener = useRef(null);
     const selfClick = useRef(false);
     const tabindexTimeout = useRef(null);
     const initFocusTimeout = useRef(null);
+
+    const getColumnProp = (prop) => (props.column ? props.column.props[prop] : null);
+    const field = getColumnProp('field') || `field_${props.index}`;
 
     const [bindDocumentClick, unbindDocumentClick] = useEventListener({
         type: 'click', listener: (e) => {
@@ -27,8 +30,8 @@ export const BodyCell = memo((props) => {
         }, options: true
     });
 
-    if (props.editMode === 'row' && props.editing !== editing) {
-        setEditing(props.editing);
+    if (props.editMode === 'row' && props.editing !== editingState) {
+        setEditingState(props.editing);
     }
 
     const isEditable = () => {
@@ -51,10 +54,6 @@ export const BodyCell = memo((props) => {
         return elementRef.current && !(elementRef.current.isSameNode(target) || elementRef.current.contains(target));
     }
 
-    const getColumnProp = (prop) => {
-        return props.column ? props.column.props[prop] : null;
-    }
-
     const getVirtualScrollerOption = (option) => {
         return props.virtualScrollerOptions ? props.virtualScrollerOptions[option] : null;
     }
@@ -63,7 +62,7 @@ export const BodyCell = memo((props) => {
         const bodyStyle = getColumnProp('bodyStyle');
         const columnStyle = getColumnProp('style');
 
-        return getColumnProp('frozen') ? Object.assign({}, columnStyle, bodyStyle, styleObject) : Object.assign({}, columnStyle, bodyStyle);
+        return getColumnProp('frozen') ? Object.assign({}, columnStyle, bodyStyle, styleObjectState) : Object.assign({}, columnStyle, bodyStyle);
     }
 
     const getCellParams = () => {
@@ -75,7 +74,7 @@ export const BodyCell = memo((props) => {
             cellIndex: props.index,
             selected: isSelected(),
             column: props.column,
-            props: props
+            props
         }
     }
 
@@ -113,7 +112,7 @@ export const BodyCell = memo((props) => {
 
         /* When using the 'tab' key, the focus event of the next cell is not called in IE. */
         setTimeout(() => {
-            setEditing(false);
+            setEditingState(false);
             unbindDocumentClick();
             OverlayService.off('overlay-click', overlayEventListener.current);
             overlayEventListener.current = null;
@@ -123,7 +122,7 @@ export const BodyCell = memo((props) => {
 
     const switchCellToViewMode = (event, submit) => {
         const callbackParams = getCellCallbackParams(event);
-        const newRowData = editingRowData;
+        const newRowData = editingRowDataState;
         const newValue = resolveFieldData(newRowData);
         const params = { ...callbackParams, newRowData, newValue };
 
@@ -153,27 +152,27 @@ export const BodyCell = memo((props) => {
     }
 
     const findNextSelectableCell = (cell) => {
-        let nextCell = cell.nextElementSibling;
+        const nextCell = cell.nextElementSibling;
 
         return nextCell ? (DomHandler.hasClass(nextCell, 'p-selectable-cell') ? nextCell : findNextSelectableCell(nextCell)) : null;
     }
 
     const findPrevSelectableCell = (cell) => {
-        let prevCell = cell.previousElementSibling;
+        const prevCell = cell.previousElementSibling;
 
         return prevCell ? (DomHandler.hasClass(prevCell, 'p-selectable-cell') ? prevCell : findPrevSelectableCell(prevCell)) : null;
     }
 
     const findDownSelectableCell = (cell) => {
-        let downRow = cell.parentElement.nextElementSibling;
-        let downCell = downRow ? downRow.children[props.index] : null;
+        const downRow = cell.parentElement.nextElementSibling;
+        const downCell = downRow ? downRow.children[props.index] : null;
 
         return downRow && downCell ? (DomHandler.hasClass(downRow, 'p-selectable-row') && DomHandler.hasClass(downCell, 'p-selectable-cell') ? downCell : findDownSelectableCell(downCell)) : null;
     }
 
     const findUpSelectableCell = (cell) => {
-        let upRow = cell.parentElement.previousElementSibling;
-        let upCell = upRow ? upRow.children[props.index] : null;
+        const upRow = cell.parentElement.previousElementSibling;
+        const upCell = upRow ? upRow.children[props.index] : null;
 
         return upRow && upCell ? (DomHandler.hasClass(upRow, 'p-selectable-row') && DomHandler.hasClass(upCell, 'p-selectable-cell') ? upCell : findUpSelectableCell(upCell)) : null;
     }
@@ -188,12 +187,12 @@ export const BodyCell = memo((props) => {
     const focusOnElement = () => {
         clearTimeout(tabindexTimeout.current);
         tabindexTimeout.current = setTimeout(() => {
-            if (editing) {
+            if (editingState) {
                 const focusableEl = props.editMode === 'cell' ? DomHandler.getFirstFocusableElement(elementRef.current, ':not(.p-cell-editor-key-helper)') : DomHandler.findSingle(elementRef.current, '.p-row-editor-save');
                 focusableEl && focusableEl.focus();
             }
 
-            keyHelperRef.current && (keyHelperRef.current.tabIndex = editing ? -1 : 0);
+            keyHelperRef.current && (keyHelperRef.current.tabIndex = editingState ? -1 : 0);
         }, 1);
     }
 
@@ -207,7 +206,7 @@ export const BodyCell = memo((props) => {
 
     const updateStickyPosition = () => {
         if (getColumnProp('frozen')) {
-            let _styleObject = { ...styleObject };
+            let styleObject = { ...styleObjectState };
             let align = getColumnProp('alignFrozen');
             if (align === 'right') {
                 let right = 0;
@@ -215,7 +214,7 @@ export const BodyCell = memo((props) => {
                 if (next) {
                     right = DomHandler.getOuterWidth(next) + parseFloat(next.style.right || 0);
                 }
-                _styleObject['right'] = right + 'px';
+                styleObject['right'] = right + 'px';
             }
             else {
                 let left = 0;
@@ -223,19 +222,19 @@ export const BodyCell = memo((props) => {
                 if (prev) {
                     left = DomHandler.getOuterWidth(prev) + parseFloat(prev.style.left || 0);
                 }
-                _styleObject['left'] = left + 'px';
+                styleObject['left'] = left + 'px';
             }
 
-            const isSameStyle = styleObject['left'] === _styleObject['left'] && styleObject['right'] === _styleObject['right'];
-            !isSameStyle && setStyleObject(_styleObject);
+            const isSameStyle = styleObjectState['left'] === styleObject['left'] && styleObjectState['right'] === styleObject['right'];
+            !isSameStyle && setStyleObjectState(styleObject);
         }
     }
 
     const editorCallback = (val) => {
-        let _editingRowData = { ...editingRowData };
-        _editingRowData[field] = val;
+        let editingRowData = { ...editingRowDataState };
+        editingRowData[field] = val;
 
-        setEditingRowData(_editingRowData);
+        setEditingRowDataState(editingRowData);
 
         // update editing meta for complete methods on row mode
         props.editingMeta[props.rowIndex].data[field] = val;
@@ -244,7 +243,7 @@ export const BodyCell = memo((props) => {
     const onClick = (event) => {
         const params = getCellCallbackParams(event);
 
-        if (props.editMode !== 'row' && isEditable() && !editing && (props.selectOnEdit || (!props.selectOnEdit && props.selected))) {
+        if (props.editMode !== 'row' && isEditable() && !editingState && (props.selectOnEdit || (!props.selectOnEdit && props.selected))) {
             selfClick.current = true;
 
             const onBeforeCellEditShow = getColumnProp('onBeforeCellEditShow');
@@ -257,7 +256,7 @@ export const BodyCell = memo((props) => {
 
             // If the data is sorted using sort icon, it has been added to wait for the sort operation when any cell is wanted to be opened.
             setTimeout(() => {
-                setEditing(true);
+                setEditingState(true);
 
                 if (onCellEditInit) {
                     onCellEditInit(params);
@@ -284,18 +283,12 @@ export const BodyCell = memo((props) => {
 
     const onMouseDown = (event) => {
         const params = getCellCallbackParams(event);
-
-        if (props.onMouseDown) {
-            props.onMouseDown(params);
-        }
+        props.onMouseDown && props.onMouseDown(params);
     }
 
     const onMouseUp = (event) => {
         const params = getCellCallbackParams(event);
-
-        if (props.onMouseUp) {
-            props.onMouseUp(params);
-        }
+        props.onMouseUp && props.onMouseUp(params);
     }
 
     const onKeyDown = (event) => {
@@ -383,7 +376,7 @@ export const BodyCell = memo((props) => {
     const onBlur = (event) => {
         selfClick.current = false;
 
-        if (props.editMode !== 'row' && editing && getColumnProp('cellEditValidatorEvent') === 'blur') {
+        if (props.editMode !== 'row' && editingState && getColumnProp('cellEditValidatorEvent') === 'blur') {
             switchCellToViewMode(event, true);
         }
     }
@@ -443,18 +436,18 @@ export const BodyCell = memo((props) => {
 
     useUpdateEffect(() => {
         if (props.editMode === 'cell' || props.editMode === 'row') {
-            setEditingRowData(getEditingRowData());
+            setEditingRowDataState(getEditingRowData());
         }
     }, [props.editingMeta]);
 
     useUpdateEffect(() => {
         if (props.editMode === 'cell' || props.editMode === 'row') {
             const callbackParams = getCellCallbackParams();
-            const params = { ...callbackParams, editing };
+            const params = { ...callbackParams, editing: editingState };
 
             props.onEditingMetaChange(params);
         }
-    }, [editing]);
+    }, [editingState]);
 
     useUnmountEffect(() => {
         if (overlayEventListener.current) {
@@ -501,7 +494,7 @@ export const BodyCell = memo((props) => {
         const className = classNames(getColumnProp('bodyClassName'), getColumnProp('className'), cellClassName, {
             'p-selection-column': selectionMode !== null,
             'p-editable-column': editor,
-            'p-cell-editing': editor && editing,
+            'p-cell-editing': editor && editingState,
             'p-frozen-column': frozen,
             'p-selectable-cell': props.allowCellSelection && props.isSelectable({ data: getCellParams(), index: props.rowIndex }),
             'p-highlight': cellSelected,
@@ -548,7 +541,7 @@ export const BodyCell = memo((props) => {
         else if (isRowEditor && rowEditor) {
             let rowEditorProps = {};
 
-            if (editing) {
+            if (editingState) {
                 rowEditorProps = {
                     editing: true,
                     onSaveClick: onRowEditSave,
@@ -593,11 +586,11 @@ export const BodyCell = memo((props) => {
                 content = ObjectUtils.getJSXElement(body, props.rowData, { column: props.column, field: field, rowIndex: props.rowIndex, frozenRow: props.frozenRow, props: props.tableProps, rowEditor: rowEditorProps });
             }
         }
-        else if (body && !editing) {
+        else if (body && !editingState) {
             content = body ? ObjectUtils.getJSXElement(body, props.rowData, { column: props.column, field: field, rowIndex: props.rowIndex, frozenRow: props.frozenRow, props: props.tableProps }) : value;
         }
-        else if (editor && editing) {
-            content = ObjectUtils.getJSXElement(editor, { rowData: editingRowData, value: resolveFieldData(editingRowData), column: props.column, field: field, rowIndex: props.rowIndex, frozenRow: props.frozenRow, props: props.tableProps, editorCallback: editorCallback });
+        else if (editor && editingState) {
+            content = ObjectUtils.getJSXElement(editor, { rowData: editingRowDataState, value: resolveFieldData(editingRowDataState), column: props.column, field: field, rowIndex: props.rowIndex, frozenRow: props.frozenRow, props: props.tableProps, editorCallback: editorCallback });
         }
         else {
             content = value;
@@ -619,7 +612,5 @@ export const BodyCell = memo((props) => {
         )
     }
 
-    const field = getColumnProp('field') || `field_${props.index}`;
-
     return getVirtualScrollerOption('loading') ? useLoading() : useElement();
-})
+});

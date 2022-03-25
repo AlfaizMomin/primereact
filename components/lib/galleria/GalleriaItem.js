@@ -1,7 +1,7 @@
-import React, { forwardRef, memo, useEffect } from 'react';
-import { classNames } from '../utils/Utils';
+import React, { forwardRef, memo } from 'react';
 import { Ripple } from '../ripple/Ripple';
-import { useMountEffect } from '../hooks/useMountEffect';
+import { classNames } from '../utils/Utils';
+import { useMountEffect } from '../hooks/Hooks';
 
 export const GalleriaItem = memo(forwardRef((props, ref) => {
 

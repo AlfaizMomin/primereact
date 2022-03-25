@@ -1,35 +1,37 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useRef, useState } from 'react';
 import PrimeReact, { localeOption, FilterOperator, FilterMatchMode } from '../api/Api';
-import { classNames, DomHandler, ObjectUtils, ZIndexUtils } from '../utils/Utils';
-import { CSSTransition } from '../csstransition/CSSTransition';
-import { OverlayService } from '../overlayservice/OverlayService';
-import { Portal } from '../portal/Portal';
 import { InputText } from '../inputtext/InputText';
 import { Dropdown } from '../dropdown/Dropdown';
 import { Button } from '../button/Button';
-import { useEventListener, useResizeListener, useOverlayScrollListener } from '../hooks/Hooks';
+import { CSSTransition } from '../csstransition/CSSTransition';
+import { OverlayService } from '../overlayservice/OverlayService';
+import { Portal } from '../portal/Portal';
+import { classNames, DomHandler, ObjectUtils, ZIndexUtils } from '../utils/Utils';
+import { useUpdateEffect, useUnmountEffect, useOverlayListener } from '../hooks/Hooks';
 
 export const ColumnFilter = memo((props) => {
-    const [overlayVisible, setOverlayVisible] = useState(false);
+    const [overlayVisibleState, setOverlayVisibleState] = useState(false);
     const overlayRef = useRef(null);
     const iconRef = useRef(null);
     const selfClick = useRef(false);
     const overlayEventListener = useRef(null);
 
-    const [bindDocumentClick, unbindDocumentClick] = useEventListener({ type: 'click', listener: event => {
-        if (!selfClick.current && isOutsideClicked(event.target)) {
-            hide();
-        }
-        selfClick.current = false;
-    }});
-    const [bindWindowResize, unbindWindowResize] = useResizeListener({ listener: () => {
-        if (overlayVisible && !DomHandler.isTouchDevice()) {
-            hide();
-        }
-    }});
-    const [bindOverlayScroll, unbindOverlayScroll] = useOverlayScrollListener({ target: iconRef, listener: () => {
-        overlayVisible && hide();
-    }});
+    const getColumnProp = (prop) => props.column.props[prop];
+    const field = getColumnProp('filterField') || getColumnProp('field');
+    const filterModel = props.filters[field];
+    const filterStoreModel = props.filtersStore && props.filtersStore[field];
+
+    const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({
+        target: iconRef, overlay: overlayRef, listener: (event, type) => {
+            if (type === 'outside') {
+                (!selfClick.current && !isTargetClicked(event.target)) && hide();
+                selfClick.current = false;
+            }
+            else {
+                hide();
+            }
+        }, when: overlayVisibleState
+    });
 
     const hasFilter = () => {
         return filterStoreModel && (filterStoreModel.operator ? !isFilterBlank(filterStoreModel.constraints[0].value) : !isFilterBlank(filterStoreModel.value));
@@ -72,15 +74,11 @@ export const ColumnFilter = memo((props) => {
     }
 
     const isOutsideClicked = (target) => {
-        return !isTargetClicked(target) && overlayRef && overlayRef.current && !(overlayRef.current.isSameNode(target) || overlayRef.current.contains(target));
+        return !isTargetClicked(target) && overlayRef.current && !(overlayRef.current.isSameNode(target) || overlayRef.current.contains(target));
     }
 
     const isTargetClicked = (target) => {
         return iconRef.current && (iconRef.current.isSameNode(target) || iconRef.current.contains(target));
-    }
-
-    const getColumnProp = (prop) => {
-        return props.column.props[prop];
     }
 
     const getDefaultConstraint = () => {
@@ -145,7 +143,7 @@ export const ColumnFilter = memo((props) => {
     }
 
     const toggleMenu = () => {
-        setOverlayVisible((prevVisible) => !prevVisible);
+        setOverlayVisibleState((prevVisible) => !prevVisible);
     }
 
     const onToggleButtonKeyDown = (event) => {
@@ -156,13 +154,13 @@ export const ColumnFilter = memo((props) => {
                 break;
 
             case 'ArrowDown':
-                if (overlayVisible) {
+                if (overlayVisibleState) {
                     const focusable = DomHandler.getFirstFocusableElement(overlayRef.current);
                     focusable && focusable.focus();
                     event.preventDefault();
                 }
                 else if (event.altKey) {
-                    setOverlayVisible(true);
+                    setOverlayVisibleState(true);
                     event.preventDefault();
                 }
                 break;
@@ -297,25 +295,19 @@ export const ColumnFilter = memo((props) => {
     }
 
     const findNextItem = (item) => {
-        let nextItem = item.nextElementSibling;
+        const nextItem = item.nextElementSibling;
 
-        if (nextItem)
-            return DomHandler.hasClass(nextItem, 'p-column-filter-separator') ? findNextItem(nextItem) : nextItem;
-        else
-            return item.parentElement.firstElementChild;
+        return nextItem ? (DomHandler.hasClass(nextItem, 'p-column-filter-separator') ? findNextItem(nextItem) : nextItem) : item.parentElement.firstElementChild;
     }
 
     const findPrevItem = (item) => {
-        let prevItem = item.previousElementSibling;
+        const prevItem = item.previousElementSibling;
 
-        if (prevItem)
-            return DomHandler.hasClass(prevItem, 'p-column-filter-separator') ? findPrevItem(prevItem) : prevItem;
-        else
-            return item.parentElement.lastElementChild;
+        return prevItem ? (DomHandler.hasClass(prevItem, 'p-column-filter-separator') ? findPrevItem(prevItem) : prevItem) : item.parentElement.lastElementChild;
     }
 
     const hide = () => {
-        setOverlayVisible(false);
+        setOverlayVisibleState(false);
     }
 
     const onContentClick = (event) => {
@@ -334,9 +326,7 @@ export const ColumnFilter = memo((props) => {
     const onOverlayEnter = () => {
         ZIndexUtils.set('overlay', overlayRef.current, PrimeReact.autoZIndex, PrimeReact.zIndex['overlay']);
         DomHandler.alignOverlay(overlayRef.current, iconRef.current, PrimeReact.appendTo, false);
-        bindDocumentClick();
-        bindWindowResize();
-        bindOverlayScroll();
+        bindOverlayListener();
 
         overlayEventListener.current = (e) => {
             if (!isOutsideClicked(e.target)) {
@@ -355,9 +345,7 @@ export const ColumnFilter = memo((props) => {
     }
 
     const onOverlayHide = () => {
-        unbindDocumentClick();
-        unbindWindowResize();
-        unbindOverlayScroll();
+        unbindOverlayListener();
         OverlayService.off('overlay-click', overlayEventListener.current);
         overlayEventListener.current = null;
         selfClick.current = false;
@@ -412,23 +400,23 @@ export const ColumnFilter = memo((props) => {
         props.onFilterApply();
     }
 
-    useEffect(() => {
-        if (props.display === 'menu' && overlayVisible) {
+    useUpdateEffect(() => {
+        if (props.display === 'menu' && overlayVisibleState) {
             DomHandler.alignOverlay(overlayRef.current, iconRef.current, PrimeReact.appendTo, false);
         }
+    });
 
-        return () => {
-            if (overlayEventListener.current) {
-                OverlayService.off('overlay-click', overlayEventListener.current);
-                overlayEventListener.current = null;
-            }
-
-            if (overlayRef.current) {
-                ZIndexUtils.clear(overlayRef.current);
-                onOverlayHide();
-            }
+    useUnmountEffect(() => {
+        if (overlayEventListener.current) {
+            OverlayService.off('overlay-click', overlayEventListener.current);
+            overlayEventListener.current = null;
         }
-    }, []);
+
+        if (overlayRef.current) {
+            ZIndexUtils.clear(overlayRef.current);
+            onOverlayHide();
+        }
+    });
 
     const useFilterElement = (model, index) => {
         const value = model ? model.value : null;
@@ -454,22 +442,18 @@ export const ColumnFilter = memo((props) => {
     }
 
     const useMenuFilterElement = (fieldConstraint, index) => {
-        if (props.display === 'menu') {
-            return useFilterElement(fieldConstraint, index);
-        }
-
-        return null;
+        return props.display === 'menu' ? useFilterElement(fieldConstraint, index) : null;
     }
 
     const useMenuButton = () => {
         if (showMenuButton()) {
             const className = classNames('p-column-filter-menu-button p-link', {
-                'p-column-filter-menu-button-open': overlayVisible,
+                'p-column-filter-menu-button-open': overlayVisibleState,
                 'p-column-filter-menu-button-active': hasFilter()
             });
 
             return (
-                <button ref={iconRef} type="button" className={className} aria-haspopup aria-expanded={overlayVisible} onClick={toggleMenu} onKeyDown={onToggleButtonKeyDown}>
+                <button ref={iconRef} type="button" className={className} aria-haspopup aria-expanded={overlayVisibleState} onClick={toggleMenu} onKeyDown={onToggleButtonKeyDown}>
                     <span className="pi pi-filter-icon pi-filter"></span>
                 </button>
             )
@@ -591,6 +575,7 @@ export const ColumnFilter = memo((props) => {
     const useAddRule = () => {
         if (isShowAddConstraint()) {
             const addRuleLabel = addRuleButtonLabel();
+
             return (
                 <div className="p-column-filter-add-rule">
                     <Button type="button" label={addRuleLabel} icon="pi pi-plus" className="p-column-filter-add-button p-button-text p-button-sm" onClick={addConstraint} />
@@ -605,9 +590,8 @@ export const ColumnFilter = memo((props) => {
         if (getColumnProp('showClearButton')) {
             if (!getColumnProp('filterClear')) {
                 const clearLabel = clearButtonLabel();
-                return (
-                    <Button type="button" className="p-button-outlined p-button-sm" onClick={clearFilter} label={clearLabel} />
-                )
+
+                return <Button type="button" className="p-button-outlined p-button-sm" onClick={clearFilter} label={clearLabel} />
             }
 
             return ObjectUtils.getJSXElement(getColumnProp('filterClear'), { field: field, filterModel: filterModel, filterClearCallback: clearFilter });
@@ -620,9 +604,8 @@ export const ColumnFilter = memo((props) => {
         if (getColumnProp('showApplyButton')) {
             if (!getColumnProp('filterApply')) {
                 const applyLabel = applyButtonLabel();
-                return (
-                    <Button type="button" className="p-button-sm" onClick={applyFilter} label={applyLabel} />
-                )
+
+                return <Button type="button" className="p-button-sm" onClick={applyFilter} label={applyLabel} />
             }
 
             return ObjectUtils.getJSXElement(getColumnProp('filterApply'), { field: field, filterModel: filterModel, filterApplyCallback: applyFilter });
@@ -672,7 +655,7 @@ export const ColumnFilter = memo((props) => {
 
         return (
             <Portal>
-                <CSSTransition nodeRef={overlayRef} classNames="p-connected-overlay" in={overlayVisible} timeout={{ enter: 120, exit: 100 }}
+                <CSSTransition nodeRef={overlayRef} classNames="p-connected-overlay" in={overlayVisibleState} timeout={{ enter: 120, exit: 100 }}
                     unmountOnExit onEnter={onOverlayEnter} onExit={onOverlayExit} onExited={onOverlayExited}>
                     <div ref={overlayRef} style={style} className={className} onKeyDown={onContentKeyDown} onClick={onContentClick} onMouseDown={onContentMouseDown}>
                         {filterHeader}
@@ -683,10 +666,6 @@ export const ColumnFilter = memo((props) => {
             </Portal>
         )
     }
-
-    const field = getColumnProp('filterField') || getColumnProp('field');
-    const filterModel = props.filters[field];
-    const filterStoreModel = props.filtersStore && props.filtersStore[field];
 
     const className = classNames('p-column-filter p-fluid', {
         'p-column-filter-row': props.display === 'row',

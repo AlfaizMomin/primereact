@@ -1,46 +1,37 @@
 import React, { memo, useState } from 'react';
-import { classNames } from '../utils/Utils';
 import { HeaderCell } from './HeaderCell';
 import { HeaderCheckbox } from './HeaderCheckbox';
 import { ColumnFilter } from './ColumnFilter';
+import { classNames } from '../utils/Utils';
 import { useMountEffect } from '../hooks/Hooks';
 
 export const TableHeader = memo((props) => {
-    const [sortableDisabledFields, setSortableDisabledFields] = useState([]);
-    const [allSortableDisabled, setAllSortableDisabled] = useState(false);
-
-    const isSingleSort = () => {
-        return props.sortMode === 'single';
-    }
-
-    const isMultipleSort = () => {
-        return props.sortMode === 'multiple';
-    }
-
-    const isAllSortableDisabled = () => {
-        return isSingleSort() && allSortableDisabled;
-    }
+    const [sortableDisabledFieldsState, setSortableDisabledFieldsState] = useState([]);
+    const [allSortableDisabledState, setAllSortableDisabledState] = useState(false);
+    const isSingleSort = props.sortMode === 'single';
+    const isMultipleSort = props.sortMode === 'multiple';
+    const isAllSortableDisabled = isSingleSort && allSortableDisabledState;
 
     const isColumnSorted = (column) => {
         return props.sortField !== null ? (column.props.field === props.sortField || column.props.sortField === props.sortField) : false;
     }
 
     const updateSortableDisabled = () => {
-        if (isSingleSort() || (isMultipleSort() && props.onSortChange)) {
-            let _sortableDisabledFields = [];
-            let _allSortableDisabled = false;
+        if (isSingleSort || (isMultipleSort && props.onSortChange)) {
+            let sortableDisabledFields = [];
+            let allSortableDisabled = false;
             props.columns.forEach((column) => {
                 if (column.props.sortableDisabled) {
-                    _sortableDisabledFields.push(column.props.sortField || column.props.field);
+                    sortableDisabledFields.push(column.props.sortField || column.props.field);
 
-                    if (!_allSortableDisabled && isColumnSorted(column)) {
-                        _allSortableDisabled = true;
+                    if (!allSortableDisabled && isColumnSorted(column)) {
+                        allSortableDisabled = true;
                     }
                 }
             });
 
-            setSortableDisabledFields(_sortableDisabledFields);
-            setAllSortableDisabled(_allSortableDisabled);
+            setSortableDisabledFieldsState(sortableDisabledFields);
+            setAllSortableDisabledState(allSortableDisabled);
         }
     }
 
@@ -69,12 +60,12 @@ export const TableHeader = memo((props) => {
 
             return isVisible && (
                 <HeaderCell key={key} value={props.value} tableProps={props.tableProps} column={col} tabIndex={props.tabIndex} empty={props.empty} resizableColumns={props.resizableColumns} groupRowsBy={props.groupRowsBy} groupRowSortField={props.groupRowSortField}
-                    sortMode={props.sortMode} sortField={props.sortField} sortOrder={props.sortOrder} multiSortMeta={props.multiSortMeta} allSortableDisabled={isAllSortableDisabled()} onSortableChange={onSortableChange} sortableDisabledFields={sortableDisabledFields}
+                    sortMode={props.sortMode} sortField={props.sortField} sortOrder={props.sortOrder} multiSortMeta={props.multiSortMeta} allSortableDisabled={isAllSortableDisabled} onSortableChange={onSortableChange} sortableDisabledFields={sortableDisabledFieldsState}
                     filterDisplay={props.filterDisplay} filters={props.filters} filtersStore={props.filtersStore} onFilterChange={props.onFilterChange} onFilterApply={props.onFilterApply}
                     onColumnMouseDown={props.onColumnMouseDown} onColumnDragStart={props.onColumnDragStart} onColumnDragOver={props.onColumnDragOver} onColumnDragLeave={props.onColumnDragLeave} onColumnDrop={props.onColumnDrop}
                     onColumnResizeStart={props.onColumnResizeStart} onColumnResizerClick={props.onColumnResizerClick} onColumnResizerDoubleClick={props.onColumnResizerDoubleClick}
                     showSelectAll={props.showSelectAll} allRowsSelected={props.allRowsSelected} onColumnCheckboxChange={onCheckboxChange} reorderableColumns={props.reorderableColumns} onSortChange={props.onSortChange} />
-            );
+            )
         });
     }
 
@@ -139,15 +130,15 @@ export const TableHeader = memo((props) => {
                     {headerRow}
                     {filterRow}
                 </>
-            );
+            )
         }
     }
 
-    let content = useContent();
+    const content = useContent();
 
     return (
         <thead className="p-datatable-thead">
             {content}
         </thead>
     )
-})
+});

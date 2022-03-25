@@ -1,9 +1,9 @@
 import React, { forwardRef, memo } from 'react';
-import { ObjectUtils, classNames } from '../utils/Utils';
 import { CSSTransition } from '../csstransition/CSSTransition';
 import { Ripple } from '../ripple/Ripple';
 import { Portal } from '../portal/Portal';
 import { VirtualScroller } from '../virtualscroller/VirtualScroller';
+import { ObjectUtils, classNames } from '../utils/Utils';
 
 export const AutoCompletePanel = memo(forwardRef((props, ref) => {
 

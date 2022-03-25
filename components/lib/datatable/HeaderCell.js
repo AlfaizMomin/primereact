@@ -1,11 +1,11 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
-import { DomHandler, classNames, ObjectUtils } from '../utils/Utils';
 import { HeaderCheckbox } from './HeaderCheckbox';
 import { ColumnFilter } from './ColumnFilter';
+import { DomHandler, classNames, ObjectUtils } from '../utils/Utils';
 import { usePrevious } from '../hooks/Hooks';
 
 export const HeaderCell = memo((props) => {
-    const [styleObject, setStyleObject] = useState({});
+    const [styleObjectState, setStyleObjectState] = useState({});
     const elementRef = useRef(null);
     const prevColumn = usePrevious(props.column);
 
@@ -25,7 +25,7 @@ export const HeaderCell = memo((props) => {
         const headerStyle = getColumnProp('headerStyle');
         const columnStyle = getColumnProp('style');
 
-        return getColumnProp('frozen') ? Object.assign({}, columnStyle, headerStyle, styleObject) : Object.assign({}, columnStyle, headerStyle);
+        return getColumnProp('frozen') ? Object.assign({}, columnStyle, headerStyle, styleObjectState) : Object.assign({}, columnStyle, headerStyle);
     }
 
     const getMultiSortMetaIndex = () => {
@@ -54,7 +54,7 @@ export const HeaderCell = memo((props) => {
 
     const getAriaSort = ({ sorted, sortOrder }) => {
         if (getColumnProp('sortable')) {
-            let sortIcon = sorted ? sortOrder < 0 ? 'pi-sort-amount-down' : 'pi-sort-amount-up-alt' : 'pi-sort-alt';
+            const sortIcon = sorted ? sortOrder < 0 ? 'pi-sort-amount-down' : 'pi-sort-amount-up-alt' : 'pi-sort-alt';
             if (sortIcon === 'pi-sort-amount-down')
                 return 'descending';
             else if (sortIcon === 'pi-sort-amount-up-alt')
@@ -68,7 +68,7 @@ export const HeaderCell = memo((props) => {
 
     const updateStickyPosition = () => {
         if (getColumnProp('frozen')) {
-            let _styleObject = { ...styleObject };
+            let styleObject = { ...styleObjectState };
             let align = getColumnProp('alignFrozen');
             if (align === 'right') {
                 let right = 0;
@@ -76,7 +76,7 @@ export const HeaderCell = memo((props) => {
                 if (next) {
                     right = DomHandler.getOuterWidth(next) + parseFloat(next.style.right || 0);
                 }
-                _styleObject['right'] = right + 'px';
+                styleObject['right'] = right + 'px';
             }
             else {
                 let left = 0;
@@ -84,18 +84,18 @@ export const HeaderCell = memo((props) => {
                 if (prev) {
                     left = DomHandler.getOuterWidth(prev) + parseFloat(prev.style.left || 0);
                 }
-                _styleObject['left'] = left + 'px';
+                styleObject['left'] = left + 'px';
             }
 
             let filterRow = elementRef.current.parentElement.nextElementSibling;
             if (filterRow) {
                 let index = DomHandler.index(elementRef.current);
-                filterRow.children[index].style.left = _styleObject['left'];
-                filterRow.children[index].style.right = _styleObject['right'];
+                filterRow.children[index].style.left = styleObject['left'];
+                filterRow.children[index].style.right = styleObject['right'];
             }
 
-            const isSameStyle = styleObject['left'] === _styleObject['left'] && styleObject['right'] === _styleObject['right'];
-            !isSameStyle && setStyleObject(_styleObject);
+            const isSameStyle = styleObjectState['left'] === styleObject['left'] && styleObjectState['right'] === styleObject['right'];
+            !isSameStyle && setStyleObjectState(styleObject);
         }
     }
 
@@ -299,4 +299,4 @@ export const HeaderCell = memo((props) => {
     }
 
     return useElement();
-})
+});

@@ -1,8 +1,8 @@
 import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { PanelMenuSub } from './PanelMenuSub';
-import { ObjectUtils, classNames, UniqueComponentId } from '../utils/Utils';
 import { CSSTransition } from '../csstransition/CSSTransition';
+import { ObjectUtils, classNames, UniqueComponentId } from '../utils/Utils';
 import { useMountEffect } from '../hooks/Hooks';
 
 export const PanelMenu = memo((props) => {
@@ -109,7 +109,7 @@ export const PanelMenu = memo((props) => {
                 submenuIconClassName,
                 iconClassName,
                 element: content,
-                props: props,
+                props,
                 leaf: !item.items,
                 active
             };

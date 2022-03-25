@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
-import { classNames } from '../utils/Utils';
 import { CSSTransition } from '../csstransition/CSSTransition';
 import { Portal } from '../portal/Portal';
+import { classNames } from '../utils/Utils';
 
 export const SplitButtonPanel = forwardRef((props, ref) => {
 

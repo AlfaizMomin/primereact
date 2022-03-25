@@ -1,15 +1,14 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { classNames, ObjectUtils } from '../utils/Utils';
 import { tip } from '../tooltip/Tooltip';
+import { classNames, ObjectUtils } from '../utils/Utils';
 import { useUnmountEffect } from '../hooks/Hooks';
 
 export const TriStateCheckbox = memo((props) => {
-    const [focused, setFocused] = useState(false);
+    const [focusedState, setFocusedState] = useState(false);
     const elementRef = useRef(null);
     const tooltipRef = useRef(null);
     const inputRef = useRef(props.inputRef);
-
 
     const onClick = (event) => {
         if (!props.disabled) {
@@ -38,16 +37,16 @@ export const TriStateCheckbox = memo((props) => {
                     id: props.id,
                     value: newValue
                 }
-            })
+            });
         }
     }
 
     const onFocus = () => {
-        setFocused(true);
+        setFocusedState(true);
     }
 
     const onBlur = () => {
-        setFocused(false);
+        setFocusedState(false);
     }
 
     useEffect(() => {
@@ -78,7 +77,7 @@ export const TriStateCheckbox = memo((props) => {
     const boxClassName = classNames('p-checkbox-box', {
         'p-highlight': (props.value || !props.value) && props.value !== null,
         'p-disabled': props.disabled,
-        'p-focus': focused
+        'p-focus': focusedState
     });
     const iconClassName = classNames('p-checkbox-icon p-c', {
         'pi pi-check': props.value === true,

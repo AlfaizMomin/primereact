@@ -27,7 +27,7 @@ export const CurrentPageReport = memo((props) => {
             ...{
                 className: 'p-paginator-current',
                 element,
-                props: props
+                props
             }
         };
 

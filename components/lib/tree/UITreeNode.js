@@ -538,7 +538,7 @@ export const UITreeNode = memo((props) => {
                 onTogglerClick: onTogglerClick,
                 className: 'p-treenode-label',
                 element: content,
-                props: props,
+                props,
                 expanded
             };
 

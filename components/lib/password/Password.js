@@ -261,7 +261,7 @@ export const Password = memo((props) => {
                     onClick: onMaskToggle,
                     className: iconClassName,
                     element: content,
-                    props: props
+                    props
                 };
 
                 content = ObjectUtils.getJSXElement(props.icon, defaultIconOptions);

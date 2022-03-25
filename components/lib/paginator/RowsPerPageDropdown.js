@@ -19,7 +19,7 @@ export const RowsPerPageDropdown = memo((props) => {
             totalRecords: props.totalRecords,
             disabled: props.disabled,
             element,
-            props: props,
+            props,
         };
 
         return ObjectUtils.getJSXElement(props.template, defaultOptions);

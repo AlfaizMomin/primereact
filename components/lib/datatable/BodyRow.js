@@ -1,9 +1,10 @@
 import React, { memo, useState } from 'react';
-import { DomHandler, classNames, ObjectUtils } from '../utils/Utils';
 import { BodyCell } from './BodyCell';
+import { DomHandler, classNames, ObjectUtils } from '../utils/Utils';
 
 export const BodyRow = memo((props) => {
-    const [editing, setEditing] = useState(false);
+    const [editingState, setEditingState] = useState(false);
+    const editing = props.onRowEditChange ? props.editing : editingState;
 
     const isFocusable = () => {
         return props.selectionMode && props.selectionModeInColumn !== 'single' && props.selectionModeInColumn !== 'multiple';
@@ -11,10 +12,9 @@ export const BodyRow = memo((props) => {
 
     const isGrouped = (column) => {
         if (props.groupRowsBy && getColumnProp(column, 'field')) {
-            if (Array.isArray(props.groupRowsBy))
-                return props.groupRowsBy.indexOf(column.props.field) > -1;
-            else
-                return props.groupRowsBy === column.props.field;
+            return Array.isArray(props.groupRowsBy) ?
+                props.groupRowsBy.indexOf(column.props.field) > -1 :
+                props.groupRowsBy === column.props.field;
         }
 
         return false;
@@ -26,10 +26,6 @@ export const BodyRow = memo((props) => {
 
     const getColumnProp = (col, prop) => {
         return col ? col.props[prop] : null;
-    }
-
-    const getEditing = () => {
-        return props.onRowEditChange ? props.editing : editing;
     }
 
     const getTabIndex = () => {
@@ -48,13 +44,13 @@ export const BodyRow = memo((props) => {
     }
 
     const findNextSelectableRow = (row) => {
-        let nextRow = row.nextElementSibling;
+        const nextRow = row.nextElementSibling;
 
         return nextRow ? (DomHandler.hasClass(nextRow, 'p-selectable-row') ? nextRow : findNextSelectableRow(nextRow)) : null;
     }
 
     const findPrevSelectableRow = (row) => {
-        let prevRow = row.previousElementSibling;
+        const prevRow = row.previousElementSibling;
 
         return prevRow ? (DomHandler.hasClass(prevRow, 'p-selectable-row') ? prevRow : findPrevSelectableRow(prevRow)) : null;
     }
@@ -66,8 +62,9 @@ export const BodyRow = memo((props) => {
         else if (props.rowGroupMode && props.rowGroupMode === 'rowspan' && isGrouped(column)) {
             let prevRowData = value[i - 1];
             if (prevRowData) {
-                let currentRowFieldData = ObjectUtils.resolveFieldData(value[i], getColumnProp(column, 'field'));
-                let previousRowFieldData = ObjectUtils.resolveFieldData(prevRowData, getColumnProp(column, 'field'));
+                const currentRowFieldData = ObjectUtils.resolveFieldData(value[i], getColumnProp(column, 'field'));
+                const previousRowFieldData = ObjectUtils.resolveFieldData(prevRowData, getColumnProp(column, 'field'));
+
                 return currentRowFieldData !== previousRowFieldData;
             }
         }
@@ -193,7 +190,7 @@ export const BodyRow = memo((props) => {
         props.onRowDrop({ originalEvent: event, data: props.rowData, index: props.index });
     }
 
-    const onEditChange = (e, _editing) => {
+    const onEditChange = (e, isEditing) => {
         if (props.onRowEditChange) {
             let editingRows;
             const dataKey = props.dataKey;
@@ -225,7 +222,7 @@ export const BodyRow = memo((props) => {
             });
         }
         else {
-            setEditing(_editing);
+            setEditingState(isEditing);
         }
     }
 
@@ -290,7 +287,6 @@ export const BodyRow = memo((props) => {
             if (shouldRenderBodyCell(props.value, col, props.index)) {
                 const key = `${getColumnProp(col, 'columnKey') || getColumnProp(col, 'field')}_${i}`;
                 const rowSpan = props.rowGroupMode === 'rowspan' ? calculateRowGroupSize(props.value, col, props.index) : null;
-                const editing = getEditing();
 
                 return (
                     <BodyCell key={key} value={props.value} tableProps={props.tableProps} tableSelector={props.tableSelector} column={col} rowData={props.rowData} rowIndex={props.index} index={i} rowSpan={rowSpan} dataKey={props.dataKey}
@@ -325,4 +321,4 @@ export const BodyRow = memo((props) => {
             {content}
         </tr>
     )
-})
+});

@@ -8,7 +8,7 @@ export const TreeTableFooter = memo((props) => {
                 rowSpan={column.props.rowSpan} colSpan={column.props.colSpan}>
                 {column.props.footer}
             </td>
-        );
+        )
     }
 
     const useFooterRow = (row, index) => {
@@ -29,9 +29,7 @@ export const TreeTableFooter = memo((props) => {
     const useColumns = (columns) => {
         if (columns) {
             const headerCells = columns.map(useFooterCell);
-            return (
-                <tr>{headerCells}</tr>
-            )
+            return <tr>{headerCells}</tr>
         }
         else {
             return null;
@@ -53,14 +51,14 @@ export const TreeTableFooter = memo((props) => {
         return false;
     }
 
-    let content = props.columnGroup ? useColumnGroup() : useColumns(props.columns);
+    const content = props.columnGroup ? useColumnGroup() : useColumns(props.columns);
 
     if (hasFooter()) {
         return (
             <tfoot className="p-treetable-tfoot">
                 {content}
             </tfoot>
-        );
+        )
     }
     else {
         return null;

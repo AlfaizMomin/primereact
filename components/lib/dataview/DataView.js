@@ -1,9 +1,9 @@
 import React, { memo, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Paginator } from '../paginator/Paginator';
-import { ObjectUtils, classNames } from '../utils/Utils';
-import { Ripple } from '../ripple/Ripple';
 import PrimeReact, { localeOption } from '../api/Api';
+import { Paginator } from '../paginator/Paginator';
+import { Ripple } from '../ripple/Ripple';
+import { ObjectUtils, classNames } from '../utils/Utils';
 
 export const DataViewLayoutOptions = memo((props) => {
 

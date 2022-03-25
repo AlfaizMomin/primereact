@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
-import { DomHandler, classNames } from '../utils/Utils';
 import { InputText } from '../inputtext/InputText';
+import { DomHandler, classNames } from '../utils/Utils';
 
 export const TreeTableHeader = memo((props) => {
 
@@ -204,8 +204,8 @@ export const TreeTableHeader = memo((props) => {
                 sortOrder = multiSortMetaData.order;
 
             const sortIconElement = useSortIcon(column, sorted, sortOrder);
-            let ariaSortData = getAriaSort(column, sorted, sortOrder);
-            let sortBadge = useSortBadge(sortMetaDataIndex);
+            const ariaSortData = getAriaSort(column, sorted, sortOrder);
+            const sortBadge = useSortBadge(sortMetaDataIndex);
 
             const className = classNames(column.props.headerClassName || column.props.className, {
                 'p-sortable-column': column.props.sortable,
@@ -240,11 +240,9 @@ export const TreeTableHeader = memo((props) => {
     }
 
     const useColumnGroup = () => {
-        let rows = React.Children.toArray(props.columnGroup.props.children);
+        const rows = React.Children.toArray(props.columnGroup.props.children);
 
-        return (
-            rows.map(useHeaderRow)
-        );
+        return rows.map(useHeaderRow);
     }
 
     const useColumns = (columns) => {
@@ -255,12 +253,12 @@ export const TreeTableHeader = memo((props) => {
                         <tr>{columns.map((col, i) => useHeaderCell(col, { index: i, filterOnly: false, renderFilter: false }))}</tr>
                         <tr>{columns.map((col, i) => useHeaderCell(col, { index: i, filterOnly: true, renderFilter: true }))}</tr>
                     </>
-                );
+                )
             }
             else {
                 return (
                     <tr>{columns.map((col, i) => useHeaderCell(col, { index: i, filterOnly: false, renderFilter: false }))}</tr>
-                );
+                )
             }
         }
         else {
@@ -275,4 +273,4 @@ export const TreeTableHeader = memo((props) => {
             {content}
         </thead>
     )
-})
+});

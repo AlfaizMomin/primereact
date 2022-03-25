@@ -33,7 +33,7 @@ export const TableFooter = memo((props) => {
     }
 
     if (hasFooter()) {
-        let content = useContent();
+        const content = useContent();
 
         return (
             <tfoot className="p-datatable-tfoot">
@@ -43,4 +43,4 @@ export const TableFooter = memo((props) => {
     }
 
     return null;
-})
+});

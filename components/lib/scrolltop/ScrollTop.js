@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import PrimeReact from '../api/Api';
 import { Ripple } from '../ripple/Ripple';
@@ -70,7 +70,7 @@ export const ScrollTop = memo((props) => {
             <CSSTransition nodeRef={scrollElementRef} classNames="p-scrolltop" in={visibleState} timeout={{ enter: 150, exit: 150 }} options={props.transitionOptions}
                 unmountOnExit onEnter={onEnter} onEntered={onEntered} onExited={onExited}>
                 <button ref={scrollElementRef} type="button" className={className} style={props.style} onClick={onClick}>
-                    {IconUtils.getJSXIcon(props.icon, { className: 'p-scrolltop-icon' }, { props: props })}
+                    {IconUtils.getJSXIcon(props.icon, { className: 'p-scrolltop-icon' }, { props })}
                     <Ripple />
                 </button>
             </CSSTransition>

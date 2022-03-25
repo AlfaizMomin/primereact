@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
-import { ObjectUtils, classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
+import { ObjectUtils, classNames } from '../utils/Utils';
 
 export const PrevPageLink = memo((props) => {
     const className = classNames('p-paginator-prev p-paginator-element p-link', { 'p-disabled': props.disabled });
@@ -20,7 +20,7 @@ export const PrevPageLink = memo((props) => {
             iconClassName,
             disabled: props.disabled,
             element,
-            props: props
+            props
         };
 
         return ObjectUtils.getJSXElement(props.template, defaultOptions);

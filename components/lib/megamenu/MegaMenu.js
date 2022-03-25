@@ -215,7 +215,7 @@ export const MegaMenu = memo((props) => {
                     labelClassName: 'p-menuitem-text',
                     iconClassName,
                     element: content,
-                    props: props
+                    props
                 };
 
                 content = ObjectUtils.getJSXElement(item.template, item, defaultContentOptions);

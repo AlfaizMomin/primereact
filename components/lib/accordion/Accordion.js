@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { classNames, ObjectUtils, IconUtils, UniqueComponentId } from '../utils/Utils';
 import { CSSTransition } from '../csstransition/CSSTransition';
+import { classNames, ObjectUtils, IconUtils, UniqueComponentId } from '../utils/Utils';
 import { useMountEffect } from '../hooks/Hooks';
 
 export const AccordionTab = () => { }

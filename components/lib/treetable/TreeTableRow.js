@@ -1,7 +1,7 @@
 import React, { memo, useRef } from 'react';
-import { DomHandler, classNames } from '../utils/Utils';
 import { TreeTableBodyCell } from './TreeTableBodyCell';
 import { Ripple } from '../ripple/Ripple';
+import { DomHandler, classNames } from '../utils/Utils';
 
 export const TreeTableRow = memo((props) => {
     const elementRef = useRef(null);
@@ -347,7 +347,7 @@ export const TreeTableRow = memo((props) => {
                         propagateSelectionUp={props.propagateSelectionUp} propagateSelectionDown={props.propagateSelectionDown} onPropagateUp={propagateUp}
                         rowClassName={props.rowClassName}
                         contextMenuSelectionKey={props.contextMenuSelectionKey} onContextMenuSelectionChange={props.onContextMenuSelectionChange} onContextMenu={props.onContextMenu} />
-                );
+                )
             });
         }
         else {
@@ -375,4 +375,4 @@ export const TreeTableRow = memo((props) => {
             {children}
         </>
     )
-})
+});

@@ -1,7 +1,7 @@
 import React, { forwardRef, useEffect, useState, useImperativeHandle, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { DomHandler, ObjectUtils, classNames, UniqueComponentId } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
+import { DomHandler, ObjectUtils, classNames, UniqueComponentId } from '../utils/Utils';
 import { useMountEffect, useUpdateEffect } from '../hooks/Hooks';
 
 export const TabPanel = () => { }

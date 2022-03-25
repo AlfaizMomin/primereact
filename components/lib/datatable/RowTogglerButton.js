@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
-import { classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
+import { classNames } from '../utils/Utils';
 
 export const RowTogglerButton = memo((props) => {
 
@@ -19,4 +19,4 @@ export const RowTogglerButton = memo((props) => {
             <Ripple />
         </button>
     )
-})
+});

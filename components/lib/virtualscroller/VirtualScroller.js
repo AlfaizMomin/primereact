@@ -1,24 +1,24 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, memo, useImperativeHandle, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, classNames } from '../utils/Utils';
-import { usePrevious } from '../hooks/Hooks';
+import { useMountEffect, useUpdateEffect, usePrevious } from '../hooks/Hooks';
 
-export const VirtualScroller = forwardRef((props, ref) => {
-    const isVertical = props.orientation === 'vertical';
-    const isHorizontal = props.orientation === 'horizontal';
-    const isBoth = props.orientation === 'both';
+export const VirtualScroller = memo(forwardRef((props, ref) => {
+    const vertical = props.orientation === 'vertical';
+    const horizontal = props.orientation === 'horizontal';
+    const both = props.orientation === 'both';
 
-    const [first, setFirst] = useState(isBoth ? { rows: 0, cols: 0 } : 0);
-    const [last, setLast] = useState(isBoth ? { rows: 0, cols: 0 } : 0);
-    const [numItemsInViewport, setNumItemsInViewport] = useState(isBoth ? { rows: 0, cols: 0 } : 0);
-    const [numToleratedItems, setNumToleratedItems] = useState(props.numToleratedItems);
-    const [loading, setLoading] = useState(props.loading);
-    const [loaderArr, setLoaderArr] = useState([]);
+    const [firstState, setFirstState] = useState(both ? { rows: 0, cols: 0 } : 0);
+    const [lastState, setLastState] = useState(both ? { rows: 0, cols: 0 } : 0);
+    const [numItemsInViewportState, setNumItemsInViewportState] = useState(both ? { rows: 0, cols: 0 } : 0);
+    const [numToleratedItemsState, setNumToleratedItemsState] = useState(props.numToleratedItems);
+    const [loadingState, setLoadingState] = useState(props.loading);
+    const [loaderArrState, setLoaderArrState] = useState([]);
     const elementRef = useRef(null);
     const contentRef = useRef(null);
     const spacerRef = useRef(null);
     const stickyRef = useRef(null);
-    const lastScrollPos = useRef(isBoth ? { top: 0, left: 0 } : 0);
+    const lastScrollPos = useRef(both ? { top: 0, left: 0 } : 0);
     const scrollTimeout = useRef(null);
     const prevItems = usePrevious(props.items);
     const prevLoading = usePrevious(props.loading);
@@ -28,67 +28,67 @@ export const VirtualScroller = forwardRef((props, ref) => {
     }
 
     const scrollToIndex = (index, behavior = 'auto') => {
-        const { numToleratedItems: _numToleratedItems } = calculateNumItems();
+        const { numToleratedItems } = calculateNumItems();
         const itemSize = props.itemSize;
         const contentPos = getContentPosition();
         const calculateFirst = (_index = 0, _numT) => (_index <= _numT ? 0 : _index);
         const calculateCoord = (_first, _size, _cpos) => (_first * _size) + _cpos;
         const scrollToItem = (left = 0, top = 0) => scrollTo({ left, top, behavior });
 
-        if (isBoth) {
-            const newFirst = { rows: calculateFirst(index[0], _numToleratedItems[0]), cols: calculateFirst(index[1], _numToleratedItems[1]) };
-            if (newFirst.rows !== first.rows || newFirst.cols !== first.cols) {
+        if (both) {
+            const newFirst = { rows: calculateFirst(index[0], numToleratedItems[0]), cols: calculateFirst(index[1], numToleratedItems[1]) };
+            if (newFirst.rows !== firstState.rows || newFirst.cols !== firstState.cols) {
                 scrollToItem(calculateCoord(newFirst.cols, itemSize[1], contentPos.left), calculateCoord(newFirst.rows, itemSize[0], contentPos.top));
-                setFirst(newFirst);
+                setFirstState(newFirst);
             }
         }
         else {
-            const newFirst = calculateFirst(index, _numToleratedItems);
+            const newFirst = calculateFirst(index, numToleratedItems);
 
-            if (newFirst !== first) {
-                isHorizontal ? scrollToItem(calculateCoord(newFirst, itemSize, contentPos.left), 0) : scrollToItem(0, calculateCoord(newFirst, itemSize, contentPos.top));
-                setFirst(newFirst);
+            if (newFirst !== firstState) {
+                horizontal ? scrollToItem(calculateCoord(newFirst, itemSize, contentPos.left), 0) : scrollToItem(0, calculateCoord(newFirst, itemSize, contentPos.top));
+                setFirstState(newFirst);
             }
         }
     }
 
     const scrollInView = (index, to, behavior = 'auto') => {
         if (to) {
-            const { first: _first, viewport } = getRenderedRange();
+            const { first, viewport } = getRenderedRange();
             const itemSize = props.itemSize;
             const scrollToItem = (left = 0, top = 0) => scrollTo({ left, top, behavior });
             const isToStart = to === 'to-start';
             const isToEnd = to === 'to-end';
 
             if (isToStart) {
-                if (isBoth) {
-                    if (viewport.first.rows - _first.rows > index[0]) {
+                if (both) {
+                    if (viewport.first.rows - first.rows > index[0]) {
                         scrollToItem(viewport.first.cols * itemSize, (viewport.first.rows - 1) * itemSize);
                     }
-                    else if (viewport.first.cols - _first.cols > index[1]) {
+                    else if (viewport.first.cols - first.cols > index[1]) {
                         scrollToItem((viewport.first.cols - 1) * itemSize, viewport.first.rows * itemSize);
                     }
                 }
                 else {
-                    if (viewport.first - _first > index) {
+                    if (viewport.first - first > index) {
                         const pos = (viewport.first - 1) * itemSize;
-                        isHorizontal ? scrollToItem(pos, 0) : scrollToItem(0, pos);
+                        horizontal ? scrollToItem(pos, 0) : scrollToItem(0, pos);
                     }
                 }
             }
             else if (isToEnd) {
-                if (isBoth) {
-                    if (viewport.last.rows - _first.rows <= index[0] + 1) {
+                if (both) {
+                    if (viewport.last.rows - first.rows <= index[0] + 1) {
                         scrollToItem(viewport.first.cols * itemSize, (viewport.first.rows + 1) * itemSize);
                     }
-                    else if (viewport.last.cols - _first.cols <= index[1] + 1) {
+                    else if (viewport.last.cols - first.cols <= index[1] + 1) {
                         scrollToItem((viewport.first.cols + 1) * itemSize, viewport.first.rows * itemSize);
                     }
                 }
                 else {
-                    if (viewport.last - _first <= index + 1) {
+                    if (viewport.last - first <= index + 1) {
                         const pos = (viewport.first + 1) * itemSize;
-                        isHorizontal ? scrollToItem(pos, 0) : scrollToItem(0, pos);
+                        horizontal ? scrollToItem(pos, 0) : scrollToItem(0, pos);
                     }
                 }
             }
@@ -99,15 +99,15 @@ export const VirtualScroller = forwardRef((props, ref) => {
     }
 
     const getRows = () => {
-        return loading ? (props.loaderDisabled ? loaderArr : []) : loadedItems();
+        return loadingState ? (props.loaderDisabled ? loaderArrState : []) : loadedItems();
     }
 
     const getColumns = () => {
         if (props.columns) {
-            if (isBoth || isHorizontal) {
-                return loading && props.loaderDisabled ?
-                    (isBoth ? loaderArr[0] : loaderArr) :
-                    props.columns.slice((isBoth ? first.cols : first), (isBoth ? last.cols : last));
+            if (both || horizontal) {
+                return loadingState && props.loaderDisabled ?
+                    (both ? loaderArrState[0] : loaderArrState) :
+                    props.columns.slice((both ? firstState.cols : firstState), (both ? lastState.cols : lastState));
             }
         }
 
@@ -118,27 +118,27 @@ export const VirtualScroller = forwardRef((props, ref) => {
         const itemSize = props.itemSize;
         const calculateFirstInViewport = (_pos, _size) => Math.floor(_pos / (_size || _pos));
 
-        let firstInViewport = first;
+        let firstInViewport = firstState;
         let lastInViewport = 0;
 
         if (elementRef.current) {
             const scrollTop = elementRef.current.scrollTop;
             const scrollLeft = elementRef.current.scrollLeft;
 
-            if (isBoth) {
+            if (both) {
                 firstInViewport = { rows: calculateFirstInViewport(scrollTop, itemSize[0]), cols: calculateFirstInViewport(scrollLeft, itemSize[1]) };
-                lastInViewport = { rows: firstInViewport.rows + numItemsInViewport.rows, cols: firstInViewport.cols + numItemsInViewport.cols };
+                lastInViewport = { rows: firstInViewport.rows + numItemsInViewportState.rows, cols: firstInViewport.cols + numItemsInViewportState.cols };
             }
             else {
-                const scrollPos = isHorizontal ? scrollLeft : scrollTop;
+                const scrollPos = horizontal ? scrollLeft : scrollTop;
                 firstInViewport = calculateFirstInViewport(scrollPos, itemSize);
-                lastInViewport = firstInViewport + numItemsInViewport;
+                lastInViewport = firstInViewport + numItemsInViewportState;
             }
         }
 
         return {
-            first,
-            last,
+            first: firstState,
+            last: lastState,
             viewport: {
                 first: firstInViewport,
                 last: lastInViewport
@@ -153,42 +153,42 @@ export const VirtualScroller = forwardRef((props, ref) => {
         const contentHeight = elementRef.current ? elementRef.current.offsetHeight - contentPos.top : 0;
         const calculateNumItemsInViewport = (_contentSize, _itemSize) => Math.ceil(_contentSize / (_itemSize || _contentSize));
         const calculateNumToleratedItems = (_numItems) => Math.ceil(_numItems / 2);
-        const _numItemsInViewport = isBoth ?
+        const numItemsInViewport = both ?
             { rows: calculateNumItemsInViewport(contentHeight, itemSize[0]), cols: calculateNumItemsInViewport(contentWidth, itemSize[1]) } :
-            calculateNumItemsInViewport((isHorizontal ? contentWidth : contentHeight), itemSize);
+            calculateNumItemsInViewport((horizontal ? contentWidth : contentHeight), itemSize);
 
-        const _numToleratedItems = numToleratedItems || (isBoth ?
-            [calculateNumToleratedItems(_numItemsInViewport.rows), calculateNumToleratedItems(_numItemsInViewport.cols)] :
-            calculateNumToleratedItems(_numItemsInViewport));
+        const numToleratedItems = numToleratedItemsState || (both ?
+            [calculateNumToleratedItems(numItemsInViewport.rows), calculateNumToleratedItems(numItemsInViewport.cols)] :
+            calculateNumToleratedItems(numItemsInViewport));
 
-        return { numItemsInViewport: _numItemsInViewport, numToleratedItems: _numToleratedItems };
+        return { numItemsInViewport, numToleratedItems };
     }
 
     const calculateOptions = () => {
-        const { numItemsInViewport: _numItemsInViewport, numToleratedItems: _numToleratedItems } = calculateNumItems();
+        const { numItemsInViewport, numToleratedItems } = calculateNumItems();
         const calculateLast = (_first, _num, _numT, _isCols) => getLast(_first + _num + ((_first < _numT ? 2 : 3) * _numT), _isCols);
-        const _last = isBoth ?
-            { rows: calculateLast(first.rows, _numItemsInViewport.rows, _numToleratedItems[0]), cols: calculateLast(first.cols, _numItemsInViewport.cols, _numToleratedItems[1], true) } :
-            calculateLast(first, _numItemsInViewport, _numToleratedItems);
+        const last = both ?
+            { rows: calculateLast(firstState.rows, numItemsInViewport.rows, numToleratedItems[0]), cols: calculateLast(firstState.cols, numItemsInViewport.cols, numToleratedItems[1], true) } :
+            calculateLast(firstState, numItemsInViewport, numToleratedItems);
 
-        setNumItemsInViewport(_numItemsInViewport);
-        setNumToleratedItems(_numToleratedItems);
-        setLast(_last);
+        setNumItemsInViewportState(numItemsInViewport);
+        setNumToleratedItemsState(numToleratedItems);
+        setLastState(last);
 
         if (props.showLoader) {
-            setLoaderArr(isBoth ?
-                Array.from({ length: _numItemsInViewport.rows }).map(() => Array.from({ length: _numItemsInViewport.cols })) :
-                Array.from({ length: _numItemsInViewport }));
+            setLoaderArrState(both ?
+                Array.from({ length: numItemsInViewport.rows }).map(() => Array.from({ length: numItemsInViewport.cols })) :
+                Array.from({ length: numItemsInViewport }));
         }
 
         if (props.lazy) {
-            props.onLazyLoad && props.onLazyLoad({ first, last: _last });
+            props.onLazyLoad && props.onLazyLoad({ first: firstState, last });
         }
     }
 
-    const getLast = (_last = 0, isCols) => {
+    const getLast = (last = 0, isCols) => {
         if (props.items) {
-            return Math.min((isCols ? (props.columns || props.items[0]).length : props.items.length), _last);
+            return Math.min((isCols ? (props.columns || props.items[0]).length : props.items.length), last);
         }
 
         return 0;
@@ -215,7 +215,7 @@ export const VirtualScroller = forwardRef((props, ref) => {
             const height = props.scrollHeight || `${(elementRef.current.offsetHeight || parentElement.offsetHeight)}px`;
             const setProp = (_name, _value) => elementRef.current.style[_name] = _value;
 
-            if (isBoth || isHorizontal) {
+            if (both || horizontal) {
                 setProp('height', height);
                 setProp('width', width);
             }
@@ -233,19 +233,19 @@ export const VirtualScroller = forwardRef((props, ref) => {
             const contentPos = getContentPosition();
             const setProp = (_name, _value, _size, _cpos = 0) => spacerRef.current.style[_name] = (((_value || []).length * _size) + _cpos) + 'px';
 
-            if (isBoth) {
+            if (both) {
                 setProp('height', items, itemSize[0], contentPos.y);
                 setProp('width', (props.columns || items[1]), itemSize[1], contentPos.x);
             }
             else {
-                isHorizontal ? setProp('width', (props.columns || items), itemSize, contentPos.x) : setProp('height', items, itemSize, contentPos.y);
+                horizontal ? setProp('width', (props.columns || items), itemSize, contentPos.x) : setProp('height', items, itemSize, contentPos.y);
             }
         }
     }
 
     const setContentPosition = (pos) => {
         if (contentRef.current) {
-            const firstPos = pos ? pos.first : first;
+            const first = pos ? pos.first : firstState;
             const itemSize = props.itemSize;
             const calculateTranslateVal = (_first, _size) => (_first * _size);
             const setTransform = (_x = 0, _y = 0) => {
@@ -253,12 +253,12 @@ export const VirtualScroller = forwardRef((props, ref) => {
                 contentRef.current.style.transform = `translate3d(${_x}px, ${_y}px, 0)`;
             };
 
-            if (isBoth) {
-                setTransform(calculateTranslateVal(firstPos.cols, itemSize[1]), calculateTranslateVal(firstPos.rows, itemSize[0]));
+            if (both) {
+                setTransform(calculateTranslateVal(first.cols, itemSize[1]), calculateTranslateVal(first.rows, itemSize[0]));
             }
             else {
-                const translateVal = calculateTranslateVal(firstPos, itemSize);
-                isHorizontal ? setTransform(translateVal, 0) : setTransform(0, translateVal);
+                const translateVal = calculateTranslateVal(first, itemSize);
+                horizontal ? setTransform(translateVal, 0) : setTransform(0, translateVal);
             }
         }
     }
@@ -294,40 +294,40 @@ export const VirtualScroller = forwardRef((props, ref) => {
         const scrollLeft = calculateScrollPos(target.scrollLeft, contentPos.left);
 
         let newFirst = 0;
-        let newLast = last;
+        let newLast = lastState;
         let isRangeChanged = false;
 
-        if (isBoth) {
+        if (both) {
             const isScrollDown = lastScrollPos.current.top <= scrollTop;
             const isScrollRight = lastScrollPos.current.left <= scrollLeft;
             const currentIndex = { rows: calculateCurrentIndex(scrollTop, itemSize[0]), cols: calculateCurrentIndex(scrollLeft, itemSize[1]) };
             const triggerIndex = {
-                rows: calculateTriggerIndex(currentIndex.rows, first.rows, last.rows, numItemsInViewport.rows, numToleratedItems[0], isScrollDown),
-                cols: calculateTriggerIndex(currentIndex.cols, first.cols, last.cols, numItemsInViewport.cols, numToleratedItems[1], isScrollRight)
+                rows: calculateTriggerIndex(currentIndex.rows, firstState.rows, lastState.rows, numItemsInViewportState.rows, numToleratedItemsState[0], isScrollDown),
+                cols: calculateTriggerIndex(currentIndex.cols, firstState.cols, lastState.cols, numItemsInViewportState.cols, numToleratedItemsState[1], isScrollRight)
             };
 
             newFirst = {
-                rows: calculateFirst(currentIndex.rows, triggerIndex.rows, first.rows, last.rows, numItemsInViewport.rows, numToleratedItems[0], isScrollDown),
-                cols: calculateFirst(currentIndex.cols, triggerIndex.cols, first.cols, last.cols, numItemsInViewport.cols, numToleratedItems[1], isScrollRight)
+                rows: calculateFirst(currentIndex.rows, triggerIndex.rows, firstState.rows, lastState.rows, numItemsInViewportState.rows, numToleratedItemsState[0], isScrollDown),
+                cols: calculateFirst(currentIndex.cols, triggerIndex.cols, firstState.cols, lastState.cols, numItemsInViewportState.cols, numToleratedItemsState[1], isScrollRight)
             };
             newLast = {
-                rows: calculateLast(currentIndex.rows, newFirst.rows, last.rows, numItemsInViewport.rows, numToleratedItems[0]),
-                cols: calculateLast(currentIndex.cols, newFirst.cols, last.cols, numItemsInViewport.cols, numToleratedItems[1], true)
+                rows: calculateLast(currentIndex.rows, newFirst.rows, lastState.rows, numItemsInViewportState.rows, numToleratedItemsState[0]),
+                cols: calculateLast(currentIndex.cols, newFirst.cols, lastState.cols, numItemsInViewportState.cols, numToleratedItemsState[1], true)
             };
 
-            isRangeChanged = (newFirst.rows !== first.rows && newLast.rows !== last.rows) || (newFirst.cols !== first.cols && newLast.cols !== last.cols);
+            isRangeChanged = (newFirst.rows !== firstState.rows && newLast.rows !== lastState.rows) || (newFirst.cols !== firstState.cols && newLast.cols !== lastState.cols);
 
             lastScrollPos.current = { top: scrollTop, left: scrollLeft };
         }
         else {
-            const scrollPos = isHorizontal ? scrollLeft : scrollTop;
+            const scrollPos = horizontal ? scrollLeft : scrollTop;
             const isScrollDownOrRight = lastScrollPos.current <= scrollPos;
             const currentIndex = calculateCurrentIndex(scrollPos, itemSize);
-            const triggerIndex = calculateTriggerIndex(currentIndex, first, last, numItemsInViewport, numToleratedItems, isScrollDownOrRight);
+            const triggerIndex = calculateTriggerIndex(currentIndex, firstState, lastState, numItemsInViewportState, numToleratedItemsState, isScrollDownOrRight);
 
-            newFirst = calculateFirst(currentIndex, triggerIndex, first, last, numItemsInViewport, numToleratedItems, isScrollDownOrRight);
-            newLast = calculateLast(currentIndex, newFirst, last, numItemsInViewport, numToleratedItems);
-            isRangeChanged = newFirst !== first && newLast !== last;
+            newFirst = calculateFirst(currentIndex, triggerIndex, firstState, lastState, numItemsInViewportState, numToleratedItemsState, isScrollDownOrRight);
+            newLast = calculateLast(currentIndex, newFirst, lastState, numItemsInViewportState, numToleratedItemsState);
+            isRangeChanged = newFirst !== firstState && newLast !== lastState;
 
             lastScrollPos.current = scrollPos;
         }
@@ -340,15 +340,15 @@ export const VirtualScroller = forwardRef((props, ref) => {
     }
 
     const onScrollChange = (event) => {
-        const { first: _first, last: _last, isRangeChanged } = onScrollPositionChange(event);
+        const { first, last, isRangeChanged } = onScrollPositionChange(event);
 
         if (isRangeChanged) {
-            const newState = { first: _first, last: _last };
+            const newState = { first, last };
 
             setContentPosition(newState);
 
-            setFirst(_first);
-            setLast(_last);
+            setFirstState(first);
+            setLastState(last);
 
             props.onScrollIndexChange && props.onScrollIndexChange(newState);
 
@@ -368,14 +368,14 @@ export const VirtualScroller = forwardRef((props, ref) => {
 
             if (!loading && props.showLoader) {
                 const { isRangeChanged: changed } = onScrollPositionChange(event);
-                changed && setLoading(true);
+                changed && setLoadingState(true);
             }
 
             scrollTimeout.current = setTimeout(() => {
                 onScrollChange(event);
 
                 if (loading && props.showLoader && !props.lazy) {
-                    setLoading(false);
+                    setLoadingState(false);
                 }
             }, props.delay);
         }
@@ -385,8 +385,9 @@ export const VirtualScroller = forwardRef((props, ref) => {
     }
 
     const getOptions = (renderedIndex) => {
+        const first = firstState;
         const count = (props.items || []).length;
-        const index = isBoth ? first.rows + renderedIndex : first + renderedIndex;
+        const index = both ? first.rows + renderedIndex : first + renderedIndex;
 
         return {
             index,
@@ -400,7 +401,7 @@ export const VirtualScroller = forwardRef((props, ref) => {
     }
 
     const loaderOptions = (index, extOptions) => {
-        const count = loaderArr.length;
+        const count = loaderArrState.length;
 
         return {
             index,
@@ -417,13 +418,13 @@ export const VirtualScroller = forwardRef((props, ref) => {
     const loadedItems = () => {
         const items = props.items;
 
-        if (items && !loading) {
-            if (isBoth)
-                return items.slice(first.rows, last.rows).map(item => props.columns ? item : item.slice(first.cols, last.cols));
-            else if (isHorizontal && props.columns)
+        if (items && !loadingState) {
+            if (both)
+                return items.slice(firstState.rows, lastState.rows).map(item => props.columns ? item : item.slice(firstState.cols, lastState.cols));
+            else if (horizontal && props.columns)
                 return items;
             else
-                return items.slice(first, last);
+                return items.slice(firstState, lastState);
         }
 
         return [];
@@ -435,24 +436,28 @@ export const VirtualScroller = forwardRef((props, ref) => {
         setSpacerSize();
     }
 
-    useEffect(() => {
+    useMountEffect(() => {
+        init();
+    });
+
+    useUpdateEffect(() => {
         init();
     }, [props.itemSize, props.scrollHeight]);
 
-    useEffect(() => {
+    useUpdateEffect(() => {
         if ((!prevItems || prevItems.length !== (props.items || []).length)) {
             init();
         }
     }, [props.items]);
 
-    useEffect(() => {
-        if (props.lazy && prevLoading !== props.loading && props.loading !== loading) {
-            setLoading(props.loading);
+    useUpdateEffect(() => {
+        if (props.lazy && prevLoading !== props.loading && props.loading !== loadingState) {
+            setLoadingState(props.loading);
         }
     }, [props.lazy, props.loading]);
 
-    useEffect(() => {
-        lastScrollPos.current = isBoth ? { top: 0, left: 0 } : 0;
+    useUpdateEffect(() => {
+        lastScrollPos.current = both ? { top: 0, left: 0 } : 0;
     }, [props.orientation]);
 
     useImperativeHandle(ref, () => ({
@@ -474,7 +479,7 @@ export const VirtualScroller = forwardRef((props, ref) => {
     }
 
     const useLoader = () => {
-        if (!props.loaderDisabled && props.showLoader && loading) {
+        if (!props.loaderDisabled && props.showLoader && loadingState) {
             const className = classNames('p-virtualscroller-loader', {
                 'p-component-overlay': !props.loadingTemplate
             });
@@ -482,8 +487,8 @@ export const VirtualScroller = forwardRef((props, ref) => {
             let content = <i className="p-virtualscroller-loading-icon pi pi-spinner pi-spin"></i>;
 
             if (props.loadingTemplate) {
-                content = loaderArr.map((_, index) => {
-                    return useLoaderItem(index, isBoth && { numCols: numItemsInViewport.cols });
+                content = loaderArrState.map((_, index) => {
+                    return useLoaderItem(index, both && { numCols: numItemsInViewportState.cols });
                 })
             }
 
@@ -499,9 +504,7 @@ export const VirtualScroller = forwardRef((props, ref) => {
 
     const useSpacer = () => {
         if (props.showSpacer) {
-            return (
-                <div ref={spacerRef} className="p-virtualscroller-spacer"></div>
-            )
+            return <div ref={spacerRef} className="p-virtualscroller-spacer"></div>
         }
 
         return null;
@@ -519,16 +522,16 @@ export const VirtualScroller = forwardRef((props, ref) => {
     }
 
     const useItems = () => {
-        const _loadedItems = loadedItems();
+        const items = loadedItems();
 
-        return _loadedItems.map(useItem);
+        return items.map(useItem);
     }
 
     const useContent = () => {
         const items = useItems();
         const className = classNames('p-virtualscroller-content', { 'p-virtualscroller-loading': loading });
         const content = (
-            <div className={className} ref={contentRef}>
+            <div ref={contentRef} className={className}>
                 {items}
             </div>
         )
@@ -543,16 +546,16 @@ export const VirtualScroller = forwardRef((props, ref) => {
                 getItemOptions: (index) => getOptions(index),
                 children: items,
                 element: content,
-                props: props,
+                props,
                 loading,
                 getLoaderOptions: (index, ext) => loaderOptions(index, ext),
                 loadingTemplate: props.loadingTemplate,
                 itemSize: props.itemSize,
                 rows: getRows(),
                 columns: getColumns(),
-                vertical: isVertical,
-                horizontal: isHorizontal,
-                both: isBoth
+                vertical,
+                horizontal,
+                both
             }
 
             return ObjectUtils.getJSXElement(props.contentTemplate, defaultOptions);
@@ -573,8 +576,8 @@ export const VirtualScroller = forwardRef((props, ref) => {
     }
     else {
         const className = classNames('p-virtualscroller', {
-            'p-both-scroll': isBoth,
-            'p-horizontal-scroll': isHorizontal
+            'p-both-scroll': both,
+            'p-horizontal-scroll': horizontal
         }, props.className);
 
         const loader = useLoader();
@@ -589,7 +592,7 @@ export const VirtualScroller = forwardRef((props, ref) => {
             </div>
         )
     }
-})
+}));
 
 VirtualScroller.defaultProps = {
     __TYPE: 'VirtualScroller',

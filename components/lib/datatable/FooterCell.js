@@ -1,8 +1,9 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import { classNames, DomHandler, ObjectUtils } from '../utils/Utils';
 
 export const FooterCell = memo((props) => {
-    const [styleObject, setStyleObject] = useState({});
+    const [styleObjectState, setStyleObjectState] = useState({});
+    const elementRef = useRef(null);
 
     const getColumnProp = (prop) => {
         return props.column.props[prop];
@@ -12,31 +13,31 @@ export const FooterCell = memo((props) => {
         const footerStyle = getColumnProp('footerStyle');
         const columnStyle = getColumnProp('style');
 
-        return getColumnProp('frozen') ? Object.assign({}, columnStyle, footerStyle, styleObject) : Object.assign({}, columnStyle, footerStyle);
+        return getColumnProp('frozen') ? Object.assign({}, columnStyle, footerStyle, styleObjectState) : Object.assign({}, columnStyle, footerStyle);
     }
 
     const updateStickyPosition = () => {
         if (getColumnProp('frozen')) {
-            let _styleObject = { ...styleObject };
+            let styleObject = { ...styleObjectState };
             let align = getColumnProp('alignFrozen');
             if (align === 'right') {
                 let right = 0;
-                let next = el.nextElementSibling;
+                let next = elementRef.current.nextElementSibling;
                 if (next) {
                     right = DomHandler.getOuterWidth(next) + parseFloat(next.style.right || 0);
                 }
-                _styleObject['right'] = right + 'px';
+                styleObject['right'] = right + 'px';
             }
             else {
                 let left = 0;
-                let prev = el.previousElementSibling;
+                let prev = elementRef.current.previousElementSibling;
                 if (prev) {
                     left = DomHandler.getOuterWidth(prev) + parseFloat(prev.style.left || 0);
                 }
-                _styleObject['left'] = left + 'px';
+                styleObject['left'] = left + 'px';
             }
 
-            setStyleObject(_styleObject);
+            setStyleObjectState(styleObject);
         }
     }
 
@@ -48,18 +49,17 @@ export const FooterCell = memo((props) => {
 
     const style = getStyle();
     const align = getColumnProp('align');
+    const colSpan = getColumnProp('colSpan');
+    const rowSpan = getColumnProp('rowSpan');
     const className = classNames(getColumnProp('footerClassName'), getColumnProp('className'), {
         'p-frozen-column': getColumnProp('frozen'),
         [`p-align-${align}`]: !!align
     });
-    const colSpan = getColumnProp('colSpan');
-    const rowSpan = getColumnProp('rowSpan');
-
-    let content = ObjectUtils.getJSXElement(getColumnProp('footer'), { props: props.tableProps });
+    const content = ObjectUtils.getJSXElement(getColumnProp('footer'), { props: props.tableProps });
 
     return (
-        <td ref={el => el = el} style={style} className={className} role="cell" colSpan={colSpan} rowSpan={rowSpan}>
+        <td ref={elementRef} style={style} className={className} role="cell" colSpan={colSpan} rowSpan={rowSpan}>
             {content}
         </td>
     )
-})
+});

@@ -2,8 +2,8 @@ import React from 'react';
 import { CSSTransition as ReactCSSTransition } from 'react-transition-group';
 import PropTypes from 'prop-types';
 import PrimeReact from '../api/Api';
-import { useUpdateEffect } from '../hooks/useUpdateEffect';
 import { ObjectUtils } from '../utils/Utils';
+import { useUpdateEffect } from '../hooks/Hooks';
 
 export const CSSTransition = (props) => {
     const disabled = props.disabled || (props.options && props.options.disabled) || !PrimeReact.cssTransition;

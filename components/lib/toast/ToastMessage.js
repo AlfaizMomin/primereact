@@ -1,6 +1,6 @@
 import React, { forwardRef, memo } from 'react';
-import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
+import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 import { useTimeout } from '../hooks/Hooks';
 
 export const ToastMessage = memo(forwardRef((props, ref) => {

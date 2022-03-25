@@ -2,15 +2,15 @@ import React, { memo, useRef, useState } from 'react';
 import { classNames } from '../utils/Utils';
 
 export const RowRadioButton = memo((props) => {
-    const [focused, setFocused] = useState(false);
+    const [focusedState, setFocusedState] = useState(false);
     const inputRef = useRef(null);
 
     const onFocus = () => {
-        setFocused(true);
+        setFocusedState(true);
     }
 
     const onBlur = () => {
-        setFocused(false);
+        setFocusedState(false);
     }
 
     const onClick = (event) => {
@@ -32,8 +32,8 @@ export const RowRadioButton = memo((props) => {
         onClick(event);
     }
 
-    const className = classNames('p-radiobutton p-component', { 'p-radiobutton-focused': focused });
-    const boxClassName = classNames('p-radiobutton-box p-component', { 'p-highlight': props.checked, 'p-focus': focused, 'p-disabled': props.disabled });
+    const className = classNames('p-radiobutton p-component', { 'p-radiobutton-focused': focusedState });
+    const boxClassName = classNames('p-radiobutton-box p-component', { 'p-highlight': props.checked, 'p-focus': focusedState, 'p-disabled': props.disabled });
     const name = `${props.tableSelector}_dt_radio`;
 
     return (
@@ -47,4 +47,4 @@ export const RowRadioButton = memo((props) => {
             </div>
         </div>
     )
-})
+});

@@ -2339,7 +2339,7 @@ export const Calendar = memo((props) => {
                     names: displayedMonthNames,
                     options: displayedMonthOptions,
                     element: content,
-                    props: props
+                    props
                 };
 
                 return ObjectUtils.getJSXElement(props.monthNavigatorTemplate, defaultContentOptions);
@@ -2382,7 +2382,7 @@ export const Calendar = memo((props) => {
                     names: displayedYearNames,
                     options,
                     element: content,
-                    props: props
+                    props
                 };
 
                 return ObjectUtils.getJSXElement(props.yearNavigatorTemplate, defaultContentOptions);

@@ -1,16 +1,16 @@
 import React, { useRef, useState, forwardRef, useImperativeHandle, memo } from 'react';
 import PropTypes from 'prop-types';
-import { classNames, ObjectUtils } from '../utils/Utils';
 import { localeOption } from '../api/Api';
+import { classNames, ObjectUtils } from '../utils/Utils';
 import { useMountEffect, useUpdateEffect, useUnmountEffect } from '../hooks/Hooks';
 
 export const DataScroller = memo(forwardRef((props, ref) => {
     const [dataToRenderState, setDataToRenderState] = useState([]);
+    const contentRef = useRef(null);
     const value = useRef(props.value);
     const dataToRender = useRef([]);
     const first = useRef(0);
     const scrollFunction = useRef(null);
-    const contentElement = useRef(null);
 
     const handleDataChange = () => {
         if (props.lazy) {
@@ -70,16 +70,16 @@ export const DataScroller = memo(forwardRef((props, ref) => {
     const bindScrollListener = () => {
         if (props.inline) {
             scrollFunction.current = () => {
-                let scrollTop = contentElement.current.scrollTop,
-                    scrollHeight = contentElement.current.scrollHeight,
-                    viewportHeight = contentElement.current.clientHeight;
+                let scrollTop = contentRef.current.scrollTop,
+                    scrollHeight = contentRef.current.scrollHeight,
+                    viewportHeight = contentRef.current.clientHeight;
 
                 if ((scrollTop >= ((scrollHeight * props.buffer) - (viewportHeight)))) {
                     load();
                 }
             }
 
-            contentElement.current.addEventListener('scroll', scrollFunction.current);
+            contentRef.current.addEventListener('scroll', scrollFunction.current);
         }
         else {
             scrollFunction.current = () => {
@@ -100,9 +100,9 @@ export const DataScroller = memo(forwardRef((props, ref) => {
 
     const unbindScrollListener = () => {
         if (scrollFunction.current) {
-            if (props.inline && contentElement.current) {
-                contentElement.current.removeEventListener('scroll', scrollFunction.current);
-                contentElement.current = null;
+            if (props.inline && contentRef.current) {
+                contentRef.current.removeEventListener('scroll', scrollFunction.current);
+                contentRef.current = null;
             }
             else if (!props.loader) {
                 window.removeEventListener('scroll', scrollFunction.current);
@@ -183,7 +183,7 @@ export const DataScroller = memo(forwardRef((props, ref) => {
         const content = ObjectUtils.isNotEmpty(dataToRenderState) ? dataToRenderState.map(useItem) : useEmptyMessage();
 
         return (
-            <div ref={contentElement} className="p-datascroller-content" style={{ 'maxHeight': props.scrollHeight }}>
+            <div ref={contentRef} className="p-datascroller-content" style={{ 'maxHeight': props.scrollHeight }}>
                 <ul className="p-datascroller-list">
                     {content}
                 </ul>

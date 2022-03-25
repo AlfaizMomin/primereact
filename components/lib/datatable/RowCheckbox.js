@@ -2,19 +2,19 @@ import React, { memo, useState } from 'react';
 import { classNames } from '../utils/Utils';
 
 export const RowCheckbox = memo((props) => {
-    const [focused, setFocused] = useState(false);
+    const [focusedState, setFocusedState] = useState(false);
 
     const onFocus = () => {
-        setFocused(true);
+        setFocusedState(true);
     }
 
     const onBlur = () => {
-        setFocused(false);
+        setFocusedState(false);
     }
 
     const onClick = (event) => {
         if (!props.disabled) {
-            setFocused(true);
+            setFocusedState(true);
 
             props.onChange(event);
         }
@@ -27,8 +27,8 @@ export const RowCheckbox = memo((props) => {
         }
     }
 
-    const className = classNames('p-checkbox p-component', { 'p-checkbox-focused': focused })
-    const boxClassName = classNames('p-checkbox-box p-component', { 'p-highlight': props.checked, 'p-disabled': props.disabled, 'p-focus': focused });
+    const className = classNames('p-checkbox p-component', { 'p-checkbox-focused': focusedState })
+    const boxClassName = classNames('p-checkbox-box p-component', { 'p-highlight': props.checked, 'p-disabled': props.disabled, 'p-focus': focusedState });
     const iconClassName = classNames('p-checkbox-icon', { 'pi pi-check': props.checked });
     const tabIndex = props.disabled ? null : '0';
 
@@ -40,4 +40,4 @@ export const RowCheckbox = memo((props) => {
             </div>
         </div>
     )
-})
+});

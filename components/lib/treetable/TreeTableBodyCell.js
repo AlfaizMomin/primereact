@@ -1,29 +1,31 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ObjectUtils, DomHandler, classNames } from '../utils/Utils';
 import { OverlayService } from '../overlayservice/OverlayService';
+import { ObjectUtils, DomHandler, classNames } from '../utils/Utils';
 import { useEventListener, useUnmountEffect } from '../hooks/Hooks';
 
 export const TreeTableBodyCell = (props) => {
-    const [editing, setEditing] = useState(false);
+    const [editingState, setEditingState] = useState(false);
     const elementRef = useRef(null);
     const keyHelperRef = useRef(null);
     const selfClick = useRef(false);
     const overlayEventListener = useRef(null);
     const tabindexTimeout = useRef(null);
 
-    const [bindDocumentClick, unbindDocumentClick] = useEventListener({ type: 'click', listener: (e) => {
-        if (!selfClick.current && isOutsideClicked(e.target)) {
-            switchCellToViewMode(e);
-        }
+    const [bindDocumentClick, unbindDocumentClick] = useEventListener({
+        type: 'click', listener: (e) => {
+            if (!selfClick.current && isOutsideClicked(e.target)) {
+                switchCellToViewMode(e);
+            }
 
-        selfClick.current = false;
-    }});
+            selfClick.current = false;
+        }
+    });
 
     const onClick = () => {
-        if (props.editor && !editing && (props.selectOnEdit || (!props.selectOnEdit && props.selected))) {
+        if (props.editor && !editingState && (props.selectOnEdit || (!props.selectOnEdit && props.selected))) {
             selfClick.current = true;
 
-            setEditing(true);
+            setEditingState(true);
 
             bindDocumentClick();
 
@@ -50,7 +52,7 @@ export const TreeTableBodyCell = (props) => {
     const closeCell = () => {
         /* When using the 'tab' key, the focus event of the next cell is not called in IE. */
         setTimeout(() => {
-            setEditing(false);
+            setEditingState(false);
             unbindDocumentClick();
             OverlayService.off('overlay-click', overlayEventListener.current);
             overlayEventListener = null;
@@ -80,7 +82,7 @@ export const TreeTableBodyCell = (props) => {
     useEffect(() => {
         if (elementRef.current && props.editor) {
             clearTimeout(tabindexTimeout.current);
-            if (editing) {
+            if (editingState) {
                 let focusable = DomHandler.findSingle(elementRef.current, 'input');
                 if (focusable && document.activeElement !== focusable && !focusable.hasAttribute('data-isCellEditing')) {
                     focusable.setAttribute('data-isCellEditing', true);
@@ -108,20 +110,20 @@ export const TreeTableBodyCell = (props) => {
 
     const className = classNames(props.bodyClassName || props.className, {
         'p-editable-column': props.editor,
-        'p-cell-editing': props.editor ? editing : false
+        'p-cell-editing': props.editor ? editingState : false
     });
     const style = props.bodyStyle || props.style
     let content;
 
-    if (editing) {
+    if (editingState) {
         if (props.editor)
-            content = ObjectUtils.getJSXElement(props.editor, { node: props.node, rowData: props.node.data, value: ObjectUtils.resolveFieldData(props.node.data, props.field), field: props.field, rowIndex: props.rowIndex, props: props });
+            content = ObjectUtils.getJSXElement(props.editor, { node: props.node, rowData: props.node.data, value: ObjectUtils.resolveFieldData(props.node.data, props.field), field: props.field, rowIndex: props.rowIndex, props });
         else
             throw new Error("Editor is not found on column.");
     }
     else {
         if (props.body)
-            content = ObjectUtils.getJSXElement(props.body, props.node, { field: props.field, rowIndex: props.rowIndex, props: props });
+            content = ObjectUtils.getJSXElement(props.body, props.node, { field: props.field, rowIndex: props.rowIndex, props });
         else
             content = ObjectUtils.resolveFieldData(props.node.data, props.field);
     }

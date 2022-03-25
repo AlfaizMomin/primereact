@@ -51,7 +51,7 @@ export const Panel = (props) => {
 
             return (
                 <button className="p-panel-header-icon p-panel-toggler p-link" onClick={toggle} id={buttonId} aria-controls={contentId} aria-expanded={!collapsed} role="tab">
-                    {IconUtils.getJSXIcon(toggleIcon, { props: props, collapsed })}
+                    {IconUtils.getJSXIcon(toggleIcon, { props, collapsed })}
                     <Ripple />
                 </button>
             )

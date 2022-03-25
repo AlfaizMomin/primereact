@@ -377,7 +377,7 @@ export const Tree = memo(forwardRef((props, ref) => {
                     },
                     filterElement,
                     element: content,
-                    props: props
+                    props
                 };
 
                 content = ObjectUtils.getJSXElement(props.header, defaultContentOptions);

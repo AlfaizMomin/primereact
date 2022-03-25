@@ -5,8 +5,8 @@ import { AutoCompletePanel } from './AutoCompletePanel';
 import { InputText } from '../inputtext/InputText';
 import { Button } from '../button/Button';
 import { tip } from '../tooltip/Tooltip';
-import { DomHandler, ObjectUtils, classNames, UniqueComponentId, ZIndexUtils, IconUtils } from '../utils/Utils';
 import { OverlayService } from '../overlayservice/OverlayService';
+import { DomHandler, ObjectUtils, classNames, UniqueComponentId, ZIndexUtils, IconUtils } from '../utils/Utils';
 import { useMountEffect, useUpdateEffect, useUnmountEffect, useOverlayListener } from '../hooks/Hooks';
 
 export const AutoComplete = memo(forwardRef((props, ref) => {

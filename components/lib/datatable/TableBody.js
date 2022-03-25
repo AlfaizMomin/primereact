@@ -1,12 +1,12 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { BodyRow } from './BodyRow';
-import { classNames, DomHandler, ObjectUtils } from '../utils/Utils';
-import { RowTogglerButton } from './RowTogglerButton';
 import { localeOption } from '../api/Api';
-import { usePrevious } from '../hooks/Hooks';
+import { BodyRow } from './BodyRow';
+import { RowTogglerButton } from './RowTogglerButton';
+import { classNames, DomHandler, ObjectUtils } from '../utils/Utils';
+import { useMountEffect, useUpdateEffect, useUnmountEffect, usePrevious } from '../hooks/Hooks';
 
 export const TableBody = memo((props) => {
-    const [rowGroupHeaderStyleObject, setRowGroupHeaderStyleObject] = useState({});
+    const [rowGroupHeaderStyleObjectState, setRowGroupHeaderStyleObjectState] = useState({});
     const elementRef = useRef(null);
     const ref = useCallback(el => {
         elementRef.current = el;
@@ -23,6 +23,11 @@ export const TableBody = memo((props) => {
     const draggedRowIndex = useRef(null);
     const droppedRowIndex = useRef(null);
     const prevVirtualScrollerOptions = usePrevious(props.virtualScrollerOptions);
+    const isSubheaderGrouping = props.rowGroupMode && props.rowGroupMode === 'subheader';
+    const isRadioSelectionMode = props.selectionMode === 'radiobutton';
+    const isCheckboxSelectionMode = props.selectionMode === 'checkbox';
+    const isRadioSelectionModeInColumn = props.selectionModeInColumn === 'single';
+    const isCheckboxSelectionModeInColumn = props.selectionModeInColumn === 'multiple';
 
     const equals = (data1, data2) => {
         if (allowCellSelection())
@@ -31,43 +36,25 @@ export const TableBody = memo((props) => {
             return props.compareSelectionBy === 'equals' ? (data1 === data2) : ObjectUtils.equals(data1, data2, props.dataKey);
     }
 
-    const isSubheaderGrouping = props.rowGroupMode && props.rowGroupMode === 'subheader';
-
     const isSelectionEnabled = () => {
         return (props.selectionMode || props.selectionModeInColumn !== null) || (props.columns && props.columns.some(col => col && !!col.props.selectionMode));
     }
 
-    const isRadioSelectionMode = () => {
-        return props.selectionMode === 'radiobutton';
-    }
-
-    const isCheckboxSelectionMode = () => {
-        return props.selectionMode === 'checkbox';
-    }
-
-    const isRadioSelectionModeInColumn = () => {
-        return props.selectionModeInColumn === 'single';
-    }
-
-    const isCheckboxSelectionModeInColumn = () => {
-        return props.selectionModeInColumn === 'multiple';
-    }
-
     const isSingleSelection = () => {
-        return (props.selectionMode === 'single' && !isCheckboxSelectionModeInColumn()) ||
-            (!isRadioSelectionMode() && isRadioSelectionModeInColumn());
+        return (props.selectionMode === 'single' && !isCheckboxSelectionModeInColumn) ||
+            (!isRadioSelectionMode && isRadioSelectionModeInColumn);
     }
 
     const isMultipleSelection = () => {
-        return (props.selectionMode === 'multiple' && !isRadioSelectionModeInColumn()) || isCheckboxSelectionModeInColumn();
+        return (props.selectionMode === 'multiple' && !isRadioSelectionModeInColumn) || isCheckboxSelectionModeInColumn;
     }
 
     const isRadioOnlySelection = () => {
-        return isRadioSelectionMode() && isRadioSelectionModeInColumn();
+        return isRadioSelectionMode && isRadioSelectionModeInColumn;
     }
 
     const isCheckboxOnlySelection = () => {
-        return isCheckboxSelectionMode() && isCheckboxSelectionModeInColumn();
+        return isCheckboxSelectionMode && isCheckboxSelectionModeInColumn;
     }
 
     const isSelected = (rowData) => {
@@ -153,7 +140,7 @@ export const TableBody = memo((props) => {
     }
 
     const allowCellSelection = () => {
-        return props.cellSelection && !isRadioSelectionModeInColumn() && !isCheckboxSelectionModeInColumn();
+        return props.cellSelection && !isRadioSelectionModeInColumn && !isCheckboxSelectionModeInColumn;
     }
 
     const getColumnsLength = () => {
@@ -171,7 +158,7 @@ export const TableBody = memo((props) => {
 
     const rowGroupHeaderStyle = () => {
         if (props.scrollable) {
-            return { top: rowGroupHeaderStyleObject['top'] };
+            return { top: rowGroupHeaderStyleObjectState['top'] };
         }
 
         return null;
@@ -182,10 +169,10 @@ export const TableBody = memo((props) => {
     }
 
     const shouldRenderRowGroupHeader = (value, rowData, i) => {
-        let currentRowFieldData = ObjectUtils.resolveFieldData(rowData, props.groupRowsBy);
-        let prevRowData = value[i - 1];
+        const currentRowFieldData = ObjectUtils.resolveFieldData(rowData, props.groupRowsBy);
+        const prevRowData = value[i - 1];
         if (prevRowData) {
-            let previousRowFieldData = ObjectUtils.resolveFieldData(prevRowData, props.groupRowsBy);
+            const previousRowFieldData = ObjectUtils.resolveFieldData(prevRowData, props.groupRowsBy);
             return currentRowFieldData !== previousRowFieldData;
         }
         else {
@@ -198,10 +185,10 @@ export const TableBody = memo((props) => {
             return false;
         }
         else {
-            let currentRowFieldData = ObjectUtils.resolveFieldData(rowData, props.groupRowsBy);
-            let nextRowData = value[i + 1];
+            const currentRowFieldData = ObjectUtils.resolveFieldData(rowData, props.groupRowsBy);
+            const nextRowData = value[i + 1];
             if (nextRowData) {
-                let nextRowFieldData = ObjectUtils.resolveFieldData(nextRowData, props.groupRowsBy);
+                const nextRowFieldData = ObjectUtils.resolveFieldData(nextRowData, props.groupRowsBy);
                 return currentRowFieldData !== nextRowFieldData;
             }
             else {
@@ -217,8 +204,8 @@ export const TableBody = memo((props) => {
     const updateFrozenRowGroupHeaderStickyPosition = () => {
         const tableHeaderHeight = DomHandler.getOuterHeight(elementRef.current.previousElementSibling);
         const top = tableHeaderHeight + 'px';
-        if (rowGroupHeaderStyleObject && rowGroupHeaderStyleObject.top !== top) {
-            setRowGroupHeaderStyleObject({ top });
+        if (rowGroupHeaderStyleObjectState.top !== top) {
+            setRowGroupHeaderStyleObjectState({ top });
         }
     }
 
@@ -431,11 +418,11 @@ export const TableBody = memo((props) => {
         const target = event.currentTarget;
 
         if (!allowCellSelection() && props.selectionAutoFocus) {
-            if (isCheckboxSelectionModeInColumn()) {
+            if (isCheckboxSelectionModeInColumn) {
                 const checkbox = DomHandler.findSingle(target, 'td.p-selection-column .p-checkbox-box');
                 checkbox && checkbox.focus();
             }
-            else if (isRadioSelectionModeInColumn()) {
+            else if (isRadioSelectionModeInColumn) {
                 const radio = DomHandler.findSingle(target, 'td.p-selection-column input[type="radio"]');
                 radio && radio.focus();
             }
@@ -471,7 +458,7 @@ export const TableBody = memo((props) => {
                 onRangeSelection(event, 'row');
             }
             else {
-                const toggleable = isRadioSelectionModeInColumn() || isCheckboxSelectionModeInColumn() || allowMetaKeySelection(event);
+                const toggleable = isRadioSelectionModeInColumn || isCheckboxSelectionModeInColumn || allowMetaKeySelection(event);
                 anchorRowIndex.current = event.index;
                 rangeRowIndex.current = event.index;
                 anchorRowFirst.current = props.first;
@@ -582,7 +569,7 @@ export const TableBody = memo((props) => {
             expandedRows = props.expandedRows ? [...props.expandedRows] : [];
 
             if (expandedRowIndex !== -1) {
-                expandedRows = expandedRows.filter((val, i) => i !== expandedRowIndex);
+                expandedRows = expandedRows.filter((_, i) => i !== expandedRowIndex);
                 if (props.onRowCollapse) {
                     props.onRowCollapse({ originalEvent: event, data: event.data });
                 }
@@ -613,11 +600,11 @@ export const TableBody = memo((props) => {
         const { originalEvent: event, index } = e;
 
         if (rowDragging.current && draggedRowIndex.current !== index) {
-            let rowElement = event.currentTarget;
-            let rowY = DomHandler.getOffset(rowElement).top + DomHandler.getWindowScrollTop();
-            let pageY = event.pageY;
-            let rowMidY = rowY + DomHandler.getOuterHeight(rowElement) / 2;
-            let prevRowElement = rowElement.previousElementSibling;
+            const rowElement = event.currentTarget;
+            const rowY = DomHandler.getOffset(rowElement).top + DomHandler.getWindowScrollTop();
+            const pageY = event.pageY;
+            const rowMidY = rowY + DomHandler.getOuterHeight(rowElement) / 2;
+            const prevRowElement = rowElement.previousElementSibling;
 
             if (pageY < rowMidY) {
                 DomHandler.removeClass(rowElement, 'p-datatable-dragpoint-bottom');
@@ -783,18 +770,6 @@ export const TableBody = memo((props) => {
     }
 
     useEffect(() => {
-        if (!props.isVirtualScrollerDisabled && getVirtualScrollerOption('vertical')) {
-            updateVirtualScrollerPosition();
-        }
-
-        return () => {
-            if (props.dragSelection) {
-                unbindDragSelectionEvents();
-            }
-        }
-    }, []);
-
-    useEffect(() => {
         if (props.frozenRow) {
             updateFrozenRowStickyPosition();
         }
@@ -804,22 +779,34 @@ export const TableBody = memo((props) => {
         }
     });
 
-    useEffect(() => {
+    useMountEffect(() => {
+        if (!props.isVirtualScrollerDisabled && getVirtualScrollerOption('vertical')) {
+            updateVirtualScrollerPosition();
+        }
+    });
+
+    useUpdateEffect(() => {
         if (!props.isVirtualScrollerDisabled && getVirtualScrollerOption('vertical') && getVirtualScrollerOption('itemSize', prevVirtualScrollerOptions) !== getVirtualScrollerOption('itemSize')) {
             updateVirtualScrollerPosition();
         }
     }, [props.virtualScrollerOptions]);
 
-    useEffect(() => {
+    useUpdateEffect(() => {
         if (props.paginator && isMultipleSelection()) {
             anchorRowIndex.current = null;
         }
     }, [props.first]);
 
+    useUnmountEffect(() => {
+        if (props.dragSelection) {
+            unbindDragSelectionEvents();
+        }
+    });
+
     const useEmptyContent = () => {
         if (!props.loading) {
             const colSpan = getColumnsLength();
-            const content = ObjectUtils.getJSXElement(props.emptyMessage, { props: props, frozen: props.frozenRow }) || localeOption('emptyMessage');
+            const content = ObjectUtils.getJSXElement(props.emptyMessage, { props: props.tableProps, frozen: props.frozenRow }) || localeOption('emptyMessage');
 
             return (
                 <tr className="p-datatable-emptymessage" role="row">
@@ -946,4 +933,4 @@ export const TableBody = memo((props) => {
             {content}
         </tbody>
     )
-})
+});

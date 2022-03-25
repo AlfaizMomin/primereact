@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
-import { ObjectUtils, classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
+import { ObjectUtils, classNames } from '../utils/Utils';
 
 export const PageLinks = memo((props) => {
 
