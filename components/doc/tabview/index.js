@@ -637,7 +637,7 @@ const TabViewDemo = () => {
         <script src="https://unpkg.com/primereact/core/core.min.js"></script>
         <script src="https://unpkg.com/primereact/tabview/tabview.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { TabView, TabPanel } = primereact.tabview;
 const { Button } = primereact.button;
 const { SplitButton } = primereact.splitbutton;

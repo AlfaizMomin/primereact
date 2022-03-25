@@ -104,7 +104,7 @@ const MultiStateCheckboxDemo = () => {
         <script src="https://unpkg.com/primereact/core/core.min.js"></script>
         <script src="https://unpkg.com/primereact/multistatecheckbox/multistatecheckbox.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { MultiStateCheckbox } = primereact.multistatecheckbox;
 
 const MultiStateCheckboxDemo = () => {

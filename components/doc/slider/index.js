@@ -153,7 +153,7 @@ const SliderDemo = () => {
         <script src="https://unpkg.com/primereact/core/core.min.js"></script>
         <script src="https://unpkg.com/primereact/slider/slider.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { Slider } = primereact.slider;
 const { InputText } = primereact.inputtext;
 

@@ -467,7 +467,7 @@ const MenubarDemo = () => {
         <script src="https://unpkg.com/primereact/core/core.min.js"></script>
         <script src="https://unpkg.com/primereact/menubar/menubar.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { Menubar } = primereact.menubar;
 const { InputText } = primereact.inputtext;
 

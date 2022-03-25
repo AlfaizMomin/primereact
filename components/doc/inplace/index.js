@@ -85,7 +85,7 @@ export class InplaceDemo extends Component {
         'hooks': {
             tabName: 'Hooks Source',
             content: `
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Inplace, InplaceDisplay, InplaceContent } from 'primereact/inplace';
 import { InputText } from 'primereact/inputtext';
 import { DataTable } from 'primereact/datatable';
@@ -150,7 +150,7 @@ const InplaceDemo = () => {
         'ts': {
             tabName: 'TS Source',
             content: `
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Inplace, InplaceDisplay, InplaceContent } from 'primereact/inplace';
 import { InputText } from 'primereact/inputtext';
 import { DataTable } from 'primereact/datatable';
@@ -222,7 +222,7 @@ const InplaceDemo = () => {
     <script src="https://unpkg.com/primereact/column/column.min.js"></script>
     <script src="https://unpkg.com/primereact/datatable/datatable.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { Inplace, InplaceDisplay, InplaceContent } = primereact.inplace;
 const { InputText } = primereact.inputtext;
 const { Column } = primereact.column;

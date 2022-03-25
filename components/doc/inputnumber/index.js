@@ -434,7 +434,7 @@ const InputNumberDemo = () => {
             imports: `
         <script src="https://unpkg.com/primereact/core/core.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { InputNumber } = primereact.inputnumber;
 
 const InputNumberDemo = () => {

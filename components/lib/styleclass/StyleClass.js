@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { DomHandler, ObjectUtils } from '../utils/Utils';
 import { useEventListener, useMountEffect, useUnmountEffect, useUpdateEffect } from '../hooks/Hooks';
@@ -8,13 +8,13 @@ export const StyleClass = (props) => {
     const animating = useRef(false);
     const elementRef = useRef(null);
 
-    const [bindTargetEnter, unbindTargetEnter] = useEventListener({
+    const [bindTargetEnterListener, unbindTargetEnterListener] = useEventListener({
         type: 'animationend', listener: () => {
             DomHandler.removeClass(targetRef.current, props.enterActiveClassName);
             if (props.enterToClassName) {
                 DomHandler.addClass(targetRef.current, props.enterToClassName);
             }
-            unbindTargetEnter();
+            unbindTargetEnterListener();
 
             if (props.enterActiveClassName === 'slidedown') {
                 targetRef.current.style.maxHeight = '';
@@ -23,21 +23,21 @@ export const StyleClass = (props) => {
         }, when: false
     });
 
-    const [bindTargetLeave, unbindTargetLeave] = useEventListener({
+    const [bindTargetLeaveListener, unbindTargetLeaveListener] = useEventListener({
         type: 'animationend', listener: () => {
             DomHandler.removeClass(targetRef.current, props.leaveActiveClassName);
             if (props.leaveToClassName) {
                 DomHandler.addClass(targetRef.current, props.leaveToClassName);
             }
-            unbindTargetLeave();
+            unbindTargetLeaveListener();
             animating.current = false;
         }, when: false
     });
 
-    const [bindDocumentClick, unbindDocumentClick] = useEventListener({
+    const [bindDocumentClickListener, unbindDocumentClickListener] = useEventListener({
         type: 'animationend', listener: (event) => {
             if (getComputedStyle(targetRef.current).getPropertyValue('position') === 'static') {
-                unbindDocumentClick();
+                unbindDocumentClickListener();
             }
             else if (!elementRef.current.isSameNode(event.target) && !elementRef.current.contains(event.target) && !targetRef.current.contains(event.target)) {
                 leave();
@@ -45,7 +45,7 @@ export const StyleClass = (props) => {
         }, when: false
     });
 
-    const [bindClick, unbindClick] = useEventListener({
+    const [bindClickListener, unbindClickListener] = useEventListener({
         type: 'click', listener: () => {
             targetRef.current = resolveTarget();
 
@@ -82,7 +82,7 @@ export const StyleClass = (props) => {
                     DomHandler.removeClass(targetRef.current, props.enterClassName);
                 }
 
-                bindTargetEnter({ target: targetRef.current, when: true });
+                bindTargetEnterListener({ target: targetRef.current, when: true });
             }
         }
         else {
@@ -95,7 +95,7 @@ export const StyleClass = (props) => {
             }
         }
 
-        bindDocumentClick({ target: elementRef.current && elementRef.current.ownerDocument, when: props.hideOnOutsideClick });
+        bindDocumentClickListener({ target: elementRef.current && elementRef.current.ownerDocument, when: props.hideOnOutsideClick });
     }
 
     const leave = () => {
@@ -107,7 +107,7 @@ export const StyleClass = (props) => {
                     DomHandler.removeClass(targetRef.current, props.leaveClassName);
                 }
 
-                bindTargetLeave({ target: targetRef.current, when: true });
+                bindTargetLeaveListener({ target: targetRef.current, when: true });
             }
         }
         else {
@@ -120,7 +120,7 @@ export const StyleClass = (props) => {
             }
         }
 
-        unbindDocumentClick();
+        unbindDocumentClickListener();
     }
 
     const resolveTarget = () => {
@@ -148,12 +148,12 @@ export const StyleClass = (props) => {
 
     const init = () => {
         elementRef.current = ObjectUtils.getRefElement(props.nodeRef);
-        bindClick({ target: elementRef.current, when: true });
+        bindClickListener({ target: elementRef.current, when: true });
     }
 
     const destroy = () => {
-        unbindClick();
-        unbindDocumentClick();
+        unbindClickListener();
+        unbindDocumentClickListener();
         targetRef.current = null;
     }
 

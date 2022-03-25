@@ -187,7 +187,7 @@ const StepsDemo = () => {
         <script src="https://unpkg.com/primereact/toast/toast.min.js"></script>
         <script src="https://unpkg.com/primereact/panel/panel.min.js"></script>`,
             content: `
-const { useEffect, useState, useRef } = React;
+const { useState, useRef } = React;
 const { Steps } = primereact.steps;
 const { Toast } = primereact.toast;
 const { Panel } = primereact.panel;

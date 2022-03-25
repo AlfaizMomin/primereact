@@ -424,7 +424,7 @@ const MegaMenuDemo = () => {
         <script src="https://unpkg.com/primereact/core/core.min.js"></script>
         <script src="https://unpkg.com/primereact/megamenu/megamenu.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { MegaMenu } = primereact.megamenu;
 
 const MegaMenuDemo = () => {

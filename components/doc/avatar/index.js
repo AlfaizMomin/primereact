@@ -335,7 +335,7 @@ export const AvatarDemo = () => {
         <script src="https://unpkg.com/primereact/avatargroup/avatargroup.min.js"></script>
         <script src="https://unpkg.com/primereact/badge/badge.min.js"></script>`,
             content: `
-const { useEffect, useState, useRef } = React;
+const { useState, useRef } = React;
 const { Avatar } = primereact.avatar;
 const { AvatarGroup } = primereact.avatargroup;
 const { Badge } = primereact.badge;

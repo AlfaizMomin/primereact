@@ -630,7 +630,7 @@ const PaginatorDemo = () => {
         <script src="https://unpkg.com/primereact/paginator/paginator.min.js"></script>
         <script src="https://unpkg.com/primereact/slider/slider.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { Paginator } = primereact.paginator;
 const { Button } = primereact.button;
 const { Ripple, classNames } = primereact.core;

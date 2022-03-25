@@ -221,7 +221,7 @@ const InputTextDemo = () => {
             imports: `
 <script src="https://unpkg.com/primereact/core/core.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { InputText } = primereact.inputtext;
 
 const InputTextDemo = () => {

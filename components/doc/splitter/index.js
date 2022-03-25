@@ -204,7 +204,7 @@ const SplitterDemo = () => {
         <script src="https://unpkg.com/primereact/core/core.min.js"></script>
         <script src="https://unpkg.com/primereact/splitter/splitter.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { Splitter, SplitterPanel } = primereact.splitter;
 
 const SplitterDemo = () => {

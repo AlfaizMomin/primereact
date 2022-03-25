@@ -98,7 +98,7 @@ const CaptchaDemo = () => {
         <script src="https://unpkg.com/primereact/toast/toast.min.js"></script>
         <script src="https://unpkg.com/primereact/captcha/captcha.min.js"></script>`,
             content: `
-const { useEffect, useState, useRef } = React;
+const { useState, useRef } = React;
 const { Captcha } = primereact.captcha;
 const { Toast } = primereact.toast;
 

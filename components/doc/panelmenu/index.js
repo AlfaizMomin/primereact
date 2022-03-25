@@ -422,7 +422,7 @@ const PanelMenuDemo = () => {
         <script src="https://unpkg.com/primereact/core/core.min.js"></script>
         <script src="https://unpkg.com/primereact/panelmenu/panelmenu.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { PanelMenu } = primereact.panelmenu;
 
 const PanelMenuDemo = () => {

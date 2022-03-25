@@ -169,7 +169,7 @@ const PasswordDemo = () => {
         <script src="https://unpkg.com/primereact/password/password.min.js"></script>
         <script src="https://unpkg.com/primereact/divider/divider.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { Password } = primereact.password;
 const { Divider } = primereact.divider;
 

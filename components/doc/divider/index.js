@@ -479,7 +479,7 @@ const DividerDemo = () => {
         <script src="https://unpkg.com/primereact/core/core.min.js"></script>
         <script src="https://unpkg.com/primereact/divider/divider.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { Divider } = primereact.divider;
 const { InputText } = primereact.inputtext;
 const { Button } = primereact.button;

@@ -434,7 +434,7 @@ export const SkeletonDemo = () => {
         <script src="https://unpkg.com/primereact/datatable/datatable.min.js"></script>
         <script src="https://unpkg.com/primereact/skeleton/skeleton.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { Column } = primereact.column;
 const { DataTable } = primereact.datatable;
 const { Skeleton } = primereact.skeleton;

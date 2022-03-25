@@ -97,7 +97,7 @@ const BreadCrumbDemo = () => {
         <script src="https://unpkg.com/primereact/core/core.min.js"></script>
         <script src="https://unpkg.com/primereact/breadcrumb/breadcrumb.min.js"></script>`,
             content: `
-const { useEffect, useState, useRef } = React;
+const { useState, useRef } = React;
 const { BreadCrumb } = primereact.breadcrumb;
 
 const BreadCrumbDemo = () => {

@@ -9,9 +9,9 @@ export const TreeTableBodyCell = (props) => {
     const keyHelperRef = useRef(null);
     const selfClick = useRef(false);
     const overlayEventListener = useRef(null);
-    const tabindexTimeout = useRef(null);
+    const tabIndexTimeout = useRef(null);
 
-    const [bindDocumentClick, unbindDocumentClick] = useEventListener({
+    const [bindDocumentClickListener, unbindDocumentClickListener] = useEventListener({
         type: 'click', listener: (e) => {
             if (!selfClick.current && isOutsideClicked(e.target)) {
                 switchCellToViewMode(e);
@@ -27,7 +27,7 @@ export const TreeTableBodyCell = (props) => {
 
             setEditingState(true);
 
-            bindDocumentClick();
+            bindDocumentClickListener();
 
             overlayEventListener.current = (e) => {
                 if (!isOutsideClicked(e.target)) {
@@ -53,7 +53,7 @@ export const TreeTableBodyCell = (props) => {
         /* When using the 'tab' key, the focus event of the next cell is not called in IE. */
         setTimeout(() => {
             setEditingState(false);
-            unbindDocumentClick();
+            unbindDocumentClickListener();
             OverlayService.off('overlay-click', overlayEventListener.current);
             overlayEventListener = null;
         }, 1);
@@ -81,7 +81,7 @@ export const TreeTableBodyCell = (props) => {
 
     useEffect(() => {
         if (elementRef.current && props.editor) {
-            clearTimeout(tabindexTimeout.current);
+            clearTimeout(tabIndexTimeout.current);
             if (editingState) {
                 let focusable = DomHandler.findSingle(elementRef.current, 'input');
                 if (focusable && document.activeElement !== focusable && !focusable.hasAttribute('data-isCellEditing')) {
@@ -92,7 +92,7 @@ export const TreeTableBodyCell = (props) => {
                 keyHelperRef.current.tabIndex = -1;
             }
             else {
-                tabindexTimeout.current = setTimeout(() => {
+                tabIndexTimeout.current = setTimeout(() => {
                     if (keyHelperRef.current) {
                         keyHelperRef.current.setAttribute('tabindex', 0);
                     }

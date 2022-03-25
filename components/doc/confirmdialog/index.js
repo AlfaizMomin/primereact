@@ -295,7 +295,7 @@ const ConfirmDialogDemo = () => {
         <script src="https://unpkg.com/primereact/confirmdialog/confirmdialog.min.js"></script>
         <script src="https://unpkg.com/primereact/toast/toast.min.js"></script>`,
             content: `
-const { useEffect, useState, useRef } = React;
+const { useState, useRef } = React;
 const { ConfirmDialog, confirmDialog } = primereact.confirmdialog;
 const { Button } = primereact.button;
 const { Toast } = primereact.toast;

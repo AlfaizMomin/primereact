@@ -452,7 +452,7 @@ const DataTableColGroupDemo = () => {
 <script src="https://unpkg.com/primereact/row/row.min.js"></script>
 <script src="https://unpkg.com/primereact/datatable/datatable.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { DataTable } = primereact.datatable;
 const { Column } = primereact.column;
 const { ColumnGroup } = primereact.columngroup;

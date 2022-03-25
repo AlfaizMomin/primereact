@@ -401,7 +401,7 @@ const InputGroupDemo = () => {
         <script src="https://unpkg.com/primereact/checkbox/checkbox.min.js"></script>
         <script src="https://unpkg.com/primereact/radiobutton/radiobutton.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { InputText } = primereact.inputtext;
 const { Button } = primereact.button;
 const { Checkbox } = primereact.checkbox;

@@ -155,7 +155,7 @@ const SelectButtonDemo = () => {
         <script src="https://unpkg.com/primereact/core/core.min.js"></script>
         <script src="https://unpkg.com/primereact/selectbutton/selectbutton.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { SelectButton } = primereact.selectbutton;
 
 const SelectButtonDemo = () => {

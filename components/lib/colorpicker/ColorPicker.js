@@ -26,18 +26,20 @@ export const ColorPicker = memo((props) => {
             hide();
         }, when: overlayVisibleState
     });
-    const [bindDocumentMouseMove, unbindDocumentMouseMove] = useEventListener({
+
+    const [bindDocumentMouseMoveListener, unbindDocumentMouseMoveListener] = useEventListener({
         type: 'mousemove', listener: event => {
             colorDragging.current && pickColor(event);
             hueDragging.current && pickHue(event);
         }
     });
-    const [bindDocumentMouseUp, unbindDocumentMouseUp] = useEventListener({
+
+    const [bindDocumentMouseUpListener, unbindDocumentMouseUpListener] = useEventListener({
         type: 'mouseup', listener: () => {
             colorDragging.current = hueDragging.current = false;
             DomHandler.removeClass(elementRef.current, 'p-colorpicker-dragging');
-            unbindDocumentMouseMove();
-            unbindDocumentMouseUp();
+            unbindDocumentMouseMoveListener();
+            unbindDocumentMouseUpListener();
         }
     });
 
@@ -122,13 +124,13 @@ export const ColorPicker = memo((props) => {
     }
 
     const bindDragListeners = () => {
-        bindDocumentMouseMove();
-        bindDocumentMouseUp();
+        bindDocumentMouseMoveListener();
+        bindDocumentMouseUpListener();
     }
 
     const unbindDragListeners = () => {
-        unbindDocumentMouseMove();
-        unbindDocumentMouseUp();
+        unbindDocumentMouseMoveListener();
+        unbindDocumentMouseUpListener();
     }
 
     const pickColor = (event) => {

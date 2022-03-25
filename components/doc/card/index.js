@@ -120,7 +120,7 @@ const CardDemo = () => {
         <script src="https://unpkg.com/primereact/core/core.min.js"></script>
         <script src="https://unpkg.com/primereact/card/card.min.js"></script>`,
             content: `
-const { useEffect, useState, useRef } = React;
+const { useState, useRef } = React;
 const { Card } = primereact.card;
 const { Button } = primereact.button;
 

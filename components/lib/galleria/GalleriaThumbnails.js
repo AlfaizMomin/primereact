@@ -51,7 +51,7 @@ export const GalleriaThumbnails = memo(forwardRef((props, ref) => {
     const prevNumVisible = usePrevious(numVisibleState);
     const prevActiveItemIndex = usePrevious(props.activeItemIndex);
 
-    const [bindWindowResize,] = useResizeListener({
+    const [bindWindowResizeListener,] = useResizeListener({
         listener: () => {
             calculatePosition();
         }, when: props.responsiveOptions
@@ -268,7 +268,7 @@ export const GalleriaThumbnails = memo(forwardRef((props, ref) => {
 
         createStyle();
         calculatePosition();
-        bindWindowResize();
+        bindWindowResizeListener();
     });
 
     useUpdateEffect(() => {

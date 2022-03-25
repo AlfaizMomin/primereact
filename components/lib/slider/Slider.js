@@ -16,10 +16,10 @@ export const Slider = memo((props) => {
     const horizontal = props.orientation === 'horizontal';
     const vertical = props.orientation === 'vertical';
 
-    const [bindDocumentMouseMove, unbindDocumentMouseMove] = useEventListener({ type: 'mousemove', listener: (event) => onDrag(event) });
-    const [bindDocumentMouseUp, unbindDocumentMouseUp] = useEventListener({ type: 'mouseup', listener: (event) => onDragEnd(event) });
-    const [bindDocumentTouchMove, unbindDocumentTouchMove] = useEventListener({ type: 'touchmove', listener: (event) => onDrag(event) });
-    const [bindDocumentTouchEnd, unbindDocumentTouchEnd] = useEventListener({ type: 'touchend', listener: (event) => onDragEnd(event) });
+    const [bindDocumentMouseMoveListener, unbindDocumentMouseMoveListener] = useEventListener({ type: 'mousemove', listener: (event) => onDrag(event) });
+    const [bindDocumentMouseUpListener, unbindDocumentMouseUpListener] = useEventListener({ type: 'mouseup', listener: (event) => onDragEnd(event) });
+    const [bindDocumentTouchMoveListener, unbindDocumentTouchMoveListener] = useEventListener({ type: 'touchmove', listener: (event) => onDrag(event) });
+    const [bindDocumentTouchEndListener, unbindDocumentTouchEndListener] = useEventListener({ type: 'touchend', listener: (event) => onDragEnd(event) });
 
     const spin = (event, dir) => {
         const val = props.range ? value[handleIndex.current] : value;
@@ -54,22 +54,22 @@ export const Slider = memo((props) => {
 
             props.onSlideEnd && props.onSlideEnd({ originalEvent: event, value: props.value });
 
-            unbindDocumentMouseMove();
-            unbindDocumentMouseUp();
-            unbindDocumentTouchMove();
-            unbindDocumentTouchEnd();
+            unbindDocumentMouseMoveListener();
+            unbindDocumentMouseUpListener();
+            unbindDocumentTouchMoveListener();
+            unbindDocumentTouchEndListener();
         }
     }
 
     const onMouseDown = (event, index) => {
-        bindDocumentMouseMove();
-        bindDocumentMouseUp();
+        bindDocumentMouseMoveListener();
+        bindDocumentMouseUpListener();
         onDragStart(event, index);
     }
 
     const onTouchStart = (event, index) => {
-        bindDocumentTouchMove();
-        bindDocumentTouchEnd();
+        bindDocumentTouchMoveListener();
+        bindDocumentTouchEndListener();
         onDragStart(event, index);
     }
 

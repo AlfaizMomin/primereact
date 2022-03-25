@@ -8,7 +8,7 @@ import { tip } from '../tooltip/Tooltip';
 import { Ripple } from '../ripple/Ripple';
 import { OverlayService } from '../overlayservice/OverlayService';
 import { DomHandler, ObjectUtils, classNames, mask, ZIndexUtils } from '../utils/Utils';
-import { useMountEffect, useUnmountEffect, useUpdateEffect, useEventListener, useResizeListener, useOverlayScrollListener, usePrevious } from '../hooks/Hooks';
+import { useMountEffect, useUnmountEffect, useUpdateEffect, useOverlayListener, usePrevious } from '../hooks/Hooks';
 
 export const Calendar = memo((props) => {
     const [focusedState, setFocusedState] = useState(false);
@@ -30,37 +30,17 @@ export const Calendar = memo((props) => {
     const previousValue = usePrevious(props.value);
     const visible = props.inline || (props.onVisibleChange ? props.visible : overlayVisibleState);
 
-    const [bindDocumentClick, unbindDocumentClick] = useEventListener({
-        type: 'click', listener: event => {
-            if (!isOverlayClicked.current && visible && isOutsideClicked(event)) {
-                hide('outside');
+    const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({
+        target: elementRef, overlay: overlayRef, listener: (event, type) => {
+            if (type === 'outside') {
+                (!isOverlayClicked.current && !isNavIconClicked(event.target)) && hide('outside');
+                isOverlayClicked.current = false;
             }
-
-            isOverlayClicked.current = false;
-        }
-    });
-    const [bindWindowResize, unbindWindowResize] = useResizeListener({
-        listener: () => {
-            if (visible && !DomHandler.isTouchDevice()) {
+            else {
                 hide();
             }
-        }, when: !props.touchUI
+        }, when: !props.touchUI && overlayVisibleState
     });
-    const [bindOverlayScroll, unbindOverlayScroll] = useOverlayScrollListener({
-        target: elementRef, listener: () => {
-            visible && hide();
-        }
-    });
-
-    const isOutsideClicked = (event) => {
-        return elementRef.current && !(elementRef.current.isSameNode(event.target) || isNavIconClicked(event.target) ||
-            elementRef.current.contains(event.target) || (overlayRef.current && overlayRef.current.contains(event.target)));
-    }
-
-    const isNavIconClicked = (target) => {
-        return (DomHandler.hasClass(target, 'p-datepicker-prev') || DomHandler.hasClass(target, 'p-datepicker-prev-icon')
-            || DomHandler.hasClass(target, 'p-datepicker-next') || DomHandler.hasClass(target, 'p-datepicker-next-icon'));
-    }
 
     const getDateFormat = () => {
         return props.dateFormat || localeOption('dateFormat', props.locale);
@@ -1325,17 +1305,12 @@ export const Calendar = memo((props) => {
     }
 
     const onOverlayEntered = () => {
-        bindDocumentClick();
-        bindWindowResize();
-        bindOverlayScroll();
-
+        bindOverlayListener();
         props.onShow && props.onShow();
     }
 
     const onOverlayExit = () => {
-        unbindDocumentClick();
-        unbindWindowResize();
-        unbindOverlayScroll();
+        unbindOverlayListener();
     }
 
     const onOverlayExited = () => {
@@ -1397,6 +1372,16 @@ export const Calendar = memo((props) => {
         if (!hasBlockerMasks) {
             DomHandler.removeClass(document.body, 'p-overflow-hidden');
         }
+    }
+
+    const isOutsideClicked = (event) => {
+        return elementRef.current && !(elementRef.current.isSameNode(event.target) || isNavIconClicked(event.target) ||
+            elementRef.current.contains(event.target) || (overlayRef.current && overlayRef.current.contains(event.target)));
+    }
+
+    const isNavIconClicked = (target) => {
+        return (DomHandler.hasClass(target, 'p-datepicker-prev') || DomHandler.hasClass(target, 'p-datepicker-prev-icon')
+            || DomHandler.hasClass(target, 'p-datepicker-next') || DomHandler.hasClass(target, 'p-datepicker-next-icon'));
     }
 
     const getFirstDayOfMonthIndex = (month, year) => {

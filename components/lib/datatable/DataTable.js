@@ -49,15 +49,15 @@ export const DataTable = forwardRef((props, ref) => {
         setD_rowsState(props.rows);
     }
 
-    const [bindDocumentMouseMove, unbindDocumentMouseMove] = useEventListener({
-        type: 'mousemove', listener: () => {
+    const [bindDocumentMouseMoveListener, unbindDocumentMouseMoveListener] = useEventListener({
+        type: 'mousemove', listener: (event) => {
             if (columnResizing.current) {
                 onColumnResize(event);
             }
         }
     });
 
-    const [bindDocumentMouseUp, unbindDocumentMouseUp] = useEventListener({
+    const [bindDocumentMouseUpListener, unbindDocumentMouseUpListener] = useEventListener({
         type: 'mouseup', listener: () => {
             if (columnResizing.current) {
                 columnResizing.current = false;
@@ -547,13 +547,13 @@ export const DataTable = forwardRef((props, ref) => {
     }
 
     const bindColumnResizeEvents = () => {
-        bindDocumentMouseMove();
-        bindDocumentMouseUp();
+        bindDocumentMouseMoveListener();
+        bindDocumentMouseUpListener();
     }
 
     const unbindColumnResizeEvents = () => {
-        unbindDocumentMouseMove();
-        unbindDocumentMouseUp();
+        unbindDocumentMouseMoveListener();
+        unbindDocumentMouseUpListener();
     }
 
     const onColumnHeaderMouseDown = (e) => {

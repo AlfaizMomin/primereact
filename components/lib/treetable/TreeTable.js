@@ -35,7 +35,7 @@ export const TreeTable = forwardRef((props, ref) => {
     const columnSortFunction = useRef(null);
     const columnField = useRef(null);
 
-    const [bindDocumentMouseMove, unbindDocumentMouseMove] = useEventListener({
+    const [bindDocumentMouseMoveListener, unbindDocumentMouseMoveListener] = useEventListener({
         type: 'mousemove', listener: (event) => {
             if (columnResizing.current) {
                 onColumnResize(event);
@@ -43,7 +43,7 @@ export const TreeTable = forwardRef((props, ref) => {
         }
     });
 
-    const [bindDocumentMouseUp, unbindDocumentMouseUp] = useEventListener({
+    const [bindDocumentMouseUpListener, unbindDocumentMouseUpListener] = useEventListener({
         type: 'mouseup', listener: (event) => {
             if (columnResizing.current) {
                 columnResizing.current = false;
@@ -414,13 +414,13 @@ export const TreeTable = forwardRef((props, ref) => {
     }
 
     const bindColumnResizeEvents = () => {
-        bindDocumentMouseMove();
-        bindDocumentMouseUp();
+        bindDocumentMouseMoveListener();
+        bindDocumentMouseUpListener();
     }
 
     const unbindColumnResizeEvents = () => {
-        unbindDocumentMouseMove();
-        unbindDocumentMouseUp();
+        unbindDocumentMouseMoveListener();
+        unbindDocumentMouseUpListener();
     }
 
     const onColumnDragStart = (e) => {

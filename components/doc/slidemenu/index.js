@@ -484,7 +484,7 @@ const SlideMenuDemo = () => {
         <script src="https://unpkg.com/primereact/core/core.min.js"></script>
         <script src="https://unpkg.com/primereact/slidemenu/slidemenu.min.js"></script>`,
             content: `
-const { useEffect, useState, useRef } = React;
+const { useState, useRef } = React;
 const { SlideMenu } = primereact.slidemenu;
 const { Button } = primereact.button;
 

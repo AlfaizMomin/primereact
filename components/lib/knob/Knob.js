@@ -13,22 +13,22 @@ export const Knob = memo((props) => {
     const elementRef = useRef(null);
     const enabled = !props.disabled && !props.readOnly;
 
-    const [bindWindowMouseMove, unbindWindowMouseMove] = useEventListener({
+    const [bindWindowMouseMoveListener, unbindWindowMouseMoveListener] = useEventListener({
         target: 'window', type: 'mousemove', listener: (event) => {
             updateValue(event.offsetX, event.offsetY);
             event.preventDefault();
         }, when: enabled
     });
 
-    const [bindWindowMouseUp, unbindWindowMouseUp] = useEventListener({
+    const [bindWindowMouseUpListener, unbindWindowMouseUpListener] = useEventListener({
         target: 'window', type: 'mouseup', listener: (event) => {
-            unbindWindowMouseMove();
-            unbindWindowMouseUp();
+            unbindWindowMouseMoveListener();
+            unbindWindowMouseUpListener();
             event.preventDefault();
         }, when: enabled
     });
 
-    const [bindWindowTouchMove, unbindWindowTouchMove] = useEventListener({
+    const [bindWindowTouchMoveListener, unbindWindowTouchMoveListener] = useEventListener({
         target: 'window', type: 'touchmove', listener: (event) => {
             if (event.touches.length === 1) {
                 const rect = elementRef.current.getBoundingClientRect();
@@ -41,10 +41,10 @@ export const Knob = memo((props) => {
         }, when: enabled
     });
 
-    const [bindWindowTouchEnd, unbindWindowTouchEnd] = useEventListener({
+    const [bindWindowTouchEndListener, unbindWindowTouchEndListener] = useEventListener({
         target: 'window', type: 'touchend', listener: () => {
-            unbindWindowTouchMove();
-            unbindWindowTouchEnd();
+            unbindWindowTouchMoveListener();
+            unbindWindowTouchEndListener();
         }, when: enabled
     });
 
@@ -111,24 +111,24 @@ export const Knob = memo((props) => {
     }
 
     const onMouseDown = (event) => {
-        bindWindowMouseMove();
-        bindWindowMouseUp();
+        bindWindowMouseMoveListener();
+        bindWindowMouseUpListener();
         event.preventDefault();
     }
 
     const onMouseUp = () => {
-        unbindWindowMouseMove();
-        unbindWindowMouseUp();
+        unbindWindowMouseMoveListener();
+        unbindWindowMouseUpListener();
     }
 
     const onTouchStart = () => {
-        bindWindowTouchMove();
-        bindWindowTouchEnd();
+        bindWindowTouchMoveListener();
+        bindWindowTouchEndListener();
     }
 
     const onTouchEnd = () => {
-        unbindWindowTouchMove();
-        unbindWindowTouchEnd();
+        unbindWindowTouchMoveListener();
+        unbindWindowTouchEndListener();
     }
 
     const className = classNames('p-knob p-component', {

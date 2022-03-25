@@ -301,7 +301,7 @@ const KnobDemo = () => {
         <script src="https://unpkg.com/primereact/core/core.min.js"></script>
         <script src="https://unpkg.com/primereact/knob/knob.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { Knob } = primereact.knob;
 const { Button } = primereact.button;
 

@@ -47,7 +47,7 @@ export const Carousel = memo((props) => {
     const currentPage = props.onPageChange ? props.page : pageState;
     const totalIndicators = props.value ? Math.ceil((props.value.length - numVisibleState) / numScrollState) + 1 : 0;
 
-    const [bindWindowResize,] = useResizeListener({
+    const [bindWindowResizeListener,] = useResizeListener({
         listener: () => {
             calculatePosition();
         }, when: props.responsiveOptions
@@ -295,7 +295,7 @@ export const Carousel = memo((props) => {
         createStyle();
         calculatePosition();
         changePosition(totalShiftedItemsState);
-        bindWindowResize();
+        bindWindowResizeListener();
     });
 
     useUpdateEffect(() => {

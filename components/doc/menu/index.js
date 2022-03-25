@@ -220,7 +220,7 @@ const MenuDemo = () => {
         <script src="https://unpkg.com/primereact/menu/menu.min.js"></script>
         <script src="https://unpkg.com/primereact/toast/toast.min.js"></script>`,
             content: `
-const { useEffect, useState, useRef } = React;
+const { useState, useRef } = React;
 const { Menu } = primereact.menu;
 const { Button } = primereact.button;
 const { Toast } = primereact.toast;

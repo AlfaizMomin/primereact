@@ -20,7 +20,7 @@ export const BodyCell = memo((props) => {
     const getColumnProp = (prop) => (props.column ? props.column.props[prop] : null);
     const field = getColumnProp('field') || `field_${props.index}`;
 
-    const [bindDocumentClick, unbindDocumentClick] = useEventListener({
+    const [bindDocumentClickListener, unbindDocumentClickListener] = useEventListener({
         type: 'click', listener: (e) => {
             if (!selfClick.current && isOutsideClicked(e.target)) {
                 switchCellToViewMode(e, true);
@@ -113,7 +113,7 @@ export const BodyCell = memo((props) => {
         /* When using the 'tab' key, the focus event of the next cell is not called in IE. */
         setTimeout(() => {
             setEditingState(false);
-            unbindDocumentClick();
+            unbindDocumentClickListener();
             OverlayService.off('overlay-click', overlayEventListener.current);
             overlayEventListener.current = null;
             selfClick.current = false;
@@ -263,7 +263,7 @@ export const BodyCell = memo((props) => {
                 }
 
                 if (cellEditValidatorEvent === 'click') {
-                    bindDocumentClick();
+                    bindDocumentClickListener();
 
                     overlayEventListener.current = (e) => {
                         if (!isOutsideClicked(e.target)) {

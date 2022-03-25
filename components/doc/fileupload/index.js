@@ -429,7 +429,7 @@ export const FileUploadDemo = () => {
         <script src="https://unpkg.com/primereact/fileupload/fileupload.min.js"></script>
         <script src="https://unpkg.com/primereact/tag/tag.min.js"></script>`,
             content: `
-const { useEffect, useState, useRef } = React;
+const { useState, useRef } = React;
 const { Toast } = primereact.toast;
 const { FileUpload } = primereact.fileupload;
 const { ProgressBar } = primereact.progressbar;

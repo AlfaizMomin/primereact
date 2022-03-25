@@ -19,8 +19,8 @@ export const Splitter = memo((props) => {
     const panelSizes = useRef(null);
     const isStateful = props.stateKey != null;
 
-    const [bindDocumentMouseMove, unbindDocumentMouseMove] = useEventListener({ type: 'mousemove', listener: (event) => onResize(event) });
-    const [bindDocumentMouseUp, unbindDocumentMouseUp] = useEventListener({
+    const [bindDocumentMouseMoveListener, unbindDocumentMouseMoveListener] = useEventListener({ type: 'mousemove', listener: (event) => onResize(event) });
+    const [bindDocumentMouseUpListener, unbindDocumentMouseUpListener] = useEventListener({
         type: 'mouseup', listener: event => {
             onResizeEnd(event);
             unbindMouseListeners();
@@ -28,13 +28,13 @@ export const Splitter = memo((props) => {
     });
 
     const bindMouseListeners = () => {
-        bindDocumentMouseMove();
-        bindDocumentMouseUp();
+        bindDocumentMouseMoveListener();
+        bindDocumentMouseUpListener();
     }
 
     const unbindMouseListeners = () => {
-        unbindDocumentMouseMove();
-        unbindDocumentMouseUp();
+        unbindDocumentMouseMoveListener();
+        unbindDocumentMouseUpListener();
     }
 
     const validateResize = (newPrevPanelSize, newNextPanelSize) => {

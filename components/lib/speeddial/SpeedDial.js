@@ -12,7 +12,7 @@ export const SpeedDial = memo(forwardRef((props, ref) => {
     const listRef = useRef(null);
     const visible = props.onVisibleChange ? props.visible : visibleState;
 
-    const [bindDocumentClick, unbindDocumentClick] = useEventListener({
+    const [bindDocumentClickListener, unbindDocumentClickListener] = useEventListener({
         type: 'click', listener: (event) => {
             if (!isItemClicked.current && isOutsideClicked(event)) {
                 hide();
@@ -135,11 +135,11 @@ export const SpeedDial = memo(forwardRef((props, ref) => {
             }
         }
 
-        props.hideOnClickOutside && bindDocumentClick();
+        props.hideOnClickOutside && bindDocumentClickListener();
     });
 
     useUnmountEffect(() => {
-        props.hideOnClickOutside && unbindDocumentClick();
+        props.hideOnClickOutside && unbindDocumentClickListener();
     });
 
     useImperativeHandle(ref, () => ({

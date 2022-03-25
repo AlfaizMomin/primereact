@@ -469,7 +469,7 @@ const DialogDemo = () => {
 
         <script src="https://unpkg.com/primereact/core/core.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { Dialog } = primereact.dialog;
 const { Button } = primereact.button;
 

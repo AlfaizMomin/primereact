@@ -138,7 +138,7 @@ export const ScrollTopDemo = () => {
         <script src="https://unpkg.com/primereact/scrolltop/scrolltop.min.js"></script>
         <script src="https://unpkg.com/primereact/scrollpanel/scrollpanel.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { ScrollTop } = primereact.scrolltop;
 const { ScrollPanel } = primereact.scrollpanel;
 

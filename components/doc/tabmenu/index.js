@@ -144,7 +144,7 @@ const TabMenuDemo = () => {
         <script src="https://unpkg.com/primereact/core/core.min.js"></script>
         <script src="https://unpkg.com/primereact/tabmenu/tabmenu.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { TabMenu } = primereact.tabmenu;
 const { Button } = primereact.button;
 

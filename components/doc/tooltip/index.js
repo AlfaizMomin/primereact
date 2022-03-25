@@ -382,7 +382,7 @@ const TooltipDemo = () => {
         <script src="https://unpkg.com/primereact/slider/slider.min.js"></script>
         <script src="https://unpkg.com/primereact/tooltip/tooltip.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { InputText } = primereact.inputtext;
 const { Button } = primereact.button;
 const { Knob } = primereact.knob;

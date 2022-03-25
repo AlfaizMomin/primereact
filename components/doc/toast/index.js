@@ -369,7 +369,7 @@ const ToastDemo = () => {
         <script src="https://unpkg.com/primereact/core/core.min.js"></script>
         <script src="https://unpkg.com/primereact/toast/toast.min.js"></script>`,
             content: `
-const { useEffect, useState, useRef } = React;
+const { useState, useRef } = React;
 const { Toast } = primereact.toast;
 const { Button } = primereact.button;
 

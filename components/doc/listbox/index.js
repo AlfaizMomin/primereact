@@ -335,7 +335,7 @@ const ListBoxDemo = () => {
         <script src="https://unpkg.com/primereact/core/core.min.js"></script>
         <script src="https://unpkg.com/primereact/listbox/listbox.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { ListBox } = primereact.listbox;
 
 const ListBoxDemo = () => {

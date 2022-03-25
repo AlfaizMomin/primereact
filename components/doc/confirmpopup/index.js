@@ -207,7 +207,7 @@ const ConfirmPopupDemo = () => {
         <script src="https://unpkg.com/primereact/confirmpopup/confirmpopup.min.js"></script>
         <script src="https://unpkg.com/primereact/toast/toast.min.js"></script>`,
             content: `
-const { useEffect, useState, useRef } = React;
+const { useState, useRef } = React;
 const { ConfirmPopup, confirmPopup } = primereact.confirmpopup;
 const { Button } = primereact.button;
 const { Toast } = primereact.toast;

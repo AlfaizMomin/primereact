@@ -197,7 +197,7 @@ const ToolbarDemo = () => {
         <script src="https://unpkg.com/primereact/toolbar/toolbar.min.js"></script>
         <script src="https://unpkg.com/primereact/splitbutton/splitbutton.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { Toolbar } = primereact.toolbar;
 const { Button } = primereact.button;
 const { SplitButton } = primereact.splitbutton;

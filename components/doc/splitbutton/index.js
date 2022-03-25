@@ -373,7 +373,7 @@ const SplitButtonDemo = () => {
         <script src="https://unpkg.com/primereact/splitbutton/splitbutton.min.js"></script>
         <script src="https://unpkg.com/primereact/toast/toast.min.js"></script>`,
             content: `
-const { useEffect, useState, useRef } = React;
+const { useState, useRef } = React;
 const { SplitButton } = primereact.splitbutton;
 const { Toast } = primereact.toast;
 

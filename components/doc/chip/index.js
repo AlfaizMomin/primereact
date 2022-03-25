@@ -162,7 +162,7 @@ const ChipDemo = () => {
         <script src="https://unpkg.com/primereact/core/core.min.js"></script>
         <script src="https://unpkg.com/primereact/chip/chip.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { Chip } = primereact.chip;
 
 const ChipDemo = () => {

@@ -215,7 +215,7 @@ const SidebarDemo = () => {
         <script src="https://unpkg.com/primereact/core/core.min.js"></script>
         <script src="https://unpkg.com/primereact/sidebar/sidebar.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useState } = React;
 const { Sidebar } = primereact.sidebar;
 const { Button } = primereact.button;
 

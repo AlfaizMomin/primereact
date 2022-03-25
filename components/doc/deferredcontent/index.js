@@ -186,7 +186,7 @@ const DeferredContentDemo = () => {
         <script src="https://unpkg.com/primereact/datatable/datatable.min.js"></script>
         <script src="https://unpkg.com/primereact/toast/toast.min.js"></script>`,
             content: `
-const { useEffect, useState, useRef } = React;
+const { useState, useRef } = React;
 const { DeferredContent } = primereact.deferredcontent;
 const { Column } = primereact.column;
 const { DataTable } = primereact.datatable;

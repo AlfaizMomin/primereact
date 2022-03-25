@@ -10,14 +10,14 @@ export const useOverlayListener = ({ target, overlay, listener, when = true }) =
     const targetRef = useRef(null);
     const overlayRef = useRef(null);
 
-    const [bindDocumentClick, unbindDocumentClick] = useEventListener({ type: 'click', listener: event => {
+    const [bindDocumentClickListener, unbindDocumentClickListener] = useEventListener({ type: 'click', listener: event => {
         // right click
         (event.which !== 3) && isOutsideClicked(event) && listener && listener(event, 'outside');
     }});
-    const [bindWindowResize, unbindWindowResize] = useResizeListener({ listener: event => {
+    const [bindWindowResizeListener, unbindWindowResizeListener] = useResizeListener({ listener: event => {
         !DomHandler.isTouchDevice() && listener && listener(event, 'resize');
     }});
-    const [bindOverlayScroll, unbindOverlayScroll] = useOverlayScrollListener({ target: targetRef, listener: event => {
+    const [bindOverlayScrollListener, unbindOverlayScrollListener] = useOverlayScrollListener({ target: targetRef, listener: event => {
         listener && listener(event, 'scroll');
     }});
 
@@ -27,15 +27,15 @@ export const useOverlayListener = ({ target, overlay, listener, when = true }) =
     }
 
     const bind = () => {
-        bindDocumentClick();
-        bindWindowResize();
-        bindOverlayScroll();
+        bindDocumentClickListener();
+        bindWindowResizeListener();
+        bindOverlayScrollListener();
     }
 
     const unbind = () => {
-        unbindDocumentClick();
-        unbindWindowResize();
-        unbindOverlayScroll();
+        unbindDocumentClickListener();
+        unbindWindowResizeListener();
+        unbindOverlayScrollListener();
     }
 
     useEffect(() => {
