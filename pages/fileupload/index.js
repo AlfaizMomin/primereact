@@ -8,12 +8,14 @@ import { Tag } from '../../components/lib/tag/Tag';
 import FileUploadDoc from '../../components/doc/fileupload';
 import { DocActions } from '../../components/doc/common/docactions';
 import Head from 'next/head';
+import getConfig from 'next/config';
 
 const FileUploadDemo = () => {
 
     const [totalSize, setTotalSize] = useState(0);
     const toast = useRef(null);
     const fileUploadRef = useRef(null);
+    const uploadPath = getConfig().publicRuntimeConfig.uploadPath;
 
     const onUpload = () => {
         toast.current.show({ severity: 'info', summary: 'Success', detail: 'File Uploaded' });
@@ -122,20 +124,20 @@ const FileUploadDemo = () => {
 
                 <div className="card">
                     <h5>Advanced</h5>
-                    <FileUpload name="demo[]" url="https://primefaces.org/primereact/showcase/upload.php" onUpload={onUpload} multiple accept="image/*" maxFileSize={1000000}
+                    <FileUpload name="demo[]" url={uploadPath} onUpload={onUpload} multiple accept="image/*" maxFileSize={1000000}
                         emptyTemplate={<p className="m-0">Drag and drop files to here to upload.</p>} />
 
                     <h5>Template</h5>
-                    <FileUpload ref={fileUploadRef} name="demo[]" url="https://primefaces.org/primereact/showcase/upload.php" multiple accept="image/*" maxFileSize={1000000}
+                    <FileUpload ref={fileUploadRef} name="demo[]" url={uploadPath} multiple accept="image/*" maxFileSize={1000000}
                         onUpload={onTemplateUpload} onSelect={onTemplateSelect} onError={onTemplateClear} onClear={onTemplateClear}
                         headerTemplate={headerTemplate} itemTemplate={itemTemplate} emptyTemplate={emptyTemplate}
                         chooseOptions={chooseOptions} uploadOptions={uploadOptions} cancelOptions={cancelOptions} />
 
                     <h5>Basic</h5>
-                    <FileUpload mode="basic" name="demo[]" url="https://primefaces.org/primereact/showcase/upload.php" accept="image/*" maxFileSize={1000000} onUpload={onBasicUpload} />
+                    <FileUpload mode="basic" name="demo[]" url={uploadPath} accept="image/*" maxFileSize={1000000} onUpload={onBasicUpload} />
 
                     <h5>Basic with Auto</h5>
-                    <FileUpload mode="basic" name="demo[]" url="https://primefaces.org/primereact/showcase/upload.php" accept="image/*" maxFileSize={1000000} onUpload={onBasicUploadAuto} auto chooseLabel="Browse" />
+                    <FileUpload mode="basic" name="demo[]" url={uploadPath} accept="image/*" maxFileSize={1000000} onUpload={onBasicUploadAuto} auto chooseLabel="Browse" />
                 </div>
             </div>
 
