@@ -22,7 +22,7 @@ export const Dock = memo((props) => {
         e.preventDefault();
     }
 
-    const useItem = (item, index) => {
+    const createItem = (item, index) => {
         const { disabled, icon: _icon, label, template, url, target } = item;
         const className = classNames('p-dock-item', {
             'p-dock-item-second-prev': (currentIndexState - 2) === index,
@@ -62,11 +62,11 @@ export const Dock = memo((props) => {
         )
     }
 
-    const useItems = () => {
-        return props.model ? props.model.map(useItem) : null;
+    const createItems = () => {
+        return props.model ? props.model.map(createItem) : null;
     }
 
-    const useHeader = () => {
+    const createHeader = () => {
         if (props.header) {
             const header = ObjectUtils.getJSXElement(props.header, { props });
             return (
@@ -79,8 +79,8 @@ export const Dock = memo((props) => {
         return null;
     }
 
-    const useList = () => {
-        const items = useItems();
+    const createList = () => {
+        const items = createItems();
 
         return (
             <ul className="p-dock-list" role="menu" onMouseLeave={onListMouseLeave}>
@@ -89,7 +89,7 @@ export const Dock = memo((props) => {
         )
     }
 
-    const useFooter = () => {
+    const createFooter = () => {
         if (props.footer) {
             const footer = ObjectUtils.getJSXElement(props.footer, { props });
             return (
@@ -105,9 +105,9 @@ export const Dock = memo((props) => {
     const className = classNames(`p-dock p-component p-dock-${props.position}`, {
         'p-dock-magnification': props.magnification
     }, props.className);
-    const header = useHeader();
-    const list = useList();
-    const footer = useFooter();
+    const header = createHeader();
+    const list = createList();
+    const footer = createFooter();
 
     return (
         <div id={props.id} className={className} style={props.style}>

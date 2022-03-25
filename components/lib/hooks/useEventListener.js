@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useEffect, useRef } from 'react';
 import { DomHandler, ObjectUtils } from '../utils/Utils';
 import { usePrevious } from './usePrevious';
@@ -50,3 +51,4 @@ export const useEventListener = ({ target = 'document', type, listener, options,
 
     return [bind, unbind];
 }
+/* eslint-enable */

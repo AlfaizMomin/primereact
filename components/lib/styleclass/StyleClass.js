@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { DomHandler, ObjectUtils } from '../utils/Utils';
-import { useEventListener, useUnmountEffect } from '../hooks/Hooks';
+import { useEventListener, useMountEffect, useUnmountEffect, useUpdateEffect } from '../hooks/Hooks';
 
 export const StyleClass = (props) => {
     const targetRef = useRef(null);
@@ -157,7 +157,11 @@ export const StyleClass = (props) => {
         targetRef.current = null;
     }
 
-    useEffect(() => {
+    useMountEffect(() => {
+        init();
+    });
+
+    useUpdateEffect(() => {
         destroy();
         init();
     }, [props.nodeRef]);

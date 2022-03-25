@@ -315,7 +315,7 @@ export const Mention = memo((props) => {
 
     useEffect(() => {
         ObjectUtils.combinedRefs(inputRef, props.inputRef);
-    }, [inputRef]);
+    }, [inputRef, props.inputRef]);
 
     useUpdateEffect(() => {
         if (searchingState) {
@@ -335,7 +335,7 @@ export const Mention = memo((props) => {
         ZIndexUtils.clear(overlayRef.current);
     });
 
-    const useItem = (suggestion, index) => {
+    const createItem = (suggestion, index) => {
         const key = index + '_item';
         const content = props.itemTemplate ?
             ObjectUtils.getJSXElement(props.itemTemplate, suggestion, { trigger: triggerState ? triggerState.key : '', index }) :
@@ -349,9 +349,9 @@ export const Mention = memo((props) => {
         )
     }
 
-    const useList = () => {
+    const createList = () => {
         if (props.suggestions) {
-            const items = props.suggestions.map(useItem);
+            const items = props.suggestions.map(createItem);
 
             return (
                 <ul ref={listRef} className="p-mention-items">
@@ -363,12 +363,12 @@ export const Mention = memo((props) => {
         return null;
     }
 
-    const usePanel = () => {
+    const createPanel = () => {
         const panelClassName = classNames('p-mention-panel p-component', props.panelClassName);
         const panelStyle = { maxHeight: props.scrollHeight, ...props.panelStyle };
         const header = ObjectUtils.getJSXElement(props.headerTemplate, props);
         const footer = ObjectUtils.getJSXElement(props.footerTemplate, props);
-        const list = useList();
+        const list = createList();
 
         const panel = (
             <CSSTransition nodeRef={overlayRef} classNames="p-connected-overlay" in={overlayVisibleState} timeout={{ enter: 120, exit: 100 }} options={props.transitionOptions}
@@ -390,7 +390,7 @@ export const Mention = memo((props) => {
     }, props.className);
     const inputClassName = classNames('p-mention-input', props.inputClassName)
     const inputProps = ObjectUtils.findDiffKeys(props, Mention.defaultProps);
-    const panel = usePanel();
+    const panel = createPanel();
 
     return (
         <div ref={elementRef} id={props.id} className={className} style={props.style}>

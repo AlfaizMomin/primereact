@@ -151,13 +151,13 @@ export const TieredMenuSub = memo((props) => {
         }
     }, [props.parentActive]);
 
-    const useSeparator = (index) => {
+    const createSeparator = (index) => {
         const key = 'separator_' + index;
 
         return <li key={key} className="p-menu-separator" role="separator"></li>
     }
 
-    const useSubmenu = (item) => {
+    const createSubmenu = (item) => {
         if (item.items) {
             return <TieredMenuSub model={item.items} onLeafClick={onLeafClick} popup={props.popup} onKeyDown={onChildItemKeyDown} parentActive={item === activeItemState} />
         }
@@ -165,7 +165,7 @@ export const TieredMenuSub = memo((props) => {
         return null;
     }
 
-    const useMenuItem = (item, index) => {
+    const createMenuItem = (item, index) => {
         const { className: _className, style, disabled, icon: _icon, label: _label, items, target, url, template } = item;
         const key = _label + '_' + index;
         const active = activeItemState === item;
@@ -176,7 +176,7 @@ export const TieredMenuSub = memo((props) => {
         const icon = _icon && <span className={iconClassName}></span>;
         const label = _label && <span className="p-menuitem-text">{_label}</span>;
         const submenuIcon = items && <span className={submenuIconClassName}></span>;
-        const submenu = useSubmenu(item);
+        const submenu = createSubmenu(item);
         let content = (
             <a href={url || '#'} className={linkClassName} target={target} role="menuitem" aria-haspopup={items != null}
                 onClick={(event) => onItemClick(event, item)} onKeyDown={(event) => onItemKeyDown(event, item)} aria-disabled={disabled}>
@@ -211,18 +211,18 @@ export const TieredMenuSub = memo((props) => {
         )
     }
 
-    const useItem = (item, index) => {
-        return item.separator ? useSeparator(index) : useMenuItem(item, index);
+    const createItem = (item, index) => {
+        return item.separator ? createSeparator(index) : createMenuItem(item, index);
     }
 
-    const useMenu = () => {
-        return props.model ? props.model.map(useItem) : null;
+    const createMenu = () => {
+        return props.model ? props.model.map(createItem) : null;
     }
 
     const className = classNames({
         'p-submenu-list': !props.root
     });
-    const submenu = useMenu();
+    const submenu = createMenu();
 
     return (
         <ul ref={elementRef} className={className} role={props.root ? 'menubar' : 'menu'} aria-orientation="horizontal">

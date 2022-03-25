@@ -383,7 +383,7 @@ export const Carousel = memo((props) => {
         }
     });
 
-    const useItems = () => {
+    const createItems = () => {
         if (props.value && props.value.length) {
             let clonedItemsForStarting = null;
             let clonedItemsForFinishing = null;
@@ -432,7 +432,7 @@ export const Carousel = memo((props) => {
         }
     }
 
-    const useHeader = () => {
+    const createHeader = () => {
         if (props.header) {
             return (
                 <div className="p-carousel-header">
@@ -444,7 +444,7 @@ export const Carousel = memo((props) => {
         return null;
     }
 
-    const useFooter = () => {
+    const createFooter = () => {
         if (props.footer) {
             return (
                 <div className="p-carousel-footer">
@@ -456,11 +456,11 @@ export const Carousel = memo((props) => {
         return null;
     }
 
-    const useContent = () => {
-        const items = useItems();
+    const createContent = () => {
+        const items = createItems();
         const height = isVertical ? props.verticalViewPortHeight : 'auto';
-        const backwardNavigator = useBackwardNavigator();
-        const forwardNavigator = useForwardNavigator();
+        const backwardNavigator = createBackwardNavigator();
+        const forwardNavigator = createForwardNavigator();
         const className = classNames('p-carousel-container', props.containerClassName);
 
         return (
@@ -476,7 +476,7 @@ export const Carousel = memo((props) => {
         )
     }
 
-    const useBackwardNavigator = () => {
+    const createBackwardNavigator = () => {
         const isDisabled = (!circular || (props.value && props.value.length < numVisibleState)) && currentPage === 0;
         const className = classNames('p-carousel-prev p-link', {
             'p-disabled': isDisabled
@@ -494,7 +494,7 @@ export const Carousel = memo((props) => {
         )
     }
 
-    const useForwardNavigator = () => {
+    const createForwardNavigator = () => {
         const isDisabled = (!circular || (props.value && props.value.length < numVisibleState)) && (currentPage === (totalIndicators - 1) || totalIndicators === 0);
         const className = classNames('p-carousel-next p-link', {
             'p-disabled': isDisabled
@@ -512,7 +512,7 @@ export const Carousel = memo((props) => {
         )
     }
 
-    const useIndicator = (index) => {
+    const createIndicator = (index) => {
         const isActive = currentPage === index;
         const key = 'p-carousel-indicator-' + index;
         const className = classNames('p-carousel-indicator', {
@@ -528,12 +528,12 @@ export const Carousel = memo((props) => {
         )
     }
 
-    const useIndicators = () => {
+    const createIndicators = () => {
         const className = classNames('p-carousel-indicators p-reset', props.indicatorsContentClassName);
         let indicators = [];
 
         for (let i = 0; i < totalIndicators; i++) {
-            indicators.push(useIndicator(i));
+            indicators.push(createIndicator(i));
         }
 
         return (
@@ -548,10 +548,10 @@ export const Carousel = memo((props) => {
         'p-carousel-horizontal': !isVertical
     }, props.className);
     const contentClassName = classNames('p-carousel-content', props.contentClassName);
-    const content = useContent();
-    const indicators = useIndicators();
-    const header = useHeader();
-    const footer = useFooter();
+    const content = createContent();
+    const indicators = createIndicators();
+    const header = createHeader();
+    const footer = createFooter();
 
     return (
         <div ref={elementRef} id={props.id} className={className} style={props.style}>

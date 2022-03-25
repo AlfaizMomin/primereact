@@ -4,7 +4,7 @@ import { ObjectUtils, classNames } from '../utils/Utils';
 
 export const Message = memo((props) => {
 
-    const useContent = () => {
+    const createContent = () => {
         if (props.content) {
             return ObjectUtils.getJSXElement(props.content, props);
         }
@@ -32,7 +32,7 @@ export const Message = memo((props) => {
         'p-inline-message-success': props.severity === 'success',
         'p-inline-message-icon-only': !props.text
     }, props.className);
-    const content = useContent();
+    const content = createContent();
 
     return (
         <div id={props.id} aria-live="polite" className={className} style={props.style} role="alert">

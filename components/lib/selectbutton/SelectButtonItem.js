@@ -30,7 +30,7 @@ export const SelectButtonItem = memo((props) => {
         }
     }
 
-    const useContent = () => {
+    const createContent = () => {
         return props.template ? ObjectUtils.getJSXElement(props.template, props.option) : <span className="p-button-label p-c">{props.label}</span>;
     }
 
@@ -39,7 +39,7 @@ export const SelectButtonItem = memo((props) => {
         'p-disabled': props.disabled,
         'p-focus': focusedState
     }, props.className);
-    const content = useContent();
+    const content = createContent();
 
     return (
         <div className={className} role="button" aria-label={props.label} aria-pressed={props.selected} aria-labelledby={props.ariaLabelledBy}

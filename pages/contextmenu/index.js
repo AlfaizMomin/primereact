@@ -159,7 +159,7 @@ const ContextMenuDemo = () => {
                 <div className="card">
                     <ContextMenu model={items} ref={cm}></ContextMenu>
 
-                    <img src={`${contextPath}/images/nature/nature3.jpg`} onError={(e) => e.target.src = 'https://www.primefaces.org/wp-content/uploads/2020/05/placeholder.png'} alt="Logo" onContextMenu={(e) => cm.current.show(e)} aria-haspopup />
+                    <img src={`${contextPath}/images/nature/nature3.jpg`} onError={(e) => e.target.src = 'https://www.primefaces.org/wp-content/uploads/2020/05/placeholder.png'} alt="Logo" onContextMenu={(e) => cm.current.show(e)} />
                 </div>
             </div>
 

@@ -19,7 +19,7 @@ export const Chip = memo((props) => {
         }
     }
 
-    const useContent = () => {
+    const createContent = () => {
         let content = [];
 
         if (props.image) {
@@ -40,12 +40,12 @@ export const Chip = memo((props) => {
         return content;
     }
 
-    const useElement = () => {
+    const createElement = () => {
         const className = classNames('p-chip p-component', {
             'p-chip-image': props.image != null
         }, props.className);
 
-        const content = props.template ? ObjectUtils.getJSXElement(props.template, props) : useContent();
+        const content = props.template ? ObjectUtils.getJSXElement(props.template, props) : createContent();
 
         return (
             <div className={className} style={props.style}>
@@ -54,7 +54,7 @@ export const Chip = memo((props) => {
         )
     }
 
-    return visibleState && useElement();
+    return visibleState && createElement();
 });
 
 Chip.defaultProps = {

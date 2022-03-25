@@ -199,7 +199,7 @@ export const Splitter = memo((props) => {
         }
     });
 
-    const usePanel = (panel, index) => {
+    const createPanel = (panel, index) => {
         const panelClassName = classNames('p-splitter-panel', panel.props.className);
         const gutterStyle = props.layout === 'horizontal' ? { width: props.gutterSize + 'px' } : { height: props.gutterSize + 'px' }
         const gutter = (index !== props.children.length - 1) && (
@@ -220,12 +220,12 @@ export const Splitter = memo((props) => {
     }
 
 
-    const usePanels = () => {
-        return React.Children.map(props.children, usePanel);
+    const createPanels = () => {
+        return React.Children.map(props.children, createPanel);
     }
 
     const className = classNames(`p-splitter p-component p-splitter-${props.layout}`, props.className);
-    const panels = usePanels();
+    const panels = createPanels();
 
     return (
         <div ref={elementRef} id={props.id} className={className} style={props.style}>

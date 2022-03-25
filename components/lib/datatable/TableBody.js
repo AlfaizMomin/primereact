@@ -8,10 +8,10 @@ import { useMountEffect, useUpdateEffect, useUnmountEffect, usePrevious } from '
 export const TableBody = memo((props) => {
     const [rowGroupHeaderStyleObjectState, setRowGroupHeaderStyleObjectState] = useState({});
     const elementRef = useRef(null);
-    const ref = useCallback(el => {
+    const ref = useCallback((el) => {
         elementRef.current = el;
         props.virtualScrollerContentRef && props.virtualScrollerContentRef(el);
-    }, []);
+    }, [props]);
     const dragSelectionHelper = useRef(null);
     const initialDragPosition = useRef(null);
     const anchorRowIndex = useRef(null);
@@ -803,7 +803,7 @@ export const TableBody = memo((props) => {
         }
     });
 
-    const useEmptyContent = () => {
+    const createEmptyContent = () => {
         if (!props.loading) {
             const colSpan = getColumnsLength();
             const content = ObjectUtils.getJSXElement(props.emptyMessage, { props: props.tableProps, frozen: props.frozenRow }) || localeOption('emptyMessage');
@@ -820,7 +820,7 @@ export const TableBody = memo((props) => {
         return null;
     }
 
-    const useGroupHeader = (rowData, index, expanded, colSpan) => {
+    const createGroupHeader = (rowData, index, expanded, colSpan) => {
         if (isSubheaderGrouping && shouldRenderRowGroupHeader(props.value, rowData, index - props.first)) {
             const style = rowGroupHeaderStyle();
             const toggler = props.expandableRowGroups && (
@@ -843,7 +843,7 @@ export const TableBody = memo((props) => {
         return null;
     }
 
-    const useRow = (rowData, index, expanded) => {
+    const createRow = (rowData, index, expanded) => {
         if (!props.expandableRowGroups || expanded) {
             const selected = isSelectionEnabled() ? isSelected(rowData) : false;
             const contextMenuSelected = isContextMenuSelected(rowData);
@@ -869,7 +869,7 @@ export const TableBody = memo((props) => {
         }
     }
 
-    const useExpansion = (rowData, index, expanded, colSpan) => {
+    const createExpansion = (rowData, index, expanded, colSpan) => {
         if (expanded && !(isSubheaderGrouping && props.expandableRowGroups)) {
             const content = ObjectUtils.getJSXElement(props.rowExpansionTemplate, rowData, { index });
             const id = `${props.tableSelector}_content_${index}_expanded`;
@@ -886,7 +886,7 @@ export const TableBody = memo((props) => {
         return null;
     }
 
-    const useGroupFooter = (rowData, index, expanded, colSpan) => {
+    const createGroupFooter = (rowData, index, expanded, colSpan) => {
         if (isSubheaderGrouping && shouldRenderRowGroupFooter(props.value, rowData, index - props.first, expanded)) {
             const content = ObjectUtils.getJSXElement(props.rowGroupFooterTemplate, rowData, { index, colSpan, props: props.tableProps });
 
@@ -900,7 +900,7 @@ export const TableBody = memo((props) => {
         return null;
     }
 
-    const useContent = () => {
+    const createContent = () => {
         return (
             props.value.map((rowData, i) => {
                 const index = getVirtualScrollerOption('getItemOptions') ? getVirtualScrollerOption('getItemOptions')(i).index : props.first + i;
@@ -908,10 +908,10 @@ export const TableBody = memo((props) => {
                 const expanded = isRowExpanded(rowData);
                 const colSpan = getColumnsLength();
 
-                const groupHeader = useGroupHeader(rowData, index, expanded, colSpan);
-                const row = useRow(rowData, index, expanded);
-                const expansion = useExpansion(rowData, index, expanded, colSpan);
-                const groupFooter = useGroupFooter(rowData, index, expanded, colSpan);
+                const groupHeader = createGroupHeader(rowData, index, expanded, colSpan);
+                const row = createRow(rowData, index, expanded);
+                const expansion = createExpansion(rowData, index, expanded, colSpan);
+                const groupFooter = createGroupFooter(rowData, index, expanded, colSpan);
 
                 return (
                     <React.Fragment key={key}>
@@ -926,7 +926,7 @@ export const TableBody = memo((props) => {
     }
 
     const className = classNames('p-datatable-tbody', props.className);
-    const content = props.empty ? useEmptyContent() : useContent();
+    const content = props.empty ? createEmptyContent() : createContent();
 
     return (
         <tbody ref={ref} className={className}>

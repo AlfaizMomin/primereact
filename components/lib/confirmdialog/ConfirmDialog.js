@@ -72,7 +72,7 @@ export const ConfirmDialog = memo((props) => {
         setVisibleState(props.visible);
     }, [props.visible]);
 
-    const useFooter = () => {
+    const createFooter = () => {
         const acceptClassName = classNames('p-confirm-dialog-accept', props.acceptClassName);
         const rejectClassName = classNames('p-confirm-dialog-reject', {
             'p-button-text': !props.rejectClassName
@@ -102,12 +102,12 @@ export const ConfirmDialog = memo((props) => {
         return content;
     }
 
-    const useElement = () => {
+    const createElement = () => {
         const className = classNames('p-confirm-dialog', props.className);
         const dialogProps = ObjectUtils.findDiffKeys(props, ConfirmDialog.defaultProps);
         const message = ObjectUtils.getJSXElement(props.message, props);
         const icon = IconUtils.getJSXIcon(props.icon, { className: 'p-confirm-dialog-icon' }, { props });
-        const footer = useFooter();
+        const footer = createFooter();
 
         return (
             <Dialog visible={visibleState} {...dialogProps} className={className} footer={footer} onHide={hide} breakpoints={props.breakpoints}>
@@ -117,7 +117,7 @@ export const ConfirmDialog = memo((props) => {
         )
     }
 
-    const element = useElement();
+    const element = createElement();
 
     return <Portal element={element} appendTo={props.appendTo} />
 });

@@ -189,7 +189,7 @@ export const ListBox = memo((props) => {
         return ObjectUtils.resolveFieldData(optionGroup, props.optionGroupChildren);
     }
 
-    const visibleOptions = useMemo(() => {
+    const getVisibleOptions = () => {
         if (hasFilter) {
             const filterValue = filteredValue.trim().toLocaleLowerCase(props.filterLocale);
             const searchFields = props.filterBy ? props.filterBy.split(',') : [props.optionLabel || 'label'];
@@ -211,7 +211,7 @@ export const ListBox = memo((props) => {
         else {
             return props.options;
         }
-    }, [filteredValue, props.options]);
+    }
 
     useEffect(() => {
         if (tooltipRef.current) {
@@ -233,11 +233,11 @@ export const ListBox = memo((props) => {
         }
     });
 
-    const useHeader = () => {
+    const createHeader = () => {
         return props.filter ? <ListBoxHeader filter={filteredValue} onFilter={onFilter} disabled={props.disabled} filterPlaceholder={props.filterPlaceholder} /> : null;
     }
 
-    const useGroupChildren = (optionGroup) => {
+    const createGroupChildren = (optionGroup) => {
         const groupChildren = getOptionGroupChildren(optionGroup);
 
         return (
@@ -255,10 +255,10 @@ export const ListBox = memo((props) => {
         )
     }
 
-    const useItem = (option, index) => {
+    const createItem = (option, index) => {
         if (props.optionGroupLabel) {
             const groupContent = props.optionGroupTemplate ? ObjectUtils.getJSXElement(props.optionGroupTemplate, option, index) : getOptionGroupLabel(option);
-            const groupChildrenContent = useGroupChildren(option);
+            const groupChildrenContent = createGroupChildren(option);
             const key = index + '_' + getOptionGroupRenderKey(option);
 
             return (
@@ -283,17 +283,17 @@ export const ListBox = memo((props) => {
         }
     }
 
-    const useItems = () => {
-        return visibleOptions ? visibleOptions.map(useItem) : null;
+    const createItems = () => {
+        return visibleOptions ? visibleOptions.map(createItem) : null;
     }
 
-    const useList = () => {
+    const createList = () => {
         if (props.virtualScrollerOptions) {
             const virtualScrollerProps = {
                 ...props.virtualScrollerOptions, ...{
                     items: visibleOptions,
                     onLazyLoad: (event) => props.virtualScrollerOptions.onLazyLoad({ ...event, ...{ filter: visibleOptions } }),
-                    itemTemplate: (item, option) => item && useItem(item, option.index),
+                    itemTemplate: (item, option) => item && createItem(item, option.index),
                     contentTemplate: (option) => {
                         const className = classNames('p-listbox-list', option.className);
 
@@ -309,7 +309,7 @@ export const ListBox = memo((props) => {
             return <VirtualScroller ref={virtualScrollerRef} {...virtualScrollerProps} />
         }
         else {
-            const items = useItems();
+            const items = createItems();
 
             return (
                 <ul className="p-listbox-list" role="listbox" aria-multiselectable={props.multiple}>
@@ -319,12 +319,14 @@ export const ListBox = memo((props) => {
         }
     }
 
+    const visibleOptions = getVisibleOptions();
+
     const className = classNames('p-listbox p-component', {
         'p-disabled': props.disabled
     }, props.className);
     const listClassName = classNames('p-listbox-list-wrapper', props.listClassName);
-    const list = useList();
-    const header = useHeader();
+    const list = createList();
+    const header = createHeader();
 
     return (
         <div ref={elementRef} id={props.id} className={className} style={props.style}>

@@ -167,7 +167,7 @@ export const TreeTableBody = memo((props) => {
             return false;
     }
 
-    const useRow = (node, index) => {
+    const createRow = (node, index) => {
         return (
             <TreeTableRow key={node.key || JSON.stringify(node.data)} level={0} rowIndex={index} selectOnEdit={props.selectOnEdit}
                 node={node} columns={props.columns} expandedKeys={props.expandedKeys}
@@ -180,7 +180,7 @@ export const TreeTableBody = memo((props) => {
         )
     }
 
-    const useRows = () => {
+    const createRows = () => {
         if (props.paginator && !props.lazy) {
             let rpp = props.rows || 0;
             let startIndex = props.first || 0;
@@ -190,7 +190,7 @@ export const TreeTableBody = memo((props) => {
             for (let i = startIndex; i < endIndex; i++) {
                 let rowData = props.value[i];
                 if (rowData)
-                    rows.push(useRow(props.value[i]));
+                    rows.push(createRow(props.value[i]));
                 else
                     break;
             }
@@ -198,11 +198,11 @@ export const TreeTableBody = memo((props) => {
             return rows;
         }
         else {
-            return props.value.map(useRow);
+            return props.value.map(createRow);
         }
     }
 
-    const useEmptyMessage = () => {
+    const createEmptyMessage = () => {
         if (props.loading) {
             return null;
         }
@@ -218,7 +218,7 @@ export const TreeTableBody = memo((props) => {
         }
     }
 
-    const content = (props.value && props.value.length) ? useRows() : useEmptyMessage();
+    const content = (props.value && props.value.length) ? createRows() : createEmptyMessage();
 
     return (
         <tbody className="p-treetable-tbody">

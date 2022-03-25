@@ -22,7 +22,7 @@ export const BreadCrumb = memo((props) => {
         }
     }
 
-    const useHome = () => {
+    const createHome = () => {
         const home = props.home;
 
         if (home) {
@@ -42,11 +42,11 @@ export const BreadCrumb = memo((props) => {
         return null;
     }
 
-    const useSeparator = () => {
+    const createSeparator = () => {
         return <li className="p-breadcrumb-chevron pi pi-chevron-right"></li>
     }
 
-    const useMenuitem = (item) => {
+    const createMenuitem = (item) => {
         const className = classNames(item.className, { 'p-disabled': item.disabled });
         const label = item.label && <span className="p-menuitem-text">{item.label}</span>;
         let content = (
@@ -74,11 +74,11 @@ export const BreadCrumb = memo((props) => {
         )
     }
 
-    const useMenuitems = () => {
+    const createMenuitems = () => {
         if (props.model) {
             const items = props.model.map((item, index) => {
-                const menuitem = useMenuitem(item);
-                const separator = (index === props.model.length - 1) ? null : useSeparator();
+                const menuitem = createMenuitem(item);
+                const separator = (index === props.model.length - 1) ? null : createSeparator();
                 const key = item.label + '_' + index;
 
                 return (
@@ -96,9 +96,9 @@ export const BreadCrumb = memo((props) => {
     }
 
     const className = classNames('p-breadcrumb p-component', props.className);
-    const home = useHome();
-    const items = useMenuitems();
-    const separator = useSeparator();
+    const home = createHome();
+    const items = createMenuitems();
+    const separator = createSeparator();
 
     return (
         <nav id={props.id} className={className} style={props.style} aria-label="Breadcrumb">

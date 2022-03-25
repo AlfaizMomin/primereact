@@ -37,7 +37,7 @@ export const InputText = memo(forwardRef((props, ref) => {
 
     useEffect(() => {
         ObjectUtils.combinedRefs(elementRef, ref);
-    }, [elementRef]);
+    }, [elementRef, ref]);
 
     useEffect(() => {
         if (tooltipRef.current) {

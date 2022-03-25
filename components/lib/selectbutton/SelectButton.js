@@ -96,7 +96,7 @@ export const SelectButton = memo((props) => {
         }
     });
 
-    const useItems = () => {
+    const createItems = () => {
         if (props.options && props.options.length) {
             return props.options.map((option, index) => {
                 const isDisabled = props.disabled || isOptionDisabled(option);
@@ -114,7 +114,7 @@ export const SelectButton = memo((props) => {
     }
 
     const className = classNames('p-selectbutton p-buttonset p-component', props.className);
-    const items = useItems();
+    const items = createItems();
 
     return (
         <div ref={elementRef} id={props.id} className={className} style={props.style} role="group">

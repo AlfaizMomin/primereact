@@ -52,7 +52,7 @@ export const RadioButton = memo(forwardRef((props, ref) => {
 
     useEffect(() => {
         ObjectUtils.combinedRefs(inputRef, props.inputRef);
-    }, [inputRef]);
+    }, [inputRef, props.inputRef]);
 
     useEffect(() => {
         if (tooltipRef.current) {

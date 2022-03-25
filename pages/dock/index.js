@@ -26,8 +26,6 @@ const DockDemo = () => {
     const toast2 = useRef(null);
     const galleria = useRef(null);
 
-    const nodeService = new NodeService();
-    const galleriaService = new PhotoService();
     const contextPath = getConfig().publicRuntimeConfig.contextPath;
 
     const imgErrorPath = 'https://www.primefaces.org/wp-content/uploads/2020/05/placeholder.png';
@@ -286,6 +284,8 @@ const DockDemo = () => {
     useEffect(() => {
         TerminalService.on('command', commandHandler);
 
+        const nodeService = new NodeService();
+        const galleriaService = new PhotoService();
         galleriaService.getImages().then(data => setImages(data));
         nodeService.getTreeNodes().then(data => setNodes(data));
 
@@ -297,7 +297,7 @@ const DockDemo = () => {
             // reset
             PrimeReact.appendTo = null;
         }
-    }, [])
+    }, []);
 
     const start = <i className="pi pi-apple"></i>;
     const end = (

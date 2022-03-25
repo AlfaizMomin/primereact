@@ -66,7 +66,7 @@ export const Toast = memo(forwardRef((props, ref) => {
         clear
     }));
 
-    const useElement = () => {
+    const createElement = () => {
         const className = classNames('p-toast p-component p-toast-' + props.position, props.className);
 
         return (
@@ -88,7 +88,7 @@ export const Toast = memo(forwardRef((props, ref) => {
         )
     }
 
-    const element = useElement();
+    const element = createElement();
 
     return <Portal element={element} appendTo={props.appendTo} />
 }))

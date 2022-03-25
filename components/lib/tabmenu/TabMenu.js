@@ -54,7 +54,7 @@ export const TabMenu = memo((props) => {
         updateInkBar();
     });
 
-    const useMenuItem = (item, index) => {
+    const createMenuItem = (item, index) => {
         const { className: _className, disabled, icon: _icon, label: _label, template, url, target } = item;
         const key = _label + '_' + index;
         const active = isSelected(index);
@@ -95,13 +95,13 @@ export const TabMenu = memo((props) => {
         )
     }
 
-    const useItems = () => {
-        return props.model.map(useMenuItem);
+    const createItems = () => {
+        return props.model.map(createMenuItem);
     }
 
     if (props.model) {
         const className = classNames('p-tabmenu p-component', props.className);
-        const items = useItems();
+        const items = createItems();
 
         return (
             <div id={props.id} className={className} style={props.style}>

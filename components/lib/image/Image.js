@@ -91,7 +91,7 @@ export const Image = memo((props) => {
         maskRef.current && ZIndexUtils.clear(maskRef.current);
     });
 
-    const usePreview = () => {
+    const createPreview = () => {
         if (props.preview) {
             return (
                 <div className="p-image-preview-indicator" onClick={onImageClick} >
@@ -103,7 +103,7 @@ export const Image = memo((props) => {
         return null;
     }
 
-    const useElement = () => {
+    const createElement = () => {
         const { downloadable } = props;
         const imagePreviewStyle = { transform: 'rotate(' + rotateState + 'deg) scale(' + scale + ')' };
         const zoomDisabled = scaleState <= 0.5 || scaleState >= 1.5;
@@ -148,9 +148,9 @@ export const Image = memo((props) => {
     const containerClassName = classNames('p-image p-component', props.className, {
         'p-image-preview-container': props.preview
     });
-    const element = useElement();
+    const element = createElement();
     const content = props.template ? ObjectUtils.getJSXElement(props.template, props) : <i className="p-image-preview-icon pi pi-eye"></i>;
-    const preview = usePreview();
+    const preview = createPreview();
     const image = <img src={src} className={props.imageClassName} width={width} height={height} style={props.imageStyle} alt={alt} />;
     const { src, alt, width, height } = props;
 

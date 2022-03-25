@@ -5,7 +5,7 @@ import { ColorPickerPanel } from './ColorPickerPanel';
 import { tip } from '../tooltip/Tooltip';
 import { OverlayService } from '../overlayservice/OverlayService';
 import { DomHandler, ObjectUtils, classNames, ZIndexUtils } from '../utils/Utils';
-import { useUnmountEffect, useEventListener, useOverlayListener } from '../hooks/Hooks';
+import { useUnmountEffect, useEventListener, useOverlayListener, useUpdateEffect, useMountEffect } from '../hooks/Hooks';
 
 export const ColorPicker = memo((props) => {
     const [overlayVisibleState, setOverlayVisibleState] = useState(false);
@@ -439,7 +439,7 @@ export const ColorPicker = memo((props) => {
 
     useEffect(() => {
         ObjectUtils.combinedRefs(inputRef, props.inputRef);
-    }, [inputRef]);
+    }, [inputRef, props.inputRef]);
 
     useEffect(() => {
         if (tooltipRef.current) {
@@ -455,14 +455,18 @@ export const ColorPicker = memo((props) => {
     }, [props.tooltip, props.tooltipOptions]);
 
     useEffect(() => {
+        updateUI();
+    });
+
+    useMountEffect(() => {
+        updateHSBValue(props.value);
+    });
+
+    useUpdateEffect(() => {
         if (!colorDragging.current && !hueDragging.current) {
             updateHSBValue(props.value);
         }
     }, [props.value]);
-
-    useEffect(() => {
-        updateUI();
-    });
 
     useUnmountEffect(() => {
         if (tooltipRef.current) {
@@ -473,7 +477,7 @@ export const ColorPicker = memo((props) => {
         ZIndexUtils.clear(overlayRef.current);
     });
 
-    const useColorSelector = () => {
+    const createColorSelector = () => {
         return (
             <div ref={colorSelectorRef} className="p-colorpicker-color-selector" onMouseDown={onColorMousedown}
                 onTouchStart={onColorDragStart} onTouchMove={onDrag} onTouchEnd={onDragEnd}>
@@ -484,7 +488,7 @@ export const ColorPicker = memo((props) => {
         )
     }
 
-    const useHue = () => {
+    const createHue = () => {
         return (
             <div ref={hueViewRef} className="p-colorpicker-hue" onMouseDown={onHueMousedown}
                 onTouchStart={onHueDragStart} onTouchMove={onDrag} onTouchEnd={onDragEnd}>
@@ -493,9 +497,9 @@ export const ColorPicker = memo((props) => {
         )
     }
 
-    const useContent = () => {
-        const colorSelector = useColorSelector();
-        const hue = useHue();
+    const createContent = () => {
+        const colorSelector = createColorSelector();
+        const hue = createHue();
 
         return (
             <div className="p-colorpicker-content">
@@ -505,7 +509,7 @@ export const ColorPicker = memo((props) => {
         )
     }
 
-    const useInput = () => {
+    const createInput = () => {
         if (!props.inline) {
             const inputClassName = classNames('p-colorpicker-preview p-inputtext', {
                 'p-disabled': props.disabled
@@ -525,8 +529,8 @@ export const ColorPicker = memo((props) => {
     const className = classNames('p-colorpicker p-component', {
         'p-colorpicker-overlay': !props.inline
     }, props.className);
-    const content = useContent();
-    const input = useInput();
+    const content = createContent();
+    const input = createInput();
 
     return (
         <div ref={elementRef} id={props.id} style={props.style} className={className}>

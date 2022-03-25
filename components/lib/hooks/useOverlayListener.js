@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useEffect, useRef } from 'react';
 import { DomHandler } from '../utils/Utils';
 import { useEventListener } from './useEventListener';
@@ -59,3 +60,4 @@ export const useOverlayListener = ({ target, overlay, listener, when = true }) =
 
     return [bind, unbind];
 }
+/* eslint-enable */

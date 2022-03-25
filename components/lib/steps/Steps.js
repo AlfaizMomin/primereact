@@ -31,7 +31,7 @@ export const Steps = memo((props) => {
         }
     }
 
-    const useItem = (item, index) => {
+    const createItem = (item, index) => {
         const key = item.label + '_' + index;
         const tabIndex = disabled ? -1 : '';
         const active = index === props.activeIndex;
@@ -42,7 +42,7 @@ export const Steps = memo((props) => {
         });
         const label = item.label && <span className="p-steps-title">{item.label}</span>;
         let content = (
-            <a href={item.url || '#'} className="p-menuitem-link" role="presentation" target={item.target} onClick={event => itemClick(event, item, index)} tabIndex={tabIndex} aria-disabled={disabled}>
+            <a href={item.url || '#'} className="p-menuitem-link" role="presentation" target={item.target} onClick={event => itemClick(event, item, index)} tabIndex={tabIndex}>
                 <span className="p-steps-number">{index + 1}</span>
                 {label}
             </a>
@@ -71,9 +71,9 @@ export const Steps = memo((props) => {
         )
     }
 
-    const useItems = () => {
+    const createItems = () => {
         if (props.model) {
-            const items = props.model.map(useItem);
+            const items = props.model.map(createItem);
 
             return (
                 <ul role="tablist">
@@ -88,7 +88,7 @@ export const Steps = memo((props) => {
     const className = classNames('p-steps p-component', {
         'p-readonly': props.readOnly
     }, props.className);
-    const items = useItems();
+    const items = createItems();
 
     return (
         <div id={props.id} className={className} style={props.style}>

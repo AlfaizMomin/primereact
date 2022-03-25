@@ -96,7 +96,20 @@ export const Paginator = memo((props) => {
         changePage(0, rows);
     }
 
-    const useElement = (key, template) => {
+    useUpdateEffect(() => {
+        if (!rppChanged.current) {
+            changePage(0, props.rows);
+        }
+        rppChanged.current = false;
+    }, [props.rows]);
+
+    useUpdateEffect(() => {
+        if (page > 0 && props.first >= props.totalRecords) {
+            changePage((pageCount - 1) * props.rows, props.rows);
+        }
+    }, [props.totalRecords]);
+
+    const createElement = (key, template) => {
         let element;
 
         switch (key) {
@@ -141,7 +154,7 @@ export const Paginator = memo((props) => {
         return element;
     }
 
-    const useElements = () => {
+    const createElements = () => {
         const template = props.template;
 
         if (template) {
@@ -149,34 +162,21 @@ export const Paginator = memo((props) => {
                 return template.layout ?
                     template.layout.split(' ').map((value) => {
                         const key = value.trim();
-                        return useElement(key, template[key]);
+                        return createElement(key, template[key]);
                     })
                     :
                     Object.entries(template).map(([key, _template]) => {
-                        return useElement(key, _template);
+                        return createElement(key, _template);
                     });
             }
 
             return template.split(' ').map((value) => {
-                return useElement(value.trim());
+                return createElement(value.trim());
             });
         }
 
         return null;
     }
-
-    useUpdateEffect(() => {
-        if (!rppChanged.current) {
-            changePage(0, props.rows);
-        }
-        rppChanged.current = false;
-    }, [props.rows]);
-
-    useUpdateEffect(() => {
-        if (page > 0 && props.first >= props.totalRecords) {
-            changePage((pageCount - 1) * props.rows, props.rows);
-        }
-    }, [props.totalRecords]);
 
     if (!props.alwaysShow && pageCount === 1) {
         return null;
@@ -186,7 +186,7 @@ export const Paginator = memo((props) => {
         const leftContent = ObjectUtils.getJSXElement(props.leftContent, props);
         const rightContent = ObjectUtils.getJSXElement(props.rightContent, props);
 
-        const elements = useElements();
+        const elements = createElements();
         const leftElement = leftContent && <div className="p-paginator-left-content">{leftContent}</div>;
         const rightElement = rightContent && <div className="p-paginator-right-content">{rightContent}</div>;
 

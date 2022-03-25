@@ -5,7 +5,7 @@ import { classNames } from '../utils/Utils';
 
 export const TreeSelectPanel = forwardRef((props, ref) => {
 
-    const useElement = () => {
+    const createElement = () => {
         const wrapperStyle = { maxHeight: props.scrollHeight || 'auto' };
         const className = classNames('p-treeselect-panel p-component', props.panelClassName);
 
@@ -23,7 +23,7 @@ export const TreeSelectPanel = forwardRef((props, ref) => {
         )
     }
 
-    const element = useElement();
+    const element = createElement();
 
     return <Portal element={element} appendTo={props.appendTo} />
 });

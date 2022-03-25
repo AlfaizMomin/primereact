@@ -11,7 +11,7 @@ export const Button = memo(forwardRef((props, ref) => {
 
     useEffect(() => {
         ObjectUtils.combinedRefs(elementRef, ref);
-    }, [elementRef]);
+    }, [elementRef, ref]);
 
     useEffect(() => {
         if (tooltipRef.current) {
@@ -33,7 +33,7 @@ export const Button = memo(forwardRef((props, ref) => {
         }
     });
 
-    const useIcon = () => {
+    const createIcon = () => {
         const icon = props.loading ? props.loadingIcon : props.icon;
         const className = classNames('p-button-icon p-c', {
             'p-button-loading-icon': props.loading,
@@ -43,7 +43,7 @@ export const Button = memo(forwardRef((props, ref) => {
         return IconUtils.getJSXIcon(icon, { className }, { props });
     }
 
-    const useLabel = () => {
+    const createLabel = () => {
         if (props.label) {
             return <span className="p-button-label p-c">{props.label}</span>
         }
@@ -51,7 +51,7 @@ export const Button = memo(forwardRef((props, ref) => {
         return !props.children && !props.label && <span className="p-button-label p-c" dangerouslySetInnerHTML={{ __html: "&nbsp;" }}></span>
     }
 
-    const useBadge = () => {
+    const createBadge = () => {
         if (props.badge) {
             const badgeClassName = classNames('p-badge', props.badgeClassName);
 
@@ -72,9 +72,9 @@ export const Button = memo(forwardRef((props, ref) => {
         [`p-button-loading-${props.iconPos}`]: props.loading && props.loadingIcon && props.label
     });
 
-    const icon = useIcon();
-    const label = useLabel();
-    const badge = useBadge();
+    const icon = createIcon();
+    const label = createLabel();
+    const badge = createBadge();
 
     return (
         <button ref={elementRef} {...buttonProps} className={className} disabled={disabled}>

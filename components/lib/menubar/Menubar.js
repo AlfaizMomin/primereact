@@ -53,7 +53,7 @@ export const Menubar = memo(forwardRef((props, ref) => {
         useCustomContent
     }));
 
-    const useCustomContent = () => {
+    const createCustomContent = () => {
         if (props.children) {
             return (
                 <div className="p-menubar-custom">
@@ -65,7 +65,7 @@ export const Menubar = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useStartContent = () => {
+    const createStartContent = () => {
         if (props.start) {
             const start = ObjectUtils.getJSXElement(props.start, props);
 
@@ -79,7 +79,7 @@ export const Menubar = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useEndContent = () => {
+    const createEndContent = () => {
         if (props.end) {
             const end = ObjectUtils.getJSXElement(props.end, props);
 
@@ -93,7 +93,7 @@ export const Menubar = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useMenuButton = () => {
+    const createMenuButton = () => {
         /* eslint-disable */
         const button = (
             <a ref={menuButtonRef} href={'#'} role="button" tabIndex={0} className="p-menubar-button" onClick={toggle}>
@@ -108,9 +108,9 @@ export const Menubar = memo(forwardRef((props, ref) => {
     const className = classNames('p-menubar p-component', {
         'p-menubar-mobile-active': mobileActiveState
     }, props.className);
-    const start = useStartContent();
-    const end = useEndContent();
-    const menuButton = useMenuButton();
+    const start = createStartContent();
+    const end = createEndContent();
+    const menuButton = createMenuButton();
     const submenu =  <MenubarSub ref={rootMenuRef} model={props.model} root mobileActive={mobileActiveState} onLeafClick={onLeafClick} />;
 
     return (

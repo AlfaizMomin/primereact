@@ -147,7 +147,7 @@ export const DataScroller = memo(forwardRef((props, ref) => {
         reset
     }));
 
-    const useHeader = () => {
+    const createHeader = () => {
         if (props.header) {
             return <div className="p-datascroller-header">{props.header}</div>
         }
@@ -155,7 +155,7 @@ export const DataScroller = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useFooter = () => {
+    const createFooter = () => {
         if (props.footer) {
             return <div className="p-datascroller-footer">{props.footer}</div>
         }
@@ -163,7 +163,7 @@ export const DataScroller = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useItem = (_value, index) => {
+    const createItem = (_value, index) => {
         const content = props.itemTemplate ? props.itemTemplate(_value) : _value;
 
         return (
@@ -173,14 +173,14 @@ export const DataScroller = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useEmptyMessage = () => {
+    const createEmptyMessage = () => {
         const content = ObjectUtils.getJSXElement(props.emptyMessage, props) || localeOption('emptyMessage');
 
         return <li>{content}</li>
     }
 
-    const useContent = () => {
-        const content = ObjectUtils.isNotEmpty(dataToRenderState) ? dataToRenderState.map(useItem) : useEmptyMessage();
+    const createContent = () => {
+        const content = ObjectUtils.isNotEmpty(dataToRenderState) ? dataToRenderState.map(createItem) : createEmptyMessage();
 
         return (
             <div ref={contentRef} className="p-datascroller-content" style={{ 'maxHeight': props.scrollHeight }}>
@@ -195,9 +195,9 @@ export const DataScroller = memo(forwardRef((props, ref) => {
         'p-datascroller-inline': props.inline
     });
 
-    const header = useHeader();
-    const footer = useFooter();
-    const content = useContent();
+    const header = createHeader();
+    const footer = createFooter();
+    const content = createContent();
 
     return (
         <div id={props.id} className={className}>

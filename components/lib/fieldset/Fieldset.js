@@ -50,7 +50,7 @@ export const Fieldset = (props) => {
         }
     })
 
-    const useContent = () => {
+    const createContent = () => {
         return (
             <CSSTransition nodeRef={contentRef} classNames="p-toggleable-content" timeout={{ enter: 1000, exit: 450 }} in={!collapsed} unmountOnExit options={props.transitionOptions}>
                 <div ref={contentRef} id={contentId} className="p-toggleable-content" aria-hidden={collapsed} role="region" aria-labelledby={headerId}>
@@ -62,7 +62,7 @@ export const Fieldset = (props) => {
         )
     }
 
-    const useToggleIcon = () => {
+    const createToggleIcon = () => {
         if (props.toggleable) {
             const className = classNames('p-fieldset-toggler pi', {
                 'pi-plus': collapsed,
@@ -75,9 +75,9 @@ export const Fieldset = (props) => {
         return null;
     }
 
-    const useLegendContent = () => {
+    const createLegendContent = () => {
         if (props.toggleable) {
-            const toggleIcon = useToggleIcon();
+            const toggleIcon = createToggleIcon();
 
             return (
                 <a href={'#' + contentId} aria-controls={contentId} id={headerId} aria-expanded={!collapsed} tabIndex={props.toggleable ? null : -1}>
@@ -91,9 +91,9 @@ export const Fieldset = (props) => {
         return <span className="p-fieldset-legend-text" id={headerId}>{props.legend}</span>
     }
 
-    const useLegend = () => {
+    const createLegend = () => {
         if (props.legend != null || props.toggleable) {
-            const legendContent = useLegendContent();
+            const legendContent = createLegendContent();
 
             return (
                 <legend className="p-fieldset-legend p-unselectable-text" onClick={toggle}>
@@ -106,8 +106,8 @@ export const Fieldset = (props) => {
     const className = classNames('p-fieldset p-component', {
         'p-fieldset-toggleable': props.toggleable
     }, props.className);
-    const legend = useLegend();
-    const content = useContent();
+    const legend = createLegend();
+    const content = createContent();
 
     return (
         <fieldset id={idState} className={className} style={props.style} onClick={props.onClick}>

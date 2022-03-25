@@ -68,7 +68,7 @@ export const BlockUI = forwardRef((props, ref) => {
         unblock
     }));
 
-    const useMask = () => {
+    const createMask = () => {
         if (visibleState) {
             const appendTo = props.fullScreen ? document.body : 'self';
             const className = classNames('p-blockui p-component-overlay p-component-overlay-enter', {
@@ -87,7 +87,7 @@ export const BlockUI = forwardRef((props, ref) => {
         return null;
     }
 
-    const mask = useMask();
+    const mask = createMask();
 
     return (
         <div id={props.id} className="p-blockui-container">

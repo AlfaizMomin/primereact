@@ -88,7 +88,7 @@ export const Galleria = memo(forwardRef((props, ref) => {
         if (props.value && props.value.length < numVisibleState) {
             setNumVisibleState(props.value.length);
         }
-    }, [props.value]);
+    }, [props.value, numVisibleState]);
 
     useEffect(() => {
         setNumVisibleState(props.numVisible);
@@ -110,7 +110,7 @@ export const Galleria = memo(forwardRef((props, ref) => {
         stopSlideShow
     }));
 
-    const useHeader = () => {
+    const createHeader = () => {
         if (props.header) {
             return (
                 <div className="p-galleria-header">
@@ -122,7 +122,7 @@ export const Galleria = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useFooter = () => {
+    const createFooter = () => {
         if (props.footer) {
             return (
                 <div className="p-galleria-footer">
@@ -134,7 +134,7 @@ export const Galleria = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useElement = () => {
+    const createElement = () => {
         const thumbnailsPosClassName = props.showThumbnails && getPositionClassName('p-galleria-thumbnails', props.thumbnailsPosition);
         const indicatorPosClassName = props.showIndicators && getPositionClassName('p-galleria-indicators', props.indicatorsPosition);
         const galleriaClassName = classNames('p-galleria p-component', props.className, {
@@ -150,8 +150,8 @@ export const Galleria = memo(forwardRef((props, ref) => {
             </button>
         );
 
-        const header = useHeader();
-        const footer = useFooter();
+        const header = createHeader();
+        const footer = createFooter();
         const element = (
             <div ref={elementRef} id={props.id} className={galleriaClassName} style={props.style}>
                 {closeIcon}
@@ -177,8 +177,8 @@ export const Galleria = memo(forwardRef((props, ref) => {
         return element;
     }
 
-    const useGalleria = () => {
-        const element = useElement();
+    const createGalleria = () => {
+        const element = createElement();
 
         if (props.fullScreen) {
             const maskClassName = classNames('p-galleria-mask', {
@@ -200,7 +200,7 @@ export const Galleria = memo(forwardRef((props, ref) => {
         return element;
     }
 
-    return ObjectUtils.isNotEmpty(props.value) && useGalleria();
+    return ObjectUtils.isNotEmpty(props.value) && createGalleria();
 }));
 
 Galleria.defaultProps = {

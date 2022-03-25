@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useEffect, useRef } from 'react';
 import { DomHandler, ObjectUtils } from '../utils/Utils';
 import { usePrevious } from './usePrevious';
@@ -55,3 +56,4 @@ export const useOverlayScrollListener = ({ target, listener, options, when = tru
 
     return [bind, unbind];
 }
+/* eslint-enable */

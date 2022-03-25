@@ -526,7 +526,7 @@ export const UITreeNode = memo((props) => {
         }
     }
 
-    const useLabel = () => {
+    const createLabel = () => {
         let content = (
             <span className="p-treenode-label">
                 {props.node.label}
@@ -548,7 +548,7 @@ export const UITreeNode = memo((props) => {
         return content;
     }
 
-    const useCheckbox = () => {
+    const createCheckbox = () => {
         if (isCheckboxSelectionMode() && props.node.selectable !== false) {
             const checked = isChecked();
             const partialChecked = isPartialChecked();
@@ -567,7 +567,7 @@ export const UITreeNode = memo((props) => {
         return null;
     }
 
-    const useIcon = () => {
+    const createIcon = () => {
         const icon = props.node.icon || (expanded ? props.node.expandedIcon : props.node.collapsedIcon);
 
         if (icon) {
@@ -579,7 +579,7 @@ export const UITreeNode = memo((props) => {
         return null;
     }
 
-    const useToggler = () => {
+    const createToggler = () => {
         const iconClassName = classNames('p-tree-toggler-icon pi pi-fw', { 'pi-chevron-right': !expanded, 'pi-chevron-down': expanded });
         let content = (
             <button type="button" className="p-tree-toggler p-link" tabIndex={-1} onClick={onTogglerClick}>
@@ -604,7 +604,7 @@ export const UITreeNode = memo((props) => {
         return content;
     }
 
-    const useDropPoint = (position) => {
+    const createDropPoint = (position) => {
         if (props.dragdropScope) {
             return (
                 <li className="p-treenode-droppoint" onDrop={event => onDropPoint(event, position)} onDragOver={onDropPointDragOver}
@@ -615,7 +615,7 @@ export const UITreeNode = memo((props) => {
         return null;
     }
 
-    const useContent = () => {
+    const createContent = () => {
         const selected = isSelected();
         const checked = isChecked();
         const className = classNames('p-treenode-content', props.node.className, {
@@ -624,10 +624,10 @@ export const UITreeNode = memo((props) => {
             'p-highlight-contextmenu': (props.contextMenuSelectionKey && props.contextMenuSelectionKey === props.node.key),
             'p-disabled': props.disabled
         });
-        const toggler = useToggler();
-        const checkbox = useCheckbox();
-        const icon = useIcon();
-        const label = useLabel();
+        const toggler = createToggler();
+        const checkbox = createCheckbox();
+        const icon = createIcon();
+        const label = createLabel();
         const tabIndex = props.disabled ? undefined : 0;
 
         return (
@@ -644,7 +644,7 @@ export const UITreeNode = memo((props) => {
         )
     }
 
-    const useChildren = () => {
+    const createChildren = () => {
         if (ObjectUtils.isNotEmpty(props.node.children) && expanded) {
             return (
                 <ul className="p-treenode-children" role="group">
@@ -668,12 +668,12 @@ export const UITreeNode = memo((props) => {
         return null;
     }
 
-    const useNode = () => {
+    const createNode = () => {
         const className = classNames('p-treenode', {
             'p-treenode-leaf': isLeaf
         }, props.node.className)
-        const content = useContent();
-        const children = useChildren();
+        const content = createContent();
+        const children = createChildren();
 
         return (
             <li className={className} style={props.node.style}>
@@ -683,11 +683,11 @@ export const UITreeNode = memo((props) => {
         )
     }
 
-    const node = useNode();
+    const node = createNode();
 
     if (props.dragdropScope && !props.disabled) {
-        const beforeDropPoint = useDropPoint(-1);
-        const afterDropPoint = props.last ? useDropPoint(1) : null;
+        const beforeDropPoint = createDropPoint(-1);
+        const afterDropPoint = props.last ? createDropPoint(1) : null;
 
         return (
             <>

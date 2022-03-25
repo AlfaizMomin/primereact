@@ -57,7 +57,7 @@ export const MultiStateCheckbox = memo((props) => {
         setFocusedState(false);
     }
 
-    const selectedOption = useMemo(() => {
+    const getSelectedOption = () => {
         let option, index;
 
         if (props.options) {
@@ -66,11 +66,11 @@ export const MultiStateCheckbox = memo((props) => {
         }
 
         return { option, index };
-    });
+    }
 
     useEffect(() => {
         ObjectUtils.combinedRefs(inputRef, props.inputRef);
-    }, [inputRef]);
+    }, [inputRef, props.inputRef]);
 
     useEffect(() => {
         if (tooltipRef.current) {
@@ -98,7 +98,7 @@ export const MultiStateCheckbox = memo((props) => {
         }
     });
 
-    const useIcon = () => {
+    const createIcon = () => {
         const icon = (selectedOption && selectedOption.icon) || '';
         const className = classNames('p-checkbox-icon p-c', {
             [`${icon}`]: true
@@ -119,13 +119,15 @@ export const MultiStateCheckbox = memo((props) => {
         return content;
     }
 
+    const selectedOption = getSelectedOption();
+
     const className = classNames('p-multistatecheckbox p-checkbox p-component', props.className);
     const boxClassName = classNames('p-checkbox-box', {
         'p-highlight': !!selectedOption,
         'p-disabled': props.disabled,
         'p-focus': focusedState
     }, selectedOption && selectedOption.className);
-    const icon = useIcon();
+    const icon = createIcon();
 
     return (
         <div ref={elementRef} id={props.id} className={className} style={props.style} onClick={onClick}>

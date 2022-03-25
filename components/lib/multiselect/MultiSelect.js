@@ -477,7 +477,7 @@ export const MultiSelect = memo((props) => {
         }
     }
 
-    const visibleOptions = useMemo(() => {
+    const getVisibleOptions = () => {
         if (hasFilter) {
             const filterValue = filterState.trim().toLocaleLowerCase(props.filterLocale);
             const searchFields = props.filterBy ? props.filterBy.split(',') : [props.optionLabel || 'label'];
@@ -499,11 +499,11 @@ export const MultiSelect = memo((props) => {
         else {
             return props.options;
         }
-    });
+    }
 
     useEffect(() => {
         ObjectUtils.combinedRefs(inputRef, props.inputRef);
-    }, [inputRef]);
+    }, [inputRef, props.inputRef]);
 
     useEffect(() => {
         if (tooltipRef.current) {
@@ -533,7 +533,7 @@ export const MultiSelect = memo((props) => {
         }
     });
 
-    const useClearIcon = () => {
+    const createClearIcon = () => {
         if (!empty && props.showClear && !props.disabled) {
             return <i className="p-multiselect-clear-icon pi pi-times" onClick={(e) => updateModel(e, null)}></i>
         }
@@ -541,7 +541,7 @@ export const MultiSelect = memo((props) => {
         return null;
     }
 
-    const useLabel = () => {
+    const createLabel = () => {
         const content = getLabelContent();
         const className = classNames('p-multiselect-label', {
             'p-placeholder': empty && props.placeholder,
@@ -556,6 +556,8 @@ export const MultiSelect = memo((props) => {
         )
     }
 
+    const visibleOptions = getVisibleOptions();
+
     const className = classNames('p-multiselect p-component p-inputwrapper', {
         'p-multiselect-chip': props.display === 'chip',
         'p-disabled': props.disabled,
@@ -564,14 +566,14 @@ export const MultiSelect = memo((props) => {
         'p-inputwrapper-filled': props.value && props.value.length > 0,
         'p-inputwrapper-focus': focusedState || overlayVisibleState
     }, props.className);
-    const label = useLabel();
-    const clearIcon = useClearIcon();
+    const label = createLabel();
+    const clearIcon = createClearIcon();
 
     return (
         <div ref={elementRef} id={props.id} className={className} onClick={onClick} style={props.style}>
             <div className="p-hidden-accessible">
                 <input ref={inputRef} id={props.inputId} name={props.name} readOnly type="text" onFocus={onFocus} onBlur={onBlur} onKeyDown={onKeyDown}
-                    role="listbox" aria-haspopup="listbox" aria-labelledby={props.ariaLabelledBy} aria-expanded={overlayVisibleState} disabled={props.disabled} tabIndex={props.tabIndex} />
+                    role="listbox" aria-labelledby={props.ariaLabelledBy} aria-expanded={overlayVisibleState} disabled={props.disabled} tabIndex={props.tabIndex} />
             </div>
             {label}
             {clearIcon}

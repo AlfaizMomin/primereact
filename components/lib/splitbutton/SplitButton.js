@@ -104,7 +104,7 @@ export const SplitButton = memo(forwardRef((props, ref) => {
         hide
     }));
 
-    const useItems = () => {
+    const createItems = () => {
         if (props.model) {
             return props.model.map((menuitem, index) => {
                 return <SplitButtonItem menuitem={menuitem} key={index} onItemClick={onItemClick} />
@@ -118,7 +118,7 @@ export const SplitButton = memo(forwardRef((props, ref) => {
     const buttonClassName = classNames('p-splitbutton-defaultbutton', props.buttonClassName);
     const menuButtonClassName = classNames('p-splitbutton-menubutton', props.menuButtonClassName);
     const buttonContent = props.buttonTemplate ? ObjectUtils.getJSXElement(props.buttonTemplate, props) : null;
-    const items = useItems();
+    const items = createItems();
     const panelId = idState + '_overlay';
 
     return (

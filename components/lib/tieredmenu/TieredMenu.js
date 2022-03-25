@@ -77,7 +77,7 @@ export const TieredMenu = memo(forwardRef((props, ref) => {
         hide
     }));
 
-    const useElement = () => {
+    const createElement = () => {
         const className = classNames('p-tieredmenu p-component', {
             'p-tieredmenu-overlay': props.popup
         }, props.className);
@@ -92,7 +92,7 @@ export const TieredMenu = memo(forwardRef((props, ref) => {
         )
     }
 
-    const element = useElement();
+    const element = createElement();
 
     return props.popup ? <Portal element={element} appendTo={props.appendTo} /> : element;
 }));

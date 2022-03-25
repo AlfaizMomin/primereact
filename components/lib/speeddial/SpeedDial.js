@@ -147,7 +147,7 @@ export const SpeedDial = memo(forwardRef((props, ref) => {
         hide
     }));
 
-    const useItem = (item, index) => {
+    const createItem = (item, index) => {
         const style = getItemStyle(index);
         const { disabled, icon: _icon, label, template, url, target } = item;
         const contentClassName = classNames('p-speeddial-action', { 'p-disabled': disabled });
@@ -180,12 +180,12 @@ export const SpeedDial = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useItems = () => {
-        return props.model ? props.model.map(useItem) : null;
+    const createItems = () => {
+        return props.model ? props.model.map(createItem) : null;
     }
 
-    const useList = () => {
-        const items = useItems();
+    const createList = () => {
+        const items = createItems();
 
         return (
             <ul ref={listRef} className="p-speeddial-list" role="menu">
@@ -194,7 +194,7 @@ export const SpeedDial = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useButton = () => {
+    const createButton = () => {
         const className = classNames('p-speeddial-button p-button-rounded', {
             'p-speeddial-rotate': props.rotateAnimation && !props.hideIcon
         }, props.buttonClassName);
@@ -220,7 +220,7 @@ export const SpeedDial = memo(forwardRef((props, ref) => {
         return content;
     }
 
-    const useMask = () => {
+    const createMask = () => {
         if (props.mask) {
             const className = classNames('p-speeddial-mask', {
                 'p-speeddial-mask-visible': visible
@@ -237,9 +237,9 @@ export const SpeedDial = memo(forwardRef((props, ref) => {
         'p-speeddial-opened': visible,
         'p-disabled': props.disabled
     }, props.className);
-    const button = useButton();
-    const list = useList();
-    const mask = useMask();
+    const button = createButton();
+    const list = createList();
+    const mask = createMask();
 
     return (
         <React.Fragment>

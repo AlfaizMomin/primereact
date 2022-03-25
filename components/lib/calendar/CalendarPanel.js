@@ -4,7 +4,7 @@ import { Portal } from '../portal/Portal';
 
 export const CalendarPanel = forwardRef((props, ref) => {
 
-    const useElement = () => {
+    const createElement = () => {
         return (
             <CSSTransition nodeRef={ref} classNames="p-connected-overlay" in={props.in} timeout={{ enter: 120, exit: 100 }} options={props.transitionOptions}
                 unmountOnExit onEnter={props.onEnter} onEntered={props.onEntered} onExit={props.onExit} onExited={props.onExited}>
@@ -15,7 +15,7 @@ export const CalendarPanel = forwardRef((props, ref) => {
         )
     }
 
-    const element = useElement();
+    const element = createElement();
 
     return props.inline ? element : <Portal element={element} appendTo={props.appendTo} />;
 });

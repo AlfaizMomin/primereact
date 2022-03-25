@@ -293,7 +293,13 @@ export const FileUpload = memo(forwardRef((props, ref) => {
         hasFiles ? upload() : fileInputRef.current.click();
     }
 
-    const useChooseButton = () => {
+    useImperativeHandle(ref, () => ({
+        upload,
+        clear,
+        formatSize
+    }));
+
+    const createChooseButton = () => {
         const { className, style, icon: _icon, iconOnly } = props.chooseOptions;
         const chooseClassName = classNames('p-button p-fileupload-choose p-component', {
             'p-disabled': props.disabled,
@@ -314,7 +320,7 @@ export const FileUpload = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useFile = (file, index) => {
+    const createFile = (file, index) => {
         const key = file.name + file.type + file.size;
         const preview = isImage(file) ? <div><img alt={file.name} role="presentation" src={file.objectURL} width={props.previewWidth} /></div> : null;
         const fileName = <div className="p-fileupload-filename">{file.name}</div>;
@@ -351,8 +357,8 @@ export const FileUpload = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useFiles = () => {
-        const content = filesState.map(useFile);
+    const createFiles = () => {
+        const content = filesState.map(createFile);
 
         return (
             <div className="p-fileupload-files">
@@ -361,11 +367,11 @@ export const FileUpload = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useEmptyContent = () => {
+    const createEmptyContent = () => {
         return props.emptyTemplate && !hasFiles ? ObjectUtils.getJSXElement(props.emptyTemplate, props) : null;
     }
 
-    const useProgressBarContent = () => {
+    const createProgressBarContent = () => {
         if (props.progressBarTemplate) {
             return ObjectUtils.getJSXElement(props.progressBarTemplate, props);
         }
@@ -373,12 +379,12 @@ export const FileUpload = memo(forwardRef((props, ref) => {
         return <ProgressBar value={progressState} showValue={false} />
     }
 
-    const useAdvanced = () => {
+    const createAdvanced = () => {
         const className = classNames('p-fileupload p-fileupload-advanced p-component', props.className);
         const headerClassName = classNames('p-fileupload-buttonbar', props.headerClassName);
         const contentClassName = classNames('p-fileupload-content', props.contentClassName);
-        const chooseButton = useChooseButton();
-        const emptyContent = useEmptyContent();
+        const chooseButton = createChooseButton();
+        const emptyContent = createEmptyContent();
         let uploadButton, cancelButton, filesList, progressBar;
 
         if (!props.auto) {
@@ -392,8 +398,8 @@ export const FileUpload = memo(forwardRef((props, ref) => {
         }
 
         if (hasFiles) {
-            filesList = useFiles();
-            progressBar = useProgressBarContent();
+            filesList = createFiles();
+            progressBar = createProgressBarContent();
         }
 
         let header = (
@@ -431,7 +437,7 @@ export const FileUpload = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useBasic = () => {
+    const createBasic = () => {
         const chooseOptions = props.chooseOptions;
         const className = classNames('p-fileupload p-fileupload-basic p-component', props.className);
         const buttonClassName = classNames('p-button p-component p-fileupload-choose', { 'p-fileupload-choose-selected': hasFiles, 'p-disabled': props.disabled, 'p-focus': focusedState }, chooseOptions.className);
@@ -459,16 +465,10 @@ export const FileUpload = memo(forwardRef((props, ref) => {
         )
     }
 
-    useImperativeHandle(ref, () => ({
-        upload,
-        clear,
-        formatSize
-    }));
-
     if (props.mode === 'advanced')
-        return useAdvanced();
+        return createAdvanced();
     else if (props.mode === 'basic')
-        return useBasic();
+        return createBasic();
 }));
 
 FileUpload.defaultProps = {

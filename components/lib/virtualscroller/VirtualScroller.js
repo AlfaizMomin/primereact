@@ -465,7 +465,7 @@ export const VirtualScroller = memo(forwardRef((props, ref) => {
         getRenderedRange
     }));
 
-    const useLoaderItem = (index, extOptions = {}) => {
+    const createLoaderItem = (index, extOptions = {}) => {
         const options = loaderOptions(index, extOptions);
         const content = ObjectUtils.getJSXElement(props.loadingTemplate, options);
 
@@ -476,7 +476,7 @@ export const VirtualScroller = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useLoader = () => {
+    const createLoader = () => {
         if (!props.loaderDisabled && props.showLoader && loadingState) {
             const className = classNames('p-virtualscroller-loader', {
                 'p-component-overlay': !props.loadingTemplate
@@ -486,7 +486,7 @@ export const VirtualScroller = memo(forwardRef((props, ref) => {
 
             if (props.loadingTemplate) {
                 content = loaderArrState.map((_, index) => {
-                    return useLoaderItem(index, both && { numCols: numItemsInViewportState.cols });
+                    return createLoaderItem(index, both && { numCols: numItemsInViewportState.cols });
                 });
             }
 
@@ -500,7 +500,7 @@ export const VirtualScroller = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useSpacer = () => {
+    const createSpacer = () => {
         if (props.showSpacer) {
             return <div ref={spacerRef} className="p-virtualscroller-spacer"></div>
         }
@@ -508,7 +508,7 @@ export const VirtualScroller = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useItem = (item, index) => {
+    const createItem = (item, index) => {
         const options = getOptions(index);
         const content = ObjectUtils.getJSXElement(props.itemTemplate, item, options);
 
@@ -519,14 +519,14 @@ export const VirtualScroller = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useItems = () => {
+    const createItems = () => {
         const items = loadedItems();
 
-        return items.map(useItem);
+        return items.map(createItem);
     }
 
-    const useContent = () => {
-        const items = useItems();
+    const createContent = () => {
+        const items = createItems();
         const className = classNames('p-virtualscroller-content', { 'p-virtualscroller-loading': loadingState });
         const content = (
             <div ref={contentRef} className={className}>
@@ -578,9 +578,9 @@ export const VirtualScroller = memo(forwardRef((props, ref) => {
             'p-horizontal-scroll': horizontal
         }, props.className);
 
-        const loader = useLoader();
-        const content = useContent();
-        const spacer = useSpacer();
+        const loader = createLoader();
+        const content = createContent();
+        const spacer = createSpacer();
 
         return (
             <div ref={elementRef} className={className} tabIndex={0} style={props.style} onScroll={onScroll}>

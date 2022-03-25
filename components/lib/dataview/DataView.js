@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState } from 'react';
+import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import PrimeReact, { localeOption } from '../api/Api';
 import { Paginator } from '../paginator/Paginator';
@@ -88,7 +88,7 @@ export const DataView = memo((props) => {
         return null;
     }
 
-    const useLoader = () => {
+    const createLoader = () => {
         if (props.loading) {
             let iconClassName = classNames('p-dataview-loading-icon pi-spin', props.loadingIcon);
 
@@ -102,7 +102,7 @@ export const DataView = memo((props) => {
         return null;
     }
 
-    const useTopPaginator = () => {
+    const createTopPaginator = () => {
         if (props.paginator && (props.paginatorPosition !== 'bottom' || props.paginatorPosition === 'both')) {
             return createPaginator('top');
         }
@@ -111,7 +111,7 @@ export const DataView = memo((props) => {
     }
 
 
-    const useBottomPaginator = () => {
+    const createBottomPaginator = () => {
         if (props.paginator && (props.paginatorPosition !== 'top' || props.paginatorPosition === 'both')) {
             return createPaginator('bottom');
         }
@@ -119,7 +119,7 @@ export const DataView = memo((props) => {
         return null;
     }
 
-    const useEmptyMessage = () => {
+    const createEmptyMessage = () => {
         if (!props.loading) {
             const content = props.emptyMessage || localeOption('emptyMessage');
 
@@ -129,7 +129,7 @@ export const DataView = memo((props) => {
         return null;
     }
 
-    const useHeader = () => {
+    const createHeader = () => {
         if (props.header) {
             return <div className="p-dataview-header">{props.header}</div>
         }
@@ -137,7 +137,7 @@ export const DataView = memo((props) => {
         return null;
     }
 
-    const useFooter = () => {
+    const createFooter = () => {
         if (props.footer) {
             return <div className="p-dataview-footer">{props.footer}</div>
         }
@@ -145,7 +145,7 @@ export const DataView = memo((props) => {
         return null;
     }
 
-    const useItems = (value) => {
+    const createItems = (value) => {
         if (ObjectUtils.isNotEmpty(value)) {
             if (props.paginator) {
                 const currentFirst = props.lazy ? 0 : first;
@@ -167,11 +167,11 @@ export const DataView = memo((props) => {
             )
         }
 
-        return useEmptyMessage();
+        return createEmptyMessage();
     }
 
-    const useContent = (value) => {
-        const items = useItems(value);
+    const createContent = (value) => {
+        const items = createItems(value);
 
         return (
             <div className="p-dataview-content">
@@ -182,7 +182,7 @@ export const DataView = memo((props) => {
         )
     }
 
-    const processData = useMemo(() => {
+    const processData = () => {
         let data = props.value;
 
         if (ObjectUtils.isNotEmpty(data) && props.sortField) {
@@ -190,18 +190,20 @@ export const DataView = memo((props) => {
         }
 
         return data;
-    });
+    }
+
+    const data = processData();
 
     const className = classNames('p-dataview p-component', {
         [`p-dataview-${props.layout}`]: !!props.layout,
         'p-dataview-loading': props.loading
     }, props.className);
-    const loader = useLoader();
-    const topPaginator = useTopPaginator();
-    const bottomPaginator = useBottomPaginator();
-    const header = useHeader();
-    const footer = useFooter();
-    const content = useContent(processData);
+    const loader = createLoader();
+    const topPaginator = createTopPaginator();
+    const bottomPaginator = createBottomPaginator();
+    const header = createHeader();
+    const footer = createFooter();
+    const content = createContent(data);
 
     return (
         <div id={props.id} style={props.style} className={className}>

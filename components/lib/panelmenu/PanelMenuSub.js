@@ -71,13 +71,13 @@ export const PanelMenuSub = memo((props) => {
         setActiveItemState(findActiveItem());
     });
 
-    const useSeparator = (index) => {
+    const createSeparator = (index) => {
         const key = 'separator_' + index;
 
         return <li key={key} className="p-menu-separator"></li>
     }
 
-    const useSubmenu = (item, active) => {
+    const createSubmenu = (item, active) => {
         const className = classNames('p-toggleable-content', {
             'p-toggleable-content-collapsed': !active
         });
@@ -96,7 +96,7 @@ export const PanelMenuSub = memo((props) => {
         return null;
     }
 
-    const useMenuItem = (item, index) => {
+    const createMenuItem = (item, index) => {
         const key = item.label + '_' + index;
         const active = isItemActive(item);
         const className = classNames('p-menuitem', item.className);
@@ -106,7 +106,7 @@ export const PanelMenuSub = memo((props) => {
         const icon = item.icon && <span className={iconClassName}></span>;
         const label = item.label && <span className="p-menuitem-text">{item.label}</span>;
         const submenuIcon = item.items && <span className={submenuIconClassName}></span>;
-        const submenu = useSubmenu(item, active);
+        const submenu = createSubmenu(item, active);
         let content = (
             <a href={item.url || '#'} className={linkClassName} target={item.target} onClick={(event) => onItemClick(event, item, index)} role="menuitem" aria-disabled={item.disabled}>
                 {submenuIcon}
@@ -139,16 +139,16 @@ export const PanelMenuSub = memo((props) => {
         )
     }
 
-    const useItem = (item, index) => {
-        return item.separator ? useSeparator(index) : useMenuItem(item, index);
+    const createItem = (item, index) => {
+        return item.separator ? createSeparator(index) : createMenuItem(item, index);
     }
 
-    const useMenu = () => {
-        return props.model ? props.model.map(useItem) : null;
+    const createMenu = () => {
+        return props.model ? props.model.map(createItem) : null;
     }
 
     const className = classNames('p-submenu-list', props.className);
-    const menu = useMenu();
+    const menu = createMenu();
 
     return (
         <ul className={className} role="tree">

@@ -910,7 +910,7 @@ export const InputNumber = memo(forwardRef((props, ref) => {
 
     useEffect(() => {
         ObjectUtils.combinedRefs(inputRef, props.inputRef);
-    }, [inputRef]);
+    }, [inputRef, props.inputRef]);
 
     useEffect(() => {
         if (tooltipRef.current) {
@@ -950,7 +950,7 @@ export const InputNumber = memo(forwardRef((props, ref) => {
         }
     });
 
-    const useInputElement = () => {
+    const createInputElement = () => {
         const className = classNames('p-inputnumber-input', props.inputClassName);
         const valueToRender = formattedValue(props.value);
 
@@ -965,7 +965,7 @@ export const InputNumber = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useUpButton = () => {
+    const createUpButton = () => {
         const className = classNames('p-inputnumber-button p-inputnumber-button-up p-button p-button-icon-only p-component', {
             'p-disabled': props.disabled
         }, props.incrementButtonClassName);
@@ -980,7 +980,7 @@ export const InputNumber = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useDownButton = () => {
+    const createDownButton = () => {
         const className = classNames('p-inputnumber-button p-inputnumber-button-down p-button p-button-icon-only p-component', {
             'p-disabled': props.disabled
         }, props.decrementButtonClassName);
@@ -995,9 +995,9 @@ export const InputNumber = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useButtonGroup = () => {
-        const upButton = props.showButtons && useUpButton();
-        const downButton = props.showButtons && useDownButton();
+    const createButtonGroup = () => {
+        const upButton = props.showButtons && createUpButton();
+        const downButton = props.showButtons && createDownButton();
 
         if (stacked) {
             return (
@@ -1023,8 +1023,8 @@ export const InputNumber = memo(forwardRef((props, ref) => {
         'p-inputnumber-buttons-horizontal': horizontal,
         'p-inputnumber-buttons-vertical': vertical
     }, props.className);
-    const inputElement = useInputElement();
-    const buttonGroup = useButtonGroup();
+    const inputElement = createInputElement();
+    const buttonGroup = createButtonGroup();
 
     return (
         <span ref={elementRef} id={props.id} className={className} style={props.style}>

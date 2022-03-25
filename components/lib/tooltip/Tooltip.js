@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import PrimeReact from '../api/Api';
 import { Portal } from '../portal/Portal';
 import { DomHandler, classNames, ZIndexUtils } from '../utils/Utils';
-import { useResizeListener, useOverlayScrollListener, useUpdateEffect, useUnmountEffect } from '../hooks/Hooks';
+import { useMountEffect, useUpdateEffect, useUnmountEffect, useResizeListener, useOverlayScrollListener } from '../hooks/Hooks';
 
 export const tip = (props) => {
     const appendTo = props.appendTo || document.body;
@@ -393,18 +393,22 @@ export const Tooltip = memo(forwardRef((props, ref) => {
     }
 
     useEffect(() => {
+        if (visibleState && currentTargetRef.current && isDisabled(currentTargetRef.current)) {
+            hide();
+        }
+    });
+
+    useMountEffect(() => {
+        loadTargetEvents();
+    });
+
+    useUpdateEffect(() => {
         loadTargetEvents();
 
         return () => {
             unloadTargetEvents();
         }
     }, [show, hide, props.target]);
-
-    useEffect(() => {
-        if (visibleState && currentTargetRef.current && isDisabled(currentTargetRef.current)) {
-            hide();
-        }
-    });
 
     useUpdateEffect(() => {
         if (visibleState) {
@@ -444,7 +448,7 @@ export const Tooltip = memo(forwardRef((props, ref) => {
         unloadTargetEvents
     }));
 
-    const useElement = () => {
+    const createElement = () => {
         const tooltipClassName = classNames('p-tooltip p-component', {
             [`p-tooltip-${positionState}`]: true
         }, props.className);
@@ -462,7 +466,7 @@ export const Tooltip = memo(forwardRef((props, ref) => {
     }
 
     if (visibleState) {
-        const element = useElement();
+        const element = createElement();
 
         return <Portal element={element} appendTo={props.appendTo} visible />;
     }

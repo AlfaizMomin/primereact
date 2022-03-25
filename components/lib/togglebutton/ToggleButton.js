@@ -56,7 +56,7 @@ export const ToggleButton = memo((props) => {
         }
     });
 
-    const useIcon = () => {
+    const createIcon = () => {
         if (hasIcon) {
             const iconClassName = classNames('p-button-icon p-c', {
                 'p-button-icon-left': props.iconPos === 'left' && label,
@@ -75,7 +75,7 @@ export const ToggleButton = memo((props) => {
         'p-highlight': props.checked,
         'p-disabled': props.disabled
     }, props.className);
-    const iconElement = useIcon();
+    const iconElement = createIcon();
 
     return (
         <div ref={elementRef} id={props.id} className={className} style={props.style}

@@ -69,15 +69,15 @@ export const OrderListSubList = memo(forwardRef((props, ref) => {
         listElementRef
     }));
 
-    const useDropPoint = (index, key) => {
+    const createDropPoint = (index, key) => {
         return <li key={key} className="p-orderlist-droppoint" onDragOver={(e) => onDragOver(e, index + 1)} onDragLeave={onDragLeave} onDrop={onDrop}></li>
     }
 
-    const useHeader = () => {
+    const createHeader = () => {
         return props.header ? <div className="p-orderlist-header">{props.header}</div> : null;
     }
 
-    const useItems = () => {
+    const createItems = () => {
         if (props.value) {
             return props.value.map((item, i) => {
                 const content = props.itemTemplate ? props.itemTemplate(item) : item;
@@ -86,7 +86,7 @@ export const OrderListSubList = memo(forwardRef((props, ref) => {
 
                 if (props.dragdrop) {
                     let items = [
-                        useDropPoint(i, key + '_droppoint'),
+                        createDropPoint(i, key + '_droppoint'),
                         <li key={key} className={itemClassName} onClick={(e) => props.onItemClick({ originalEvent: e, value: item, index: i })}
                             onKeyDown={(e) => props.onItemKeyDown({ originalEvent: e, value: item, index: i })} role="option" aria-selected={isSelected(item)}
                             draggable="true" onDragStart={(e) => onDragStart(e, i)} onDragEnd={onDragEnd} tabIndex={props.tabIndex}>
@@ -96,7 +96,7 @@ export const OrderListSubList = memo(forwardRef((props, ref) => {
                     ];
 
                     if (i === props.value.length - 1) {
-                        items.push(useDropPoint(item, i, key + '_droppoint_end'));
+                        items.push(createDropPoint(item, i, key + '_droppoint_end'));
                     }
 
                     return items;
@@ -115,8 +115,8 @@ export const OrderListSubList = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useList = () => {
-        const items = useItems();
+    const createList = () => {
+        const items = createItems();
 
         return (
             <ul ref={listElementRef} className="p-orderlist-list" style={props.listStyle} onDragOver={onListMouseMove} role="listbox" aria-multiselectable>
@@ -125,8 +125,8 @@ export const OrderListSubList = memo(forwardRef((props, ref) => {
         )
     }
 
-    const header = useHeader();
-    const list = useList();
+    const header = createHeader();
+    const list = createList();
 
     return (
         <div className="p-orderlist-list-container">

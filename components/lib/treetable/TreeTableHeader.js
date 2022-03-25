@@ -126,31 +126,6 @@ export const TreeTableHeader = memo((props) => {
         return false;
     }
 
-    const useSortIcon = (column, sorted, sortOrder) => {
-        if (column.props.sortable) {
-            const sortIcon = sorted ? sortOrder < 0 ? 'pi-sort-amount-down' : 'pi-sort-amount-up-alt' : 'pi-sort-alt';
-            const sortIconClassName = classNames('p-sortable-column-icon', 'pi pi-fw', sortIcon);
-
-            return (
-                <span className={sortIconClassName}></span>
-            )
-        }
-        else {
-            return null;
-        }
-    }
-
-    const useResizer = (column) => {
-        if (props.resizableColumns) {
-            return (
-                <span className="p-column-resizer p-clickable" onMouseDown={e => onResizerMouseDown(e, column)} />
-            );
-        }
-        else {
-            return null;
-        }
-    }
-
     const getAriaSort = (column, sorted, sortOrder) => {
         if (column.props.sortable) {
             let sortIcon = sorted ? sortOrder < 0 ? 'pi-sort-down' : 'pi-sort-up' : 'pi-sort';
@@ -166,7 +141,32 @@ export const TreeTableHeader = memo((props) => {
         }
     }
 
-    const useSortBadge = (sortMetaDataIndex) => {
+    const createSortIcon = (column, sorted, sortOrder) => {
+        if (column.props.sortable) {
+            const sortIcon = sorted ? sortOrder < 0 ? 'pi-sort-amount-down' : 'pi-sort-amount-up-alt' : 'pi-sort-alt';
+            const sortIconClassName = classNames('p-sortable-column-icon', 'pi pi-fw', sortIcon);
+
+            return (
+                <span className={sortIconClassName}></span>
+            )
+        }
+        else {
+            return null;
+        }
+    }
+
+    const createResizer = (column) => {
+        if (props.resizableColumns) {
+            return (
+                <span className="p-column-resizer p-clickable" onMouseDown={e => onResizerMouseDown(e, column)} />
+            )
+        }
+        else {
+            return null;
+        }
+    }
+
+    const createSortBadge = (sortMetaDataIndex) => {
         if (sortMetaDataIndex !== -1 && props.multiSortMeta && props.multiSortMeta.length > 1) {
             return <span className="p-sortable-column-badge">{sortMetaDataIndex + 1}</span>;
         }
@@ -174,7 +174,7 @@ export const TreeTableHeader = memo((props) => {
         return null;
     }
 
-    const useHeaderCell = (column, options) => {
+    const createHeaderCell = (column, options) => {
         let filterElement;
 
         if (column.props.filter && options.renderFilter) {
@@ -203,9 +203,9 @@ export const TreeTableHeader = memo((props) => {
             else if (multipleSorted)
                 sortOrder = multiSortMetaData.order;
 
-            const sortIconElement = useSortIcon(column, sorted, sortOrder);
+            const sortIconElement = createSortIcon(column, sorted, sortOrder);
             const ariaSortData = getAriaSort(column, sorted, sortOrder);
-            const sortBadge = useSortBadge(sortMetaDataIndex);
+            const sortBadge = createSortBadge(sortMetaDataIndex);
 
             const className = classNames(column.props.headerClassName || column.props.className, {
                 'p-sortable-column': column.props.sortable,
@@ -213,7 +213,7 @@ export const TreeTableHeader = memo((props) => {
                 'p-resizable-column': props.resizableColumns
             });
 
-            const resizer = useResizer(column);
+            const resizer = createResizer(column);
 
             return (
                 <th key={column.columnKey || column.field || options.index} className={className} style={column.props.headerStyle || column.props.style} tabIndex={column.props.sortable ? props.tabIndex : null}
@@ -230,34 +230,34 @@ export const TreeTableHeader = memo((props) => {
         }
     }
 
-    const useHeaderRow = (row, index) => {
+    const createHeaderRow = (row, index) => {
         const rowColumns = React.Children.toArray(row.props.children);
-        const rowHeaderCells = rowColumns.map((col, i) => useHeaderCell(col, { index: i, filterOnly: false, renderFilter: true }));
+        const rowHeaderCells = rowColumns.map((col, i) => createHeaderCell(col, { index: i, filterOnly: false, renderFilter: true }));
 
         return (
             <tr key={index}>{rowHeaderCells}</tr>
         )
     }
 
-    const useColumnGroup = () => {
+    const createColumnGroup = () => {
         const rows = React.Children.toArray(props.columnGroup.props.children);
 
-        return rows.map(useHeaderRow);
+        return rows.map(createHeaderRow);
     }
 
-    const useColumns = (columns) => {
+    const createColumns = (columns) => {
         if (columns) {
             if (hasColumnFilter(columns)) {
                 return (
                     <>
-                        <tr>{columns.map((col, i) => useHeaderCell(col, { index: i, filterOnly: false, renderFilter: false }))}</tr>
-                        <tr>{columns.map((col, i) => useHeaderCell(col, { index: i, filterOnly: true, renderFilter: true }))}</tr>
+                        <tr>{columns.map((col, i) => createHeaderCell(col, { index: i, filterOnly: false, renderFilter: false }))}</tr>
+                        <tr>{columns.map((col, i) => createHeaderCell(col, { index: i, filterOnly: true, renderFilter: true }))}</tr>
                     </>
                 )
             }
             else {
                 return (
-                    <tr>{columns.map((col, i) => useHeaderCell(col, { index: i, filterOnly: false, renderFilter: false }))}</tr>
+                    <tr>{columns.map((col, i) => createHeaderCell(col, { index: i, filterOnly: false, renderFilter: false }))}</tr>
                 )
             }
         }
@@ -266,7 +266,7 @@ export const TreeTableHeader = memo((props) => {
         }
     }
 
-    const content = props.columnGroup ? useColumnGroup() : useColumns(props.columns);
+    const content = props.columnGroup ? createColumnGroup() : createColumns(props.columns);
 
     return (
         <thead className="p-treetable-thead">

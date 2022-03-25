@@ -35,6 +35,7 @@ const TemplateSection = (props) => {
                 <a
                     className="templates-btn"
                     target="_blank"
+                    rel="noopener noreferrer"
                     href="https://www.primefaces.org/diamond-react/"
                     >
                 Diamond Preview
@@ -55,6 +56,7 @@ const TemplateSection = (props) => {
             <a
                 className="templates-btn"
                 target="_blank"
+                rel="noopener noreferrer"
                 href="https://www.primefaces.org/freya-react/"
                 >
             Freya Preview
@@ -77,13 +79,14 @@ const TemplateSection = (props) => {
                 <a
                     className="templates-btn"
                     target="_blank"
+                    rel="noopener noreferrer"
                     href="https://www.primefaces.org/atlantis-react/"
                     >
                 Atlantis Preview
                 </a>
             </div>
             <div className="template-block block-middle border-none box-shadow-none mr-2 flex justify-content-center align-items-center flex-column">
-                <img className="img-1" src={props.dark ? `${contextPath}/images/landing-new/templates/templates-text-dark.png` : `${contextPath}/images/landing-new/templates/templates-text-light.png`} height={110} />
+                <img className="img-1" src={props.dark ? `${contextPath}/images/landing-new/templates/templates-text-dark.png` : `${contextPath}/images/landing-new/templates/templates-text-light.png`} alt="template-text" height={110} />
             </div>
             <div className="template-block block-4 ml-2 flex justify-content-center align-items-center"
             style={
@@ -99,6 +102,7 @@ const TemplateSection = (props) => {
             <a
                 className="templates-btn"
                 target="_blank"
+                rel="noopener noreferrer"
                 href="https://www.primefaces.org/apollo-react/"
                 >
             Apollo Preview
@@ -121,6 +125,7 @@ const TemplateSection = (props) => {
                 <a
                     className="templates-btn"
                     target="_blank"
+                    rel="noopener noreferrer"
                     href="https://www.primefaces.org/serenity-react/"
                     >
                 Serenity Preview
@@ -141,6 +146,7 @@ const TemplateSection = (props) => {
             <a
                 className="templates-btn"
                 target="_blank"
+                rel="noopener noreferrer"
                 href="https://www.primefaces.org/ultima-react/"
                 >
             Ultima Preview

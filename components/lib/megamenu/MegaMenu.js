@@ -171,12 +171,12 @@ export const MegaMenu = memo((props) => {
         bindDocumentClickListener();
     });
 
-    const useSeparator = (index) => {
+    const createSeparator = (index) => {
         const key = 'separator_' + index;
         return <li key={key} className="p-menu-separator" role="separator"></li>
     }
 
-    const useSubmenuIcon = (item) => {
+    const createSubmenuIcon = (item) => {
         if (item.items) {
             const className = classNames('p-submenu-icon pi', {
                 'pi-angle-down': horizontal,
@@ -189,9 +189,9 @@ export const MegaMenu = memo((props) => {
         return null;
     }
 
-    const useSubmenuItem = (item, index) => {
+    const createSubmenuItem = (item, index) => {
         if (item.separator) {
-            return useSeparator(index);
+            return createSeparator(index);
         }
         else {
             const key = item.label + '_' + index;
@@ -229,27 +229,27 @@ export const MegaMenu = memo((props) => {
         }
     }
 
-    const useSubmenu = (submenu) => {
+    const createSubmenu = (submenu) => {
         const className = classNames('p-megamenu-submenu-header', {
             'p-disabled': submenu.disabled
         }, submenu.className);
-        const items = submenu.items.map(useSubmenuItem);
+        const items = submenu.items.map(createSubmenuItem);
 
         return (
             <React.Fragment key={submenu.label}>
-                <li className={className} style={submenu.style} role="presentation" aria-disabled={submenu.disabled}>{submenu.label}</li>
+                <li className={className} style={submenu.style} role="presentation">{submenu.label}</li>
                 {items}
             </React.Fragment>
         )
     }
 
-    const useSubmenus = (column) => {
-        return column.map(useSubmenu);
+    const createSubmenus = (column) => {
+        return column.map(createSubmenu);
     }
 
-    const useColumn = (category, column, index, columnClassName) => {
+    const createColumn = (category, column, index, columnClassName) => {
         const key = category.label + '_column_' + index;
-        const submenus = useSubmenus(column);
+        const submenus = createSubmenus(column);
 
         return (
             <div key={key} className={columnClassName}>
@@ -260,13 +260,13 @@ export const MegaMenu = memo((props) => {
         )
     }
 
-    const useColumns = (category) => {
+    const createColumns = (category) => {
         if (category.items) {
             const columnClassName = getColumnClassName(category);
 
             return (
                 category.items.map((column, index) => {
-                    return useColumn(category, column, index, columnClassName);
+                    return createColumn(category, column, index, columnClassName);
                 })
             )
         }
@@ -274,9 +274,9 @@ export const MegaMenu = memo((props) => {
         return null;
     }
 
-    const useCategoryPanel = (category) => {
+    const createCategoryPanel = (category) => {
         if (category.items) {
-            const columns = useColumns(category);
+            const columns = createColumns(category);
 
             return (
                 <div className="p-megamenu-panel">
@@ -290,15 +290,15 @@ export const MegaMenu = memo((props) => {
         return null;
     }
 
-    const useCategory = (category, index) => {
+    const createCategory = (category, index) => {
         const className = classNames('p-menuitem', { 'p-menuitem-active': category === activeItemState }, category.className);
         const linkClassName = classNames('p-menuitem-link', { 'p-disabled': category.disabled });
         const iconClassName = classNames('p-menuitem-icon', category.icon);
         const icon = category.icon && <span className={iconClassName}></span>;
         const label = category.label && <span className="p-menuitem-text">{category.label}</span>;
         const itemContent = category.template ? ObjectUtils.getJSXElement(category.template, category) : null;
-        const submenuIcon = useSubmenuIcon(category);
-        const panel = useCategoryPanel(category);
+        const submenuIcon = createSubmenuIcon(category);
+        const panel = createCategoryPanel(category);
 
         return (
             <li key={category.label + '_' + index} className={className} style={category.style} onMouseEnter={e => onCategoryMouseEnter(e, category)} role="none">
@@ -315,11 +315,11 @@ export const MegaMenu = memo((props) => {
         )
     }
 
-    const useMenu = () => {
+    const createMenu = () => {
         if (props.model) {
             return (
                 props.model.map((item, index) => {
-                    return useCategory(item, index, true);
+                    return createCategory(item, index, true);
                 })
             )
         }
@@ -327,7 +327,7 @@ export const MegaMenu = memo((props) => {
         return null;
     }
 
-    const useCustomContent = () => {
+    const createCustomContent = () => {
         if (props.children) {
             return (
                 <div className="p-megamenu-custom">
@@ -344,8 +344,8 @@ export const MegaMenu = memo((props) => {
         'p-megamenu-horizontal': props.orientation === 'horizontal',
         'p-megamenu-vertical': props.orientation === 'vertical'
     }, props.className);
-    const menu = useMenu();
-    const customContent = useCustomContent();
+    const menu = createMenu();
+    const customContent = createCustomContent();
 
     return (
         <div ref={elementRef} id={props.id} className={className} style={props.style}>

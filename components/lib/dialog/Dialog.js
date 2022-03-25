@@ -403,7 +403,7 @@ export const Dialog = forwardRef((props, ref) => {
         resetPosition
     }));
 
-    const useCloseIcon = () => {
+    const createCloseIcon = () => {
         if (props.closable) {
             return (
                 <button ref={closeRef} type="button" className="p-dialog-header-icon p-dialog-header-close p-link" aria-label={props.ariaCloseIconLabel} onClick={onClose}>
@@ -416,7 +416,7 @@ export const Dialog = forwardRef((props, ref) => {
         return null;
     }
 
-    const useMaximizeIcon = () => {
+    const createMaximizeIcon = () => {
         const iconClassName = classNames('p-dialog-header-maximize-icon pi', {
             'pi-window-maximize': !maximized,
             'pi-window-minimize': maximized
@@ -434,10 +434,10 @@ export const Dialog = forwardRef((props, ref) => {
         return null;
     }
 
-    const useHeader = () => {
+    const createHeader = () => {
         if (props.showHeader) {
-            const closeIcon = useCloseIcon();
-            const maximizeIcon = useMaximizeIcon();
+            const closeIcon = createCloseIcon();
+            const maximizeIcon = createMaximizeIcon();
             const icons = ObjectUtils.getJSXElement(props.icons, props);
             const header = ObjectUtils.getJSXElement(props.header, props);
             const headerId = idState + '_header';
@@ -457,7 +457,7 @@ export const Dialog = forwardRef((props, ref) => {
         return null;
     }
 
-    const useContent = () => {
+    const createContent = () => {
         const className = classNames('p-dialog-content', props.contentClassName);
         const contentId = idState + '_content';
 
@@ -468,13 +468,13 @@ export const Dialog = forwardRef((props, ref) => {
         )
     }
 
-    const useFooter = () => {
+    const createFooter = () => {
         const footer = ObjectUtils.getJSXElement(props.footer, props);
 
         return footer && <div ref={footerRef} className="p-dialog-footer">{footer}</div>
     }
 
-    const useResizer = () => {
+    const createResizer = () => {
         if (props.resizable) {
             return <div className="p-resizable-handle" style={{ zIndex: 90 }} onMouseDown={onResizeStart}></div>
         }
@@ -482,7 +482,7 @@ export const Dialog = forwardRef((props, ref) => {
         return null;
     }
 
-    const useElement = () => {
+    const createElement = () => {
         const className = classNames('p-dialog p-component', props.className, {
             'p-dialog-rtl': props.rtl,
             'p-dialog-maximized': maximized
@@ -493,10 +493,10 @@ export const Dialog = forwardRef((props, ref) => {
             'p-dialog-draggable': props.draggable,
             'p-dialog-resizable': props.resizable,
         }, props.maskClassName);
-        const header = useHeader();
-        const content = useContent();
-        const footer = useFooter();
-        const resizer = useResizer();
+        const header = createHeader();
+        const content = createContent();
+        const footer = createFooter();
+        const resizer = createResizer();
 
         const headerId = idState + '_header';
         const contentId = idState + '_content';
@@ -521,13 +521,13 @@ export const Dialog = forwardRef((props, ref) => {
         )
     }
 
-    const useDialog = () => {
-        const element = useElement();
+    const createDialog = () => {
+        const element = createElement();
 
         return <Portal element={element} appendTo={props.appendTo} visible />
     }
 
-    return maskVisibleState && useDialog();
+    return maskVisibleState && createDialog();
 });
 
 Dialog.defaultProps = {

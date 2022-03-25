@@ -213,7 +213,7 @@ export const Password = memo((props) => {
 
     useEffect(() => {
         ObjectUtils.combinedRefs(inputRef, props.inputRef);
-    }, [inputRef]);
+    }, [inputRef, props.inputRef]);
 
     useEffect(() => {
         if (tooltipRef.current) {
@@ -251,7 +251,7 @@ export const Password = memo((props) => {
         }
     });
 
-    const useIcon = () => {
+    const createIcon = () => {
         if (props.toggleMask) {
             const iconClassName = unmaskedState ? 'pi pi-eye-slash' : 'pi pi-eye';
             let content = <i className={iconClassName} onClick={onMaskToggle} />
@@ -273,7 +273,7 @@ export const Password = memo((props) => {
         return null;
     }
 
-    const usePanel = () => {
+    const createPanel = () => {
         const panelClassName = classNames('p-password-panel p-component', props.panelClassName);
         const { strength, width } = meterState || { strength: '', width: '0%' };
         const header = ObjectUtils.getJSXElement(props.header, props);
@@ -310,8 +310,8 @@ export const Password = memo((props) => {
     }, props.className);
     const inputClassName = classNames('p-password-input', props.inputClassName)
     const inputProps = ObjectUtils.findDiffKeys(props, Password.defaultProps);
-    const icon = useIcon();
-    const panel = usePanel();
+    const icon = createIcon();
+    const panel = createPanel();
 
     return (
         <div ref={elementRef} id={props.id} className={className} style={props.style}>

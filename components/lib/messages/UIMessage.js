@@ -24,7 +24,7 @@ export const UIMessage = memo(forwardRef((props, ref) => {
         props.onClick && props.onClick(props.message);
     }
 
-    const useCloseIcon = () => {
+    const createCloseIcon = () => {
         if (closable !== false) {
             return (
                 <button type="button" className="p-message-close p-link" onClick={onClose}>
@@ -37,7 +37,7 @@ export const UIMessage = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useMessage = () => {
+    const createMessage = () => {
         if (props.message) {
             const icon = classNames('p-message-icon pi ', {
                 'pi-info-circle': severity === 'info',
@@ -59,8 +59,8 @@ export const UIMessage = memo(forwardRef((props, ref) => {
     }
 
     const className = classNames('p-message p-component p-message-' + severity);
-    const closeIcon = useCloseIcon();
-    const message = useMessage();
+    const closeIcon = createCloseIcon();
+    const message = createMessage();
 
     return (
         <div ref={ref} className={className} onClick={onClick}>

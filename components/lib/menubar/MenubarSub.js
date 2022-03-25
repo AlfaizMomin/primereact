@@ -158,13 +158,13 @@ export const MenubarSub = memo(forwardRef((props, ref) => {
         !props.parentActive && setActiveItemState(null);
     }, [props.parentActive]);
 
-    const useSeparator = (index) => {
+    const createSeparator = (index) => {
         const key = 'separator_' + index;
 
         return <li key={key} className="p-menu-separator" role="separator"></li>
     }
 
-    const useSubmenu = (item) => {
+    const createSubmenu = (item) => {
         if (item.items) {
             return <MenubarSub model={item.items} mobileActive={props.mobileActive} onLeafClick={onLeafClick} onKeyDown={onChildItemKeyDown} parentActive={item === activeItemState} />
         }
@@ -172,7 +172,7 @@ export const MenubarSub = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useMenuitem = (item, index) => {
+    const createMenuitem = (item, index) => {
         const key = item.label + '_' + index;
         const className = classNames('p-menuitem', { 'p-menuitem-active': activeItemState === item }, item.className);
         const linkClassName = classNames('p-menuitem-link', { 'p-disabled': item.disabled });
@@ -181,7 +181,7 @@ export const MenubarSub = memo(forwardRef((props, ref) => {
         const icon = item.icon && <span className={iconClassName}></span>;
         const label = item.label && <span className="p-menuitem-text">{item.label}</span>;
         const submenuIcon = item.items && <span className={submenuIconClassName}></span>;
-        const submenu = useSubmenu(item);
+        const submenu = createSubmenu(item);
         let content = (
             <a href={item.url || '#'} role="menuitem" className={linkClassName} target={item.target} aria-haspopup={item.items != null}
                 onClick={(event) => onItemClick(event, item)} onKeyDown={(event) => onItemKeyDown(event, item)}>
@@ -215,12 +215,12 @@ export const MenubarSub = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useItem = (item, index) => {
-        return item.separator ? useSeparator(index) : useMenuitem(item, index);
+    const createItem = (item, index) => {
+        return item.separator ? createSeparator(index) : createMenuitem(item, index);
     }
 
-    const useMenu = () => {
-        return props.model ? props.model.map(useItem) : null;
+    const createMenu = () => {
+        return props.model ? props.model.map(createItem) : null;
     }
 
     const role = props.root ? 'menubar' : 'menu';
@@ -228,7 +228,7 @@ export const MenubarSub = memo(forwardRef((props, ref) => {
         'p-submenu-list': !props.root,
         'p-menubar-root-list': props.root
     });
-    const submenu = useMenu();
+    const submenu = createMenu();
 
     return (
         <ul ref={ref} className={className} role={role}>

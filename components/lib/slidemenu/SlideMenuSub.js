@@ -27,13 +27,13 @@ export const SlideMenuSub = memo((props) => {
         }
     }
 
-    const useSeparator = (index) => {
+    const createSeparator = (index) => {
         const key = 'separator_' + index;
 
         return <li key={key} className="p-menu-separator"></li>
     }
 
-    const useSubmenu = (item) => {
+    const createSubmenu = (item) => {
         if (item.items) {
             return <SlideMenuSub model={item.items} index={props.index + 1} menuWidth={props.menuWidth} effectDuration={props.effectDuration} onForward={props.onForward} parentActive={item === activeItemState} />
         }
@@ -41,7 +41,7 @@ export const SlideMenuSub = memo((props) => {
         return null;
     }
 
-    const useMenuitem = (item, index) => {
+    const createMenuitem = (item, index) => {
         const key = item.label + '_' + index;
         const active = activeItemState === item;
         const className = classNames('p-menuitem', { 'p-menuitem-active': active, 'p-disabled': item.disabled }, item.className);
@@ -50,7 +50,7 @@ export const SlideMenuSub = memo((props) => {
         const icon = item.icon && <span className={iconClassName}></span>;
         const label = item.label && <span className="p-menuitem-text">{item.label}</span>;
         const submenuIcon = item.items && <span className={submenuIconClassName}></span>;
-        const submenu = useSubmenu(item);
+        const submenu = createSubmenu(item);
         let content = (
             <a href={item.url || '#'} className="p-menuitem-link" target={item.target} onClick={(event) => onItemClick(event, item, index)} aria-disabled={item.disabled}>
                 {icon}
@@ -82,12 +82,12 @@ export const SlideMenuSub = memo((props) => {
         )
     }
 
-    const useItem = (item, index) => {
-        return item.separator ? useSeparator(index) : useMenuitem(item, index);
+    const createItem = (item, index) => {
+        return item.separator ? createSeparator(index) : createMenuitem(item, index);
     }
 
-    const useItems = () => {
-        return props.model ? props.model.map(useItem) : null;
+    const createItems = () => {
+        return props.model ? props.model.map(createItem) : null;
     }
 
     const style = {
@@ -102,7 +102,7 @@ export const SlideMenuSub = memo((props) => {
         'p-submenu-list': !props.root,
         'p-active-submenu': props.parentActive
     });
-    const items = useItems();
+    const items = createItems();
 
     return (
         <ul className={className} style={style}>

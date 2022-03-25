@@ -150,7 +150,7 @@ export const TabView = forwardRef((props, ref) => {
         reset
     }));
 
-    const useTabHeader = (tab, index) => {
+    const createTabHeader = (tab, index) => {
         const selected = isSelected(index);
         const { headerStyle, headerClassName, style: _style, className: _className, disabled, leftIcon, rightIcon, header, headerTemplate, closable } = tab.props;
         const style = { ...(headerStyle || {}), ...(_style || {}) };
@@ -202,18 +202,18 @@ export const TabView = forwardRef((props, ref) => {
         )
     }
 
-    const useTabHeaders = () => {
+    const createTabHeaders = () => {
         return (
             React.Children.map(props.children, (tab, index) => {
                 if (shouldUseTab(tab, index)) {
-                    return useTabHeader(tab, index);
+                    return createTabHeader(tab, index);
                 }
             })
         );
     }
 
-    const useNavigator = () => {
-        const headers = useTabHeaders();
+    const createNavigator = () => {
+        const headers = createTabHeaders();
 
         return (
             <div ref={contentRef} id={idState} className="p-tabview-nav-content" style={props.style} onScroll={onScroll}>
@@ -225,7 +225,7 @@ export const TabView = forwardRef((props, ref) => {
         )
     }
 
-    const useContent = () => {
+    const createContent = () => {
         const contents = React.Children.map(props.children, (tab, index) => {
             if (shouldUseTab(tab, index) && (!props.renderActiveOnly || isSelected(index))) {
                 const selected = isSelected(index);
@@ -249,7 +249,7 @@ export const TabView = forwardRef((props, ref) => {
         )
     }
 
-    const usePrevButton = () => {
+    const createPrevButton = () => {
         if (props.scrollable && !backwardIsDisabledState) {
             return (
                 <button ref={prevBtnRef} className="p-tabview-nav-prev p-tabview-nav-btn p-link" onClick={navBackward} type="button">
@@ -262,7 +262,7 @@ export const TabView = forwardRef((props, ref) => {
         return null;
     }
 
-    const useNextButton = () => {
+    const createNextButton = () => {
         if (props.scrollable && !forwardIsDisabledState) {
             return (
                 <button ref={nextBtnRef} className="p-tabview-nav-next p-tabview-nav-btn p-link" onClick={navForward} type="button">
@@ -276,10 +276,10 @@ export const TabView = forwardRef((props, ref) => {
     const className = classNames('p-tabview p-component', {
         'p-tabview-scrollable': props.scrollable
     }, props.className);
-    const navigator = useNavigator();
-    const content = useContent();
-    const prevButton = usePrevButton();
-    const nextButton = useNextButton();
+    const navigator = createNavigator();
+    const content = createContent();
+    const prevButton = createPrevButton();
+    const nextButton = createNextButton();
 
     return (
         <div className={className}>

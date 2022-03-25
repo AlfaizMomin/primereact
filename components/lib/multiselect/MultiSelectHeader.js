@@ -24,7 +24,7 @@ export const MultiSelectHeader = memo((props) => {
         }
     }
 
-    const useFilterElement = () => {
+    const createFilterElement = () => {
         if (props.filter) {
             return (
                 <div className="p-multiselect-filter-container">
@@ -38,7 +38,7 @@ export const MultiSelectHeader = memo((props) => {
         return null;
     }
 
-    const filterElement = useFilterElement();
+    const filterElement = createFilterElement();
     const checkboxElement = props.showSelectAll && <Checkbox checked={props.selectAll} onChange={onSelectAll} role="checkbox" aria-checked={props.selectAll} />;
     const closeElement = (
         <button type="button" className="p-multiselect-close p-link" onClick={props.onClose}>

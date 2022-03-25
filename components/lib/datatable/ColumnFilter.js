@@ -418,7 +418,7 @@ export const ColumnFilter = memo((props) => {
         }
     });
 
-    const useFilterElement = (model, index) => {
+    const createFilterElement = (model, index) => {
         const value = model ? model.value : null;
 
         return getColumnProp('filterElement') ?
@@ -426,9 +426,9 @@ export const ColumnFilter = memo((props) => {
             : <InputText type={getColumnProp('filterType')} value={value || ''} onChange={(e) => onInputChange(e, index)} className="p-column-filter" placeholder={getColumnProp('filterPlaceholder')} maxLength={getColumnProp('filterMaxLength')} />;
     }
 
-    const useRowFilterElement = () => {
+    const createRowFilterElement = () => {
         if (props.display === 'row') {
-            const content = useFilterElement(filterModel, 0);
+            const content = createFilterElement(filterModel, 0);
 
             return (
                 <div className="p-fluid p-column-filter-element">
@@ -441,11 +441,11 @@ export const ColumnFilter = memo((props) => {
         return null;
     }
 
-    const useMenuFilterElement = (fieldConstraint, index) => {
-        return props.display === 'menu' ? useFilterElement(fieldConstraint, index) : null;
+    const createMenuFilterElement = (fieldConstraint, index) => {
+        return props.display === 'menu' ? createFilterElement(fieldConstraint, index) : null;
     }
 
-    const useMenuButton = () => {
+    const createMenuButton = () => {
         if (showMenuButton()) {
             const className = classNames('p-column-filter-menu-button p-link', {
                 'p-column-filter-menu-button-open': overlayVisibleState,
@@ -462,7 +462,7 @@ export const ColumnFilter = memo((props) => {
         return null;
     }
 
-    const useClearButton = () => {
+    const createClearButton = () => {
         if (getColumnProp('showClearButton') && props.display === 'row') {
             const className = classNames('p-column-filter-clear-button p-link', {
                 'p-hidden-space': !hasRowFilter()
@@ -478,7 +478,7 @@ export const ColumnFilter = memo((props) => {
         return null;
     }
 
-    const useRowItems = () => {
+    const createRowItems = () => {
         if (isShowMatchModes()) {
             const _matchModes = matchModes();
             const _noFilterLabel = noFilterLabel();
@@ -507,7 +507,7 @@ export const ColumnFilter = memo((props) => {
         return null;
     }
 
-    const useOperator = () => {
+    const createOperator = () => {
         if (isShowOperator()) {
             const options = operatorOptions();
             const value = operator();
@@ -522,7 +522,7 @@ export const ColumnFilter = memo((props) => {
         return null;
     }
 
-    const useMatchModeDropdown = (constraint, index) => {
+    const createMatchModeDropdown = (constraint, index) => {
         if (isShowMatchModes()) {
             const options = matchModes();
 
@@ -534,7 +534,7 @@ export const ColumnFilter = memo((props) => {
         return null;
     }
 
-    const useRemoveButton = (index) => {
+    const createRemoveButton = (index) => {
         if (showRemoveIcon()) {
             const removeRuleLabel = removeRuleButtonLabel();
 
@@ -546,16 +546,16 @@ export const ColumnFilter = memo((props) => {
         return null;
     }
 
-    const useConstraints = () => {
+    const createConstraints = () => {
         const _fieldConstraints = fieldConstraints();
 
         return (
             <div className="p-column-filter-constraints">
                 {
                     _fieldConstraints.map((fieldConstraint, i) => {
-                        const matchModeDropdown = useMatchModeDropdown(fieldConstraint, i)
-                        const menuFilterElement = useMenuFilterElement(fieldConstraint, i);
-                        const removeButton = useRemoveButton(i);
+                        const matchModeDropdown = createMatchModeDropdown(fieldConstraint, i)
+                        const menuFilterElement = createMenuFilterElement(fieldConstraint, i);
+                        const removeButton = createRemoveButton(i);
 
                         return (
                             <div key={i} className="p-column-filter-constraint">
@@ -572,7 +572,7 @@ export const ColumnFilter = memo((props) => {
         )
     }
 
-    const useAddRule = () => {
+    const createAddRule = () => {
         if (isShowAddConstraint()) {
             const addRuleLabel = addRuleButtonLabel();
 
@@ -586,7 +586,7 @@ export const ColumnFilter = memo((props) => {
         return null;
     }
 
-    const useFilterClearButton = () => {
+    const createFilterClearButton = () => {
         if (getColumnProp('showClearButton')) {
             if (!getColumnProp('filterClear')) {
                 const clearLabel = clearButtonLabel();
@@ -600,7 +600,7 @@ export const ColumnFilter = memo((props) => {
         return null;
     }
 
-    const useFilterApplyButton = () => {
+    const createFilterApplyButton = () => {
         if (getColumnProp('showApplyButton')) {
             if (!getColumnProp('filterApply')) {
                 const applyLabel = applyButtonLabel();
@@ -614,9 +614,9 @@ export const ColumnFilter = memo((props) => {
         return null
     }
 
-    const useButtonBar = () => {
-        const clearButton = useFilterClearButton();
-        const applyButton = useFilterApplyButton();
+    const createButtonBar = () => {
+        const clearButton = createFilterClearButton();
+        const applyButton = createFilterApplyButton();
 
         return (
             <div className="p-column-filter-buttonbar">
@@ -626,11 +626,11 @@ export const ColumnFilter = memo((props) => {
         )
     }
 
-    const useItems = () => {
-        const operator = useOperator();
-        const constraints = useConstraints();
-        const addRule = useAddRule();
-        const buttonBar = useButtonBar();
+    const createItems = () => {
+        const operator = createOperator();
+        const constraints = createConstraints();
+        const addRule = createAddRule();
+        const buttonBar = createButtonBar();
 
         return (
             <>
@@ -642,7 +642,7 @@ export const ColumnFilter = memo((props) => {
         )
     }
 
-    const useOverlay = () => {
+    const createOverlay = () => {
         const style = getColumnProp('filterMenuStyle');
         const className = classNames('p-column-filter-overlay p-component p-fluid', getColumnProp('filterMenuClassName'), {
             'p-column-filter-overlay-menu': props.display === 'menu',
@@ -651,7 +651,7 @@ export const ColumnFilter = memo((props) => {
         });
         const filterHeader = ObjectUtils.getJSXElement(getColumnProp('filterHeader'), { field: field, filterModel: filterModel, filterApplyCallback: filterApplyCallback });
         const filterFooter = ObjectUtils.getJSXElement(getColumnProp('filterFooter'), { field: field, filterModel: filterModel, filterApplyCallback: filterApplyCallback });
-        const items = props.display === 'row' ? useRowItems() : useItems();
+        const items = props.display === 'row' ? createRowItems() : createItems();
 
         return (
             <Portal>
@@ -671,10 +671,10 @@ export const ColumnFilter = memo((props) => {
         'p-column-filter-row': props.display === 'row',
         'p-column-filter-menu': props.display === 'menu'
     });
-    const rowFilterElement = useRowFilterElement();
-    const menuButton = useMenuButton();
-    const clearButton = useClearButton();
-    const overlay = useOverlay();
+    const rowFilterElement = createRowFilterElement();
+    const menuButton = createMenuButton();
+    const clearButton = createClearButton();
+    const overlay = createOverlay();
 
     return (
         <div className={className}>

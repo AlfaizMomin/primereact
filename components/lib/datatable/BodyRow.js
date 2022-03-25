@@ -282,7 +282,7 @@ export const BodyRow = memo((props) => {
         event.preventDefault();
     }
 
-    const useContent = () => {
+    const createContent = () => {
         return props.columns.map((col, i) => {
             if (shouldRenderBodyCell(props.value, col, props.index)) {
                 const key = `${getColumnProp(col, 'columnKey') || getColumnProp(col, 'field')}_${i}`;
@@ -311,7 +311,7 @@ export const BodyRow = memo((props) => {
         'p-selectable-row': props.allowRowSelection && props.isSelectable({ data: props.rowData, index: props.index }),
         'p-row-odd': props.index % 2 !== 0
     });
-    const content = useContent();
+    const content = createContent();
     const tabIndex = getTabIndex();
 
     return (

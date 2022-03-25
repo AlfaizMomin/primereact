@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 
 export const TreeTableFooter = memo((props) => {
 
-    const useFooterCell = (column, index) => {
+    const createFooterCell = (column, index) => {
         return (
             <td key={column.field || index} className={column.props.footerClassName || column.props.className} style={column.props.footerStyle || column.props.style}
                 rowSpan={column.props.rowSpan} colSpan={column.props.colSpan}>
@@ -11,24 +11,24 @@ export const TreeTableFooter = memo((props) => {
         )
     }
 
-    const useFooterRow = (row, index) => {
+    const createFooterRow = (row, index) => {
         const rowColumns = React.Children.toArray(row.props.children);
-        const rowFooterCells = rowColumns.map(useFooterCell);
+        const rowFooterCells = rowColumns.map(createFooterCell);
 
         return (
             <tr key={index}>{rowFooterCells}</tr>
         )
     }
 
-    const useColumnGroup = () => {
+    const createColumnGroup = () => {
         let rows = React.Children.toArray(props.columnGroup.props.children);
 
-        return rows.map(useFooterRow);
+        return rows.map(createFooterRow);
     }
 
-    const useColumns = (columns) => {
+    const createColumns = (columns) => {
         if (columns) {
-            const headerCells = columns.map(useFooterCell);
+            const headerCells = columns.map(createFooterCell);
             return <tr>{headerCells}</tr>
         }
         else {
@@ -51,7 +51,7 @@ export const TreeTableFooter = memo((props) => {
         return false;
     }
 
-    const content = props.columnGroup ? useColumnGroup() : useColumns(props.columns);
+    const content = props.columnGroup ? createColumnGroup() : createColumns(props.columns);
 
     if (hasFooter()) {
         return (

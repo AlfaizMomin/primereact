@@ -11,7 +11,7 @@ export const AutoCompletePanel = memo(forwardRef((props, ref) => {
         return ObjectUtils.resolveFieldData(optionGroup, props.optionGroupLabel);
     }
 
-    const useGroupChildren = (optionGroup, i) => {
+    const createGroupChildren = (optionGroup, i) => {
         const groupChildren = props.getOptionGroupChildren(optionGroup);
         return (
             groupChildren.map((item, j) => {
@@ -29,10 +29,10 @@ export const AutoCompletePanel = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useItem = (suggestion, index) => {
+    const createItem = (suggestion, index) => {
         if (props.optionGroupLabel) {
             const content = props.optionGroupTemplate ? ObjectUtils.getJSXElement(props.optionGroupTemplate, suggestion, index) : props.getOptionGroupLabel(suggestion);
-            const childrenContent = useGroupChildren(suggestion, index);
+            const childrenContent = createGroupChildren(suggestion, index);
             const key = index + '_' + getOptionGroupRenderKey(suggestion);
 
             return (
@@ -56,16 +56,16 @@ export const AutoCompletePanel = memo(forwardRef((props, ref) => {
         }
     }
 
-    const useItems = () => {
-        return props.suggestions ? props.suggestions.map(useItem) : null;
+    const createItems = () => {
+        return props.suggestions ? props.suggestions.map(createItem) : null;
     }
 
-    const useContent = () => {
+    const createContent = () => {
         if (props.virtualScrollerOptions) {
             const virtualScrollerProps = { ...props.virtualScrollerOptions, ...{
                 style: { ...props.virtualScrollerOptions.style, ...{ height: props.scrollHeight }},
                 items: props.suggestions,
-                itemTemplate: (item, options) => item && useItem(item, options.index),
+                itemTemplate: (item, options) => item && createItem(item, options.index),
                 contentTemplate: (options) => {
                     const className = classNames('p-autocomplete-items', options.className);
 
@@ -80,7 +80,7 @@ export const AutoCompletePanel = memo(forwardRef((props, ref) => {
             return <VirtualScroller ref={props.virtualScrollerRef} {...virtualScrollerProps} />;
         }
         else {
-            const items = useItems();
+            const items = createItems();
 
             return (
                 <ul className="p-autocomplete-items" role="listbox" id={props.listId}>
@@ -90,10 +90,10 @@ export const AutoCompletePanel = memo(forwardRef((props, ref) => {
         }
     }
 
-    const useElement = () => {
+    const createElement = () => {
         const className = classNames('p-autocomplete-panel p-component', props.panelClassName);
         const style = { maxHeight: props.scrollHeight, ...(props.panelStyle || {}) };
-        const content = useContent();
+        const content = createContent();
 
         return (
             <CSSTransition nodeRef={ref} classNames="p-connected-overlay" in={props.in} timeout={{ enter: 120, exit: 100 }} options={props.transitionOptions}
@@ -105,7 +105,7 @@ export const AutoCompletePanel = memo(forwardRef((props, ref) => {
         )
     }
 
-    const element = useElement();
+    const element = createElement();
 
     return <Portal element={element} appendTo={props.appendTo} />;
 }))

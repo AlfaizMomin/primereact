@@ -67,7 +67,7 @@ const FooterSection = (props) => {
                         <li className="font-bold mt-5 lg:mt-0 mb-5">Theming</li>
                         <li className="mb-4">
                             <Link href="/theming">
-                                <a className="text-secondary font-medium hover:text-primary transition-colors transition-duration-150" className="text-secondary font-medium hover:text-primary transition-colors transition-duration-150">Guide</a>
+                                <a className="text-secondary font-medium hover:text-primary transition-colors transition-duration-150">Guide</a>
                             </Link>
                         </li>
                         <li className="mb-4">
@@ -75,7 +75,7 @@ const FooterSection = (props) => {
                         </li>
                         <li className="mb-4">
                             <Link href="/colors">
-                                <a className="text-secondary font-medium hover:text-primary transition-colors transition-duration-150" className="text-secondary font-medium hover:text-primary transition-colors transition-duration-150">Colors</a>
+                                <a className="text-secondary font-medium hover:text-primary transition-colors transition-duration-150">Colors</a>
                             </Link>
                         </li>
                     </ul>

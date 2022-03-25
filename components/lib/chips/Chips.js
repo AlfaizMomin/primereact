@@ -148,7 +148,7 @@ export const Chips = memo((props) => {
 
     const isFilled = useMemo(() => {
         return (props.value && props.value.length) || (inputRef.current && inputRef.current.value && inputRef.current.value.length);
-    });
+    }, [props.value]);
 
     const isRemovable = (value, index) => {
         return ObjectUtils.getPropValue(props.removable, { value, index, props });
@@ -156,7 +156,7 @@ export const Chips = memo((props) => {
 
     useEffect(() => {
         ObjectUtils.combinedRefs(inputRef, props.inputRef);
-    }, [inputRef]);
+    }, [inputRef, props.inputRef]);
 
     useEffect(() => {
         if (tooltipRef.current) {
@@ -179,7 +179,7 @@ export const Chips = memo((props) => {
         }
     });
 
-    const useRemoveIcon = (value, index) => {
+    const createRemoveIcon = (value, index) => {
         if (!props.disabled && !props.readOnly && isRemovable(value, index)) {
             return <span className="p-chips-token-icon pi pi-times-circle" onClick={(event) => removeItem(event, index)}></span>
         }
@@ -187,10 +187,10 @@ export const Chips = memo((props) => {
         return null;
     }
 
-    const useItem = (value, index) => {
+    const createItem = (value, index) => {
         const content = props.itemTemplate ? props.itemTemplate(value) : value;
         const label = <span className="p-chips-token-label">{content}</span>;
-        const icon = useRemoveIcon(value, index);
+        const icon = createRemoveIcon(value, index);
 
         return (
             <li key={index} className="p-chips-token p-highlight">
@@ -200,7 +200,7 @@ export const Chips = memo((props) => {
         )
     }
 
-    const useInput = () => {
+    const createInput = () => {
         return (
             <li className="p-chips-input-token">
                 <input ref={inputRef} placeholder={props.placeholder} type="text" name={props.name} disabled={props.disabled || isMaxedOut()}
@@ -210,17 +210,17 @@ export const Chips = memo((props) => {
         )
     }
 
-    const useItems = () => {
-        return props.value ? props.value.map(useItem) : null;
+    const createItems = () => {
+        return props.value ? props.value.map(createItem) : null;
     }
 
-    const useList = () => {
+    const createList = () => {
         const className = classNames('p-inputtext p-chips-multiple-container', {
             'p-disabled': props.disabled,
             'p-focus': focusedState
         });
-        const items = useItems();
-        const input = useInput();
+        const items = createItems();
+        const input = createInput();
 
         return (
             <ul ref={listRef} className={className} onClick={onWrapperClick}>
@@ -234,7 +234,7 @@ export const Chips = memo((props) => {
         'p-inputwrapper-filled': isFilled,
         'p-inputwrapper-focus': focusedState
     }, props.className);
-    const list = useList();
+    const list = createList();
 
     return (
         <div ref={elementRef} id={props.id} className={className} style={props.style}>

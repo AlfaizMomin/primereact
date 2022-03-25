@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { createRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { CSSTransition } from '../csstransition/CSSTransition';
 import { classNames, ObjectUtils, IconUtils, UniqueComponentId } from '../utils/Utils';
@@ -53,7 +53,7 @@ export const Accordion = (props) => {
         }
     });
 
-    const useTabHeader = (tab, selected, index) => {
+    const createTabHeader = (tab, selected, index) => {
         const style = { ...(tab.props.style || {}), ...(tab.props.headerStyle || {}) };
         const className = classNames('p-accordion-header', {
             'p-highlight': selected,
@@ -75,12 +75,12 @@ export const Accordion = (props) => {
         )
     }
 
-    const useTabContent = (tab, selected, index) => {
+    const createTabContent = (tab, selected, index) => {
         const style = { ...(tab.props.style || {}), ...(tab.props.contentStyle || {}) };
         const className = classNames('p-toggleable-content', tab.props.contentClassName, tab.props.className);
         const contentId = idState + '_content_' + index;
         const ariaLabelledby = idState + '_header_' + index;
-        const contentRef = useRef(null);
+        const contentRef = createRef();
 
         return (
             <CSSTransition nodeRef={contentRef} classNames="p-toggleable-content" timeout={{ enter: 1000, exit: 450 }} in={selected} unmountOnExit options={props.transitionOptions}>
@@ -93,12 +93,12 @@ export const Accordion = (props) => {
         )
     }
 
-    const useTab = (tab, index) => {
+    const createTab = (tab, index) => {
         if (shouldUseTab(tab)) {
             const key = idState + '_' + index;
             const selected = isSelected(index);
-            const tabHeader = useTabHeader(tab, selected, index);
-            const tabContent = useTabContent(tab, selected, index);
+            const tabHeader = createTabHeader(tab, selected, index);
+            const tabContent = createTabContent(tab, selected, index);
             const tabClassName = classNames('p-accordion-tab', {
                 'p-accordion-tab-active': selected
             });
@@ -114,12 +114,12 @@ export const Accordion = (props) => {
         return null;
     }
 
-    const useTabs = () => {
-        return React.Children.map(props.children, useTab);
+    const createTabs = () => {
+        return React.Children.map(props.children, createTab);
     }
 
     const className = classNames('p-accordion p-component', props.className);
-    const tabs = useTabs();
+    const tabs = createTabs();
 
     return (
         <div id={idState} className={className} style={props.style}>

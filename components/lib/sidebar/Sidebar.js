@@ -114,7 +114,7 @@ export const Sidebar = (props) => {
         maskRef.current && ZIndexUtils.clear(maskRef.current);
     });
 
-    const useCloseIcon = () => {
+    const createCloseIcon = () => {
         if (props.showCloseIcon) {
             return (
                 <button type="button" ref={closeIconRef} className="p-sidebar-close p-sidebar-icon p-link" onClick={onClose} aria-label={props.ariaCloseLabel}>
@@ -127,11 +127,11 @@ export const Sidebar = (props) => {
         return null;
     }
 
-    const useIcons = () => {
+    const createIcons = () => {
         return props.icons ? ObjectUtils.getJSXElement(props.icons, props) : null;
     }
 
-    const useElement = () => {
+    const createElement = () => {
         const className = classNames('p-sidebar p-component', props.className);
         const maskClassName = classNames('p-sidebar-mask', {
             'p-component-overlay p-component-overlay-enter': props.modal,
@@ -140,8 +140,8 @@ export const Sidebar = (props) => {
             'p-sidebar-full': props.fullScreen
         }, getPositionClass(), props.maskClassName);
 
-        const closeIcon = useCloseIcon();
-        const icons = useIcons();
+        const closeIcon = createCloseIcon();
+        const icons = createIcons();
 
         const transitionTimeout = {
             enter: props.fullScreen ? 150 : 300,
@@ -166,13 +166,13 @@ export const Sidebar = (props) => {
         )
     }
 
-    const useSidebar = () => {
-        const element = useElement();
+    const createSidebar = () => {
+        const element = createElement();
 
         return <Portal element={element} appendTo={props.appendTo} visible />;
     }
 
-    return maskVisibleState && useSidebar();
+    return maskVisibleState && createSidebar();
 }
 
 Sidebar.defaultProps = {

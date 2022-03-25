@@ -33,14 +33,14 @@ export const MultiSelectPanel = memo(forwardRef((props, ref) => {
         return !(props.visibleOptions && props.visibleOptions.length) && props.hasFilter;
     }
 
-    const useHeader = () => {
+    const createHeader = () => {
         return (
             <MultiSelectHeader filter={props.filter} filterValue={props.filterValue} onFilter={onFilterInputChange} filterPlaceholder={props.filterPlaceholder}
                 onClose={props.onCloseClick} showSelectAll={props.showSelectAll} selectAll={props.isAllSelected()} onSelectAll={props.onSelectAll} template={props.panelHeaderTemplate} />
         )
     }
 
-    const useFooter = () => {
+    const createFooter = () => {
         if (props.panelFooterTemplate) {
             const content = ObjectUtils.getJSXElement(props.panelFooterTemplate, props, props.onOverlayHide);
 
@@ -54,7 +54,7 @@ export const MultiSelectPanel = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useGroupChildren = (optionGroup) => {
+    const createGroupChildren = (optionGroup) => {
         const groupChildren = props.getOptionGroupChildren(optionGroup);
 
         return (
@@ -73,7 +73,7 @@ export const MultiSelectPanel = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useEmptyFilter = () => {
+    const createEmptyFilter = () => {
         const emptyFilterMessage = ObjectUtils.getJSXElement(props.emptyFilterMessage, props) || localeOption('emptyFilterMessage');
 
         return (
@@ -83,10 +83,10 @@ export const MultiSelectPanel = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useItem = (option, index) => {
+    const createItem = (option, index) => {
         if (props.optionGroupLabel) {
             const groupContent = props.optionGroupTemplate ? ObjectUtils.getJSXElement(props.optionGroupTemplate, option, index) : props.getOptionGroupLabel(option);
-            const groupChildrenContent = useGroupChildren(option);
+            const groupChildrenContent = createGroupChildren(option);
             const key = index + '_' + props.getOptionGroupRenderKey(option);
 
             return (
@@ -112,18 +112,18 @@ export const MultiSelectPanel = memo(forwardRef((props, ref) => {
         }
     }
 
-    const useItems = () => {
+    const createItems = () => {
         if (ObjectUtils.isNotEmpty(props.visibleOptions)) {
-            return props.visibleOptions.map(useItem);
+            return props.visibleOptions.map(createItem);
         }
         else if (props.hasFilter) {
-            return useEmptyFilter();
+            return createEmptyFilter();
         }
 
         return null;
     }
 
-    const useContent = () => {
+    const createContent = () => {
         if (props.virtualScrollerOptions) {
             const virtualScrollerProps = {
                 ...props.virtualScrollerOptions, ...{
@@ -131,10 +131,10 @@ export const MultiSelectPanel = memo(forwardRef((props, ref) => {
                     className: classNames('p-multiselect-items-wrapper', props.virtualScrollerOptions.className),
                     items: props.visibleOptions,
                     onLazyLoad: (event) => props.virtualScrollerOptions.onLazyLoad({ ...event, ...{ filter: props.filterValue } }),
-                    itemTemplate: (item, options) => item && useItem(item, options.index),
+                    itemTemplate: (item, options) => item && createItem(item, options.index),
                     contentTemplate: (options) => {
                         const className = classNames('p-multiselect-items p-component', options.className);
-                        const content = isEmptyFilter() ? useEmptyFilter() : options.children;
+                        const content = isEmptyFilter() ? createEmptyFilter() : options.children;
 
                         return (
                             <ul ref={options.contentRef} className={className} role="listbox" aria-multiselectable>
@@ -148,7 +148,7 @@ export const MultiSelectPanel = memo(forwardRef((props, ref) => {
             return <VirtualScroller ref={virtualScrollerRef} {...virtualScrollerProps} />
         }
         else {
-            const items = useItems();
+            const items = createItems();
 
             return (
                 <div className="p-multiselect-items-wrapper" style={{ maxHeight: props.scrollHeight }}>
@@ -160,14 +160,14 @@ export const MultiSelectPanel = memo(forwardRef((props, ref) => {
         }
     }
 
-    const useElement = () => {
+    const createElement = () => {
         const allowOptionSelect = props.allowOptionSelect();
         const panelClassName = classNames('p-multiselect-panel p-component', {
             'p-multiselect-limited': !allowOptionSelect
         }, props.panelClassName);
-        const header = useHeader();
-        const content = useContent();
-        const footer = useFooter();
+        const header = createHeader();
+        const content = createContent();
+        const footer = createFooter();
 
         return (
             <CSSTransition nodeRef={ref} classNames="p-connected-overlay" in={props.in} timeout={{ enter: 120, exit: 100 }} options={props.transitionOptions}
@@ -181,7 +181,7 @@ export const MultiSelectPanel = memo(forwardRef((props, ref) => {
         )
     }
 
-    const element = useElement();
+    const element = createElement();
 
     return <Portal element={element} appendTo={props.appendTo} />
 }));

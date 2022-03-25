@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import PrimeReact, { FilterService, FilterOperator, FilterMatchMode } from '../api/Api';
 import { TableBody } from './TableBody';
@@ -1251,13 +1251,11 @@ export const DataTable = forwardRef((props, ref) => {
         return data;
     }
 
-    useEffect(() => {
-        setFiltersState(cloneFilters(props.filters));
-        setD_filtersState(cloneFilters(props.filters));
-    }, [props.filters]);
-
     useMountEffect(() => {
         setAttributeSelectorState(UniqueComponentId());
+
+        setFiltersState(cloneFilters(props.filters));
+        setD_filtersState(cloneFilters(props.filters));
 
         if (isStateful()) {
             restoreState();
@@ -1275,6 +1273,11 @@ export const DataTable = forwardRef((props, ref) => {
             createResponsiveStyle();
         }
     }, [attributeSelectorState]);
+
+    useUpdateEffect(() => {
+        setFiltersState(cloneFilters(props.filters));
+        setD_filtersState(cloneFilters(props.filters));
+    }, [props.filters]);
 
     useUpdateEffect(() => {
         if (isStateful()) {
@@ -1311,7 +1314,7 @@ export const DataTable = forwardRef((props, ref) => {
         clearState
     }));
 
-    const useLoader = () => {
+    const createLoader = () => {
         if (props.loading) {
             const iconClassName = classNames('p-datatable-loading-icon pi-spin', props.loadingIcon);
 
@@ -1325,7 +1328,7 @@ export const DataTable = forwardRef((props, ref) => {
         return null;
     }
 
-    const useHeader = () => {
+    const createHeader = () => {
         if (props.header) {
             const content = ObjectUtils.getJSXElement(props.header, { props });
             return (
@@ -1336,7 +1339,7 @@ export const DataTable = forwardRef((props, ref) => {
         return null;
     }
 
-    const useTableHeader = (options, empty) => {
+    const createTableHeader = (options, empty) => {
         const sortField = getSortField();
         const sortOrder = getSortOrder();
         const multiSortMeta = [...getMultiSortMeta()];
@@ -1356,7 +1359,7 @@ export const DataTable = forwardRef((props, ref) => {
         )
     }
 
-    const useTableBody = (options, selectionModeInColumn, empty, isVirtualScrollerDisabled) => {
+    const createTableBody = (options, selectionModeInColumn, empty, isVirtualScrollerDisabled) => {
         const first = getFirst();
         const { rows, columns, contentRef, className } = options;
 
@@ -1409,7 +1412,7 @@ export const DataTable = forwardRef((props, ref) => {
         )
     }
 
-    const useTableFooter = (options) => {
+    const createTableFooter = (options) => {
         const { columns } = options;
 
         return (
@@ -1417,7 +1420,7 @@ export const DataTable = forwardRef((props, ref) => {
         )
     }
 
-    const useContent = (processedData, columns, selectionModeInColumn, empty) => {
+    const createContent = (processedData, columns, selectionModeInColumn, empty) => {
         if (!columns) return;
 
         const _isVirtualScrollerDisabled = isVirtualScrollerDisabled();
@@ -1430,9 +1433,9 @@ export const DataTable = forwardRef((props, ref) => {
                     contentTemplate={(options) => {
                         const ref = (el) => { tableRef.current = el; options.spacerRef && options.spacerRef(el) };
                         const tableClassName = classNames('p-datatable-table', props.tableClassName);
-                        const tableHeader = useTableHeader(options, empty);
-                        const tableBody = useTableBody(options, selectionModeInColumn, empty, _isVirtualScrollerDisabled);
-                        const tableFooter = useTableFooter(options);
+                        const tableHeader = createTableHeader(options, empty);
+                        const tableBody = createTableBody(options, selectionModeInColumn, empty, _isVirtualScrollerDisabled);
+                        const tableFooter = createTableFooter(options);
 
                         return (
                             <table ref={ref} style={props.tableStyle} className={tableClassName} role="table">
@@ -1446,7 +1449,7 @@ export const DataTable = forwardRef((props, ref) => {
         )
     }
 
-    const useFooter = () => {
+    const createFooter = () => {
         if (props.footer) {
             const content = ObjectUtils.getJSXElement(props.footer, { props });
             return (
@@ -1457,7 +1460,7 @@ export const DataTable = forwardRef((props, ref) => {
         return null;
     }
 
-    const usePaginator = (position, totalRecords) => {
+    const createPaginator = (position, totalRecords) => {
         const className = classNames('p-paginator-' + position, props.paginatorClassName);
 
         return (
@@ -1467,23 +1470,23 @@ export const DataTable = forwardRef((props, ref) => {
         )
     }
 
-    const usePaginatorTop = (totalRecords) => {
+    const createPaginatorTop = (totalRecords) => {
         if (props.paginator && props.paginatorPosition !== 'bottom') {
-            return usePaginator('top', totalRecords);
+            return createPaginator('top', totalRecords);
         }
 
         return null;
     }
 
-    const usePaginatorBottom = (totalRecords) => {
+    const createPaginatorBottom = (totalRecords) => {
         if (props.paginator && props.paginatorPosition !== 'top') {
-            return usePaginator('bottom', totalRecords);
+            return createPaginator('bottom', totalRecords);
         }
 
         return null;
     }
 
-    const useResizeHelper = () => {
+    const createResizeHelper = () => {
         if (props.resizableColumns) {
             return (
                 <div ref={resizeHelperRef} className="p-column-resizer-helper" style={{ display: 'none' }}></div>
@@ -1493,7 +1496,7 @@ export const DataTable = forwardRef((props, ref) => {
         return null;
     }
 
-    const useReorderIndicators = () => {
+    const createReorderIndicators = () => {
         if (props.reorderableColumns) {
             const style = { position: 'absolute', display: 'none' };
             return (
@@ -1535,14 +1538,14 @@ export const DataTable = forwardRef((props, ref) => {
         'p-datatable-lg': props.size === 'large'
     }, props.className);
 
-    const loader = useLoader();
-    const header = useHeader();
-    const paginatorTop = usePaginatorTop(totalRecords);
-    const content = useContent(data, columns, selectionModeInColumn, empty);
-    const paginatorBottom = usePaginatorBottom(totalRecords);
-    const footer = useFooter();
-    const resizeHelper = useResizeHelper();
-    const reorderIndicators = useReorderIndicators();
+    const loader = createLoader();
+    const header = createHeader();
+    const paginatorTop = createPaginatorTop(totalRecords);
+    const content = createContent(data, columns, selectionModeInColumn, empty);
+    const paginatorBottom = createPaginatorBottom(totalRecords);
+    const footer = createFooter();
+    const resizeHelper = createResizeHelper();
+    const reorderIndicators = createReorderIndicators();
 
     return (
         <div ref={elementRef} id={props.id} className={className} style={props.style} data-scrollselectors=".p-datatable-wrapper">

@@ -31,7 +31,7 @@ export const Dropdown = memo((props) => {
         }, when: overlayVisibleState
     });
 
-    const visibleOptions = useMemo(() => {
+    const getVisibleOptions = () => {
         if (hasFilter && !isLazy) {
             const filterValue = filterState.trim().toLocaleLowerCase(props.filterLocale)
             const searchFields = props.filterBy ? props.filterBy.split(',') : [props.optionLabel || 'label'];
@@ -53,7 +53,7 @@ export const Dropdown = memo((props) => {
         else {
             return props.options;
         }
-    }, [hasFilter, isLazy, props.options]);
+    }
 
     const isClearClicked = (event) => {
         return DomHandler.hasClass(event.target, 'p-dropdown-clear-icon') || DomHandler.hasClass(event.target, 'p-dropdown-filter-clear-icon');
@@ -542,15 +542,15 @@ export const Dropdown = memo((props) => {
         }
     }
 
-    const selectedOption = useMemo(() => {
+    const getSelectedOption = () => {
         const index = getSelectedOptionIndex();
 
         return index !== -1 ? (props.optionGroupLabel ? getOptionGroupChildren(visibleOptions[index.group])[index.option] : visibleOptions[index]) : null;
-    }, [visibleOptions, props.value]);
+    }
 
     useEffect(() => {
         ObjectUtils.combinedRefs(inputRef, props.inputRef);
-    }, [inputRef]);
+    }, [inputRef, props.inputRef]);
 
     useEffect(() => {
         if (tooltipRef.current) {
@@ -583,7 +583,7 @@ export const Dropdown = memo((props) => {
         }
     }, [overlayVisibleState, props.filter]);
 
-    useEffect(() => {
+    useUpdateEffect(() => {
         if (filterState && (!props.options || props.options.length === 0)) {
             setFilterState('');
         }
@@ -603,7 +603,7 @@ export const Dropdown = memo((props) => {
         }
     });
 
-    const useHiddenSelect = () => {
+    const createHiddenSelect = () => {
         const placeHolderOption = <option value="">{props.placeholder}</option>;
         const option = selectedOption ? <option value={selectedOption.value}>{getOptionLabel(selectedOption)}</option> : null;
 
@@ -617,7 +617,7 @@ export const Dropdown = memo((props) => {
         )
     }
 
-    const useKeyboardHelper = () => {
+    const createKeyboardHelper = () => {
         return (
             <div className="p-hidden-accessible">
                 <input ref={focusInputRef} id={props.inputId} type="text" readOnly aria-haspopup="listbox"
@@ -627,7 +627,7 @@ export const Dropdown = memo((props) => {
         )
     }
 
-    const useLabel = () => {
+    const createLabel = () => {
         const label = ObjectUtils.isNotEmpty(selectedOption) ? getOptionLabel(selectedOption) : null;
 
         if (props.editable) {
@@ -651,7 +651,7 @@ export const Dropdown = memo((props) => {
         }
     }
 
-    const useClearIcon = () => {
+    const createClearIcon = () => {
         if (props.value != null && props.showClear && !props.disabled) {
             return <i className="p-dropdown-clear-icon pi pi-times" onClick={clear}></i>
         }
@@ -659,7 +659,7 @@ export const Dropdown = memo((props) => {
         return null;
     }
 
-    const useDropdownIcon = () => {
+    const createDropdownIcon = () => {
         const iconClassName = classNames('p-dropdown-trigger-icon p-clickable', props.dropdownIcon);
 
         return (
@@ -669,6 +669,9 @@ export const Dropdown = memo((props) => {
         )
     }
 
+    const visibleOptions = getVisibleOptions();
+    const selectedOption = getSelectedOption();
+
     const className = classNames('p-dropdown p-component p-inputwrapper', {
         'p-disabled': props.disabled,
         'p-focus': focusedState,
@@ -676,11 +679,11 @@ export const Dropdown = memo((props) => {
         'p-inputwrapper-filled': props.value,
         'p-inputwrapper-focus': focusedState || overlayVisibleState
     }, props.className);
-    const hiddenSelect = useHiddenSelect();
-    const keyboardHelper = useKeyboardHelper();
-    const labelElement = useLabel();
-    const dropdownIcon = useDropdownIcon();
-    const clearIcon = useClearIcon();
+    const hiddenSelect = createHiddenSelect();
+    const keyboardHelper = createKeyboardHelper();
+    const labelElement = createLabel();
+    const dropdownIcon = createDropdownIcon();
+    const clearIcon = createClearIcon();
 
     return (
         <div ref={elementRef} id={props.id} className={className} style={props.style} onClick={onClick}

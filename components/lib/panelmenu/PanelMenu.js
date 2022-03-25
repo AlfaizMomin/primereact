@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { createRef, memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { PanelMenuSub } from './PanelMenuSub';
 import { CSSTransition } from '../csstransition/CSSTransition';
@@ -80,7 +80,7 @@ export const PanelMenu = memo((props) => {
         setActiveItemState(findActiveItem());
     });
 
-    const usePanel = (item, index) => {
+    const createPanel = (item, index) => {
         const key = item.label + '_' + index;
         const active = isItemActive(item);
         const className = classNames('p-panelmenu-panel', item.className);
@@ -91,7 +91,7 @@ export const PanelMenu = memo((props) => {
         const itemIcon = item.icon && <span className={iconClassName}></span>;
         const label = item.label && <span className="p-menuitem-text">{item.label}</span>;
         const contentWrapperClassName = classNames('p-toggleable-content', { 'p-toggleable-content-collapsed': !active });
-        const menuContentRef = React.createRef();
+        const menuContentRef = createRef();
         let content = (
             <a href={item.url || '#'} className="p-panelmenu-header-link" onClick={(e) => onItemClick(e, item)} aria-expanded={active}
                 id={headerId} aria-controls={contentId} aria-disabled={item.disabled}>
@@ -133,12 +133,12 @@ export const PanelMenu = memo((props) => {
         );
     }
 
-    const usePanels = () => {
-        return props.model ? props.model.map(usePanel) : null;
+    const createPanels = () => {
+        return props.model ? props.model.map(createPanel) : null;
     }
 
     const className = classNames('p-panelmenu p-component', props.className);
-    const panels = usePanels();
+    const panels = createPanels();
 
     return (
         <div id={props.id} className={className} style={props.style}>

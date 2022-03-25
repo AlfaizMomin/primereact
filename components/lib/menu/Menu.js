@@ -128,28 +128,28 @@ export const Menu = memo(forwardRef((props, ref) => {
         hide
     }));
 
-    const useSubmenu = (submenu, index) => {
+    const createSubmenu = (submenu, index) => {
         const key = submenu.label + '_' + index;
         const className = classNames('p-submenu-header', {
             'p-disabled': submenu.disabled
         }, submenu.className);
-        const items = submenu.items.map(useMenuItem);
+        const items = submenu.items.map(createMenuItem);
 
         return (
             <React.Fragment key={key}>
-                <li className={className} style={submenu.style} role="presentation" aria-disabled={submenu.disabled}>{submenu.label}</li>
+                <li className={className} style={submenu.style} role="presentation">{submenu.label}</li>
                 {items}
             </React.Fragment>
         )
     }
 
-    const useSeparator = (index) => {
+    const createSeparator = (index) => {
         const key = 'separator_' + index;
 
         return <li key={key} className="p-menu-separator" role="separator"></li>
     }
 
-    const useMenuItem = (item, index) => {
+    const createMenuItem = (item, index) => {
         const className = classNames('p-menuitem', item.className);
         const linkClassName = classNames('p-menuitem-link', { 'p-disabled': item.disabled })
         const iconClassName = classNames('p-menuitem-icon', item.icon);
@@ -186,20 +186,20 @@ export const Menu = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useItem = (item, index) => {
-        return item.separator ? useSeparator(index) : (item.items ? useSubmenu(item, index) : useMenuItem(item, index));
+    const createItem = (item, index) => {
+        return item.separator ? createSeparator(index) : (item.items ? createSubmenu(item, index) : createMenuItem(item, index));
     }
 
-    const useMenu = () => {
-        return props.model.map(useItem);
+    const createMenu = () => {
+        return props.model.map(createItem);
     }
 
-    const useElement = () => {
+    const createElement = () => {
         if (props.model) {
             const className = classNames('p-menu p-component', {
                 'p-menu-overlay': props.popup
             }, props.className);
-            const menuitems = useMenu();
+            const menuitems = createMenu();
 
             return (
                 <CSSTransition nodeRef={menuRef} classNames="p-connected-overlay" in={visibleState} timeout={{ enter: 120, exit: 100 }} options={props.transitionOptions}
@@ -216,7 +216,7 @@ export const Menu = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const element = useElement();
+    const element = createElement();
 
     return props.popup ? <Portal element={element} appendTo={props.appendTo} /> : element;
 }));

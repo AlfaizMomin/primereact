@@ -301,7 +301,7 @@ export const GalleriaThumbnails = memo(forwardRef((props, ref) => {
         }
     });
 
-    const useItems = () => {
+    const createItems = () => {
         return props.value.map((item, index) => {
             const firstIndex = totalShiftedItemsState * -1;
             const lastIndex = firstIndex + numVisibleState - 1;
@@ -314,7 +314,7 @@ export const GalleriaThumbnails = memo(forwardRef((props, ref) => {
         });
     }
 
-    const useBackwardNavigator = () => {
+    const createBackwardNavigator = () => {
         if (props.showThumbnailNavigators) {
             let isDisabled = (!props.circular && props.activeItemIndex === 0) || (props.value.length <= numVisibleState);
             let buttonClassName = classNames('p-galleria-thumbnail-prev p-link', {
@@ -336,7 +336,7 @@ export const GalleriaThumbnails = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useForwardNavigator = () => {
+    const createForwardNavigator = () => {
         if (props.showThumbnailNavigators) {
             const isDisabled = (!props.circular && props.activeItemIndex === (props.value.length - 1)) || (props.value.length <= numVisibleState);
             const buttonClassName = classNames('p-galleria-thumbnail-next p-link', {
@@ -358,11 +358,11 @@ export const GalleriaThumbnails = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useContent = () => {
-        const items = useItems();
+    const createContent = () => {
+        const items = createItems();
         const height = props.isVertical ? props.contentHeight : '';
-        const backwardNavigator = useBackwardNavigator();
-        const forwardNavigator = useForwardNavigator();
+        const backwardNavigator = createBackwardNavigator();
+        const forwardNavigator = createForwardNavigator();
 
         return (
             <div className="p-galleria-thumbnail-container">
@@ -378,7 +378,7 @@ export const GalleriaThumbnails = memo(forwardRef((props, ref) => {
         )
     }
 
-    const content = useContent();
+    const content = createContent();
 
     return (
         <div className="p-galleria-thumbnail-wrapper">

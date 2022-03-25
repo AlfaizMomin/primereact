@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useEffect, useRef } from 'react';
 
 export const useUpdateEffect = (fn, deps) => {
@@ -11,3 +12,4 @@ export const useUpdateEffect = (fn, deps) => {
         return fn && fn();
     }, deps);
 }
+/* eslint-enable */

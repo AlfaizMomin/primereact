@@ -92,7 +92,7 @@ export const SlideMenu = memo(forwardRef((props, ref) => {
         hide
     }));
 
-    const useBackward = () => {
+    const createBackward = () => {
         const className = classNames('p-slidemenu-backward', {
             'p-hidden': levelState === 0
         });
@@ -105,12 +105,12 @@ export const SlideMenu = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useElement = () => {
+    const createElement = () => {
         const className = classNames('p-slidemenu p-component', {
             'p-slidemenu-overlay': props.popup
         }, props.className);
         const wrapperStyle = { height: props.viewportHeight + 'px' };
-        const backward = useBackward();
+        const backward = createBackward();
 
         return (
             <CSSTransition nodeRef={menuRef} classNames="p-connected-overlay" in={!props.popup || visibleState} timeout={{ enter: 120, exit: 100 }} options={props.transitionOptions}
@@ -128,7 +128,7 @@ export const SlideMenu = memo(forwardRef((props, ref) => {
         )
     }
 
-    const element = useElement();
+    const element = createElement();
 
     return props.popup ? <Portal element={element} appendTo={props.appendTo} /> : element;
 }));

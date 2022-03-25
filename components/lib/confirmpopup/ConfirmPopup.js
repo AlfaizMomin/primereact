@@ -163,7 +163,7 @@ export const ConfirmPopup = memo((props) => {
         ZIndexUtils.clear(overlayRef.current);
     });
 
-    const useContent = () => {
+    const createContent = () => {
         const message = ObjectUtils.getJSXElement(props.message, props);
         const icon = IconUtils.getJSXIcon(props.icon, { className: 'p-confirm-popup-icon' }, { props });
 
@@ -175,7 +175,7 @@ export const ConfirmPopup = memo((props) => {
         )
     }
 
-    const useFooter = () => {
+    const createFooter = () => {
         const acceptClassName = classNames('p-confirm-popup-accept p-button-sm', props.acceptClassName);
         const rejectClassName = classNames('p-confirm-popup-reject p-button-sm', {
             'p-button-text': !props.rejectClassName
@@ -207,10 +207,10 @@ export const ConfirmPopup = memo((props) => {
         return content;
     }
 
-    const useElement = () => {
+    const createElement = () => {
         const className = classNames('p-confirm-popup p-component', props.className);
-        const content = useContent();
-        const footer = useFooter();
+        const content = createContent();
+        const footer = createFooter();
 
         return (
             <CSSTransition nodeRef={overlayRef} classNames="p-connected-overlay" in={visibleState} timeout={{ enter: 120, exit: 100 }} options={props.transitionOptions}
@@ -223,7 +223,7 @@ export const ConfirmPopup = memo((props) => {
         )
     }
 
-    const element = useElement();
+    const element = createElement();
 
     return <Portal element={element} appendTo={props.appendTo} visible={props.visible} />
 });

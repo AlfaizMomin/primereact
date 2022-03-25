@@ -76,7 +76,7 @@ export const InputTextarea = memo(forwardRef((props, ref) => {
 
     useEffect(() => {
         ObjectUtils.combinedRefs(elementRef, ref);
-    }, [elementRef]);
+    }, [elementRef, ref]);
 
     useEffect(() => {
         if (tooltipRef.current) {

@@ -88,7 +88,7 @@ export const Terminal = memo((props) => {
         elementRef.current.scrollTop = elementRef.current.scrollHeight;
     });
 
-    const useWelcomeMessage = () => {
+    const createWelcomeMessage = () => {
         if (props.welcomeMessage) {
             return <div>{props.welcomeMessage}</div>;
         }
@@ -96,7 +96,7 @@ export const Terminal = memo((props) => {
         return null;
     }
 
-    const useCommand = (command, index) => {
+    const createCommand = (command, index) => {
         const { text, response } = command;
         const key = text + '_' + index;
 
@@ -109,8 +109,8 @@ export const Terminal = memo((props) => {
         )
     }
 
-    const useContent = () => {
-        const content = commandsState.map(useCommand);
+    const createContent = () => {
+        const content = commandsState.map(createCommand);
 
         return (
             <div className="p-terminal-content">
@@ -119,7 +119,7 @@ export const Terminal = memo((props) => {
         )
     }
 
-    const usePromptContainer = () => {
+    const createPromptContainer = () => {
         return (
             <div className="p-terminal-prompt-container">
                 <span className="p-terminal-prompt">{props.prompt}&nbsp;</span>
@@ -130,9 +130,9 @@ export const Terminal = memo((props) => {
     }
 
     const className = classNames('p-terminal p-component', props.className);
-    const welcomeMessage = useWelcomeMessage();
-    const content = useContent();
-    const prompt = usePromptContainer();
+    const welcomeMessage = createWelcomeMessage();
+    const content = createContent();
+    const prompt = createPromptContainer();
 
     return (
         <div ref={elementRef} id={props.id} className={className} style={props.style} onClick={onClick}>

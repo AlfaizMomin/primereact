@@ -5,7 +5,7 @@ import { classNames } from '../utils/Utils';
 
 export const SplitButtonPanel = forwardRef((props, ref) => {
 
-    const useElement = () => {
+    const createElement = () => {
         const className = classNames('p-menu p-menu-overlay p-component', props.menuClassName);
 
         return (
@@ -20,7 +20,7 @@ export const SplitButtonPanel = forwardRef((props, ref) => {
         )
     }
 
-    const element = useElement();
+    const element = createElement();
 
     return <Portal element={element} appendTo={props.appendTo} />
 });

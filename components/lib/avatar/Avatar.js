@@ -4,7 +4,7 @@ import { ObjectUtils, classNames, IconUtils } from '../utils/Utils';
 
 export const Avatar = (props) => {
 
-    const useContent = () => {
+    const createContent = () => {
         if (props.label) {
             return <span className="p-avatar-text">{props.label}</span>
         }
@@ -26,7 +26,7 @@ export const Avatar = (props) => {
         'p-avatar-clickable': !!props.onClick
     }, props.className);
 
-    const content = props.template ? ObjectUtils.getJSXElement(props.template, props) : useContent();
+    const content = props.template ? ObjectUtils.getJSXElement(props.template, props) : createContent();
 
     return (
         <div className={containerClassName} style={props.style} onClick={props.onClick}>

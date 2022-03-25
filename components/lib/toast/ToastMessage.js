@@ -22,7 +22,7 @@ export const ToastMessage = memo(forwardRef((props, ref) => {
         }
     }
 
-    const useCloseIcon = () => {
+    const createCloseIcon = () => {
         if (closable !== false) {
             return (
                 <button type="button" className="p-toast-icon-close p-link" onClick={onClose}>
@@ -35,7 +35,7 @@ export const ToastMessage = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useMessage = () => {
+    const createMessage = () => {
         if (props.message) {
             const contentEl = ObjectUtils.getJSXElement(content, { ...props, onClose });
             const iconClassName = classNames('p-toast-message-icon pi', {
@@ -63,8 +63,8 @@ export const ToastMessage = memo(forwardRef((props, ref) => {
         [`p-toast-message-${severity}`]: severity
     }, _className);
     const contentClassName = classNames('p-toast-message-content', _contentClassName);
-    const message = useMessage();
-    const closeIcon = useCloseIcon();
+    const message = createMessage();
+    const closeIcon = createCloseIcon();
 
     return (
         <div ref={ref} className={className} style={style} role="alert" aria-live="assertive" aria-atomic="true" onClick={onClick}>

@@ -187,7 +187,7 @@ export const Slider = memo((props) => {
         return newValue;
     }
 
-    const useHandle = (leftValue, bottomValue, index) => {
+    const createHandle = (leftValue, bottomValue, index) => {
         const style = {
             transition: dragging.current ? 'none' : null,
             left: leftValue !== null && (leftValue + '%'),
@@ -206,11 +206,11 @@ export const Slider = memo((props) => {
         )
     }
 
-    const useRangeSlider = () => {
+    const createRangeSlider = () => {
         const handleValueStart = (value[0] < props.min ? 0 : value[0] - props.min) * 100 / (props.max - props.min);
         const handleValueEnd = (value[1] > props.max ? 100 : value[1] - props.min) * 100 / (props.max - props.min);
-        const rangeStartHandle = horizontal ? useHandle(handleValueStart, null, 0) : useHandle(null, handleValueStart, 0);
-        const rangeEndHandle = horizontal ? useHandle(handleValueEnd, null, 1) : useHandle(null, handleValueEnd, 1);
+        const rangeStartHandle = horizontal ? createHandle(handleValueStart, null, 0) : createHandle(null, handleValueStart, 0);
+        const rangeEndHandle = horizontal ? createHandle(handleValueEnd, null, 1) : createHandle(null, handleValueEnd, 1);
         const rangeStyle = horizontal ? { left: handleValueStart + '%', width: (handleValueEnd - handleValueStart) + '%' } : { bottom: handleValueStart + '%', height: (handleValueEnd - handleValueStart) + '%' };
 
         return (
@@ -222,7 +222,7 @@ export const Slider = memo((props) => {
         )
     }
 
-    const useSingleSlider = () => {
+    const createSingleSlider = () => {
         let handleValue;
 
         if (value < props.min)
@@ -233,7 +233,7 @@ export const Slider = memo((props) => {
             handleValue = (value - props.min) * 100 / (props.max - props.min);
 
         const rangeStyle = horizontal ? { width: handleValue + '%' } : { height: handleValue + '%' };
-        const handle = horizontal ? useHandle(handleValue, null, null) : useHandle(null, handleValue, null);
+        const handle = horizontal ? createHandle(handleValue, null, null) : createHandle(null, handleValue, null);
 
         return (
             <>
@@ -248,7 +248,7 @@ export const Slider = memo((props) => {
         'p-slider-horizontal': horizontal,
         'p-slider-vertical': vertical
     });
-    const content = props.range ? useRangeSlider() : useSingleSlider();
+    const content = props.range ? createRangeSlider() : createSingleSlider();
 
     return (
         <div ref={elementRef} id={props.id} style={props.style} className={className} onClick={onBarClick}>

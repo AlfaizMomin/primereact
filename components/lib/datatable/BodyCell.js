@@ -456,7 +456,7 @@ export const BodyCell = memo((props) => {
         }
     });
 
-    const useLoading = () => {
+    const createLoading = () => {
         const options = getVirtualScrollerOption('getLoaderOptions')(props.rowIndex, {
             cellIndex: props.index,
             cellFirst: props.index === 0,
@@ -475,7 +475,7 @@ export const BodyCell = memo((props) => {
         )
     }
 
-    const useElement = () => {
+    const createElement = () => {
         let content, editorKeyHelper;
         const cellSelected = props.allowCellSelection && isSelected();
         const isRowEditor = props.editMode === 'row';
@@ -612,5 +612,5 @@ export const BodyCell = memo((props) => {
         )
     }
 
-    return getVirtualScrollerOption('loading') ? useLoading() : useElement();
+    return getVirtualScrollerOption('loading') ? createLoading() : createElement();
 });

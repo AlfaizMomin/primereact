@@ -36,7 +36,7 @@ export const DropdownPanel = memo(forwardRef((props, ref) => {
         props.onFilterInputChange && props.onFilterInputChange(event);
     }
 
-    const useGroupChildren = (optionGroup) => {
+    const createGroupChildren = (optionGroup) => {
         const groupChildren = props.getOptionGroupChildren(optionGroup);
         return (
             groupChildren.map((option, j) => {
@@ -51,7 +51,7 @@ export const DropdownPanel = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useEmptyMessage = (emptyMessage, isFilter) => {
+    const createEmptyMessage = (emptyMessage, isFilter) => {
         const message = ObjectUtils.getJSXElement(emptyMessage, props) || localeOption(isFilter ? 'emptyFilterMessage' : 'emptyMessage');
 
         return (
@@ -61,10 +61,10 @@ export const DropdownPanel = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useItem = (option, index) => {
+    const createItem = (option, index) => {
         if (props.optionGroupLabel) {
             const groupContent = props.optionGroupTemplate ? ObjectUtils.getJSXElement(props.optionGroupTemplate, option, index) : props.getOptionGroupLabel(option);
-            const groupChildrenContent = useGroupChildren(option);
+            const groupChildrenContent = createGroupChildren(option);
             const key = index + '_' + props.getOptionGroupRenderKey(option);
 
             return (
@@ -87,18 +87,18 @@ export const DropdownPanel = memo(forwardRef((props, ref) => {
         }
     }
 
-    const useItems = () => {
+    const createItems = () => {
         if (ObjectUtils.isNotEmpty(props.visibleOptions)) {
-            return props.visibleOptions.map(useItem);
+            return props.visibleOptions.map(createItem);
         }
         else if (props.hasFilter) {
-            return useEmptyMessage(props.emptyFilterMessage, true);
+            return createEmptyMessage(props.emptyFilterMessage, true);
         }
 
-        return useEmptyMessage(props.emptyMessage);
+        return createEmptyMessage(props.emptyMessage);
     }
 
-    const useFilterClearIcon = () => {
+    const createFilterClearIcon = () => {
         if (props.showFilterClear && props.filterValue) {
             return <i className="p-dropdown-filter-clear-icon pi pi-times" onClick={() => props.onFilterClearIconClick(() => filterInputRef.current.focus())}></i>
         }
@@ -106,9 +106,9 @@ export const DropdownPanel = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useFilter = () => {
+    const createFilter = () => {
         if (props.filter) {
-            const clearIcon = useFilterClearIcon();
+            const clearIcon = createFilterClearIcon();
             const containerClassName = classNames('p-dropdown-filter-container', { 'p-dropdown-clearable-filter': !!clearIcon });
             return (
                 <div className="p-dropdown-header">
@@ -125,7 +125,7 @@ export const DropdownPanel = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useContent = () => {
+    const createContent = () => {
         if (props.virtualScrollerOptions) {
             const virtualScrollerProps = {
                 ...props.virtualScrollerOptions,
@@ -134,10 +134,10 @@ export const DropdownPanel = memo(forwardRef((props, ref) => {
                     className: classNames('p-dropdown-items-wrapper', props.virtualScrollerOptions.className),
                     items: props.visibleOptions,
                     onLazyLoad: (event) => props.virtualScrollerOptions.onLazyLoad({ ...event, ...{ filter: props.filterValue } }),
-                    itemTemplate: (item, options) => item && useItem(item, options.index),
+                    itemTemplate: (item, options) => item && createItem(item, options.index),
                     contentTemplate: (options) => {
                         const className = classNames('p-dropdown-items', options.className);
-                        const content = isEmptyFilter ? useEmptyMessage() : options.children;
+                        const content = isEmptyFilter ? createEmptyMessage() : options.children;
 
                         return (
                             <ul ref={options.contentRef} className={className} role="listbox">
@@ -151,7 +151,7 @@ export const DropdownPanel = memo(forwardRef((props, ref) => {
             return <VirtualScroller ref={virtualScrollerRef} {...virtualScrollerProps} />
         }
         else {
-            const items = useItems();
+            const items = createItems();
 
             return (
                 <div className="p-dropdown-items-wrapper" style={{ maxHeight: props.scrollHeight || 'auto' }}>
@@ -163,10 +163,10 @@ export const DropdownPanel = memo(forwardRef((props, ref) => {
         }
     }
 
-    const useElement = () => {
+    const createElement = () => {
         const className = classNames('p-dropdown-panel p-component', props.panelClassName);
-        const filter = useFilter();
-        const content = useContent();
+        const filter = createFilter();
+        const content = createContent();
 
         return (
             <CSSTransition nodeRef={ref} classNames="p-connected-overlay" in={props.in} timeout={{ enter: 120, exit: 100 }} options={props.transitionOptions}
@@ -179,7 +179,7 @@ export const DropdownPanel = memo(forwardRef((props, ref) => {
         )
     }
 
-    const element = useElement();
+    const element = createElement();
 
     return <Portal element={element} appendTo={props.appendTo} />
 }));

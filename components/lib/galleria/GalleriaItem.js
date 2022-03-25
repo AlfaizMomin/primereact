@@ -78,7 +78,7 @@ export const GalleriaItem = memo(forwardRef((props, ref) => {
         }
     });
 
-    const useBackwardNavigator = () => {
+    const createBackwardNavigator = () => {
         if (props.showItemNavigators) {
             const isDisabled = !props.circular && props.activeItemIndex === 0;
             const buttonClassName = classNames('p-galleria-item-prev p-galleria-item-nav p-link', {
@@ -96,7 +96,7 @@ export const GalleriaItem = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useForwardNavigator = () => {
+    const createForwardNavigator = () => {
         if (props.showItemNavigators) {
             const isDisabled = !props.circular && props.activeItemIndex === (props.value.length - 1);
             const buttonClassName = classNames('p-galleria-item-next p-galleria-item-nav p-link', {
@@ -114,7 +114,7 @@ export const GalleriaItem = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useCaption = () => {
+    const createCaption = () => {
         if (props.caption) {
             const content = props.caption(props.value[props.activeItemIndex]);
 
@@ -128,7 +128,7 @@ export const GalleriaItem = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useIndicator = (index) => {
+    const createIndicator = (index) => {
         const key = 'p-galleria-indicator-' + index;
         const isActive = props.activeItemIndex === index;
         const className = classNames('p-galleria-indicator', {
@@ -152,13 +152,13 @@ export const GalleriaItem = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useIndicators = () => {
+    const createIndicators = () => {
         if (props.showIndicators) {
             const className = classNames('p-galleria-indicators p-reset', props.indicatorsContentClassName);
             let indicators = [];
 
             for (let i = 0; i < props.value.length; i++) {
-                indicators.push(useIndicator(i));
+                indicators.push(createIndicator(i));
             }
 
             return (
@@ -172,10 +172,10 @@ export const GalleriaItem = memo(forwardRef((props, ref) => {
     }
 
     const content = props.itemTemplate && props.itemTemplate(props.value[props.activeItemIndex]);
-    const backwardNavigator = useBackwardNavigator();
-    const forwardNavigator = useForwardNavigator();
-    const caption = useCaption();
-    const indicators = useIndicators();
+    const backwardNavigator = createBackwardNavigator();
+    const forwardNavigator = createForwardNavigator();
+    const caption = createCaption();
+    const indicators = createIndicators();
 
     return (
         <div ref={ref} className="p-galleria-item-wrapper">

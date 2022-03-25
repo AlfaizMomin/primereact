@@ -89,7 +89,7 @@ export const PickListSubList = memo(forwardRef((props, ref) => {
         listElementRef
     }));
 
-    const useHeader = () => {
+    const createHeader = () => {
         if (props.header) {
             return <div className="p-picklist-header">{ObjectUtils.getJSXElement(props.header, props)}</div>
         }
@@ -97,7 +97,7 @@ export const PickListSubList = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useItems = () => {
+    const createItems = () => {
         if (props.list) {
             return props.list.map((item) => {
                 const key = JSON.stringify(item);
@@ -110,8 +110,8 @@ export const PickListSubList = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useList = () => {
-        const items = useItems();
+    const createList = () => {
+        const items = createItems();
         const className = classNames('p-picklist-list', props.listClassName);
         return (
             <ul className={className} style={props.style} role="listbox" aria-multiselectable>
@@ -121,8 +121,8 @@ export const PickListSubList = memo(forwardRef((props, ref) => {
     }
 
     const className = classNames('p-picklist-list-wrapper', props.className);
-    const header = useHeader();
-    const list = useList();
+    const header = createHeader();
+    const list = createList();
 
     return (
         <div ref={listElementRef} className={className}>

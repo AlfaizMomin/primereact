@@ -69,12 +69,12 @@ export const InputMask = memo((props) => {
         return true;
     }
 
-    const getPlaceholder = (i) => {
+    const getPlaceholder = useCallback((i) => {
         if (i < props.slotChar.length) {
             return props.slotChar.charAt(i);
         }
         return props.slotChar.charAt(0);
-    }
+    }, [props.slotChar]);
 
     const getValue = () => {
         return props.unmask ? getUnmaskedValue() : elementRef.current && elementRef.current.value;
@@ -388,7 +388,7 @@ export const InputMask = memo((props) => {
         }
     }
 
-    const getUnmaskedValue = () => {
+    const getUnmaskedValue = useCallback(() => {
         let unmaskedBuffer = [];
         for (let i = 0; i < buffer.current.length; i++) {
             let c = buffer.current[i];
@@ -398,7 +398,7 @@ export const InputMask = memo((props) => {
         }
 
         return unmaskedBuffer.join('');
-    }
+    }, [getPlaceholder]);
 
     const updateModel = (e) => {
         if (props.onChange) {
@@ -455,7 +455,7 @@ export const InputMask = memo((props) => {
         return props.unmask ?
             (props.value !== getUnmaskedValue()) :
             (defaultBuffer.current !== elementRef.current.value && elementRef.current.value !== props.value);
-    }, [props.unmask, props.value]);
+    }, [props.unmask, props.value, getUnmaskedValue]);
 
     const init = () => {
         if (props.mask) {
@@ -509,7 +509,7 @@ export const InputMask = memo((props) => {
 
     useEffect(() => {
         ObjectUtils.combinedRefs(elementRef, props.inputRef);
-    }, [elementRef]);
+    }, [elementRef, props.inputRef]);
 
     useEffect(() => {
         if (tooltipRef.current) {

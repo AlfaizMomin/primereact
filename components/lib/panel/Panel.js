@@ -44,7 +44,13 @@ export const Panel = (props) => {
         props.onCollapse && props.onCollapse(event);
     }
 
-    const useToggleIcon = () => {
+    useMountEffect(() => {
+        if (!props.id) {
+            setIdState(UniqueComponentId());
+        }
+    });
+
+    const createToggleIcon = () => {
         if (props.toggleable) {
             const buttonId = idState + '_label';
             const toggleIcon = collapsed ? props.expandIcon : props.collapseIcon;
@@ -60,10 +66,10 @@ export const Panel = (props) => {
         return null;
     }
 
-    const useHeader = () => {
+    const createHeader = () => {
         const header = ObjectUtils.getJSXElement(props.header, props);
         const icons = ObjectUtils.getJSXElement(props.icons, props);
-        const togglerElement = useToggleIcon();
+        const togglerElement = createToggleIcon();
         const titleElement = <span className="p-panel-title" id={headerId}>{header}</span>;
         const iconsElement = (
             <div className="p-panel-icons">
@@ -103,7 +109,7 @@ export const Panel = (props) => {
         return null;
     }
 
-    const useContent = () => {
+    const createContent = () => {
         return (
             <CSSTransition nodeRef={contentRef} classNames="p-toggleable-content" timeout={{ enter: 1000, exit: 450 }} in={!collapsed} unmountOnExit options={props.transitionOptions}>
                 <div ref={contentRef} className="p-toggleable-content" aria-hidden={collapsed} role="region" id={contentId} aria-labelledby={headerId}>
@@ -114,12 +120,6 @@ export const Panel = (props) => {
             </CSSTransition>
         )
     }
-
-    useMountEffect(() => {
-        if (!props.id) {
-            setIdState(UniqueComponentId());
-        }
-    });
 
     const className = classNames('p-panel p-component', {
         'p-panel-toggleable': props.toggleable

@@ -6,7 +6,7 @@ import { CSSTransition } from '../csstransition/CSSTransition';
 import { CascadeSelectSub } from './CascadeSelectSub';
 import { OverlayService } from '../overlayservice/OverlayService';
 import { DomHandler, ObjectUtils, classNames, ZIndexUtils } from '../utils/Utils';
-import { useOverlayListener, useUnmountEffect } from '../hooks/Hooks';
+import { useUpdateEffect, useUnmountEffect, useOverlayListener } from '../hooks/Hooks';
 
 export const CascadeSelect = memo((props) => {
     const [focusedState, setFocusedState] = useState(false);
@@ -18,9 +18,11 @@ export const CascadeSelect = memo((props) => {
     const dirty = useRef(false);
     const selectionPath = useRef(null);
 
-    const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({ target: elementRef, overlay: overlayRef, listener: () => {
-        hide();
-    }, when: overlayVisibleState });
+    const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({
+        target: elementRef, overlay: overlayRef, listener: () => {
+            hide();
+        }, when: overlayVisibleState
+    });
 
     const onOptionSelect = (event) => {
         if (props.onChange) {
@@ -182,9 +184,9 @@ export const CascadeSelect = memo((props) => {
 
     useEffect(() => {
         ObjectUtils.combinedRefs(inputRef, props.inputRef);
-    }, [inputRef]);
+    }, [inputRef, props.inputRef]);
 
-    useEffect(() => {
+    useUpdateEffect(() => {
         updateSelectionPath();
     }, [props.value]);
 
@@ -192,7 +194,7 @@ export const CascadeSelect = memo((props) => {
         ZIndexUtils.clear(overlayRef.current);
     });
 
-    const useKeyboardHelper = () => {
+    const createKeyboardHelper = () => {
         const value = props.value ? getOptionLabel(props.value) : undefined;
 
         return (
@@ -204,7 +206,7 @@ export const CascadeSelect = memo((props) => {
         )
     }
 
-    const useLabel = () => {
+    const createLabel = () => {
         const label = props.value ? getOptionLabel(props.value) : props.placeholder || 'p-emptylabel';
         const labelClassName = classNames('p-cascadeselect-label ', {
             'p-placeholder': label === props.placeholder,
@@ -214,7 +216,7 @@ export const CascadeSelect = memo((props) => {
         return <span ref={labelRef} className={labelClassName}>{label}</span>
     }
 
-    const useDropdownIcon = () => {
+    const createDropdownIcon = () => {
         const iconClassName = classNames('p-cascadeselect-trigger-icon', props.dropdownIcon);
 
         return (
@@ -224,7 +226,7 @@ export const CascadeSelect = memo((props) => {
         )
     }
 
-    const useOverlay = () => {
+    const createOverlay = () => {
         const overlay = (
             <CSSTransition nodeRef={overlayRef} classNames="p-connected-overlay" in={overlayVisibleState} timeout={{ enter: 120, exit: 100 }} options={props.transitionOptions}
                 unmountOnExit onEnter={onOverlayEnter} onEntered={onOverlayEntered} onExit={onOverlayExit} onExited={onOverlayExited}>
@@ -241,7 +243,7 @@ export const CascadeSelect = memo((props) => {
         return <Portal element={overlay} appendTo={props.appendTo} />
     }
 
-    const useElement = () => {
+    const createElement = () => {
         const className = classNames('p-cascadeselect p-component p-inputwrapper', {
             'p-disabled': props.disabled,
             'p-focus': focusedState,
@@ -249,10 +251,10 @@ export const CascadeSelect = memo((props) => {
             'p-inputwrapper-focus': focusedState || overlayVisibleState
         }, props.className);
 
-        const keyboardHelper = useKeyboardHelper();
-        const labelElement = useLabel();
-        const dropdownIcon = useDropdownIcon();
-        const overlay = useOverlay();
+        const keyboardHelper = createKeyboardHelper();
+        const labelElement = createLabel();
+        const dropdownIcon = createDropdownIcon();
+        const overlay = createOverlay();
 
         return (
             <div ref={elementRef} id={props.id} className={className} style={props.style} onClick={onClick}>
@@ -264,7 +266,7 @@ export const CascadeSelect = memo((props) => {
         )
     }
 
-    const element = useElement();
+    const element = createElement();
 
     return element;
 })

@@ -4,7 +4,7 @@ import { classNames } from '../utils/Utils';
 
 export const ProgressBar = memo((props) => {
 
-    const useLabel = () => {
+    const createLabel = () => {
         if (props.showValue && props.value != null) {
             const label = props.displayValueTemplate ? props.displayValueTemplate(props.value) : props.value + props.unit;
             return <div className="p-progressbar-label">{label}</div>
@@ -13,9 +13,9 @@ export const ProgressBar = memo((props) => {
         return null;
     }
 
-    const useDeterminate = () => {
+    const createDeterminate = () => {
         const className = classNames('p-progressbar p-component p-progressbar-determinate', props.className);
-        const label = useLabel();
+        const label = createLabel();
 
         return (
             <div role="progressbar" id={props.id} className={className} style={props.style} aria-valuemin="0" aria-valuenow={props.value} aria-valuemax="100" aria-label={props.value}>
@@ -25,7 +25,7 @@ export const ProgressBar = memo((props) => {
         )
     }
 
-    const useIndeterminate = () => {
+    const createIndeterminate = () => {
         const className = classNames('p-progressbar p-component p-progressbar-indeterminate', props.className);
 
         return (
@@ -38,9 +38,9 @@ export const ProgressBar = memo((props) => {
     }
 
     if (props.mode === 'determinate')
-        return useDeterminate();
+        return createDeterminate();
     else if (props.mode === 'indeterminate')
-        return useIndeterminate();
+        return createIndeterminate();
     else
         throw new Error(props.mode + " is not a valid mode for the ProgressBar. Valid values are 'determinate' and 'indeterminate'");
 });

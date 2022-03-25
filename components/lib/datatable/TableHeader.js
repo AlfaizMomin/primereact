@@ -47,13 +47,13 @@ export const TableHeader = memo((props) => {
         updateSortableDisabled();
     });
 
-    const useGroupHeaderCells = (row) => {
+    const createGroupHeaderCells = (row) => {
         const columns = React.Children.toArray(row.props.children);
 
-        return useHeaderCells(columns);
+        return createHeaderCells(columns);
     }
 
-    const useHeaderCells = (columns) => {
+    const createHeaderCells = (columns) => {
         return React.Children.map(columns, (col, i) => {
             const isVisible = col ? !col.props.hidden : true;
             const key = col ? col.props.columnKey || col.props.field || i : i;
@@ -69,7 +69,7 @@ export const TableHeader = memo((props) => {
         });
     }
 
-    const useCheckbox = (selectionMode) => {
+    const createCheckbox = (selectionMode) => {
         if (props.showSelectAll && selectionMode === 'multiple') {
             const allRowsSelected = props.allRowsSelected(props.value);
 
@@ -81,7 +81,7 @@ export const TableHeader = memo((props) => {
         return null;
     }
 
-    const useFilter = (column, filter) => {
+    const createFilter = (column, filter) => {
         if (filter) {
             return (
                 <ColumnFilter display="row" column={column} filters={props.filters} filtersStore={props.filtersStore} onFilterChange={props.onFilterChange} onFilterApply={props.onFilterApply} />
@@ -91,7 +91,7 @@ export const TableHeader = memo((props) => {
         return null;
     }
 
-    const useFilterCells = () => {
+    const createFilterCells = () => {
         return React.Children.map(props.columns, (col, i) => {
             const isVisible = !col.props.hidden;
 
@@ -100,8 +100,8 @@ export const TableHeader = memo((props) => {
                 const colStyle = { ...(filterHeaderStyle || {}), ...(style || {}) };
                 const colClassName = classNames('p-filter-column', filterHeaderClassName, className, { 'p-frozen-column': frozen });
                 const colKey = columnKey || field || i;
-                const checkbox = useCheckbox(selectionMode);
-                const filterRow = useFilter(col, filter);
+                const checkbox = createCheckbox(selectionMode);
+                const filterRow = createFilter(col, filter);
 
                 return (
                     <th key={colKey} style={colStyle} className={colClassName}>
@@ -115,15 +115,15 @@ export const TableHeader = memo((props) => {
         });
     }
 
-    const useContent = () => {
+    const createContent = () => {
         if (props.headerColumnGroup) {
             const rows = React.Children.toArray(props.headerColumnGroup.props.children);
 
-            return rows.map((row, i) => <tr key={i} role="row">{useGroupHeaderCells(row)}</tr>);
+            return rows.map((row, i) => <tr key={i} role="row">{createGroupHeaderCells(row)}</tr>);
         }
         else {
-            const headerRow = <tr role="row">{useHeaderCells(props.columns)}</tr>;
-            const filterRow = props.filterDisplay === 'row' && <tr role="row">{useFilterCells()}</tr>;
+            const headerRow = <tr role="row">{createHeaderCells(props.columns)}</tr>;
+            const filterRow = props.filterDisplay === 'row' && <tr role="row">{createFilterCells()}</tr>;
 
             return (
                 <>
@@ -134,7 +134,7 @@ export const TableHeader = memo((props) => {
         }
     }
 
-    const content = useContent();
+    const content = createContent();
 
     return (
         <thead className="p-datatable-thead">

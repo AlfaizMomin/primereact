@@ -8,7 +8,7 @@ export const Timeline = memo((props) => {
         return props.dataKey ? ObjectUtils.resolveFieldData(item, props.dataKey) : `pr_id__${index}`;
     }
 
-    const useEvents = () => {
+    const createEvents = () => {
         return props.value && props.value.map((item, index) => {
             const opposite = ObjectUtils.getJSXElement(props.opposite, item, index);
             const marker = ObjectUtils.getJSXElement(props.marker, item, index) || <div className="p-timeline-event-marker"></div>;
@@ -37,7 +37,7 @@ export const Timeline = memo((props) => {
         [`p-timeline-${props.layout}`]: true
     }, props.className);
 
-    const events = useEvents();
+    const events = createEvents();
 
     return (
         <div id={props.id} className={className} style={props.style}>

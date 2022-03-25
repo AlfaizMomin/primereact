@@ -52,7 +52,7 @@ export const Inplace = (props) => {
         }
     }
 
-    const useDisplay = (content) => {
+    const createDisplay = (content) => {
         const className = classNames('p-inplace-display', {
             'p-disabled': props.disabled
         });
@@ -64,7 +64,7 @@ export const Inplace = (props) => {
         )
     }
 
-    const useCloseButton = () => {
+    const createCloseButton = () => {
         if (props.closable) {
             return <Button type="button" className="p-inplace-content-close" icon="pi pi-times" onClick={close} />
         }
@@ -72,8 +72,8 @@ export const Inplace = (props) => {
         return null;
     }
 
-    const useContent = (content) => {
-        const closeButton = useCloseButton();
+    const createContent = (content) => {
+        const closeButton = createCloseButton();
 
         return (
             <div className="p-inplace-content">
@@ -83,20 +83,20 @@ export const Inplace = (props) => {
         )
     }
 
-    const useChildren = () => {
+    const createChildren = () => {
         return (
             React.Children.map(props.children, (child) => {
                 if (active && shouldUseInplaceContent(child)) {
-                    return useContent(child);
+                    return createContent(child);
                 }
                 else if (!active && shouldUseInplaceDisplay(child)) {
-                    return useDisplay(child);
+                    return createDisplay(child);
                 }
             })
         );
     }
 
-    const children = useChildren();
+    const children = createChildren();
     const className = classNames('p-inplace p-component', {
         'p-inplace-closable': props.closable
     }, props.className);

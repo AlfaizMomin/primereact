@@ -76,7 +76,7 @@ export const Editor = memo(forwardRef((props, ref) => {
         getQuill
     });
 
-    const useToolbarHeader = () => {
+    const createToolbarHeader = () => {
         if (props.showHeader === false) {
             return null;
         }
@@ -135,7 +135,7 @@ export const Editor = memo(forwardRef((props, ref) => {
     }
 
     const className = classNames('p-component p-editor-container', props.className);
-    const header = useToolbarHeader();
+    const header = createToolbarHeader();
     const content = <div ref={contentRef} className="p-editor-content"></div>
 
     return (

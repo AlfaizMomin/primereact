@@ -794,7 +794,7 @@ export const TreeTable = forwardRef((props, ref) => {
         filter
     }));
 
-    const useTableHeader = (columns, columnGroup) => {
+    const createTableHeader = (columns, columnGroup) => {
         return (
             <TreeTableHeader columns={columns} columnGroup={columnGroup} tabIndex={props.tabIndex}
                 onSort={onSort} sortField={getSortField()} sortOrder={getSortOrder()} multiSortMeta={getMultiSortMeta()}
@@ -805,13 +805,13 @@ export const TreeTable = forwardRef((props, ref) => {
         )
     }
 
-    const useTableFooter = (columns, columnGroup) => {
+    const createTableFooter = (columns, columnGroup) => {
         return (
             <TreeTableFooter columns={columns} columnGroup={columnGroup} />
         )
     }
 
-    const useTableBody = (value, columns) => {
+    const createTableBody = (value, columns) => {
         return (
             <TreeTableBody value={value} columns={columns} expandedKeys={getExpandedKeys()} selectOnEdit={props.selectOnEdit}
                 onToggle={onToggle} onExpand={props.onExpand} onCollapse={props.onCollapse}
@@ -824,7 +824,7 @@ export const TreeTable = forwardRef((props, ref) => {
         )
     }
 
-    const usePaginator = (position, totalRecords) => {
+    const createPaginator = (position, totalRecords) => {
         const className = classNames('p-paginator-' + position, props.paginatorClassName);
 
         return (
@@ -835,10 +835,10 @@ export const TreeTable = forwardRef((props, ref) => {
         )
     }
 
-    const useScrollableView = (value, columns, frozen, headerColumnGroup, footerColumnGroup) => {
-        const header = useTableHeader(columns, headerColumnGroup);
-        const footer = useTableFooter(columns, footerColumnGroup);
-        const body = useTableBody(value, columns);
+    const createScrollableView = (value, columns, frozen, headerColumnGroup, footerColumnGroup) => {
+        const header = createTableHeader(columns, headerColumnGroup);
+        const footer = createTableFooter(columns, footerColumnGroup);
+        const body = createTableBody(value, columns);
 
         return (
             <TreeTableScrollableView columns={columns} header={header} body={body} footer={footer}
@@ -846,16 +846,16 @@ export const TreeTable = forwardRef((props, ref) => {
         )
     }
 
-    const useScrollableTable = (value) => {
+    const createScrollableTable = (value) => {
         const columns = getColumns();
         const frozenColumns = getFrozenColumns(columns);
         const scrollableColumns = frozenColumns ? getScrollableColumns(columns) : columns;
         let frozenView, scrollableView;
         if (frozenColumns) {
-            frozenView = useScrollableView(value, frozenColumns, true, props.frozenHeaderColumnGroup, props.frozenFooterColumnGroup);
+            frozenView = createScrollableView(value, frozenColumns, true, props.frozenHeaderColumnGroup, props.frozenFooterColumnGroup);
         }
 
-        scrollableView = useScrollableView(value, scrollableColumns, false, props.headerColumnGroup, props.footerColumnGroup);
+        scrollableView = createScrollableView(value, scrollableColumns, false, props.headerColumnGroup, props.footerColumnGroup);
 
         return (
             <div className="p-treetable-scrollable-wrapper">
@@ -865,11 +865,11 @@ export const TreeTable = forwardRef((props, ref) => {
         )
     }
 
-    const useRegularTable = (value) => {
+    const createRegularTable = (value) => {
         const columns = getColumns();
-        const header = useTableHeader(columns, props.headerColumnGroup);
-        const footer = useTableFooter(columns, props.footerColumnGroup);
-        const body = useTableBody(value, columns);
+        const header = createTableHeader(columns, props.headerColumnGroup);
+        const footer = createTableFooter(columns, props.footerColumnGroup);
+        const body = createTableBody(value, columns);
 
         return (
             <div className="p-treetable-wrapper">
@@ -882,11 +882,11 @@ export const TreeTable = forwardRef((props, ref) => {
         )
     }
 
-    const useTable = (value) => {
-        return props.scrollable ? useScrollableTable(value) : useRegularTable(value);
+    const createTable = (value) => {
+        return props.scrollable ? createScrollableTable(value) : createRegularTable(value);
     }
 
-    const useLoader = () => {
+    const createLoader = () => {
         if (props.loading) {
             const iconClassName = classNames('p-treetable-loading-icon pi-spin', props.loadingIcon);
 
@@ -912,13 +912,13 @@ export const TreeTable = forwardRef((props, ref) => {
         'p-treetable-striped': props.stripedRows,
         'p-treetable-gridlines': props.showGridlines
     }, props.className);
-    const table = useTable(data);
+    const table = createTable(data);
     const totalRecords = getTotalRecords(data);
     const headerFacet = props.header && <div className="p-treetable-header">{props.header}</div>;
     const footerFacet = props.footer && <div className="p-treetable-footer">{props.footer}</div>;
-    const paginatorTop = props.paginator && props.paginatorPosition !== 'bottom' && usePaginator('top', totalRecords);
-    const paginatorBottom = props.paginator && props.paginatorPosition !== 'top' && usePaginator('bottom', totalRecords);
-    const loader = useLoader();
+    const paginatorTop = props.paginator && props.paginatorPosition !== 'bottom' && createPaginator('top', totalRecords);
+    const paginatorBottom = props.paginator && props.paginatorPosition !== 'top' && createPaginator('bottom', totalRecords);
+    const loader = createLoader();
     const resizeHelper = props.resizableColumns && <div ref={resizerHelperRef} className="p-column-resizer-helper" style={{ display: 'none' }}></div>;
     const reorderIndicatorUp = props.reorderableColumns && <span ref={reorderIndicatorUpRef} className="pi pi-arrow-down p-datatable-reorder-indicator-up" style={{ position: 'absolute', display: 'none' }} />
     const reorderIndicatorDown = props.reorderableColumns && <span ref={reorderIndicatorDownRef} className="pi pi-arrow-up p-datatable-reorder-indicator-down" style={{ position: 'absolute', display: 'none' }} />;

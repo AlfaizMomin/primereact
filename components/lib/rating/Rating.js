@@ -78,7 +78,7 @@ export const Rating = memo((props) => {
         }
     });
 
-    const useStars = () => {
+    const createStars = () => {
         return Array.from({ length: props.stars }, (_, i) => i + 1).map((value) => {
             const iconClassName = classNames('p-rating-icon', {
                 'pi pi-star': (!props.value || value > props.value),
@@ -91,7 +91,7 @@ export const Rating = memo((props) => {
         });
     }
 
-    const useCancelIcon = () => {
+    const createCancelIcon = () => {
         if (props.cancel) {
             return <span className="p-rating-icon p-rating-cancel pi pi-ban" onClick={clear} tabIndex={tabIndex} onKeyDown={onCancelKeyDown}></span>
         }
@@ -103,8 +103,8 @@ export const Rating = memo((props) => {
         'p-disabled': props.disabled,
         'p-rating-readonly': props.readOnly
     }, props.className);
-    const cancelIcon = useCancelIcon();
-    const stars = useStars();
+    const cancelIcon = createCancelIcon();
+    const stars = createStars();
 
     return (
         <div ref={elementRef} id={props.id} className={className} style={props.style}>

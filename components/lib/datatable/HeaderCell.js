@@ -185,7 +185,7 @@ export const HeaderCell = memo((props) => {
         updateSortableDisabled(prevColumn);
     });
 
-    const useResizer = () => {
+    const createResizer = () => {
         if (props.resizableColumns && !getColumnProp('frozen')) {
             return (
                 <span className="p-column-resizer" onMouseDown={onResizerMouseDown} onClick={onResizerClick} onDoubleClick={onResizerDoubleClick}></span>
@@ -195,13 +195,13 @@ export const HeaderCell = memo((props) => {
         return null;
     }
 
-    const useTitle = () => {
+    const createTitle = () => {
         const title = ObjectUtils.getJSXElement(getColumnProp('header'), { props: props.tableProps });
 
         return <span className="p-column-title">{title}</span>;
     }
 
-    const useSortIcon = ({ sorted, sortOrder }) => {
+    const createSortIcon = ({ sorted, sortOrder }) => {
         if (getColumnProp('sortable')) {
             let sortIcon = sorted ? sortOrder < 0 ? 'pi-sort-amount-down' : 'pi-sort-amount-up-alt' : 'pi-sort-alt';
             let className = classNames('p-sortable-column-icon pi pi-fw', sortIcon);
@@ -214,7 +214,7 @@ export const HeaderCell = memo((props) => {
         return null;
     }
 
-    const useBadge = ({ metaIndex }) => {
+    const createBadge = ({ metaIndex }) => {
         if (metaIndex !== -1 && isBadgeVisible()) {
             const value = (props.groupRowsBy && props.groupRowsBy === props.groupRowSortField) ? metaIndex : metaIndex + 1;
 
@@ -224,7 +224,7 @@ export const HeaderCell = memo((props) => {
         return null;
     }
 
-    const useCheckbox = () => {
+    const createCheckbox = () => {
         if (props.showSelectAll && getColumnProp('selectionMode') === 'multiple' && props.filterDisplay !== 'row') {
             const allRowsSelected = props.allRowsSelected(props.value);
 
@@ -236,7 +236,7 @@ export const HeaderCell = memo((props) => {
         return null;
     }
 
-    const useFilter = () => {
+    const createFilter = () => {
         if (props.filterDisplay === 'menu' && getColumnProp('filter')) {
             return (
                 <ColumnFilter display="menu" column={props.column} filters={props.filters} onFilterChange={props.onFilterChange} onFilterApply={props.onFilterApply} filtersStore={props.filtersStore} />
@@ -246,12 +246,12 @@ export const HeaderCell = memo((props) => {
         return null;
     }
 
-    const useHeader = (sortMeta) => {
-        const title = useTitle();
-        const sortIcon = useSortIcon(sortMeta);
-        const badge = useBadge(sortMeta);
-        const checkbox = useCheckbox();
-        const filter = useFilter();
+    const createHeader = (sortMeta) => {
+        const title = createTitle();
+        const sortIcon = createSortIcon(sortMeta);
+        const badge = createBadge(sortMeta);
+        const checkbox = createCheckbox();
+        const filter = createFilter();
 
         return (
             <div className="p-column-header-content">
@@ -264,7 +264,7 @@ export const HeaderCell = memo((props) => {
         )
     }
 
-    const useElement = () => {
+    const createElement = () => {
         const _isSortableDisabled = isSortableDisabled();
         const sortMeta = getSortMeta();
         const style = getStyle();
@@ -284,8 +284,8 @@ export const HeaderCell = memo((props) => {
         const rowSpan = getColumnProp('rowSpan');
         const ariaSort = getAriaSort(sortMeta);
 
-        const resizer = useResizer();
-        const header = useHeader(sortMeta);
+        const resizer = createResizer();
+        const header = createHeader(sortMeta);
 
         return (
             <th ref={elementRef} style={style} className={className} tabIndex={tabIndex} role="columnheader"
@@ -298,5 +298,7 @@ export const HeaderCell = memo((props) => {
         )
     }
 
-    return useElement();
+    const element = createElement();
+
+    return element;
 });

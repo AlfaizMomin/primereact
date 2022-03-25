@@ -18,7 +18,7 @@ export const OrganizationChartNode = memo((props) => {
         event.preventDefault();
     }
 
-    const useChildNodes = () => {
+    const createChildNodes = () => {
         return (
             <tr style={{ visibility }} className="p-organizationchart-nodes">
                 {
@@ -35,7 +35,7 @@ export const OrganizationChartNode = memo((props) => {
         )
     }
 
-    const useLinesMiddle = () => {
+    const createLinesMiddle = () => {
         const nodeChildLength = node.children && node.children.length;
 
         return (
@@ -61,7 +61,7 @@ export const OrganizationChartNode = memo((props) => {
         )
     }
 
-    const useLinesDown = () => {
+    const createLinesDown = () => {
         return (
             <tr style={{ visibility }} className="p-organizationchart-lines">
                 <td colSpan={colspan}>
@@ -71,7 +71,7 @@ export const OrganizationChartNode = memo((props) => {
         )
     }
 
-    const useToggler = () => {
+    const createToggler = () => {
         if (!leaf) {
             const toggleIconClassName = classNames('p-node-toggler-icon', {
                 'pi pi-chevron-down': expandedState,
@@ -90,19 +90,19 @@ export const OrganizationChartNode = memo((props) => {
         return null;
     }
 
-    const useNodeLabel = () => {
+    const createNodeLabel = () => {
         const label = props.nodeTemplate ? ObjectUtils.getJSXElement(props.nodeLabel, node) : node.label;
 
         return <div>{label}</div>
     }
 
-    const useNodeContent = () => {
+    const createNodeContent = () => {
         const nodeClassName = classNames('p-organizationchart-node-content', {
             'p-organizationchart-selectable-node': props.selectionMode && node.selectable !== false,
             'p-highlight': selected
         }, node.className);
-        const label = useNodeLabel();
-        const toggler = useToggler();
+        const label = createNodeLabel();
+        const toggler = createToggler();
 
         return (
             <tr>
@@ -116,10 +116,10 @@ export const OrganizationChartNode = memo((props) => {
         )
     }
 
-    const nodeContent = useNodeContent();
-    const linesDown = useLinesDown();
-    const linesMiddle = useLinesMiddle();
-    const childNodes = useChildNodes();
+    const nodeContent = createNodeContent();
+    const linesDown = createLinesDown();
+    const linesMiddle = createLinesMiddle();
+    const childNodes = createChildNodes();
 
     return (
         <table className="p-organizationchart-table">

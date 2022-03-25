@@ -85,7 +85,7 @@ export const TreeTableScrollableView = memo((props) => {
         setScrollHeight();
     });
 
-    const useColGroup = () => {
+    const createColGroup = () => {
         if (ObjectUtils.isNotEmpty(props.columns)) {
             const cols = props.columns.map((col, i) => <col key={col.field + '_' + i} />);
 
@@ -103,7 +103,7 @@ export const TreeTableScrollableView = memo((props) => {
     const className = classNames('p-treetable-scrollable-view', { 'p-treetable-frozen-view': props.frozen, 'p-treetable-unfrozen-view': !props.frozen && props.frozenWidth });
     const width = props.frozen ? props.frozenWidth : 'calc(100% - ' + props.frozenWidth + ')';
     const left = props.frozen ? null : props.frozenWidth;
-    const colGroup = useColGroup();
+    const colGroup = createColGroup();
     const scrollableBodyStyle = !props.frozen && props.scrollHeight ? { overflowY: 'scroll' } : null;
 
     return (

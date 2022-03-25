@@ -5,7 +5,7 @@ import { CSSTransition } from '../csstransition/CSSTransition';
 
 export const ColorPickerPanel = forwardRef((props, ref) => {
 
-    const useElement = () => {
+    const createElement = () => {
         const className = classNames('p-colorpicker-panel', {
             'p-colorpicker-overlay-panel': !props.inline,
             'p-disabled': props.disabled
@@ -21,7 +21,7 @@ export const ColorPickerPanel = forwardRef((props, ref) => {
         )
     }
 
-    const element = useElement();
+    const element = createElement();
 
     return props.inline ? element : <Portal element={element} appendTo={props.appendTo} />;
 });

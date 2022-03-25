@@ -1463,7 +1463,7 @@ export const Calendar = memo((props) => {
         return firstDayOfWeek > 0 ? 7 - firstDayOfWeek : 0;
     }
 
-    const createWeekDays = () => {
+    const createWeekDaysMeta = () => {
         let weekDays = [];
         let { firstDayOfWeek: dayIndex, dayNamesMin } = localeOptions(props.locale);
         for (let i = 0; i < 7; i++) {
@@ -1474,7 +1474,7 @@ export const Calendar = memo((props) => {
         return weekDays;
     }
 
-    const createMonths = (month, year) => {
+    const createMonthsMeta = (month, year) => {
         let months = [];
         for (let i = 0; i < props.numberOfMonths; i++) {
             let m = month + i;
@@ -1484,13 +1484,13 @@ export const Calendar = memo((props) => {
                 y = year + 1;
             }
 
-            months.push(createMonth(m, y));
+            months.push(createMonthMeta(m, y));
         }
 
         return months;
     }
 
-    const createMonth = (month, year) => {
+    const createMonthMeta = (month, year) => {
         let dates = [];
         let firstDay = getFirstDayOfMonthIndex(month, year);
         let daysLength = getDaysCountInMonth(month, year);
@@ -2207,7 +2207,7 @@ export const Calendar = memo((props) => {
 
     useEffect(() => {
         ObjectUtils.combinedRefs(inputRef, props.inputRef);
-    }, [inputRef]);
+    }, [inputRef, props.inputRef]);
 
     useEffect(() => {
         if (tooltipRef.current) {
@@ -2295,7 +2295,7 @@ export const Calendar = memo((props) => {
         ZIndexUtils.clear(overlayRef.current);
     });
 
-    const useBackwardNavigator = (isVisible) => {
+    const createBackwardNavigator = (isVisible) => {
         const navigatorProps = isVisible ? { 'onClick': onPrevButtonClick, 'onKeyDown': e => onContainerButtonKeydown(e) } : { 'style': { visibility: 'hidden' } };
         return (
             <button type="button" className="p-datepicker-prev p-link" {...navigatorProps}>
@@ -2305,7 +2305,7 @@ export const Calendar = memo((props) => {
         )
     }
 
-    const useForwardNavigator = (isVisible) => {
+    const createForwardNavigator = (isVisible) => {
         const navigatorProps = isVisible ? { 'onClick': onNextButtonClick, 'onKeyDown': e => onContainerButtonKeydown(e) } : { 'style': { visibility: 'hidden' } };
         return (
             <button type="button" className="p-datepicker-next p-link" {...navigatorProps}>
@@ -2315,7 +2315,7 @@ export const Calendar = memo((props) => {
         )
     }
 
-    const useTitleMonthElement = (month) => {
+    const createTitleMonthElement = (month) => {
         const monthNames = localeOption('monthNames', props.locale);
 
         if (props.monthNavigator && props.view !== 'month') {
@@ -2351,7 +2351,7 @@ export const Calendar = memo((props) => {
         return <span className="p-datepicker-month">{monthNames[month]}</span>
     }
 
-    const useTitleYearElement = (year) => {
+    const createTitleYearElement = (year) => {
         if (props.yearNavigator) {
             let yearOptions = [];
             const years = props.yearRange.split(':');
@@ -2394,9 +2394,9 @@ export const Calendar = memo((props) => {
         return <span className="p-datepicker-year">{year}</span>
     }
 
-    const useTitle = (monthMetaData) => {
-        const month = useTitleMonthElement(monthMetaData.month);
-        const year = useTitleYearElement(monthMetaData.year);
+    const createTitle = (monthMetaData) => {
+        const month = createTitleMonthElement(monthMetaData.month);
+        const year = createTitleYearElement(monthMetaData.year);
 
         return (
             <div className="p-datepicker-title">
@@ -2406,7 +2406,7 @@ export const Calendar = memo((props) => {
         )
     }
 
-    const useDayNames = (weekDays) => {
+    const createDayNames = (weekDays) => {
         const dayNames = weekDays.map((weekDay, index) => (
             <th key={`${weekDay}-${index}`} scope="col">
                 <span>{weekDay}</span>
@@ -2426,7 +2426,7 @@ export const Calendar = memo((props) => {
         return dayNames;
     }
 
-    const useDateCellContent = (date, className, groupIndex) => {
+    const createDateCellContent = (date, className, groupIndex) => {
         const content = props.dateTemplate ? props.dateTemplate(date) : date.day;
 
         return (
@@ -2437,12 +2437,12 @@ export const Calendar = memo((props) => {
         )
     }
 
-    const useWeek = (weekDates, weekNumber, groupIndex) => {
+    const createWeek = (weekDates, weekNumber, groupIndex) => {
         const week = weekDates.map((date) => {
             const selected = isSelected(date);
             const cellClassName = classNames({ 'p-datepicker-other-month': date.otherMonth, 'p-datepicker-today': date.today });
             const dateClassName = classNames({ 'p-highlight': selected, 'p-disabled': !date.selectable });
-            const content = (date.otherMonth && !props.showOtherMonths) ? null : useDateCellContent(date, dateClassName, groupIndex);
+            const content = (date.otherMonth && !props.showOtherMonths) ? null : createDateCellContent(date, dateClassName, groupIndex);
 
             return (
                 <td key={date.day} className={cellClassName}>
@@ -2466,17 +2466,17 @@ export const Calendar = memo((props) => {
         return week;
     }
 
-    const useDates = (monthMetaData, groupIndex) => {
+    const createDates = (monthMetaData, groupIndex) => {
         return monthMetaData.dates.map((weekDates, index) => (
             <tr key={index}>
-                {useWeek(weekDates, monthMetaData.weekNumbers[index], groupIndex)}
+                {createWeek(weekDates, monthMetaData.weekNumbers[index], groupIndex)}
             </tr>
         ));
     }
 
-    const useDateViewGrid = (monthMetaData, weekDays, groupIndex) => {
-        const dayNames = useDayNames(weekDays);
-        const dates = useDates(monthMetaData, groupIndex);
+    const createDateViewGrid = (monthMetaData, weekDays, groupIndex) => {
+        const dayNames = createDayNames(weekDays);
+        const dates = createDates(monthMetaData, groupIndex);
 
         return (
             <div className="p-datepicker-calendar-container">
@@ -2494,12 +2494,12 @@ export const Calendar = memo((props) => {
         )
     }
 
-    const useMonth = (monthMetaData, index) => {
-        const weekDays = createWeekDays();
-        const backwardNavigator = useBackwardNavigator((index === 0));
-        const forwardNavigator = useForwardNavigator((props.numberOfMonths === 1) || (index === props.numberOfMonths - 1));
-        const title = useTitle(monthMetaData);
-        const dateViewGrid = useDateViewGrid(monthMetaData, weekDays, index);
+    const createMonth = (monthMetaData, index) => {
+        const weekDays = createWeekDaysMeta();
+        const backwardNavigator = createBackwardNavigator((index === 0));
+        const forwardNavigator = createForwardNavigator((props.numberOfMonths === 1) || (index === props.numberOfMonths - 1));
+        const title = createTitle(monthMetaData);
+        const dateViewGrid = createDateViewGrid(monthMetaData, weekDays, index);
         const header = props.headerTemplate ? props.headerTemplate() : null;
 
         return (
@@ -2515,8 +2515,8 @@ export const Calendar = memo((props) => {
         )
     }
 
-    const useMonths = (monthsMetaData) => {
-        const groups = monthsMetaData.map(useMonth);
+    const createMonths = (monthsMetaData) => {
+        const groups = monthsMetaData.map(createMonth);
 
         return (
             <div className="p-datepicker-group-container">
@@ -2525,15 +2525,15 @@ export const Calendar = memo((props) => {
         )
     }
 
-    const useDateView = () => {
+    const createDateView = () => {
         const viewDate = getViewDate();
-        const monthsMetaData = createMonths(viewDate.getMonth(), viewDate.getFullYear());
-        const months = useMonths(monthsMetaData);
+        const monthsMetaData = createMonthsMeta(viewDate.getMonth(), viewDate.getFullYear());
+        const months = createMonths(monthsMetaData);
 
         return months;
     }
 
-    const useMonthViewMonth = (index) => {
+    const createMonthViewMonth = (index) => {
         const className = classNames('p-monthpicker-month', { 'p-highlight': isMonthSelected(index) });
         const monthNamesShort = localeOption('monthNamesShort', props.locale);
         const monthName = monthNamesShort[index];
@@ -2546,20 +2546,20 @@ export const Calendar = memo((props) => {
         )
     }
 
-    const useMonthViewMonths = () => {
+    const createMonthViewMonths = () => {
         let months = [];
         for (let i = 0; i <= 11; i++) {
-            months.push(useMonthViewMonth(i));
+            months.push(createMonthViewMonth(i));
         }
 
         return months;
     }
 
-    const useMonthView = () => {
-        const backwardNavigator = useBackwardNavigator(true);
-        const forwardNavigator = useForwardNavigator(true);
-        const yearElement = useTitleYearElement(getViewDate().getFullYear());
-        const months = useMonthViewMonths();
+    const createMonthView = () => {
+        const backwardNavigator = createBackwardNavigator(true);
+        const forwardNavigator = createForwardNavigator(true);
+        const yearElement = createTitleYearElement(getViewDate().getFullYear());
+        const months = createMonthViewMonths();
 
         return (
             <>
@@ -2581,20 +2581,20 @@ export const Calendar = memo((props) => {
         )
     }
 
-    const useDatePicker = () => {
+    const createDatePicker = () => {
         if (!props.timeOnly) {
             if (props.view === 'date') {
-                return useDateView();
+                return createDateView();
             }
             else if (props.view === 'month') {
-                return useMonthView();
+                return createMonthView();
             }
         }
 
         return null;
     }
 
-    const useHourPicker = () => {
+    const createHourPicker = () => {
         let currentTime = getCurrentDateTime();
         let hour = currentTime.getHours();
 
@@ -2624,7 +2624,7 @@ export const Calendar = memo((props) => {
         )
     }
 
-    const useMinutePicker = () => {
+    const createMinutePicker = () => {
         const currentTime = getCurrentDateTime();
         const minute = currentTime.getMinutes();
         const minuteDisplay = minute < 10 ? '0' + minute : minute;
@@ -2646,7 +2646,7 @@ export const Calendar = memo((props) => {
         )
     }
 
-    const useSecondPicker = () => {
+    const createSecondPicker = () => {
         if (props.showSeconds) {
             const currentTime = getCurrentDateTime();
             const second = currentTime.getSeconds();
@@ -2672,7 +2672,7 @@ export const Calendar = memo((props) => {
         return null;
     }
 
-    const useMiliSecondPicker = () => {
+    const createMiliSecondPicker = () => {
         if (props.showMillisec) {
             const currentTime = getCurrentDateTime();
             const millisecond = currentTime.getMilliseconds();
@@ -2698,7 +2698,7 @@ export const Calendar = memo((props) => {
         return null;
     }
 
-    const useAmPmPicker = () => {
+    const createAmPmPicker = () => {
         if (props.hourFormat === '12') {
             const currentTime = getCurrentDateTime();
             const hour = currentTime.getHours();
@@ -2722,7 +2722,7 @@ export const Calendar = memo((props) => {
         return null;
     }
 
-    const useSeparator = (separator) => {
+    const createSeparator = (separator) => {
         return (
             <div className="p-separator">
                 <span>{separator}</span>
@@ -2730,19 +2730,19 @@ export const Calendar = memo((props) => {
         )
     }
 
-    const useTimePicker = () => {
+    const createTimePicker = () => {
         if (props.showTime || props.timeOnly) {
             return (
                 <div className="p-timepicker">
-                    {useHourPicker()}
-                    {useSeparator(':')}
-                    {useMinutePicker()}
-                    {props.showSeconds && useSeparator(':')}
-                    {useSecondPicker()}
-                    {props.showMillisec && useSeparator('.')}
-                    {useMiliSecondPicker()}
-                    {props.hourFormat === '12' && useSeparator(':')}
-                    {useAmPmPicker()}
+                    {createHourPicker()}
+                    {createSeparator(':')}
+                    {createMinutePicker()}
+                    {props.showSeconds && createSeparator(':')}
+                    {createSecondPicker()}
+                    {props.showMillisec && createSeparator('.')}
+                    {createMiliSecondPicker()}
+                    {props.hourFormat === '12' && createSeparator(':')}
+                    {createAmPmPicker()}
                 </div>
             )
         }
@@ -2750,7 +2750,7 @@ export const Calendar = memo((props) => {
         return null;
     }
 
-    const useInputElement = () => {
+    const createInputElement = () => {
         if (!props.inline) {
             return (
                 <InputText ref={inputRef} id={props.inputId} name={props.name} type="text" className={props.inputClassName} style={props.inputStyle}
@@ -2762,7 +2762,7 @@ export const Calendar = memo((props) => {
         return null;
     }
 
-    const useButton = () => {
+    const createButton = () => {
         if (props.showIcon) {
             return <Button type="button" icon={props.icon} onClick={onButtonClick} tabIndex="-1" disabled={props.disabled} className="p-datepicker-trigger" />
         }
@@ -2770,9 +2770,9 @@ export const Calendar = memo((props) => {
         return null;
     }
 
-    const useContent = () => {
-        const input = useInputElement();
-        const button = useButton();
+    const createContent = () => {
+        const input = createInputElement();
+        const button = createButton();
 
         if (props.iconPos === 'left') {
             return (
@@ -2791,7 +2791,7 @@ export const Calendar = memo((props) => {
         )
     }
 
-    const useButtonBar = () => {
+    const createButtonBar = () => {
         if (props.showButtonBar) {
             const todayClassName = classNames('p-button-text', props.todayButtonClassName);
             const clearClassName = classNames('p-button-text', props.clearButtonClassName);
@@ -2808,7 +2808,7 @@ export const Calendar = memo((props) => {
         return null;
     }
 
-    const useFooter = () => {
+    const createFooter = () => {
         if (props.footerTemplate) {
             const content = props.footerTemplate();
 
@@ -2837,11 +2837,11 @@ export const Calendar = memo((props) => {
         'p-datepicker-monthpicker': (props.view === 'month'),
         'p-datepicker-touch-ui': props.touchUI
     });
-    const content = useContent();
-    const datePicker = useDatePicker();
-    const timePicker = useTimePicker();
-    const buttonBar = useButtonBar();
-    const footer = useFooter();
+    const content = createContent();
+    const datePicker = createDatePicker();
+    const timePicker = createTimePicker();
+    const buttonBar = createButtonBar();
+    const footer = createFooter();
 
     return (
         <span ref={elementRef} id={props.id} className={className} style={props.style}>

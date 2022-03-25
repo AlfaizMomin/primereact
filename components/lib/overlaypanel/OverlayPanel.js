@@ -184,7 +184,7 @@ export const OverlayPanel = forwardRef((props, ref) => {
         hide
     }));
 
-    const useCloseIcon = () => {
+    const createCloseIcon = () => {
         if (props.showCloseIcon) {
             return (
                 <button type="button" className="p-overlaypanel-close p-link" onClick={onCloseClick} aria-label={props.ariaCloseLabel}>
@@ -197,9 +197,9 @@ export const OverlayPanel = forwardRef((props, ref) => {
         return null;
     }
 
-    const useElement = () => {
+    const createElement = () => {
         const className = classNames('p-overlaypanel p-component', props.className);
-        const closeIcon = useCloseIcon();
+        const closeIcon = createCloseIcon();
 
         return (
             <CSSTransition nodeRef={overlayRef} classNames="p-overlaypanel" in={visibleState} timeout={{ enter: 120, exit: 100 }} options={props.transitionOptions}
@@ -214,7 +214,7 @@ export const OverlayPanel = forwardRef((props, ref) => {
         )
     }
 
-    const element = useElement();
+    const element = createElement();
 
     return <Portal element={element} appendTo={props.appendTo} />
 });

@@ -409,7 +409,7 @@ export const AutoComplete = memo(forwardRef((props, ref) => {
 
     useEffect(() => {
         ObjectUtils.combinedRefs(inputRef, props.inputRef);
-    }, [inputRef]);
+    }, [inputRef, props.inputRef]);
 
     useEffect(() => {
         if (tooltipRef.current) {
@@ -464,7 +464,7 @@ export const AutoComplete = memo(forwardRef((props, ref) => {
         search
     });
 
-    const useSimpleAutoComplete = () => {
+    const createSimpleAutoComplete = () => {
         const value = formatValue(props.value);
         const ariaControls = idState + '_list';
         const className = classNames('p-autocomplete-input', props.inputClassName, {
@@ -484,7 +484,7 @@ export const AutoComplete = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useChips = () => {
+    const createChips = () => {
         if (ObjectUtils.isNotEmpty(props.value)) {
             return props.value.map((val, index) => {
                 const key = index + 'multi-item';
@@ -500,7 +500,7 @@ export const AutoComplete = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useMultiInput = () => {
+    const createMultiInput = () => {
         const ariaControls = idState + '_list';
 
         return (
@@ -515,12 +515,12 @@ export const AutoComplete = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useMultipleAutoComplete = () => {
+    const createMultipleAutoComplete = () => {
         const className = classNames('p-autocomplete-multiple-container p-component p-inputtext', {
             'p-disabled': props.disabled
         });
-        const tokens = useChips();
-        const input = useMultiInput();
+        const tokens = createChips();
+        const input = createMultiInput();
 
         return (
             <ul ref={multiContainerRef} className={className} onContextMenu={props.onContextMenu} onMouseDown={props.onMouseDown}
@@ -531,7 +531,7 @@ export const AutoComplete = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useDropdown = () => {
+    const createDropdown = () => {
         if (props.dropdown) {
             return <Button type="button" icon={props.dropdownIcon} className="p-autocomplete-dropdown" disabled={props.disabled} onClick={onDropdownClick} />
         }
@@ -539,7 +539,7 @@ export const AutoComplete = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useLoader = () => {
+    const createLoader = () => {
         if (searchingState) {
             return <i className="p-autocomplete-loader pi pi-spinner pi-spin"></i>
         }
@@ -547,8 +547,8 @@ export const AutoComplete = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useInput = () => {
-        return props.multiple ? useMultipleAutoComplete() : useSimpleAutoComplete();
+    const createInput = () => {
+        return props.multiple ? createMultipleAutoComplete() : createSimpleAutoComplete();
     }
 
     const listId = idState + '_list';
@@ -558,9 +558,9 @@ export const AutoComplete = memo(forwardRef((props, ref) => {
         'p-inputwrapper-filled': props.value,
         'p-inputwrapper-focus': focusedState
     }, props.className);
-    const loader = useLoader();
-    const input = useInput();
-    const dropdown = useDropdown();
+    const loader = createLoader();
+    const input = createInput();
+    const dropdown = createDropdown();
 
     return (
         <span ref={elementRef} id={idState} style={props.style} className={className} aria-haspopup="listbox" aria-expanded={overlayVisibleState} aria-owns={listId}>

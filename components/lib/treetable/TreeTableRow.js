@@ -283,7 +283,7 @@ export const TreeTableRow = memo((props) => {
         return props.selectionKeys ? props.selectionKeys[props.node.key] && props.selectionKeys[props.node.key].partialChecked : false;
     }
 
-    const useToggler = () => {
+    const createToggler = () => {
         const expanded = isExpanded();
         const iconClassName = classNames('"p-treetable-toggler-icon pi pi-fw', { 'pi-chevron-right': !expanded, 'pi-chevron-down': expanded });
         const style = { marginLeft: props.level * 16 + 'px', visibility: (props.node.leaf === false || (props.node.children && props.node.children.length)) ? 'visible' : 'hidden' };
@@ -296,7 +296,7 @@ export const TreeTableRow = memo((props) => {
         );
     }
 
-    const useCheckbox = () => {
+    const createCheckbox = () => {
         if (props.selectionMode === 'checkbox' && props.node.selectable !== false) {
             const checked = isChecked();
             const partialChecked = isPartialChecked();
@@ -319,12 +319,12 @@ export const TreeTableRow = memo((props) => {
         }
     }
 
-    const useCell = (column) => {
+    const createCell = (column) => {
         let toggler, checkbox;
 
         if (column.props.expander) {
-            toggler = useToggler();
-            checkbox = useCheckbox();
+            toggler = createToggler();
+            checkbox = createCheckbox();
         }
 
         return (
@@ -335,7 +335,7 @@ export const TreeTableRow = memo((props) => {
         )
     }
 
-    const useChildren = () => {
+    const createChildren = () => {
         if (isExpanded() && props.node.children) {
             return props.node.children.map((childNode, index) => {
                 return (
@@ -355,8 +355,8 @@ export const TreeTableRow = memo((props) => {
         }
     }
 
-    const cells = props.columns.map(useCell);
-    const children = useChildren();
+    const cells = props.columns.map(createCell);
+    const children = createChildren();
     let className = {
         'p-highlight': isSelected(),
         'p-highlight-contextmenu': (props.contextMenuSelectionKey && props.contextMenuSelectionKey === props.node.key)

@@ -290,7 +290,7 @@ export const Tree = memo(forwardRef((props, ref) => {
         filter
     }));
 
-    const useRootChild = (node, index, last) => {
+    const createRootChild = (node, index, last) => {
         return (
             <UITreeNode key={node.key || node.label} node={node} index={index} last={last} path={String(index)} disabled={props.disabled} selectionMode={props.selectionMode}
                 selectionKeys={props.selectionKeys} onSelectionChange={props.onSelectionChange} metaKeySelection={props.metaKeySelection}
@@ -303,7 +303,7 @@ export const Tree = memo(forwardRef((props, ref) => {
         )
     }
 
-    const useRootChildren = () => {
+    const createRootChildren = () => {
         if (props.filter) {
             filterChanged.current = true;
             _filter();
@@ -312,13 +312,13 @@ export const Tree = memo(forwardRef((props, ref) => {
         const value = getRootNode();
 
         return (
-            value.map((node, index) => useRootChild(node, index, (index === value.length - 1)))
+            value.map((node, index) => createRootChild(node, index, (index === value.length - 1)))
         )
     }
 
-    const useModel = () => {
+    const createModel = () => {
         if (props.value) {
-            const rootNodes = useRootChildren();
+            const rootNodes = createRootChildren();
             const contentClass = classNames('p-tree-container', props.contentClassName);
 
             return (
@@ -331,7 +331,7 @@ export const Tree = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useLoader = () => {
+    const createLoader = () => {
         if (props.loading) {
             const icon = classNames('p-tree-loading-icon pi-spin', props.loadingIcon);
 
@@ -345,7 +345,7 @@ export const Tree = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useFilter = () => {
+    const createFilter = () => {
         if (props.filter) {
             const value = ObjectUtils.isNotEmpty(filteredValue) ? filteredValue : '';
 
@@ -361,9 +361,9 @@ export const Tree = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useHeader = () => {
+    const createHeader = () => {
         if (props.showHeader) {
-            const filterElement = useFilter();
+            const filterElement = createFilter();
             let content = filterElement;
 
             if (props.header) {
@@ -393,7 +393,7 @@ export const Tree = memo(forwardRef((props, ref) => {
         return null;
     }
 
-    const useFooter = () => {
+    const createFooter = () => {
         const content = ObjectUtils.getJSXElement(props.footer, props);
 
         return (
@@ -408,10 +408,10 @@ export const Tree = memo(forwardRef((props, ref) => {
         'p-tree-loading': props.loading,
         'p-disabled': props.disabled
     });
-    const loader = useLoader();
-    const content = useModel();
-    const header = useHeader();
-    const footer = useFooter();
+    const loader = createLoader();
+    const content = createModel();
+    const header = createHeader();
+    const footer = createFooter();
 
     return (
         <div id={props.id} className={className} style={props.style}>

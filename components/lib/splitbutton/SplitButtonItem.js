@@ -15,11 +15,11 @@ export const SplitButtonItem = memo((props) => {
         e.preventDefault();
     }
 
-    const useSeparator = () => {
+    const createSeparator = () => {
         return <li className="p-menu-separator" role="separator"></li>
     }
 
-    const useMenuitem = () => {
+    const createMenuitem = () => {
         const { disabled, icon: _icon, label: _label, template, url, target } = props.menuitem;
         const className = classNames('p-menuitem-link', { 'p-disabled': disabled });
         const iconClassName = classNames('p-menuitem-icon', _icon);
@@ -52,11 +52,11 @@ export const SplitButtonItem = memo((props) => {
         )
     }
 
-    const useItem = () => {
-        return props.menuitem.separator ? useSeparator() : useMenuitem();
+    const createItem = () => {
+        return props.menuitem.separator ? createSeparator() : createMenuitem();
     }
 
-    const item = useItem();
+    const item = createItem();
 
     return item;
 });

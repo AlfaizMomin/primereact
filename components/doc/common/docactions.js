@@ -10,7 +10,9 @@ export const DocActions = (props) => {
     const liveEditor = useRef(null);
 
     useEffect(() => {
+        /* eslint-disable */
         liveEditor.current = useLiveEditor();
+        /* eslint-enable */
     }, []);
 
     const items = [

@@ -4,7 +4,7 @@ import { ObjectUtils, classNames } from '../utils/Utils';
 
 export const Card = (props) => {
 
-    const useHeader = () => {
+    const createHeader = () => {
         if (props.header) {
             return <div className="p-card-header">{ObjectUtils.getJSXElement(props.header, props)}</div>
         }
@@ -12,7 +12,7 @@ export const Card = (props) => {
         return null;
     }
 
-    const useBody = () => {
+    const createBody = () => {
         const title = props.title && <div className="p-card-title">{ObjectUtils.getJSXElement(props.title, props)}</div>
         const subTitle = props.subTitle && <div className="p-card-subtitle">{ObjectUtils.getJSXElement(props.subTitle, props)}</div>
         const children = props.children && <div className="p-card-content">{props.children}</div>
@@ -29,8 +29,8 @@ export const Card = (props) => {
     }
 
     const className = classNames('p-card p-component', props.className);
-    const header = useHeader();
-    const body = useBody();
+    const header = createHeader();
+    const body = createBody();
 
     return (
         <div id={props.id} className={className} style={props.style}>

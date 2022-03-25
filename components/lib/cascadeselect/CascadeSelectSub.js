@@ -158,7 +158,7 @@ export const CascadeSelectSub = memo((props) => {
         setActiveOptionState(null);
     }, [props.parentActive]);
 
-    const useSubmenu = (option) => {
+    const createSubmenu = (option) => {
         if (isOptionGroup(option) && activeOptionState === option) {
             const options = getOptionGroupChildren(option);
             const parentActive = activeOptionState === option;
@@ -175,12 +175,12 @@ export const CascadeSelectSub = memo((props) => {
         return null;
     }
 
-    const useOption = (option, index) => {
+    const createOption = (option, index) => {
         const className = classNames('p-cascadeselect-item', {
             'p-cascadeselect-item-group': isOptionGroup(option),
             'p-cascadeselect-item-active p-highlight': activeOptionState === option
         }, option.className);
-        const submenu = useSubmenu(option);
+        const submenu = createSubmenu(option);
         const content = props.template ? ObjectUtils.getJSXElement(props.template, getOptionValue(option)) :
             <span className="p-cascadeselect-item-text">{getOptionLabelToRender(option)}</span>;
         const optionGroup = isOptionGroup(option) && <span className="p-cascadeselect-group-icon pi pi-angle-right" />
@@ -198,12 +198,12 @@ export const CascadeSelectSub = memo((props) => {
         );
     }
 
-    const useMenu = () => {
-        return props.options ? props.options.map(useOption) : null;
+    const createMenu = () => {
+        return props.options ? props.options.map(createOption) : null;
     }
 
     const className = classNames('p-cascadeselect-panel p-cascadeselect-items', props.className);
-    const submenu = useMenu();
+    const submenu = createMenu();
 
     return (
         <ul ref={elementRef} className={className} role="listbox" aria-orientation="horizontal">
