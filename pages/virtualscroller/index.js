@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { VirtualScroller } from '../../components/lib/virtualscroller/VirtualScroller';
 import { classNames } from '../../components/lib/utils/ClassNames';
 import { Skeleton } from '../../components/lib/skeleton/Skeleton';
@@ -7,13 +7,12 @@ import { DocActions } from '../../components/doc/common/docactions';
 import Head from 'next/head';
 
 const VirtualScrollerDemo = () => {
-
     const [lazyItems, setLazyItems] = useState([]);
     const [lazyLoading, setLazyLoading] = useState(false);
-
-    const basicItems = Array.from({ length: 100000 }).map((_, i) => `Item #${i}`);
-    const multiItems = Array.from({ length: 1000 }).map((_, i) => Array.from({ length: 1000 }).map((_j, j) => `Item #${i}_${j}`));
-    let loadLazyTimeout = null;
+    const [basicItems] = useState(Array.from({ length: 100000 }).map((_, i) => `Item #${i}`));
+    const [multiItems] = useState(Array.from({ length: 1000 }).map((_, i) => Array.from({ length: 1000 }).map((_j, j) => `Item #${i}_${j}`)));
+    const [templateItems] = useState(Array.from({ length: 10000 }).map((_, i) => `Item #${i}`));
+    const loadLazyTimeout = useRef(null);
 
     useEffect(() => {
         setLazyItems(Array.from({ length: 100000 }));
@@ -21,14 +20,14 @@ const VirtualScrollerDemo = () => {
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const onLazyLoad = (event) => {
-        setLazyLoading(false);
+        setLazyLoading(true);
 
-        if (loadLazyTimeout) {
-            clearTimeout(loadLazyTimeout);
+        if (loadLazyTimeout.current) {
+            clearTimeout(loadLazyTimeout.current);
         }
 
         //imitate delay of a backend call
-        loadLazyTimeout = setTimeout(() => {
+        loadLazyTimeout.current = setTimeout(() => {
             const { first, last } = event;
             const _lazyItems = [...lazyItems];
 
@@ -189,7 +188,7 @@ const VirtualScrollerDemo = () => {
 
                 <div className="card">
                     <h5>Template</h5>
-                    <VirtualScroller items={basicItems} itemSize={25 * 7} itemTemplate={itemTemplate} showLoader delay={250} loadingTemplate={loadingTemplate} />
+                    <VirtualScroller items={templateItems} itemSize={25 * 7} itemTemplate={itemTemplate} showLoader delay={250} loadingTemplate={loadingTemplate} />
                 </div>
             </div>
 

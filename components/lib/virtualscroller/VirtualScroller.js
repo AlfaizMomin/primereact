@@ -366,7 +366,7 @@ export const VirtualScroller = memo(forwardRef((props, ref) => {
                 clearTimeout(scrollTimeout.current);
             }
 
-            if (!loading && props.showLoader) {
+            if (!loadingState && props.showLoader) {
                 const { isRangeChanged: changed } = onScrollPositionChange(event);
                 changed && setLoadingState(true);
             }
@@ -374,7 +374,7 @@ export const VirtualScroller = memo(forwardRef((props, ref) => {
             scrollTimeout.current = setTimeout(() => {
                 onScrollChange(event);
 
-                if (loading && props.showLoader && !props.lazy) {
+                if (loadingState && props.showLoader && !props.lazy) {
                     setLoadingState(false);
                 }
             }, props.delay);
@@ -489,7 +489,7 @@ export const VirtualScroller = memo(forwardRef((props, ref) => {
             if (props.loadingTemplate) {
                 content = loaderArrState.map((_, index) => {
                     return useLoaderItem(index, both && { numCols: numItemsInViewportState.cols });
-                })
+                });
             }
 
             return (
@@ -529,7 +529,7 @@ export const VirtualScroller = memo(forwardRef((props, ref) => {
 
     const useContent = () => {
         const items = useItems();
-        const className = classNames('p-virtualscroller-content', { 'p-virtualscroller-loading': loading });
+        const className = classNames('p-virtualscroller-content', { 'p-virtualscroller-loading': loadingState });
         const content = (
             <div ref={contentRef} className={className}>
                 {items}
@@ -547,7 +547,7 @@ export const VirtualScroller = memo(forwardRef((props, ref) => {
                 children: items,
                 element: content,
                 props,
-                loading,
+                loading: loadingState,
                 getLoaderOptions: (index, ext) => loaderOptions(index, ext),
                 loadingTemplate: props.loadingTemplate,
                 itemSize: props.itemSize,

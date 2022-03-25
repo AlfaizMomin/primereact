@@ -213,7 +213,7 @@ export class VirtualScrollerDemo extends Component {
         'hooks': {
             tabName: 'Hooks Source',
             content: `
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { VirtualScroller } from 'primereact/virtualscroller';
 import { classNames } from 'primereact/utils';
 import { Skeleton } from 'primereact/skeleton';
@@ -222,10 +222,10 @@ import './VirtualScrollerDemo.css';
 const VirtualScrollerDemo = () => {
     const [lazyItems, setLazyItems] = useState([]);
     const [lazyLoading, setLazyLoading] = useState(false);
-
-    const basicItems = Array.from({ length: 100000 }).map((_, i) => \`Item #\${i}\`);
-    const multiItems = Array.from({ length: 1000 }).map((_, i) => Array.from({ length: 1000 }).map((_j, j) => \`Item #\${i}_\${j}\`));
-    let loadLazyTimeout = null;
+    const [basicItems] = useState(Array.from({ length: 100000 }).map((_, i) => \`Item #\${i}\`));
+    const [multiItems] = useState(Array.from({ length: 1000 }).map((_, i) => Array.from({ length: 1000 }).map((_j, j) => \`Item #\${i}_\${j}\`)));
+    const [templateItems] = useState(Array.from({ length: 10000 }).map((_, i) => \`Item #\${i}\`));
+    const loadLazyTimeout = useRef(null);
 
     useEffect(() => {
         setLazyItems(Array.from({ length: 100000 }));
@@ -233,14 +233,14 @@ const VirtualScrollerDemo = () => {
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const onLazyLoad = (event) => {
-        setLazyLoading(false);
+        setLazyLoading(true);
 
-        if (loadLazyTimeout) {
-            clearTimeout(loadLazyTimeout);
+        if (loadLazyTimeout.current) {
+            clearTimeout(loadLazyTimeout.current);
         }
 
         //imitate delay of a backend call
-        loadLazyTimeout = setTimeout(() => {
+        loadLazyTimeout.current = setTimeout(() => {
             const { first, last } = event;
             const _lazyItems = [...lazyItems];
 
@@ -387,7 +387,7 @@ const VirtualScrollerDemo = () => {
 
             <div className="card">
                 <h5>Template</h5>
-                <VirtualScroller items={basicItems} itemSize={25 * 7} itemTemplate={itemTemplate} showLoader delay={250} loadingTemplate={loadingTemplate} />
+                <VirtualScroller items={templateItems} itemSize={25 * 7} itemTemplate={itemTemplate} showLoader delay={250} loadingTemplate={loadingTemplate} />
             </div>
         </div>
     )
@@ -397,7 +397,7 @@ const VirtualScrollerDemo = () => {
         'ts': {
             tabName: 'TS Source',
             content: `
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { VirtualScroller } from 'primereact/virtualscroller';
 import { classNames } from 'primereact/utils';
 import { Skeleton } from 'primereact/skeleton';
@@ -406,10 +406,10 @@ import './VirtualScrollerDemo.css';
 const VirtualScrollerDemo = () => {
     const [lazyItems, setLazyItems] = useState([]);
     const [lazyLoading, setLazyLoading] = useState(false);
-
-    const basicItems = Array.from({ length: 100000 }).map((_, i) => \`Item #\${i}\`);
-    const multiItems = Array.from({ length: 1000 }).map((_, i) => Array.from({ length: 1000 }).map((_j, j) => \`Item #\${i}_\${j}\`));
-    let loadLazyTimeout = null;
+    const [basicItems] = useState(Array.from({ length: 100000 }).map((_, i) => \`Item #\${i}\`));
+    const [multiItems] = useState(Array.from({ length: 1000 }).map((_, i) => Array.from({ length: 1000 }).map((_j, j) => \`Item #\${i}_\${j}\`)));
+    const [templateItems] = useState(Array.from({ length: 10000 }).map((_, i) => \`Item #\${i}\`));
+    const loadLazyTimeout = useRef(null);
 
     useEffect(() => {
         setLazyItems(Array.from({ length: 100000 }));
@@ -417,14 +417,14 @@ const VirtualScrollerDemo = () => {
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const onLazyLoad = (event) => {
-        setLazyLoading(false);
+        setLazyLoading(true);
 
-        if (loadLazyTimeout) {
-            clearTimeout(loadLazyTimeout);
+        if (loadLazyTimeout.current) {
+            clearTimeout(loadLazyTimeout.current);
         }
 
         //imitate delay of a backend call
-        loadLazyTimeout = setTimeout(() => {
+        loadLazyTimeout.current = setTimeout(() => {
             const { first, last } = event;
             const _lazyItems = [...lazyItems];
 
@@ -571,7 +571,7 @@ const VirtualScrollerDemo = () => {
 
             <div className="card">
                 <h5>Template</h5>
-                <VirtualScroller items={basicItems} itemSize={25 * 7} itemTemplate={itemTemplate} showLoader delay={250} loadingTemplate={loadingTemplate} />
+                <VirtualScroller items={templateItems} itemSize={25 * 7} itemTemplate={itemTemplate} showLoader delay={250} loadingTemplate={loadingTemplate} />
             </div>
         </div>
     )
@@ -588,7 +588,7 @@ const VirtualScrollerDemo = () => {
     <script src="https://unpkg.com/primereact/virtualscroller/virtualscroller.min.js"></script>
     <script src="https://unpkg.com/primereact/skeleton/skeleton.min.js"></script>`,
             content: `
-const { useEffect, useState } = React;
+const { useEffect, useState, useRef } = React;
 const { classNames } = primereact.core;
 const { VirtualScroller } = primereact.virtualscroller;
 const { Skeleton } = primereact.skeleton;
@@ -596,10 +596,10 @@ const { Skeleton } = primereact.skeleton;
 const VirtualScrollerDemo = () => {
     const [lazyItems, setLazyItems] = useState([]);
     const [lazyLoading, setLazyLoading] = useState(false);
-
-    const basicItems = Array.from({ length: 100000 }).map((_, i) => \`Item #\${i}\`);
-    const multiItems = Array.from({ length: 1000 }).map((_, i) => Array.from({ length: 1000 }).map((_j, j) => \`Item #\${i}_\${j}\`));
-    let loadLazyTimeout = null;
+    const [basicItems] = useState(Array.from({ length: 100000 }).map((_, i) => \`Item #\${i}\`));
+    const [multiItems] = useState(Array.from({ length: 1000 }).map((_, i) => Array.from({ length: 1000 }).map((_j, j) => \`Item #\${i}_\${j}\`)));
+    const [templateItems] = useState(Array.from({ length: 10000 }).map((_, i) => \`Item #\${i}\`));
+    const loadLazyTimeout = useRef(null);
 
     useEffect(() => {
         setLazyItems(Array.from({ length: 100000 }));
@@ -607,14 +607,14 @@ const VirtualScrollerDemo = () => {
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const onLazyLoad = (event) => {
-        setLazyLoading(false);
+        setLazyLoading(true);
 
-        if (loadLazyTimeout) {
-            clearTimeout(loadLazyTimeout);
+        if (loadLazyTimeout.current) {
+            clearTimeout(loadLazyTimeout.current);
         }
 
         //imitate delay of a backend call
-        loadLazyTimeout = setTimeout(() => {
+        loadLazyTimeout.current = setTimeout(() => {
             const { first, last } = event;
             const _lazyItems = [...lazyItems];
 
@@ -761,7 +761,7 @@ const VirtualScrollerDemo = () => {
 
             <div className="card">
                 <h5>Template</h5>
-                <VirtualScroller items={basicItems} itemSize={25 * 7} itemTemplate={itemTemplate} showLoader delay={250} loadingTemplate={loadingTemplate} />
+                <VirtualScroller items={templateItems} itemSize={25 * 7} itemTemplate={itemTemplate} showLoader delay={250} loadingTemplate={loadingTemplate} />
             </div>
         </div>
     )
