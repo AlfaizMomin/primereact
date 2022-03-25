@@ -448,13 +448,11 @@ export const VirtualScroller = memo(forwardRef((props, ref) => {
         if ((!prevItems || prevItems.length !== (props.items || []).length)) {
             init();
         }
-    }, [props.items]);
 
-    useUpdateEffect(() => {
         if (props.lazy && prevLoading !== props.loading && props.loading !== loadingState) {
             setLoadingState(props.loading);
         }
-    }, [props.lazy, props.loading]);
+    });
 
     useUpdateEffect(() => {
         lastScrollPos.current = both ? { top: 0, left: 0 } : 0;
