@@ -7,7 +7,7 @@ const TemplateSection = (props) => {
 
     useEffect(() => {
         setAnimationClass("templates-animation");
-    });
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <section className="landing-templates theme-dark py-8">

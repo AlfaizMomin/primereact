@@ -30,7 +30,7 @@ const MessagesDemo = () => {
                 </React.Fragment>
             )
         });
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const addMessages = () => {
         msgs2.current.show([

@@ -74,7 +74,7 @@ const ComponentSection = () => {
 
     useEffect(() => {
         nodeService.getTreeNodes().then(data => setNodes(data));
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <section className="landing-components py-8">

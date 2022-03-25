@@ -93,7 +93,7 @@ export default function Layout(props) {
             document.body.classList.add('blocked-scroll');
         else
             document.body.classList.remove('blocked-scroll');
-    }, [sidebarActive]);
+    }, [sidebarActive]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (!mounted.current) {
@@ -103,7 +103,7 @@ export default function Layout(props) {
         else {
             saveSettings();
         }
-    },[newsActive]);
+    },[newsActive]); // eslint-disable-line react-hooks/exhaustive-deps
 
     PrimeReact.ripple = true;
 

@@ -32,7 +32,7 @@ const GalleriaProgrammaticDemo = () => {
 
     useEffect(() => {
         galleriaService.getImages().then(data => setImages(data));
-    })
+    }) // eslint-disable-line react-hooks/exhaustive-deps
 
     const next = () => {
         setActiveIndex(prevState => (prevState === images.length - 1) ? 0 : prevState + 1)

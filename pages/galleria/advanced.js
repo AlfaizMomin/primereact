@@ -44,7 +44,7 @@ const GalleriaAdvancedDemo = () => {
             bindDocumentListeners();
 
             return () => unbindDocumentListeners();
-        },[])
+        },[]) // eslint-disable-line react-hooks/exhaustive-deps
 
         useEffect(() => {
             setAutoPlayActive(galleria.current.isAutoPlayActive())

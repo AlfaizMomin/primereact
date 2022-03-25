@@ -14,7 +14,7 @@ const GalleriaDemo = () => {
 
     useEffect(() => {
         galleriaService.getImages().then(data => setImages(data));
-    }, [])
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     const responsiveOptions = [
         {

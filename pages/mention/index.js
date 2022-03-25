@@ -19,7 +19,7 @@ const MentionDemo = () => {
             data.forEach(d => d['nickname'] = `${d.name.replace(/\s+/g, '').toLowerCase()}_${d.id}`);
             setCustomers(data);
         });
-    }, [])
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     const onSearch = (event) => {
         //in a real application, make a request to a remote url with the query and return suggestions, for demo we filter at client side

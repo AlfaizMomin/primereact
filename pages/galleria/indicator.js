@@ -32,7 +32,7 @@ const GalleriaIndicatorDemo = () => {
 
     useEffect(() => {
         galleriaService.getImages().then(data => {setImages(data); setImages2(data.slice(0, 5))})
-    }, [])
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     const itemTemplate = (item) => {
         return <img src={`${contextPath}/${item.itemImageSrc}`} alt={item.alt} style={{ width: '100%', display: 'block' }} />;

@@ -10,7 +10,7 @@ const HeroSection = () => {
 
     useEffect(() => {
         setAnimationClass("hero-animation");
-    });
+    } ,[]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <section className={`landing-hero ${animationClass} flex align-items-center flex-column justify-content-center relative`}>

@@ -29,15 +29,15 @@ export default function Home(props) {
             setTableTheme(tableTheme.replace('light','dark'));
         else
             setTableTheme(tableTheme.replace('dark','light'));
-    }, [props.dark]);
+    }, [props.dark]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (props.dark)
             props.onThemeChange('lara-dark-indigo', true);
         else
             props.onThemeChange('lara-light-indigo', false);
-    }, []);
-    
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
     return (
         <div className={rootClassName}>
             <Analytics />
