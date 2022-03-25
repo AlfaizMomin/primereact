@@ -1,77 +1,60 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { DomHandler, ObjectUtils, classNames, ZIndexUtils } from '../utils/Utils';
 import PrimeReact, { localeOption } from '../api/Api';
-import { OverlayService } from '../overlayservice/OverlayService';
-import { Tree } from '../tree/Tree';
 import { TreeSelectPanel } from './TreeSelectPanel';
+import { Tree } from '../tree/Tree';
 import { Ripple } from '../ripple/Ripple';
-import { useEventListener, useOverlayScrollListener, useResizeListener } from '../hooks/Hooks';
+import { OverlayService } from '../overlayservice/OverlayService';
+import { DomHandler, ObjectUtils, classNames, ZIndexUtils } from '../utils/Utils';
+import { useUpdateEffect, useUnmountEffect, useOverlayListener } from '../hooks/Hooks';
 
 export const TreeSelect = memo((props) => {
-    const [focused, setFocused] = useState(false);
-    const [overlayVisible, setOverlayVisible] = useState(false);
-    const [expandedKeys, setExpandedKeys] = useState({});
-    const [filterValue, setFilterValue] = useState('');
+    const [focusedState, setFocusedState] = useState(false);
+    const [overlayVisibleState, setOverlayVisibleState] = useState(false);
+    const [expandedKeysState, setExpandedKeysState] = useState({});
+    const [filterValueState, setFilterValueState] = useState('');
     const elementRef = useRef(null);
     const overlayRef = useRef(null);
     const filterInputRef = useRef(null);
     const focusInputRef = useRef(null);
     const triggerRef = useRef(null);
     const selfChange = useRef(null);
-    const filteredValue = props.onFilterValueChange ? props.filterValue : filterValue;
+    const filteredValue = props.onFilterValueChange ? props.filterValue : filterValueState;
     const isValueEmpty = !props.value || Object.keys(props.value).length === 0;
     const hasNoOptions = !props.options || props.options.length === 0;
+    const isSingleSelectionMode = props.selectionMode === 'single';
+    const isCheckboxSelectionMode = props.selectionMode === 'checkbox';
 
-    const [bindDocumentClick, unbindDocumentClick] = useEventListener({ type: 'click', listener: event => {
-        if (overlayVisible && isOutsideClicked(event)) {
+    const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({
+        target: elementRef, overlay: overlayRef, listener: () => {
             hide();
-        }
-    }});
-    const [bindOverlayScroll, unbindOverlayScroll] = useOverlayScrollListener({ target: elementRef.current, listener: () => {
-        overlayVisible && hide();
-    }});
-    const [bindWindowResize, unbindWindowResize] = useResizeListener({ listener: () => {
-        if (overlayVisible && !DomHandler.isTouchDevice()) {
-            hide();
-        }
-    }});
-
-    const getSelectedNodes = () => {
-        let selectedNodes = [];
-        if (ObjectUtils.isNotEmpty(props.value) && props.options) {
-            let keys = props.selectionMode === 'single' ? { [`${props.value}`]: true } : { ...props.value };
-            findSelectedNodes(null, keys, selectedNodes);
-        }
-
-        return selectedNodes;
-    }
+        }, when: overlayVisibleState
+    });
 
     const getLabel = () => {
-        let value = getSelectedNodes();
-        return value.length ? value.map(node => node.label).join(', ') : props.placeholder;
+        return selectedNodes.length ? selectedNodes.map(node => node.label).join(', ') : props.placeholder;
     }
 
     const show = () => {
-        setOverlayVisible(true);
+        setOverlayVisibleState(true);
     }
 
     const hide = () => {
-        setOverlayVisible(false);
+        setOverlayVisibleState(false);
     }
 
     const onInputFocus = () => {
-        setFocused(true);
+        setFocusedState(true);
     }
 
     const onInputBlur = () => {
-        setFocused(false);
+        setFocusedState(false);
     }
 
     const onClick = (event) => {
         if (!props.disabled && (!overlayRef.current || !overlayRef.current.contains(event.target)) && !DomHandler.hasClass(event.target, 'p-treeselect-close')) {
             focusInputRef.current.focus();
-            overlayVisible ? hide() : show();
+            overlayVisibleState ? hide() : show();
         }
     }
 
@@ -95,10 +78,7 @@ export const TreeSelect = memo((props) => {
 
     const onNodeSelect = (node) => {
         props.onNodeSelect && props.onNodeSelect(node);
-
-        if (props.selectionMode === 'single') {
-            hide();
-        }
+        isSingleSelectionMode && hide();
     }
 
     const onNodeUnselect = (node) => {
@@ -106,11 +86,11 @@ export const TreeSelect = memo((props) => {
     }
 
     const onNodeToggle = (e) => {
-        setExpandedKeys(e.value);
+        setExpandedKeysState(e.value);
     }
 
     const onFilterValueChange = (e) => {
-        setFilterValue(e.value);
+        setFilterValueState(e.value);
     }
 
     const onOverlayClick = (event) => {
@@ -124,14 +104,14 @@ export const TreeSelect = memo((props) => {
         switch (event.which) {
             //down
             case 40:
-                if (!overlayVisible && event.altKey) {
+                if (!overlayVisibleState && event.altKey) {
                     show();
                 }
                 break;
 
             //space
             case 32:
-                if (!overlayVisible) {
+                if (!overlayVisibleState) {
                     show();
                     event.preventDefault();
                 }
@@ -140,7 +120,7 @@ export const TreeSelect = memo((props) => {
             //enter and escape
             case 13:
             case 27:
-                if (overlayVisible) {
+                if (overlayVisibleState) {
                     hide();
                     event.preventDefault();
                 }
@@ -164,21 +144,21 @@ export const TreeSelect = memo((props) => {
     }
 
     const onFilterInputChange = (event) => {
-        let _filterValue = event.target.value;
+        const value = event.target.value;
 
         if (props.onFilterValueChange) {
             props.onFilterValueChange({
                 originalEvent: event,
-                value: _filterValue
+                value
             });
         }
         else {
-            setFilterValue(_filterValue);
+            setFilterValueState(value);
         }
     }
 
     const resetFilter = () => {
-        setFilterValue('');
+        setFilterValueState('');
     }
 
     const onOverlayEnter = () => {
@@ -188,9 +168,7 @@ export const TreeSelect = memo((props) => {
     }
 
     const onOverlayEntered = () => {
-        bindDocumentClick();
-        bindOverlayScroll();
-        bindWindowResize();
+        bindOverlayListener();
 
         if (props.filter && props.filterInputAutoFocus) {
             filterInputRef.current.focus();
@@ -200,9 +178,7 @@ export const TreeSelect = memo((props) => {
     }
 
     const onOverlayExit = () => {
-        unbindDocumentClick();
-        unbindOverlayScroll();
-        unbindWindowResize();
+        unbindOverlayListener();
     }
 
     const onOverlayExited = () => {
@@ -220,15 +196,10 @@ export const TreeSelect = memo((props) => {
     }
 
     const scrollInView = () => {
-        let highlightItem = DomHandler.findSingle(overlayRef.current, '.p-treenode-content.p-highlight');
+        const highlightItem = DomHandler.findSingle(overlayRef.current, '.p-treenode-content.p-highlight');
         if (highlightItem && highlightItem.scrollIntoView) {
             highlightItem.scrollIntoView({ block: 'nearest', inline: 'start' });
         }
-    }
-
-    const isOutsideClicked = (event) => {
-        return elementRef.current && !(elementRef.current.isSameNode(event.target) || elementRef.current.contains(event.target)
-            || (overlayRef.current && overlayRef.current.contains(event.target)));
     }
 
     const findSelectedNodes = (node, keys, selectedNodes) => {
@@ -252,13 +223,14 @@ export const TreeSelect = memo((props) => {
     }
 
     const isSelected = (node, keys) => {
-        return props.selectionMode === 'checkbox' ? keys[node.key] && keys[node.key].checked : keys[node.key];
+        return isCheckboxSelectionMode ? keys[node.key] && keys[node.key].checked : keys[node.key];
     }
 
     const updateTreeState = () => {
-        let keys = props.selectionMode === 'single' ? { [`${props.value}`]: true } : { ...props.value };
+        const keys = isSingleSelectionMode ? { [`${props.value}`]: true } : { ...props.value };
 
-        setExpandedKeys({});
+        setExpandedKeysState({});
+
         if (keys && props.options) {
             updateTreeBranchState(null, null, keys);
         }
@@ -287,35 +259,43 @@ export const TreeSelect = memo((props) => {
 
     const expandPath = (path) => {
         if (path.length > 0) {
-            let _expandedKeys = { ...(expandedKeys || {}) };
+            let expandedKeys = { ...(expandedKeysState || {}) };
             for (let key of path) {
-                _expandedKeys[key] = true;
+                expandedKeys[key] = true;
             }
 
-            setExpandedKeys(_expandedKeys);
+            setExpandedKeysState(expandedKeys);
         }
     }
 
+    const selectedNodes = useMemo(() => {
+        let selectedNodes = [];
+        if (ObjectUtils.isNotEmpty(props.value) && props.options) {
+            const keys = isSingleSelectionMode ? { [`${props.value}`]: true } : { ...props.value };
+            findSelectedNodes(null, keys, selectedNodes);
+        }
+
+        return selectedNodes;
+    });
+
     useEffect(() => {
         updateTreeState();
-
-        return () => ZIndexUtils.clear(overlayRef.current);
     }, [props.options]);
 
-    useEffect(() => {
-        if (overlayVisible && props.filter) {
+    useUpdateEffect(() => {
+        if (overlayVisibleState && props.filter) {
             alignOverlay();
         }
-    }, [overlayVisible, props.filter]);
+    });
 
-    useEffect(() => {
-        if (overlayVisible && expandedKeys) {
+    useUpdateEffect(() => {
+        if (overlayVisibleState && expandedKeysState) {
             alignOverlay();
         }
-    }, [expandedKeys]);
+    }, [expandedKeysState]);
 
-    useEffect(() => {
-        if (overlayVisible) {
+    useUpdateEffect(() => {
+        if (overlayVisibleState) {
             if (!selfChange.current) {
                 updateTreeState();
             }
@@ -325,17 +305,21 @@ export const TreeSelect = memo((props) => {
         }
     }, [props.value]);
 
+    useUnmountEffect(() => {
+        ZIndexUtils.clear(overlayRef.current);
+    });
+
     const useKeyboardHelper = () => {
         return (
             <div className="p-hidden-accessible">
-                <input ref={focusInputRef} role="listbox" id={props.inputId} type="text" readOnly aria-haspopup="true" aria-expanded={overlayVisible}
+                <input ref={focusInputRef} role="listbox" id={props.inputId} type="text" readOnly aria-haspopup="true" aria-expanded={overlayVisibleState}
                     onFocus={onInputFocus} onBlur={onInputBlur} onKeyDown={onInputKeyDown}
                     disabled={props.disabled} tabIndex={props.tabIndex} aria-label={props.ariaLabel} aria-labelledby={props.ariaLabelledBy} />
             </div>
         )
     }
 
-    const useLabel = (selectedNodes) => {
+    const useLabel = () => {
         const labelClassName = classNames('p-treeselect-label', {
             'p-placeholder': getLabel() === props.placeholder,
             'p-treeselect-label-empty': !props.placeholder && isValueEmpty
@@ -351,8 +335,6 @@ export const TreeSelect = memo((props) => {
                 content = getLabel() || 'empty';
             }
             else if (props.display === 'chip') {
-                const selectedNodes = getSelectedNodes();
-
                 content = (
                     <>
                         {
@@ -381,10 +363,10 @@ export const TreeSelect = memo((props) => {
     }
 
     const useDropdownIcon = () => {
-        let iconClassName = classNames('p-treeselect-trigger-icon p-clickable', props.dropdownIcon);
+        const iconClassName = classNames('p-treeselect-trigger-icon p-clickable', props.dropdownIcon);
 
         return (
-            <div ref={triggerRef} className="p-treeselect-trigger" role="button" aria-haspopup="listbox" aria-expanded={overlayVisible}>
+            <div ref={triggerRef} className="p-treeselect-trigger" role="button" aria-haspopup="listbox" aria-expanded={overlayVisibleState}>
                 <span className={iconClassName}></span>
             </div>
         )
@@ -395,9 +377,9 @@ export const TreeSelect = memo((props) => {
             <>
                 <Tree value={props.options} selectionMode={props.selectionMode} selectionKeys={props.value} metaKeySelection={props.metaKeySelection}
                     onSelectionChange={onSelectionChange} onSelect={onNodeSelect} onUnselect={onNodeUnselect}
-                    expandedKeys={expandedKeys} onToggle={onNodeToggle}
+                    expandedKeys={expandedKeysState} onToggle={onNodeToggle}
                     onExpand={props.onNodeExpand} onCollapse={props.onNodeCollapse}
-                    filter={props.filter} filterValue={filterValue} filterBy={props.filterBy} filterMode={props.filterMode}
+                    filter={props.filter} filterValue={filteredValue} filterBy={props.filterBy} filterMode={props.filterMode}
                     filterPlaceholder={props.filterPlaceholder} filterLocale={props.filterLocale} showHeader={false} onFilterValueChange={onFilterValueChange}>
                 </Tree>
 
@@ -414,11 +396,11 @@ export const TreeSelect = memo((props) => {
 
     const useFilterElement = () => {
         if (props.filter) {
-            let _filterValue = ObjectUtils.isNotEmpty(filteredValue) ? filteredValue : '';
+            const filterValue = ObjectUtils.isNotEmpty(filteredValue) ? filteredValue : '';
 
             return (
                 <div className="p-treeselect-filter-container">
-                    <input ref={filterInputRef} type="text" value={_filterValue} autoComplete="off" className="p-treeselect-filter p-inputtext p-component" placeholder={props.filterPlaceholder}
+                    <input ref={filterInputRef} type="text" value={filterValue} autoComplete="off" className="p-treeselect-filter p-inputtext p-component" placeholder={props.filterPlaceholder}
                         onKeyDown={onFilterInputKeyDown} onChange={onFilterInputChange} disabled={props.disabled} />
                     <span className="p-treeselect-filter-icon pi pi-search"></span>
                 </div>
@@ -452,7 +434,7 @@ export const TreeSelect = memo((props) => {
                 closeIconClassName: 'p-treeselect-close-icon pi pi-times',
                 onCloseClick: hide,
                 element: content,
-                props: props
+                props
             }
 
             return ObjectUtils.getJSXElement(props.panelHeaderTemplate, defaultOptions);
@@ -461,22 +443,23 @@ export const TreeSelect = memo((props) => {
         return content;
     }
 
+    const useFooter = () => {
+        return ObjectUtils.getJSXElement(props.footer, props);
+    }
+
     const className = classNames('p-treeselect p-component p-inputwrapper', {
         'p-treeselect-chip': props.display === 'chip',
         'p-disabled': props.disabled,
-        'p-focus': focused,
+        'p-focus': focusedState,
         'p-inputwrapper-filled': !isValueEmpty,
-        'p-inputwrapper-focus': focused || overlayVisible
+        'p-inputwrapper-focus': focusedState || overlayVisibleState
     }, props.className);
-
-    const selectedNodes = getSelectedNodes();
-
     const keyboardHelper = useKeyboardHelper();
-    const labelElement = useLabel(selectedNodes);
+    const labelElement = useLabel();
     const dropdownIcon = useDropdownIcon();
     const content = useContent();
     const header = useHeader();
-    const footer = ObjectUtils.getJSXElement(props.footer, props);
+    const footer = useFooter();
 
     return (
         <div id={props.id} ref={elementRef} className={className} style={props.style} onClick={onClick}>
@@ -485,12 +468,12 @@ export const TreeSelect = memo((props) => {
             {dropdownIcon}
             <TreeSelectPanel ref={overlayRef} appendTo={props.appendTo} panelStyle={props.panelStyle} panelClassName={props.panelClassName}
                 scrollHeight={props.scrollHeight} onClick={onOverlayClick} header={header} footer={footer} transitionOptions={props.transitionOptions}
-                in={overlayVisible} onEnter={onOverlayEnter} onEntered={onOverlayEntered} onExit={onOverlayExit} onExited={onOverlayExited}>
+                in={overlayVisibleState} onEnter={onOverlayEnter} onEntered={onOverlayEntered} onExit={onOverlayExit} onExited={onOverlayExited}>
                 {content}
             </TreeSelectPanel>
         </div>
     )
-})
+});
 
 TreeSelect.defaultProps = {
     __TYPE: 'TreeSelect',

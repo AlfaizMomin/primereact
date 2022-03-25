@@ -1,11 +1,12 @@
 import React, { forwardRef } from 'react';
-import { classNames } from '../utils/Utils';
 import { CSSTransition } from '../csstransition/CSSTransition';
 import { Portal } from '../portal/Portal';
+import { classNames } from '../utils/Utils';
 
 export const TreeSelectPanel = forwardRef((props, ref) => {
 
     const useElement = () => {
+        const wrapperStyle = { maxHeight: props.scrollHeight || 'auto' };
         const className = classNames('p-treeselect-panel p-component', props.panelClassName);
 
         return (
@@ -13,16 +14,16 @@ export const TreeSelectPanel = forwardRef((props, ref) => {
                 unmountOnExit onEnter={props.onEnter} onEntering={props.onEntering} onEntered={props.onEntered} onExit={props.onExit} onExited={props.onExited}>
                 <div ref={ref} className={className} style={props.panelStyle} onClick={props.onClick}>
                     {props.header}
-                    <div className="p-treeselect-items-wrapper" style={{ maxHeight: props.scrollHeight || 'auto' }}>
+                    <div className="p-treeselect-items-wrapper" style={wrapperStyle}>
                         {props.children}
                     </div>
                     {props.footer}
                 </div>
             </CSSTransition>
-        );
+        )
     }
 
     const element = useElement();
 
     return <Portal element={element} appendTo={props.appendTo} />
-})
+});
