@@ -36,14 +36,11 @@ export const useEventListener = ({ target = 'document', type, listener, options,
             unbind();
             targetRef.current = null;
         }
-    }, [target, when]);
+    }, [target, options, when]);
 
     useEffect(() => {
-        if (listenerRef.current && (listenerRef.current !== listener || prevOptions !== options)) {
-            unbind();
-            when && bind();
-        }
-    }, [listener, options, when]);
+        unbind();
+    }, [options, when]);
 
     useUnmountEffect(() => {
         unbind();
