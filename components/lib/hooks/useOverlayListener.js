@@ -13,17 +13,17 @@ export const useOverlayListener = ({ target, overlay, listener, when = true }) =
     /**
      * The parameters of the 'listener' method in the following event handlers;
      * @param {Event} event A click event of the document.
-     * @param {string} type The custom type to detect event.
-     * @param {boolean} valid It is controlled by PrimeReact. It is determined whether it is valid or not according to some custom validation.
+     * @param {string} options.type The custom type to detect event.
+     * @param {boolean} options.valid It is controlled by PrimeReact. It is determined whether it is valid or not according to some custom validation.
      */
     const [bindDocumentClickListener, unbindDocumentClickListener] = useEventListener({ type: 'click', listener: event => {
-        listener && listener(event, 'outside', (event.which !== 3) && isOutsideClicked(event));
+        listener && listener(event, { type: 'outside', valid: (event.which !== 3) && isOutsideClicked(event)});
     }});
     const [bindWindowResizeListener, unbindWindowResizeListener] = useResizeListener({ listener: event => {
-        listener && listener(event, 'resize', !DomHandler.isTouchDevice());
+        listener && listener(event, { type: 'resize', valid: !DomHandler.isTouchDevice() });
     }});
     const [bindOverlayScrollListener, unbindOverlayScrollListener] = useOverlayScrollListener({ target: targetRef, listener: event => {
-        listener && listener(event, 'scroll', true);
+        listener && listener(event, { type: 'scroll', valid: true });
     }});
 
     const isOutsideClicked = (event) => {

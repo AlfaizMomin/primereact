@@ -19,8 +19,8 @@ export const CascadeSelect = memo((props) => {
     const selectionPath = useRef(null);
 
     const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({
-        target: elementRef, overlay: overlayRef, listener: () => {
-            hide();
+        target: elementRef, overlay: overlayRef, listener: (event, { valid }) => {
+            valid && hide();
         }, when: overlayVisibleState
     });
 

@@ -24,8 +24,10 @@ export const AutoComplete = memo(forwardRef((props, ref) => {
     const selectedItem = useRef(null);
 
     const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({
-        target: elementRef, overlay: overlayRef, listener: (event, type) => {
-            (type === 'outside') ? !isInputClicked(event) && hide() : hide();
+        target: elementRef, overlay: overlayRef, listener: (event, type, valid) => {
+            if (valid) {
+                (type === 'outside') ? !isInputClicked(event) && hide() : hide();
+            }
         }, when: overlayVisibleState
     });
 
