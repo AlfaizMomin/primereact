@@ -590,7 +590,7 @@ export const BodyCell = memo((props) => {
             content = body ? ObjectUtils.getJSXElement(body, props.rowData, { column: props.column, field: field, rowIndex: props.rowIndex, frozenRow: props.frozenRow, props: props.tableProps }) : value;
         }
         else if (editor && editingState) {
-            content = ObjectUtils.getJSXElement(editor, { rowData: editingRowDataState, value: resolveFieldData(editingRowDataState), column: props.column, field: field, rowIndex: props.rowIndex, frozenRow: props.frozenRow, props: props.tableProps, editorCallback: editorCallback });
+            content = ObjectUtils.getJSXElement(editor, { rowData: editingRowDataState, value: resolveFieldData(editingRowDataState), column: props.column, field: field, rowIndex: props.rowIndex, frozenRow: props.frozenRow, props: props.tableProps, editorCallback });
         }
         else {
             content = value;
