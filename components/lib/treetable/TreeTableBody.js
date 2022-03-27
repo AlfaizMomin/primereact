@@ -34,9 +34,8 @@ export const TreeTableBody = memo((props) => {
             });
         }
 
-        let targetNode = event.target.nodeName;
-        if (targetNode === 'INPUT' || targetNode === 'BUTTON' || targetNode === 'A' || DomHandler.hasClass(event.target, 'p-clickable')
-            || DomHandler.hasClass(event.target, 'p-treetable-toggler') || DomHandler.hasClass(event.target.parentElement, 'p-treetable-toggler')) {
+        const targetNode = event.target.nodeName;
+        if (targetNode === 'INPUT' || targetNode === 'BUTTON' || targetNode === 'A' || DomHandler.hasClass(event.target, 'p-clickable')) {
             return;
         }
 

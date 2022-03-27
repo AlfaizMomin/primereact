@@ -1,4 +1,4 @@
-import React, { forwardRef, useRef, useState } from 'react';
+import React, { forwardRef, memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { OrderListControls } from './OrderListControls';
 import { OrderListSubList } from './OrderListSubList';
@@ -8,7 +8,6 @@ import { useUpdateEffect } from '../hooks/Hooks';
 export const OrderList = memo(forwardRef((props, ref) => {
     const [selectionState, setSelectionState] = useState([]);
     const elementRef = useRef(null);
-    const sublistRef = useRef(null);
     const reorderDirection = useRef(null);
 
     const onItemClick = (event) => {
@@ -77,7 +76,7 @@ export const OrderList = memo(forwardRef((props, ref) => {
     }
 
     const updateListScroll = () => {
-        const list = sublistRef.current.listElementRef.current;
+        const list = DomHandler.findSingle(elementRef.current, '.p-orderlist-list');
         const listItems = DomHandler.find(list, '.p-orderlist-item.p-highlight');
 
         if (listItems && listItems.length) {
@@ -95,7 +94,8 @@ export const OrderList = memo(forwardRef((props, ref) => {
                     break;
 
                 case 'bottom':
-                    list.scrollTop = list.scrollHeight;
+                    /* TODO: improve this code block */
+                    setTimeout(() => list.scrollTop = list.scrollHeight, 100);
                     break;
 
                 default:
@@ -116,7 +116,7 @@ export const OrderList = memo(forwardRef((props, ref) => {
     return (
         <div ref={elementRef} id={props.id} className={className} style={props.style}>
             <OrderListControls value={props.value} selection={selectionState} onReorder={onReorder} dataKey={props.dataKey} />
-            <OrderListSubList ref={sublistRef} value={props.value} selection={selectionState} onItemClick={onItemClick} onItemKeyDown={onItemKeyDown}
+            <OrderListSubList value={props.value} selection={selectionState} onItemClick={onItemClick} onItemKeyDown={onItemKeyDown}
                 itemTemplate={props.itemTemplate} header={props.header} listStyle={props.listStyle} dataKey={props.dataKey}
                 dragdrop={props.dragdrop} onChange={props.onChange} tabIndex={props.tabIndex} />
         </div>

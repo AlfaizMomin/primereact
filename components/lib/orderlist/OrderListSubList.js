@@ -1,8 +1,8 @@
-import React, { useRef, forwardRef, useImperativeHandle } from 'react'
+import React, { useRef, memo } from 'react'
 import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
 
-export const OrderListSubList = memo(forwardRef((props, ref) => {
+export const OrderListSubList = memo((props) => {
     const dragging = useRef(null);
     const draggedItemIndex = useRef(null);
     const dragOverItemIndex = useRef(null);
@@ -64,10 +64,6 @@ export const OrderListSubList = memo(forwardRef((props, ref) => {
                 listElementRef.current.scrollTop -= 15;
         }
     }
-
-    useImperativeHandle(ref, () => ({
-        listElementRef
-    }));
 
     const createDropPoint = (index, key) => {
         return <li key={key} className="p-orderlist-droppoint" onDragOver={(e) => onDragOver(e, index + 1)} onDragLeave={onDragLeave} onDrop={onDrop}></li>
@@ -134,4 +130,4 @@ export const OrderListSubList = memo(forwardRef((props, ref) => {
             {list}
         </div>
     )
-}));
+});

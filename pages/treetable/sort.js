@@ -78,43 +78,43 @@ const TreeTableSortDemoDoc = memo(() => {
         'class': {
             tabName: 'Class Source',
             content: `
-            import React, {Component} from 'react';
-            import {TreeTable} from 'primereact/treetable';
-            import {Column} from 'primereact/column';
-            import {NodeService} from '../service/NodeService';
+import React, { Component } from 'react';
+import { TreeTable } from 'primereact/treetable';
+import { Column } from 'primereact/column';
+import { NodeService } from '../service/NodeService';
 
-            export class TreeTableSortDemo extends Component {
+export class TreeTableSortDemo extends Component {
 
-                constructor(props) {
-                super(props);
-            this.state = {
-                nodes1: [],
+    constructor(props) {
+        super(props);
+        this.state = {
+            nodes1: [],
             nodes2: []
         };
 
-            this.nodeservice = new NodeService();
+        this.nodeservice = new NodeService();
     }
 
-            componentDidMount() {
-                this.nodeservice.getTreeTableNodes().then(data => {
-                    this.setState({ nodes1: data });
+    componentDidMount() {
+        this.nodeservice.getTreeTableNodes().then(data => {
+            this.setState({ nodes1: data });
 
-                    let nodes2 = data;
-                    nodes2.push({
-                        data: {
-                            name: 'Documents',
-                            size: '100kb',
-                            type: 'Link'
-                        }
-                    });
+            let nodes2 = data;
+            nodes2.push({
+                data: {
+                    name: 'Documents',
+                    size: '100kb',
+                    type: 'Link'
+                }
+            });
 
-                    this.setState({
-                        nodes2
-                    });
-                });
+            this.setState({
+                nodes2
+            });
+        });
     }
 
-            render() {
+    render() {
         return (
             <div>
                 <div className="card">
@@ -135,7 +135,7 @@ const TreeTableSortDemoDoc = memo(() => {
                     </TreeTable>
                 </div>
             </div>
-            );
+        );
     }
 }
             `
@@ -143,108 +143,108 @@ const TreeTableSortDemoDoc = memo(() => {
         'hooks': {
             tabName: 'Hooks Source',
             content: `
-            import React, {useState, useEffect} from 'react';
-            import {TreeTable} from 'primereact/treetable';
-            import {Column} from 'primereact/column';
-            import {NodeService} from '../service/NodeService';
+import React, { useState, useEffect } from 'react';
+import { TreeTable } from 'primereact/treetable';
+import { Column } from 'primereact/column';
+import { NodeService } from '../service/NodeService';
 
 const TreeTableSortDemo = () => {
     const [nodes1, setNodes1] = useState([]);
-            const [nodes2, setNodes2] = useState([]);
-            const nodeservice = new NodeService();
+    const [nodes2, setNodes2] = useState([]);
+    const nodeservice = new NodeService();
 
     useEffect(() => {
-                nodeservice.getTreeTableNodes().then(data => {
-                    setNodes1(data);
+        nodeservice.getTreeTableNodes().then(data => {
+            setNodes1(data);
 
-                    let _nodes2 = data;
-                    _nodes2.push({
-                        data: {
-                            name: 'Documents',
-                            size: '100kb',
-                            type: 'Link'
-                        }
-                    });
+            let _nodes2 = data;
+            _nodes2.push({
+                data: {
+                    name: 'Documents',
+                    size: '100kb',
+                    type: 'Link'
+                }
+            });
 
-                    setNodes2(_nodes2);
-                });
+            setNodes2(_nodes2);
+        });
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-            return (
-            <div>
-                <div className="card">
-                    <h5>Single Column Sorting</h5>
-                    <TreeTable value={nodes1}>
-                        <Column field="name" header="Name" expander sortable></Column>
-                        <Column field="size" header="Size" sortable></Column>
-                        <Column field="type" header="Type" sortable></Column>
-                    </TreeTable>
-                </div>
-
-                <div className="card">
-                    <h5>Multiple Column Sorting</h5>
-                    <TreeTable value={nodes2} sortMode="multiple">
-                        <Column field="name" header="Name" expander sortable></Column>
-                        <Column field="size" header="Size" sortable></Column>
-                        <Column field="type" header="Type" sortable></Column>
-                    </TreeTable>
-                </div>
+    return (
+        <div>
+            <div className="card">
+                <h5>Single Column Sorting</h5>
+                <TreeTable value={nodes1}>
+                    <Column field="name" header="Name" expander sortable></Column>
+                    <Column field="size" header="Size" sortable></Column>
+                    <Column field="type" header="Type" sortable></Column>
+                </TreeTable>
             </div>
-            );
+
+            <div className="card">
+                <h5>Multiple Column Sorting</h5>
+                <TreeTable value={nodes2} sortMode="multiple">
+                    <Column field="name" header="Name" expander sortable></Column>
+                    <Column field="size" header="Size" sortable></Column>
+                    <Column field="type" header="Type" sortable></Column>
+                </TreeTable>
+            </div>
+        </div>
+    );
 }
             `
         },
         'ts': {
             tabName: 'TS Source',
             content: `
-            import React, {useState, useEffect} from 'react';
-            import {TreeTable} from 'primereact/treetable';
-            import {Column} from 'primereact/column';
-            import {NodeService} from '../service/NodeService';
+import React, { useState, useEffect } from 'react';
+import { TreeTable } from 'primereact/treetable';
+import { Column } from 'primereact/column';
+import { NodeService } from '../service/NodeService';
 
 const TreeTableSortDemo = () => {
     const [nodes1, setNodes1] = useState([]);
-            const [nodes2, setNodes2] = useState([]);
-            const nodeservice = new NodeService();
+    const [nodes2, setNodes2] = useState([]);
+    const nodeservice = new NodeService();
 
     useEffect(() => {
-                nodeservice.getTreeTableNodes().then(data => {
-                    setNodes1(data);
+        nodeservice.getTreeTableNodes().then(data => {
+            setNodes1(data);
 
-                    let _nodes2 = data;
-                    _nodes2.push({
-                        data: {
-                            name: 'Documents',
-                            size: '100kb',
-                            type: 'Link'
-                        }
-                    });
+            let _nodes2 = data;
+            _nodes2.push({
+                data: {
+                    name: 'Documents',
+                    size: '100kb',
+                    type: 'Link'
+                }
+            });
 
-                    setNodes2(_nodes2);
-                });
+            setNodes2(_nodes2);
+        });
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-            return (
-            <div>
-                <div className="card">
-                    <h5>Single Column Sorting</h5>
-                    <TreeTable value={nodes1}>
-                        <Column field="name" header="Name" expander sortable></Column>
-                        <Column field="size" header="Size" sortable></Column>
-                        <Column field="type" header="Type" sortable></Column>
-                    </TreeTable>
-                </div>
-
-                <div className="card">
-                    <h5>Multiple Column Sorting</h5>
-                    <TreeTable value={nodes2} sortMode="multiple">
-                        <Column field="name" header="Name" expander sortable></Column>
-                        <Column field="size" header="Size" sortable></Column>
-                        <Column field="type" header="Type" sortable></Column>
-                    </TreeTable>
-                </div>
+    return (
+        <div>
+            <div className="card">
+                <h5>Single Column Sorting</h5>
+                <TreeTable value={nodes1}>
+                    <Column field="name" header="Name" expander sortable></Column>
+                    <Column field="size" header="Size" sortable></Column>
+                    <Column field="type" header="Type" sortable></Column>
+                </TreeTable>
             </div>
-            );
+
+            <div className="card">
+                <h5>Multiple Column Sorting</h5>
+                <TreeTable value={nodes2} sortMode="multiple">
+                    <Column field="name" header="Name" expander sortable></Column>
+                    <Column field="size" header="Size" sortable></Column>
+                    <Column field="type" header="Type" sortable></Column>
+                </TreeTable>
+            </div>
+        </div>
+    );
 }
             `
         },
@@ -258,53 +258,53 @@ const TreeTableSortDemo = () => {
             <script src="https://unpkg.com/primereact/column/column.min.js"></script>
             <script src="https://unpkg.com/primereact/treetable/treetable.min.js"></script>`,
             content: `
-            const {useEffect, useState} = React;
-            const {Column} = primereact.column;
-            const {TreeTable} = primereact.treetable;
+const { useEffect, useState } = React;
+const { Column } = primereact.column;
+const { TreeTable } = primereact.treetable;
 
 const TreeTableSortDemo = () => {
     const [nodes1, setNodes1] = useState([]);
-            const [nodes2, setNodes2] = useState([]);
-            const nodeservice = new NodeService();
+    const [nodes2, setNodes2] = useState([]);
+    const nodeservice = new NodeService();
 
     useEffect(() => {
-                nodeservice.getTreeTableNodes().then(data => {
-                    setNodes1(data);
+        nodeservice.getTreeTableNodes().then(data => {
+            setNodes1(data);
 
-                    let _nodes2 = data;
-                    _nodes2.push({
-                        data: {
-                            name: 'Documents',
-                            size: '100kb',
-                            type: 'Link'
-                        }
-                    });
+            let _nodes2 = data;
+            _nodes2.push({
+                data: {
+                    name: 'Documents',
+                    size: '100kb',
+                    type: 'Link'
+                }
+            });
 
-                    setNodes2(_nodes2);
-                });
+            setNodes2(_nodes2);
+        });
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-            return (
-            <div>
-                <div className="card">
-                    <h5>Single Column Sorting</h5>
-                    <TreeTable value={nodes1}>
-                        <Column field="name" header="Name" expander sortable></Column>
-                        <Column field="size" header="Size" sortable></Column>
-                        <Column field="type" header="Type" sortable></Column>
-                    </TreeTable>
-                </div>
-
-                <div className="card">
-                    <h5>Multiple Column Sorting</h5>
-                    <TreeTable value={nodes2} sortMode="multiple">
-                        <Column field="name" header="Name" expander sortable></Column>
-                        <Column field="size" header="Size" sortable></Column>
-                        <Column field="type" header="Type" sortable></Column>
-                    </TreeTable>
-                </div>
+    return (
+        <div>
+            <div className="card">
+                <h5>Single Column Sorting</h5>
+                <TreeTable value={nodes1}>
+                    <Column field="name" header="Name" expander sortable></Column>
+                    <Column field="size" header="Size" sortable></Column>
+                    <Column field="type" header="Type" sortable></Column>
+                </TreeTable>
             </div>
-            );
+
+            <div className="card">
+                <h5>Multiple Column Sorting</h5>
+                <TreeTable value={nodes2} sortMode="multiple">
+                    <Column field="name" header="Name" expander sortable></Column>
+                    <Column field="size" header="Size" sortable></Column>
+                    <Column field="type" header="Type" sortable></Column>
+                </TreeTable>
+            </div>
+        </div>
+    );
 }
             `
         }

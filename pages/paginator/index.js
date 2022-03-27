@@ -50,7 +50,6 @@ const PaginatorDemo = () => {
 
     const onContentPageChange = (event) => {
         setContentFirst(event.first);
-        setContentRows(event.rows);
     }
 
     const onPageInputKeyDown = (event, options) => {

@@ -38,6 +38,9 @@ export const UITreeNode = memo((props) => {
         }
 
         expanded ? collapse(event) : expand(event);
+
+        event.preventDefault();
+        event.stopPropagation();
     }
 
     const invokeToggleEvents = (event, isExpanded) => {
@@ -166,7 +169,9 @@ export const UITreeNode = memo((props) => {
                 node: props.node
             });
         }
-        if (DomHandler.hasClass(event.target, 'p-tree-toggler') || props.disabled) {
+
+        const targetNode = event.target.nodeName;
+        if (props.disabled || targetNode === 'INPUT' || targetNode === 'BUTTON' || targetNode === 'A' || DomHandler.hasClass(event.target, 'p-clickable')) {
             return;
         }
 

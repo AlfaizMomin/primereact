@@ -14,7 +14,7 @@ const OrganizationChartDemo = () => {
         type: 'person',
         className: 'p-person',
         expanded: true,
-        data: { name: 'Walter White', 'avatar': 'walter.jpg' },
+        data: { name: 'Walter White', avatar: 'walter.jpg' },
         children: [
             {
                 label: 'CFO',
@@ -36,7 +36,7 @@ const OrganizationChartDemo = () => {
                 type: 'person',
                 className: 'p-person',
                 expanded: true,
-                data: { name: 'Mike E.', 'avatar': 'mike.jpg' },
+                data: { name: 'Mike E.', avatar: 'mike.jpg' },
                 children: [{
                     label: 'Operations',
                     className: 'department-coo'
@@ -47,7 +47,7 @@ const OrganizationChartDemo = () => {
                 type: 'person',
                 className: 'p-person',
                 expanded: true,
-                data: { name: 'Jesse Pinkman', 'avatar': 'jesse.jpg' },
+                data: { name: 'Jesse Pinkman', avatar: 'jesse.jpg' },
                 children: [{
                     label: 'Development',
                     className: 'department-cto',
@@ -122,9 +122,7 @@ const OrganizationChartDemo = () => {
             );
         }
 
-        if (node.type === "department") {
-            return node.label;
-        }
+        return node.label;
     }
 
     return (

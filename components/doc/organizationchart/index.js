@@ -137,9 +137,7 @@ export class OrganizationChartDemo extends Component {
             );
         }
 
-        if (node.type === "department") {
-            return node.label;
-        }
+        return node.label;
     }
 
     render() {
@@ -280,9 +278,7 @@ const OrganizationChartDemo = () => {
             );
         }
 
-        if (node.type === "department") {
-            return node.label;
-        }
+        return node.label;
     }
 
     return (
@@ -421,9 +417,7 @@ const OrganizationChartDemo = () => {
             );
         }
 
-        if (node.type === "department") {
-            return node.label;
-        }
+        return node.label;
     }
 
     return (
@@ -566,9 +560,7 @@ const OrganizationChartDemo = () => {
             );
         }
 
-        if (node.type === "department") {
-            return node.label;
-        }
+        return node.label;
     }
 
     return (
@@ -591,6 +583,10 @@ const OrganizationChartDemo = () => {
     const extFiles = {
         'demo/OrganizationChartDemo.css': {
             content: `
+.organizationchart-demo .card {
+    overflow-x: auto;
+}
+
 .organizationchart-demo .p-organizationchart .p-person {
     padding: 0;
     border: 0 none;

@@ -8,16 +8,14 @@ export const TreeTableRow = memo((props) => {
     const checkboxRef = useRef(null);
     const checkboxBoxRef = useRef(null);
     const nodeTouched = useRef(false);
+    const expanded = props.expandedKeys ? props.expandedKeys[props.node.key] !== undefined : false;
 
     const isLeaf = () => {
         return props.node.leaf === false ? false : !(props.node.children && props.node.children.length);
     }
 
     const onTogglerClick = (event) => {
-        if (isExpanded())
-            collapse(event);
-        else
-            expand(event);
+        expanded ? collapse(event) : expand(event);
 
         event.preventDefault();
         event.stopPropagation();
@@ -235,7 +233,7 @@ export const TreeTableRow = memo((props) => {
 
                 //right arrow
                 case 39:
-                    if (!isExpanded()) {
+                    if (!expanded) {
                         expand(event);
                     }
 
@@ -244,7 +242,7 @@ export const TreeTableRow = memo((props) => {
 
                 //left arrow
                 case 37:
-                    if (isExpanded()) {
+                    if (expanded) {
                         collapse(event);
                     }
 
@@ -264,10 +262,6 @@ export const TreeTableRow = memo((props) => {
         }
     }
 
-    const isExpanded = () => {
-        return props.expandedKeys ? props.expandedKeys[props.node.key] !== undefined : false;
-    }
-
     const isSelected = () => {
         if ((props.selectionMode === 'single' || props.selectionMode === 'multiple') && props.selectionKeys)
             return (props.selectionMode === 'single') ? props.selectionKeys === props.node.key : props.selectionKeys[props.node.key] !== undefined;
@@ -284,8 +278,7 @@ export const TreeTableRow = memo((props) => {
     }
 
     const createToggler = () => {
-        const expanded = isExpanded();
-        const iconClassName = classNames('"p-treetable-toggler-icon pi pi-fw', { 'pi-chevron-right': !expanded, 'pi-chevron-down': expanded });
+        const iconClassName = classNames('p-treetable-toggler-icon pi pi-fw', { 'pi-chevron-right': !expanded, 'pi-chevron-down': expanded });
         const style = { marginLeft: props.level * 16 + 'px', visibility: (props.node.leaf === false || (props.node.children && props.node.children.length)) ? 'visible' : 'hidden' };
 
         return (
@@ -336,7 +329,7 @@ export const TreeTableRow = memo((props) => {
     }
 
     const createChildren = () => {
-        if (isExpanded() && props.node.children) {
+        if (expanded && props.node.children) {
             return props.node.children.map((childNode, index) => {
                 return (
                     <TreeTableRow key={childNode.key || JSON.stringify(childNode.data)} level={props.level + 1} rowIndex={props.rowIndex + '_' + index}

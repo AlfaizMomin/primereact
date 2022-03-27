@@ -1,7 +1,7 @@
 import React, { useRef, forwardRef, useState, useImperativeHandle, memo } from 'react';
 import PropTypes from 'prop-types';
 import PrimeReact from '../api/Api';
-import { ContextMenuSub } from '../ContextMenuSub';
+import { ContextMenuSub } from './ContextMenuSub';
 import { Portal } from '../portal/Portal';
 import { CSSTransition } from '../csstransition/CSSTransition';
 import { DomHandler, ZIndexUtils, classNames } from '../utils/Utils';
@@ -155,10 +155,10 @@ export const ContextMenu = memo(forwardRef((props, ref) => {
             setReshowState(false);
             setResetMenuState(true);
         }
-        else if (!reshowState) {
+        else if (!reshowState && !visibleState && resetMenuState) {
             show(currentEvent.current);
         }
-    }, [reshowState, props.model]);
+    }, [reshowState]);
 
     useUnmountEffect(() => {
         ZIndexUtils.clear(menuRef.current);

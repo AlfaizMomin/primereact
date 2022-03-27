@@ -91,7 +91,7 @@ export const OrganizationChartNode = memo((props) => {
     }
 
     const createNodeLabel = () => {
-        const label = props.nodeTemplate ? ObjectUtils.getJSXElement(props.nodeLabel, node) : node.label;
+        const label = (props.nodeTemplate && ObjectUtils.getJSXElement(props.nodeTemplate, node)) || node.label;
 
         return <div>{label}</div>
     }

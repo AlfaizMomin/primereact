@@ -82,8 +82,8 @@ export const TreeTable = forwardRef((props, ref) => {
         columnField.current = event.sortField;
 
         if (props.sortMode === 'multiple') {
-            let metaKey = event.originalEvent.metaKey || event.originalEvent.ctrlKey;
-            multiSortMeta = getMultiSortMeta();
+            const metaKey = event.originalEvent.metaKey || event.originalEvent.ctrlKey;
+            multiSortMeta = [...getMultiSortMeta()];
 
             if (multiSortMeta && multiSortMeta instanceof Array) {
                 const sortMeta = multiSortMeta.find(sortMeta => sortMeta.field === sortField);
@@ -568,7 +568,7 @@ export const TreeTable = forwardRef((props, ref) => {
     }
 
     const getMultiSortMeta = () => {
-        return props.onSort ? props.multiSortMeta : multiSortMetaState;
+        return (props.onSort ? props.multiSortMeta : multiSortMetaState) || [];
     }
 
     const getFilters = () => {
@@ -766,7 +766,7 @@ export const TreeTable = forwardRef((props, ref) => {
     }
 
     const processData = () => {
-        let data = props.value;
+        let data = props.value || [];
 
         if (!props.lazy) {
             if (data && data.length) {
@@ -795,13 +795,18 @@ export const TreeTable = forwardRef((props, ref) => {
     }));
 
     const createTableHeader = (columns, columnGroup) => {
+        const sortField = getSortField();
+        const sortOrder = getSortOrder();
+        const multiSortMeta = [...getMultiSortMeta()];
+        const filters = getFilters();
+
         return (
             <TreeTableHeader columns={columns} columnGroup={columnGroup} tabIndex={props.tabIndex}
-                onSort={onSort} sortField={getSortField()} sortOrder={getSortOrder()} multiSortMeta={getMultiSortMeta()}
+                onSort={onSort} sortField={sortField} sortOrder={sortOrder} multiSortMeta={multiSortMeta}
                 resizableColumns={props.resizableColumns} onResizeStart={onColumnResizeStart}
                 reorderableColumns={props.reorderableColumns} onDragStart={onColumnDragStart}
                 onDragOver={onColumnDragOver} onDragLeave={onColumnDragLeave} onDrop={onColumnDrop}
-                onFilter={onFilter} filters={getFilters()} filterDelay={props.filterDelay} />
+                onFilter={onFilter} filters={filters} filterDelay={props.filterDelay} />
         )
     }
 

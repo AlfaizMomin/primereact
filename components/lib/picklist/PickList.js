@@ -30,23 +30,24 @@ export const PickList = memo(forwardRef((props, ref) => {
 
     const handleScrollPosition = (listElement, direction) => {
         if (listElement) {
-            let listContainer = DomHandler.findSingle(listElement, '.p-picklist-list');
+            let list = DomHandler.findSingle(listElement, '.p-picklist-list');
 
             switch (direction) {
                 case 'up':
-                    scrollInView(listContainer, -1);
+                    scrollInView(list, -1);
                     break;
 
                 case 'top':
-                    listContainer.scrollTop = 0;
+                    list.scrollTop = 0;
                     break;
 
                 case 'down':
-                    scrollInView(listContainer, 1);
+                    scrollInView(list, 1);
                     break;
 
                 case 'bottom':
-                    listContainer.scrollTop = listContainer.scrollHeight;
+                    /* TODO: improve this code block */
+                    setTimeout(() => list.scrollTop = list.scrollHeight, 100);
                     break;
 
                 default:
