@@ -22,14 +22,13 @@ export const ColumnFilter = memo((props) => {
     const filterStoreModel = props.filtersStore && props.filtersStore[field];
 
     const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({
-        target: iconRef, overlay: overlayRef, listener: (event, type) => {
-            if (type === 'outside') {
-                (!selfClick.current && !isTargetClicked(event.target)) && hide();
-                selfClick.current = false;
+        target: iconRef, overlay: overlayRef, listener: (event, { type, valid }) => {
+            if (valid) {
+                (type === 'outside') ?
+                    (!selfClick.current && !isTargetClicked(event.target)) && hide() : hide();
             }
-            else {
-                hide();
-            }
+
+            selfClick.current = false;
         }, when: overlayVisibleState
     });
 

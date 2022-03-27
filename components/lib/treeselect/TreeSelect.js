@@ -20,14 +20,14 @@ export const TreeSelect = memo((props) => {
     const triggerRef = useRef(null);
     const selfChange = useRef(null);
     const filteredValue = props.onFilterValueChange ? props.filterValue : filterValueState;
-    const isValueEmpty = !props.value || Object.keys(props.value).length === 0;
-    const hasNoOptions = !props.options || props.options.length === 0;
+    const isValueEmpty = ObjectUtils.isEmpty(props.value);
+    const hasNoOptions = ObjectUtils.isEmpty(props.options);
     const isSingleSelectionMode = props.selectionMode === 'single';
     const isCheckboxSelectionMode = props.selectionMode === 'checkbox';
 
     const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({
-        target: elementRef, overlay: overlayRef, listener: () => {
-            hide();
+        target: elementRef, overlay: overlayRef, listener: (event, { valid }) => {
+            valid && hide();
         }, when: overlayVisibleState
     });
 

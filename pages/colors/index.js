@@ -3,7 +3,7 @@ import { CodeHighlight } from '../../components/doc/common/codehighlight';
 import Head from 'next/head';
 
 const ColorsDemo = (props) => {
-    const colors = ['blue', 'green', 'yellow', 'cyan', 'pink', 'indigo', 'teal', 'orange', 'bluegray', 'purple'];
+    const colors = ['blue', 'green', 'yellow', 'cyan', 'pink', 'indigo', 'teal', 'orange', 'bluegray', 'purple', 'red', 'gray'];
     const shades = [0, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
 
     return (
@@ -20,7 +20,7 @@ const ColorsDemo = (props) => {
                 <p>Colors are exported as CSS variables and used with the standard <i>var</i> syntax such as <i>var(--text-color)</i>.</p>
 <CodeHighlight>
 {`
-<span style={{color:var(--text-color)}} />
+<span style={{ color: var(--text-color) }} />
 `}
 </CodeHighlight>
 
@@ -64,7 +64,7 @@ const ColorsDemo = (props) => {
                 <p>A palette consists of 9 colors where each color provides tints/shades from 50 to 900.</p>
 <CodeHighlight>
 {`
-<div style={{backgroundColor:var(--blue-500)}} />
+<div style={{ backgroundColor: var(--blue-500) }} />
 `}
 </CodeHighlight>
 

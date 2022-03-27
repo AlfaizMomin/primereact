@@ -31,15 +31,14 @@ export const Calendar = memo((props) => {
     const visible = props.inline || (props.onVisibleChange ? props.visible : overlayVisibleState);
 
     const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({
-        target: elementRef, overlay: overlayRef, listener: (event, type) => {
-            if (type === 'outside') {
-                (!isOverlayClicked.current && !isNavIconClicked(event.target)) && hide('outside');
-                isOverlayClicked.current = false;
+        target: elementRef, overlay: overlayRef, listener: (event, { type, valid }) => {
+            if (valid) {
+                (type === 'outside') ?
+                    (!isOverlayClicked.current && !isNavIconClicked(event.target)) && hide('outside') : hide();
             }
-            else {
-                hide();
-            }
-        }, when: !props.touchUI && overlayVisibleState
+
+            isOverlayClicked.current = false;
+        }, when: !(props.touchUI || props.inline) && visible
     });
 
     const getDateFormat = () => {

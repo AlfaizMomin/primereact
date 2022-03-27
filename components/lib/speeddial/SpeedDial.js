@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Button } from '../button/Button';
 import { Ripple } from '../ripple/Ripple';
 import { classNames, DomHandler, ObjectUtils } from '../utils/Utils';
-import { useMountEffect, useUnmountEffect, useEventListener } from '../hooks/Hooks';
+import { useMountEffect, useUpdateEffect, useEventListener } from '../hooks/Hooks';
 
 export const SpeedDial = memo(forwardRef((props, ref) => {
     const [visibleState, setVisibleState] = useState(false);
@@ -134,13 +134,17 @@ export const SpeedDial = memo(forwardRef((props, ref) => {
                 listRef.current.style.setProperty('--item-diff-y', `${hDiff / 2}px`);
             }
         }
-
-        props.hideOnClickOutside && bindDocumentClickListener();
     });
 
-    useUnmountEffect(() => {
-        props.hideOnClickOutside && unbindDocumentClickListener();
-    });
+    useUpdateEffect(() => {
+        if (visibleState) {
+            props.hideOnClickOutside && bindDocumentClickListener();
+        }
+
+        return () => {
+            props.hideOnClickOutside && unbindDocumentClickListener();
+        }
+    }, [visibleState]);
 
     useImperativeHandle(ref, () => ({
         show,

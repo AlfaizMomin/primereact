@@ -26,17 +26,11 @@ const SetupPage = () => {
 
 <CodeHighlight lang="js">
 {`
-npm install primereact
-npm install primeicons
-`}
-</CodeHighlight>
+// with npm
+npm install primereact primeicons
 
-or
-
-<CodeHighlight lang="js">
-{`
-yarn add primereact
-yarn add primeicons
+// with yarn
+yarn add primereact primeicons
 `}
 </CodeHighlight>
 
@@ -44,15 +38,20 @@ yarn add primeicons
 
 <CodeHighlight lang="js">
 {`
-//import { ComponentName } from 'primereact/{componentname}';
+// import { ComponentName } from 'primereact/{componentname}';
 import { Dialog } from 'primereact/dialog';
+import { Button } from 'primereact/button';
 `}
 </CodeHighlight>
 
                 <p>Finally you'll be able to utilize the component in your application. See the <b>Styles</b> section to apply styling.</p>
 <CodeHighlight>
 {`
-<Dialog></Dialog>
+<Dialog visible={state} onHide={() => setState(false)}>
+    // content
+</Dialog>
+
+<Button label="Show" onClick={() => setState(true)} />
 `}
 </CodeHighlight>
 
@@ -203,10 +202,10 @@ primereact/resources/themes/rhea/theme.css
 <CodeHighlight lang="js">
 {`
 dependencies: {
-"react": "^17.0.1",
-"react-dom": "^17.0.1",
-"react-transition-group": "^4.4.1",
-"primeicons": "^5.0.0"
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-transition-group": "^4.4.1",
+    "primeicons": "^5.0.0"
 }
 `}
 </CodeHighlight>

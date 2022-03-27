@@ -38,11 +38,11 @@ const SpeedDialDemo = () => {
             template: (item, options) => {
                 return (
                     <Link href="/fileupload">
-                        <a className={options.className} target={item.target}>
+                        <a className={options.className} data-pr-tooltip={item.label}>
                             <span className="p-speeddial-action-icon pi pi-upload"></span>
                         </a>
                     </Link>
-                );
+                )
             }
         },
         {

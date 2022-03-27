@@ -29,25 +29,25 @@ locale('en');
 `}
 </CodeHighlight>
 
-                <p>New locale values ​​can be added using <i>addLocale</i> method for the application.</p>
+                <p>New locale values can be added using <i>addLocale</i> method for the application.</p>
 <CodeHighlight lang="js">
 {`
 addLocale('es', {
-firstDayOfWeek: 1,
-dayNames: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'],
-dayNamesShort: ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'],
-dayNamesMin: ['D', 'L', 'M', 'X', 'J', 'V', 'S'],
-monthNames: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
-monthNamesShort: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
-today: 'Hoy',
-clear: 'Claro'
+    firstDayOfWeek: 1,
+    dayNames: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'],
+    dayNamesShort: ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'],
+    dayNamesMin: ['D', 'L', 'M', 'X', 'J', 'V', 'S'],
+    monthNames: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
+    monthNamesShort: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
+    today: 'Hoy',
+    clear: 'Claro'
 });
 
 locale('es');
 `}
 </CodeHighlight>
-                <p>Locale values ​​can be changed dynamically. (Note: please don't forget to update main or current component with state management or forceUpdate method of React.)</p>
-<CodeHighlight lang="js">
+                <p>Locale values can be changed dynamically. (Note: please don't forget to update main or current component with state management or forceUpdate method of React.)</p>
+<CodeHighlight>
 {`
 <Button label="EN" onClick={() => locale('en')} />
 <Button label="ES" onClick={() => locale('es')} />
@@ -201,7 +201,7 @@ locale('es');
                 </div>
             </div>
         </div>
-    );
+    )
 }
 
 export default LocaleDemo;

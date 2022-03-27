@@ -18,16 +18,16 @@ export const Dropdown = memo((props) => {
     const focusInputRef = useRef(null);
     const searchTimeout = useRef(null);
     const searchValue = useRef(null);
+    const currentSearchChar = useRef(null);
     const isLazy = props.virtualScrollerOptions && props.virtualScrollerOptions.lazy;
     const hasFilter = ObjectUtils.isNotEmpty(filterState);
     const appendTo = props.appendTo || PrimeReact.appendTo;
 
     const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({
-        target: elementRef, overlay: overlayRef, listener: (event, type) => {
-            if (type === 'outside')
-                !isClearClicked(event) && hide();
-            else
-                hide();
+        target: elementRef, overlay: overlayRef, listener: (event, { type, valid }) => {
+            if (valid) {
+                (type === 'outside') ? !isClearClicked(event) && hide() : hide();
+            }
         }, when: overlayVisibleState
     });
 
@@ -255,10 +255,12 @@ export const Dropdown = memo((props) => {
 
         const char = event.key;
 
-        if (currentSearchChar === char)
+        if (currentSearchChar.current === char)
             searchValue.current = char;
         else
             searchValue.current = searchValue.current ? searchValue.current + char : char;
+
+        currentSearchChar.current = char;
 
         if (searchValue.current) {
             const searchIndex = getSelectedOptionIndex();
@@ -676,7 +678,7 @@ export const Dropdown = memo((props) => {
         'p-disabled': props.disabled,
         'p-focus': focusedState,
         'p-dropdown-clearable': props.showClear && !props.disabled,
-        'p-inputwrapper-filled': props.value,
+        'p-inputwrapper-filled': ObjectUtils.isNotEmpty(props.value),
         'p-inputwrapper-focus': focusedState || overlayVisibleState
     }, props.className);
     const hiddenSelect = createHiddenSelect();
@@ -701,7 +703,7 @@ export const Dropdown = memo((props) => {
                 in={overlayVisibleState} onEnter={onOverlayEnter} onEntered={onOverlayEntered} onExit={onOverlayExit} onExited={onOverlayExited} />
         </div>
     )
-})
+});
 
 Dropdown.defaultProps = {
     __TYPE: 'Dropdown',

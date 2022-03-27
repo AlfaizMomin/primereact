@@ -20,12 +20,13 @@ export const MultiSelect = memo((props) => {
     const empty = ObjectUtils.isEmpty(props.value);
     const equalityKey = props.optionValue ? null : props.dataKey;
 
-    const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({ target: elementRef, overlay: overlayRef, listener: (event, type) => {
-        if (type === 'outside')
-            !isClearClicked(event) && hide();
-        else
-            hide();
-    }, when: overlayVisibleState});
+    const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({
+        target: elementRef, overlay: overlayRef, listener: (event, { type, valid }) => {
+            if (valid) {
+                (type === 'outside') ? !isClearClicked(event) && hide() : hide();
+            }
+        }, when: overlayVisibleState
+    });
 
     const onPanelClick = (event) => {
         OverlayService.emit('overlay-click', {
@@ -563,7 +564,7 @@ export const MultiSelect = memo((props) => {
         'p-disabled': props.disabled,
         'p-multiselect-clearable': props.showClear && !props.disabled,
         'p-focus': focusedState,
-        'p-inputwrapper-filled': props.value && props.value.length > 0,
+        'p-inputwrapper-filled': ObjectUtils.isNotEmpty(props.value),
         'p-inputwrapper-focus': focusedState || overlayVisibleState
     }, props.className);
     const label = createLabel();

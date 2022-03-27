@@ -269,7 +269,7 @@ export const CascadeSelect = memo((props) => {
     const element = createElement();
 
     return element;
-})
+});
 
 CascadeSelect.defaultProps = {
     __TYPE: 'CascadeSelect',

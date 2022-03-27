@@ -53,14 +53,12 @@ export const ConfirmPopup = memo((props) => {
     const rejectLabel = props.rejectLabel || localeOption('reject');
 
     const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({
-        target: props.target, overlay: overlayRef, listener: (event, type) => {
-            if (type === 'outside') {
-                !isPanelClicked.current && hide();
-                isPanelClicked.current = false;
+        target: props.target, overlay: overlayRef, listener: (event, { type, valid }) => {
+            if (valid) {
+                (type === 'outside') ? !isPanelClicked.current && hide() : hide();
             }
-            else {
-                hide();
-            }
+
+            isPanelClicked.current = false;
         }, when: visibleState
     });
 

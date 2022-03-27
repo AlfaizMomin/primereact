@@ -121,7 +121,7 @@ export class CalendarDemo extends Component {
                             <Calendar id="spanish" value={this.state.date3} onChange={(e) => this.setState({ date3: e.value })} locale="es" dateFormat="dd/mm/yy" />
                         </div>
                         <div className="field col-12 md:col-4">
-                            <label htmlFor="minmax">MinMax</label>
+                            <label htmlFor="minmax">Min / Max</label>
                             <Calendar id="minmax" value={this.state.date4} onChange={(e) => this.setState({ date4: e.value })} minDate={this.minDate} maxDate={this.maxDate} readOnlyInput />
                         </div>
                         <div className="field col-12 md:col-4">
@@ -294,7 +294,7 @@ const CalendarDemo = () => {
                         <Calendar id="spanish" value={date3} onChange={(e) => setDate3(e.value)} locale="es" dateFormat="dd/mm/yy" />
                     </div>
                     <div className="field col-12 md:col-4">
-                        <label htmlFor="minmax">MinMax</label>
+                        <label htmlFor="minmax">Min / Max</label>
                         <Calendar id="minmax" value={date4} onChange={(e) => setDate4(e.value)} minDate={minDate} maxDate={maxDate} readOnlyInput />
                     </div>
                     <div className="field col-12 md:col-4">
@@ -466,7 +466,7 @@ const CalendarDemo = () => {
                         <Calendar id="spanish" value={date3} onChange={(e) => setDate3(e.value)} locale="es" dateFormat="dd/mm/yy" />
                     </div>
                     <div className="field col-12 md:col-4">
-                        <label htmlFor="minmax">MinMax</label>
+                        <label htmlFor="minmax">Min / Max</label>
                         <Calendar id="minmax" value={date4} onChange={(e) => setDate4(e.value)} minDate={minDate} maxDate={maxDate} readOnlyInput />
                     </div>
                     <div className="field col-12 md:col-4">
@@ -637,7 +637,7 @@ const CalendarDemo = () => {
                         <Calendar id="spanish" value={date3} onChange={(e) => setDate3(e.value)} locale="es" dateFormat="dd/mm/yy" />
                     </div>
                     <div className="field col-12 md:col-4">
-                        <label htmlFor="minmax">MinMax</label>
+                        <label htmlFor="minmax">Min / Max</label>
                         <Calendar id="minmax" value={date4} onChange={(e) => setDate4(e.value)} minDate={minDate} maxDate={maxDate} readOnlyInput />
                     </div>
                     <div className="field col-12 md:col-4">

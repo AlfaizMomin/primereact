@@ -24,8 +24,7 @@ export const MultiStateCheckbox = memo((props) => {
 
     const findNextOption = () => {
         if (props.options) {
-            const { index } = selectedOption;
-            return index === props.options.length - 1 ? (props.empty ? null : props.options[0]) : props.options[index + 1];
+            return selectedOptionIndex === props.options.length - 1 ? (props.empty ? null : props.options[0]) : props.options[selectedOptionIndex + 1];
         }
 
         return null;
@@ -57,7 +56,7 @@ export const MultiStateCheckbox = memo((props) => {
         setFocusedState(false);
     }
 
-    const getSelectedOption = () => {
+    const getSelectedOptionMap = () => {
         let option, index;
 
         if (props.options) {
@@ -119,7 +118,7 @@ export const MultiStateCheckbox = memo((props) => {
         return content;
     }
 
-    const selectedOption = getSelectedOption();
+    const { option: selectedOption, index: selectedOptionIndex } = getSelectedOptionMap();
 
     const className = classNames('p-multistatecheckbox p-checkbox p-component', props.className);
     const boxClassName = classNames('p-checkbox-box', {
@@ -133,9 +132,9 @@ export const MultiStateCheckbox = memo((props) => {
         <div ref={elementRef} id={props.id} className={className} style={props.style} onClick={onClick}>
             <div className="p-hidden-accessible">
                 <input ref={inputRef} type="checkbox" aria-labelledby={props.ariaLabelledBy} id={props.inputId} name={props.name}
-                    onFocus={onFocus} onBlur={onBlur} disabled={props.disabled} readOnly={props.readOnly} defaultChecked={!!option} />
+                    onFocus={onFocus} onBlur={onBlur} disabled={props.disabled} readOnly={props.readOnly} defaultChecked={!!selectedOption} />
             </div>
-            <div className={boxClassName} role="checkbox" aria-checked={!!option} style={option && option.style}>
+            <div className={boxClassName} role="checkbox" aria-checked={!!selectedOption} style={selectedOption && selectedOption.style}>
                 {icon}
             </div>
         </div>

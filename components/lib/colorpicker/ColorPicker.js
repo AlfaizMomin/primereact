@@ -22,8 +22,8 @@ export const ColorPicker = memo((props) => {
     const colorDragging = useRef(false);
 
     const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({
-        target: elementRef, overlay: overlayRef, listener: () => {
-            hide();
+        target: elementRef, overlay: overlayRef, listener: (event, { valid }) => {
+            valid && hide();
         }, when: overlayVisibleState
     });
 
@@ -456,12 +456,9 @@ export const ColorPicker = memo((props) => {
         }
     }, [props.tooltip, props.tooltipOptions]);
 
-    useEffect(() => {
-        updateUI();
-    });
-
     useMountEffect(() => {
         updateHSBValue(props.value);
+        updateUI();
     });
 
     useUpdateEffect(() => {
@@ -469,6 +466,10 @@ export const ColorPicker = memo((props) => {
             updateHSBValue(props.value);
         }
     }, [props.value]);
+
+    useUpdateEffect(() => {
+        updateUI();
+    });
 
     useUnmountEffect(() => {
         if (tooltipRef.current) {

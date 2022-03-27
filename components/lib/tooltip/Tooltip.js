@@ -403,11 +403,7 @@ export const Tooltip = memo(forwardRef((props, ref) => {
     });
 
     useUpdateEffect(() => {
-        loadTargetEvents();
-
-        return () => {
-            unloadTargetEvents();
-        }
+        visibleState && loadTargetEvents();
     }, [show, hide, props.target]);
 
     useUpdateEffect(() => {

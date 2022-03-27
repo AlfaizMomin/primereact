@@ -101,7 +101,7 @@ const MultiSelectDemo = () => {
     }
 
     const onLazyLoad = (event) => {
-        setlazyLoading(true);
+        setLazyLoading(true);
 
         if (loadLazyTimeout) {
             clearTimeout(loadLazyTimeout);
@@ -172,7 +172,7 @@ const MultiSelectDemo = () => {
                         itemTemplate={countryTemplate} selectedItemTemplate={selectedCountriesTemplate} panelFooterTemplate={panelFooterTemplate} />
 
                     <h5>Virtual Scroll (100000 Items)</h5>
-                    <MultiSelect value={selectedItems1} options={items} onChange={(e) => { setSelectedItems1(e.value); setSelectAll(e.value.length === items.length) }} selectAll={selectAll} onSelectAll={(e) => { setSelectedItems1(e.checked ? [] : this.items.map(item => item.value)); setSelectAll(!e.checked) }} virtualScrollerOptions={{ itemSize: 43 }} placeholder="Select Item" />
+                    <MultiSelect value={selectedItems1} options={items} onChange={(e) => { setSelectedItems1(e.value); setSelectAll(e.value.length === items.length) }} selectAll={selectAll} onSelectAll={(e) => { setSelectAll(!e.checked); setSelectedItems1(e.checked ? [] : items.map(item => item.value)) }} virtualScrollerOptions={{ itemSize: 43 }} placeholder="Select Item" />
 
                     <h5>Virtual Scroll (100000 Items) and Lazy</h5>
                     <MultiSelect value={selectedItems2} options={lazyItems} onChange={(e) => setSelectedItems2(e.value)} virtualScrollerOptions={{

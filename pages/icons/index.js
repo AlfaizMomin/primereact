@@ -60,6 +60,14 @@ npm install primeicons
 `}
 </CodeHighlight>
 
+                <p>Then import the library.</p>
+
+<CodeHighlight lang="js">
+{`
+import 'primeicons/primeicons.css';
+`}
+</CodeHighlight>
+
                 <h5>Getting Started</h5>
                 <p>PrimeIcons use the <strong>pi pi-&#123;icon&#125;</strong> syntax such as <strong>pi pi-check</strong>.
                 A standalone icon can be displayed using an element such as <i>i</i> or <i>span</i></p>
@@ -113,24 +121,24 @@ import { Menu } from 'primereact/menu';
 
 const MenuDemo = () => {
 
-const items = [
-    {
-        label: 'File',
-        items: [
-            {label: 'New', icon: PrimeIcons.PLUS},
-            {label: 'Open', icon: PrimeIcons.DOWNLOAD}
-        ]
-    },
-    {
-        label: 'Edit',
-        items: [
-            {label: 'Undo', icon: PrimeIcons.REFRESH},
-            {label: 'Redo', icon: PrimeIcons.REPEAT}
-        ]
-    }
-];
+    const items = [
+        {
+            label: 'File',
+            items: [
+                {label: 'New', icon: PrimeIcons.PLUS},
+                {label: 'Open', icon: PrimeIcons.DOWNLOAD}
+            ]
+        },
+        {
+            label: 'Edit',
+            items: [
+                {label: 'Undo', icon: PrimeIcons.REFRESH},
+                {label: 'Redo', icon: PrimeIcons.REPEAT}
+            ]
+        }
+    ];
 
-return <Menu model={items} />
+    return <Menu model={items} />
 }
 `}
 </CodeHighlight>

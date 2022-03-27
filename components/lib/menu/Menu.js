@@ -13,8 +13,8 @@ export const Menu = memo(forwardRef((props, ref) => {
     const targetRef = useRef(null);
 
     const [bindOverlayListener, unbindOverlayListener] = useOverlayListener({
-        target: targetRef, overlay: menuRef, listener: (event) => {
-            hide(event);
+        target: targetRef, overlay: menuRef, listener: (event, { valid }) => {
+            valid && hide(event);
         }, when: visibleState
     });
 
