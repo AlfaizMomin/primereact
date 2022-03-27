@@ -932,7 +932,7 @@ export default class DomHandler {
         else {
             const isFunction = (obj) => !!(obj && obj.constructor && obj.call && obj.apply);
             const element = isFunction(target) ? target() : target;
-            return this.isExist(element) ? element : null;
+            return ((element && element.nodeType === 9) || this.isExist(element)) ? element : null;
         }
     }
 }

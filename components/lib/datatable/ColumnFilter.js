@@ -325,7 +325,6 @@ export const ColumnFilter = memo((props) => {
     const onOverlayEnter = () => {
         ZIndexUtils.set('overlay', overlayRef.current, PrimeReact.autoZIndex, PrimeReact.zIndex['overlay']);
         DomHandler.alignOverlay(overlayRef.current, iconRef.current, PrimeReact.appendTo, false);
-        bindOverlayListener();
 
         overlayEventListener.current = (e) => {
             if (!isOutsideClicked(e.target)) {
@@ -333,6 +332,10 @@ export const ColumnFilter = memo((props) => {
             }
         }
         OverlayService.on('overlay-click', overlayEventListener.current);
+    }
+
+    const onOverlayEntered = () => {
+        bindOverlayListener();
     }
 
     const onOverlayExit = () => {
@@ -655,7 +658,7 @@ export const ColumnFilter = memo((props) => {
         return (
             <Portal>
                 <CSSTransition nodeRef={overlayRef} classNames="p-connected-overlay" in={overlayVisibleState} timeout={{ enter: 120, exit: 100 }}
-                    unmountOnExit onEnter={onOverlayEnter} onExit={onOverlayExit} onExited={onOverlayExited}>
+                    unmountOnExit onEnter={onOverlayEnter} onEntered={onOverlayEntered} onExit={onOverlayExit} onExited={onOverlayExited}>
                     <div ref={overlayRef} style={style} className={className} onKeyDown={onContentKeyDown} onClick={onContentClick} onMouseDown={onContentMouseDown}>
                         {filterHeader}
                         {items}

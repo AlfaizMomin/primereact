@@ -905,7 +905,7 @@ export const DataTable = forwardRef((props, ref) => {
             const firstSortMeta = multiSortMeta[0];
             if (!groupRowsSortMeta) {
                 groupRowsSortMeta = firstSortMeta;
-                setGroupRowsSortMeta(groupRowsSortMeta);
+                setGroupRowsSortMetaState(groupRowsSortMeta);
             }
 
             if (firstSortMeta.field !== groupRowsSortMeta.field) {
