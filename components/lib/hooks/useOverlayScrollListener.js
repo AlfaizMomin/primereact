@@ -41,11 +41,14 @@ export const useOverlayScrollListener = ({ target, listener, options, when = tru
             unbind();
             targetRef.current = null;
         }
-    }, [target, options, when]);
+    }, [target, when]);
 
     useEffect(() => {
-        unbind();
-    }, [options, when]);
+        if (listenerRef.current && (listenerRef.current !== listener || prevOptions !== options)) {
+            unbind();
+            when && bind();
+        }
+    }, [listener, options]);
 
     useUnmountEffect(() => {
         unbind();
