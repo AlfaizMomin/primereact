@@ -1,4 +1,4 @@
-import React, { memo, useRef } from 'react';
+import React, { forwardRef, memo, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { FirstPageLink } from './FirstPageLink';
 import { NextPageLink } from './NextPageLink';
@@ -11,7 +11,7 @@ import { JumpToPageInput } from './JumpToPageInput';
 import { ObjectUtils, classNames } from '../utils/Utils';
 import { useUpdateEffect } from '../hooks/Hooks';
 
-export const Paginator = memo((props) => {
+export const Paginator = memo(forwardRef((props, ref) => {
     const rppChanged = useRef(false);
     const page = Math.floor(props.first / props.rows);
     const pageCount = Math.ceil(props.totalRecords / props.rows);
@@ -198,7 +198,7 @@ export const Paginator = memo((props) => {
             </div>
         )
     }
-});
+}));
 
 Paginator.defaultProps = {
     __TYPE: 'Paginator',

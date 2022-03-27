@@ -1,11 +1,11 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { forwardRef, memo, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { SelectButtonItem } from './SelectButtonItem';
 import { tip } from '../tooltip/Tooltip';
 import { ObjectUtils, classNames } from '../utils/Utils';
 import { useUnmountEffect } from '../hooks/Hooks';
 
-export const SelectButton = memo((props) => {
+export const SelectButton = memo(forwardRef((props, ref) => {
     const elementRef = useRef(null);
     const tooltipRef = useRef(null);
 
@@ -121,7 +121,7 @@ export const SelectButton = memo((props) => {
             {items}
         </div>
     )
-})
+}));
 
 SelectButton.defaultProps = {
     __TYPE: 'SelectButton',

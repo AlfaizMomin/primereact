@@ -1,10 +1,10 @@
-import React, { useState, useRef, memo } from 'react';
+import React, { useState, useRef, memo, forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { Ripple } from '../ripple/Ripple';
 import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 import { useMountEffect, useEventListener } from '../hooks/Hooks';
 
-export const MegaMenu = memo((props) => {
+export const MegaMenu = memo(forwardRef((props, ref) => {
     const [activeItemState, setActiveItemState] = useState(null);
     const elementRef = useRef(null);
     const horizontal = props.orientation === 'horizontal';
@@ -355,7 +355,7 @@ export const MegaMenu = memo((props) => {
             {customContent}
         </div>
     )
-});
+}));
 
 MegaMenu.defaultProps = {
     __TYPE: 'MegaMenu',

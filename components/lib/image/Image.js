@@ -1,4 +1,4 @@
-import React, { memo, useRef, useState } from 'react';
+import React, { forwardRef, memo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import PrimeReact from '../api/Api';
 import { Portal } from '../portal/Portal';
@@ -6,7 +6,7 @@ import { CSSTransition } from '../csstransition/CSSTransition';
 import { DomHandler, classNames, ZIndexUtils, ObjectUtils } from '../utils/Utils';
 import { useUnmountEffect } from '../hooks/Hooks';
 
-export const Image = memo((props) => {
+export const Image = memo(forwardRef((props, ref) => {
     const [maskVisibleState, setMaskVisibleState] = useState(false);
     const [previewVisibleState, setPreviewVisibleState] = useState(false);
     const [rotateState, setRotateState] = useState(0);
@@ -161,7 +161,7 @@ export const Image = memo((props) => {
             {maskVisibleState && <Portal element={element} appendTo={document.body} />}
         </span>
     )
-});
+}));
 
 Image.defaultProps = {
     __TYPE: 'Image',

@@ -1,10 +1,10 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { tip } from '../tooltip/Tooltip';
 import { ObjectUtils, classNames } from '../utils/Utils';
 import { useUnmountEffect } from '../hooks/Hooks';
 
-export const InputSwitch = memo((props) => {
+export const InputSwitch = memo(forwardRef((props, ref) => {
     const [focusedState, setFocusedState] = useState(false);
     const elementRef = useRef(null);
     const inputRef = useRef(props.inputRef);
@@ -99,7 +99,7 @@ export const InputSwitch = memo((props) => {
             <span className="p-inputswitch-slider"></span>
         </div>
     )
-});
+}));
 
 InputSwitch.defaultProps = {
     __TYPE: 'InputSwitch',

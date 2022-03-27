@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import PrimeReact, { FilterService } from '../api/Api';
 import { tip } from '../tooltip/Tooltip';
@@ -7,7 +7,7 @@ import { OverlayService } from '../overlayservice/OverlayService';
 import { DomHandler, ObjectUtils, ZIndexUtils, classNames, IconUtils } from '../utils/Utils';
 import { useUpdateEffect, useUnmountEffect, useOverlayListener } from '../hooks/Hooks';
 
-export const MultiSelect = memo((props) => {
+export const MultiSelect = memo(forwardRef((props, ref) => {
     const [filterState, setFilterState] = useState('');
     const [focusedState, setFocusedState] = useState(false);
     const [overlayVisibleState, setOverlayVisibleState] = useState(false);
@@ -589,7 +589,7 @@ export const MultiSelect = memo((props) => {
                 in={overlayVisibleState} onEnter={onOverlayEnter} onEntered={onOverlayEntered} onExit={onOverlayExit} onExited={onOverlayExited} />
         </div>
     )
-});
+}));
 
 MultiSelect.defaultProps = {
     __TYPE: 'MultiSelect',

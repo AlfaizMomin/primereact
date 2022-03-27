@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { FilterService } from '../api/Api';
 import { ListBoxItem } from './ListBoxItem';
@@ -8,7 +8,7 @@ import { VirtualScroller } from '../virtualscroller/VirtualScroller';
 import { ObjectUtils, classNames } from '../utils/Utils';
 import { useUnmountEffect } from '../hooks/Hooks';
 
-export const ListBox = memo((props) => {
+export const ListBox = memo(forwardRef((props, ref) => {
     const [filterValueState, setFilterValueState] = useState('');
     const elementRef = useRef(null);
     const tooltipRef = useRef(null);
@@ -336,7 +336,7 @@ export const ListBox = memo((props) => {
             </div>
         </div>
     )
-});
+}));
 
 ListBox.defaultProps = {
     __TYPE: 'ListBox',

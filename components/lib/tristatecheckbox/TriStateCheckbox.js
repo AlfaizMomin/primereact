@@ -1,10 +1,10 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { tip } from '../tooltip/Tooltip';
 import { classNames, ObjectUtils } from '../utils/Utils';
 import { useUnmountEffect } from '../hooks/Hooks';
 
-export const TriStateCheckbox = memo((props) => {
+export const TriStateCheckbox = memo(forwardRef((props, ref) => {
     const [focusedState, setFocusedState] = useState(false);
     const elementRef = useRef(null);
     const tooltipRef = useRef(null);
@@ -95,7 +95,7 @@ export const TriStateCheckbox = memo((props) => {
             </div>
         </div>
     )
-})
+}));
 
 TriStateCheckbox.defaultProps = {
     __TYPE: 'TriStateCheckbox',

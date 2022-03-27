@@ -1,8 +1,8 @@
-import React, { memo } from 'react';
+import React, { forwardRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, classNames } from '../utils/Utils';
 
-export const Steps = memo((props) => {
+export const Steps = memo(forwardRef((props, ref) => {
 
     const itemClick = (event, item, index) => {
         if (props.readOnly || item.disabled) {
@@ -95,7 +95,7 @@ export const Steps = memo((props) => {
             {items}
         </div>
     )
-});
+}));
 
 Steps.defaultProps = {
     __TYPE: 'Steps',

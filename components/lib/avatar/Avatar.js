@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, classNames, IconUtils } from '../utils/Utils';
 
-export const Avatar = (props) => {
+export const Avatar = forwardRef((props, ref) => {
 
     const createContent = () => {
         if (props.label) {
@@ -34,7 +34,7 @@ export const Avatar = (props) => {
             {props.children}
         </div>
     )
-}
+});
 
 Avatar.defaultProps = {
     __TYPE: 'Avatar',

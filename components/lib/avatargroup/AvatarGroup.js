@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { classNames } from '../utils/Utils';
 
-export const AvatarGroup = (props) => {
+export const AvatarGroup = forwardRef((props, ref) => {
     const className = classNames('p-avatar-group p-component', props.className);
 
     return (
@@ -10,7 +10,7 @@ export const AvatarGroup = (props) => {
             {props.children}
         </div>
     )
-}
+});
 
 AvatarGroup.defaultProps = {
     __TYPE: 'AvatarGroup',

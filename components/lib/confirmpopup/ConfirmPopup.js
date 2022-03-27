@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, memo, useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import PrimeReact, { localeOption } from '../api/Api';
@@ -43,7 +43,7 @@ export function confirmPopup(props) {
     }
 }
 
-export const ConfirmPopup = memo((props) => {
+export const ConfirmPopup = memo(forwardRef((props, ref) => {
     const [visibleState, setVisibleState] = useState(false);
     const overlayRef = useRef(null);
     const acceptBtnRef = useRef(null);
@@ -224,7 +224,7 @@ export const ConfirmPopup = memo((props) => {
     const element = createElement();
 
     return <Portal element={element} appendTo={props.appendTo} visible={props.visible} />
-});
+}));
 
 ConfirmPopup.defaultProps = {
     __TYPE: 'ConfirmPopup',

@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, classNames } from '../utils/Utils';
 
-export const Toolbar = memo((props) => {
+export const Toolbar = memo(forwardRef((props, ref) => {
     const toolbarClass = classNames('p-toolbar p-component', props.className);
     const left = ObjectUtils.getJSXElement(props.left, props);
     const right = ObjectUtils.getJSXElement(props.right, props);
@@ -17,7 +17,7 @@ export const Toolbar = memo((props) => {
             </div>
         </div>
     )
-});
+}));
 
 Toolbar.defaultProps = {
     __TYPE: 'Toolbar',

@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { forwardRef, memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import PrimeReact, { localeOption } from '../api/Api';
 import { Paginator } from '../paginator/Paginator';
@@ -37,7 +37,7 @@ export const DataViewItem = memo((props) => {
     return props.template(props.item, props.layout);
 });
 
-export const DataView = memo((props) => {
+export const DataView = memo(forwardRef((props, ref) => {
     const [firstState, setFirstState] = useState(props.first);
     const [rowsState, setRowsState] = useState(props.rows);
     const first = props.onPage ? props.first : firstState;
@@ -215,7 +215,7 @@ export const DataView = memo((props) => {
             {footer}
         </div>
     )
-});
+}));
 
 DataView.defaultProps = {
     __TYPE: 'DataView',

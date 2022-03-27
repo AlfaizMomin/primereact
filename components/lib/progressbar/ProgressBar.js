@@ -1,8 +1,8 @@
-import React, { memo } from 'react';
+import React, { forwardRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { classNames } from '../utils/Utils';
 
-export const ProgressBar = memo((props) => {
+export const ProgressBar = memo(forwardRef((props, ref) => {
 
     const createLabel = () => {
         if (props.showValue && props.value != null) {
@@ -43,7 +43,7 @@ export const ProgressBar = memo((props) => {
         return createIndeterminate();
     else
         throw new Error(props.mode + " is not a valid mode for the ProgressBar. Valid values are 'determinate' and 'indeterminate'");
-});
+}));
 
 ProgressBar.defaultProps = {
     __TYPE: 'ProgressBar',

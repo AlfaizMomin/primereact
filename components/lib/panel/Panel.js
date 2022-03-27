@@ -1,11 +1,11 @@
-import React, { useRef, useState } from 'react';
+import React, { forwardRef, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Ripple } from '../ripple/Ripple';
 import { CSSTransition } from '../csstransition/CSSTransition';
 import { ObjectUtils, classNames, IconUtils, UniqueComponentId } from '../utils/Utils';
 import { useMountEffect } from '../hooks/Hooks';
 
-export const Panel = (props) => {
+export const Panel = forwardRef((props, ref) => {
     const [idState, setIdState] = useState(props.id);
     const [collapsedState, setCollapsedState] = useState(props.collapsed);
     const contentRef = useRef(null);
@@ -133,7 +133,7 @@ export const Panel = (props) => {
             {content}
         </div>
     )
-}
+});
 
 Panel.defaultProps = {
     __TYPE: 'Panel',

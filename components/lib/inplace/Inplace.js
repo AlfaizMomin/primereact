@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { forwardRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '../button/Button';
 import { classNames } from '../utils/Utils';
@@ -6,7 +6,7 @@ import { classNames } from '../utils/Utils';
 export const InplaceDisplay = (props) => props.children;
 export const InplaceContent = (props) => props.children;
 
-export const Inplace = (props) => {
+export const Inplace = forwardRef((props, ref) => {
     const [activeState, setActiveState] = useState(false);
     const active = props.onToggle ? props.active : activeState;
 
@@ -106,8 +106,7 @@ export const Inplace = (props) => {
             {children}
         </div>
     )
-
-}
+});
 
 InplaceDisplay.defaultProps = {
     __TYPE: 'InplaceDisplay'

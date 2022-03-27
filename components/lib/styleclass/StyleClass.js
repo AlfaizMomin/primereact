@@ -1,9 +1,9 @@
-import { useRef } from 'react';
+import { forwardRef, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { DomHandler, ObjectUtils } from '../utils/Utils';
 import { useEventListener, useMountEffect, useUnmountEffect, useUpdateEffect } from '../hooks/Hooks';
 
-export const StyleClass = (props) => {
+export const StyleClass = forwardRef((props, ref) => {
     const targetRef = useRef(null);
     const animating = useRef(false);
     const elementRef = useRef(null);
@@ -171,7 +171,7 @@ export const StyleClass = (props) => {
     });
 
     return props.children;
-}
+});
 
 StyleClass.defaultProps = {
     __TYPE: 'StyleClass',

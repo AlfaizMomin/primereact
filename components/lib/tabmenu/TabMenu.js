@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect, memo } from 'react';
+import React, { useState, useRef, useEffect, memo, forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { Ripple } from '../ripple/Ripple';
 import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 
-export const TabMenu = memo((props) => {
+export const TabMenu = memo(forwardRef((props, ref) => {
     const [activeIndexState, setActiveIndexState] = useState(props.activeIndex);
     const inkbarRef = useRef(null);
     const navRef = useRef(null);
@@ -114,7 +114,7 @@ export const TabMenu = memo((props) => {
     }
 
     return null;
-});
+}));
 
 TabMenu.defaultProps = {
     __TYPE: 'TabMenu',

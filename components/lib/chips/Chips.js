@@ -1,10 +1,10 @@
-import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, memo, useEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { tip } from '../tooltip/Tooltip';
 import { classNames, ObjectUtils } from '../utils/Utils';
 import { useUnmountEffect } from '../hooks/Hooks';
 
-export const Chips = memo((props) => {
+export const Chips = memo(forwardRef((props, ref) => {
     const [focusedState, setFocusedState] = useState(false);
     const elementRef = useRef(null);
     const listRef = useRef(null);
@@ -241,7 +241,7 @@ export const Chips = memo((props) => {
             {list}
         </div>
     )
-});
+}));
 
 Chips.defaultProps = {
     __TYPE: 'Chips',

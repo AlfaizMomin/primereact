@@ -1,10 +1,10 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { tip } from '../tooltip/Tooltip';
 import { ObjectUtils, classNames } from '../utils/Utils';
 import { useMountEffect, useUnmountEffect } from '../hooks/Hooks';
 
-export const MultiStateCheckbox = memo((props) => {
+export const MultiStateCheckbox = memo(forwardRef((props, ref) => {
     const [focusedState, setFocusedState] = useState(false);
     const elementRef = useRef(null);
     const inputRef = useRef(props.inputRef);
@@ -139,7 +139,7 @@ export const MultiStateCheckbox = memo((props) => {
             </div>
         </div>
     )
-});
+}));
 
 MultiStateCheckbox.defaultProps = {
     __TYPE: 'MultiStateCheckbox',

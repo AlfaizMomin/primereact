@@ -1,4 +1,4 @@
-import React, { useState, useRef, memo } from 'react'
+import React, { useState, useRef, memo, forwardRef } from 'react'
 import PropTypes from 'prop-types';
 import { PickListSubList } from './PickListSubList';
 import { PickListControls } from './PickListControls';
@@ -6,7 +6,7 @@ import { PickListTransferControls } from './PickListTransferControls';
 import { DomHandler, classNames, ObjectUtils } from '../utils/Utils';
 import { useUpdateEffect } from '../hooks/Hooks';
 
-export const PickList = memo((props) => {
+export const PickList = memo(forwardRef((props, ref) => {
     const [sourceSelectionState, setSourceSelectionState] = useState([]);
     const [targetSelectionState, setTargetSelectionState] = useState([]);
     const sourceListElementRef = useRef(null);
@@ -166,7 +166,7 @@ export const PickList = memo((props) => {
 
         </div>
     );
-});
+}));
 
 PickList.defaultProps = {
     __TYPE: 'PickList',

@@ -1,9 +1,9 @@
-import React, { memo, useRef } from 'react'
+import React, { forwardRef, memo, useRef } from 'react'
 import PropTypes from 'prop-types';
 import { DomHandler, classNames } from '../utils/Utils';
 import { useEventListener } from '../hooks/Hooks';
 
-export const Slider = memo((props) => {
+export const Slider = memo(forwardRef((props, ref) => {
     const elementRef = useRef(null);
     const handleIndex = useRef(0);
     const sliderHandleClick = useRef(false);
@@ -255,7 +255,7 @@ export const Slider = memo((props) => {
             {content}
         </div>
     )
-});
+}));
 
 Slider.defaultProps = {
     __TYPE: 'Slider',

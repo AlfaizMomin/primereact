@@ -1,8 +1,8 @@
-import React, { memo } from 'react';
+import React, { forwardRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, classNames } from '../utils/Utils';
 
-export const Timeline = memo((props) => {
+export const Timeline = memo(forwardRef((props, ref) => {
 
     const getKey = (item, index) => {
         return props.dataKey ? ObjectUtils.resolveFieldData(item, props.dataKey) : `pr_id__${index}`;
@@ -44,7 +44,7 @@ export const Timeline = memo((props) => {
             {events}
         </div>
     )
-});
+}));
 
 Timeline.defaultProps = {
     __TYPE: 'Timeline',

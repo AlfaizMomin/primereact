@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import PrimeReact from '../api/Api';
 import { Portal } from '../portal/Portal';
@@ -8,7 +8,7 @@ import { OverlayService } from '../overlayservice/OverlayService';
 import { DomHandler, ObjectUtils, classNames, ZIndexUtils } from '../utils/Utils';
 import { useUpdateEffect, useUnmountEffect, useOverlayListener } from '../hooks/Hooks';
 
-export const CascadeSelect = memo((props) => {
+export const CascadeSelect = memo(forwardRef((props, ref) => {
     const [focusedState, setFocusedState] = useState(false);
     const [overlayVisibleState, setOverlayVisibleState] = useState(false);
     const elementRef = useRef(null);
@@ -269,7 +269,7 @@ export const CascadeSelect = memo((props) => {
     const element = createElement();
 
     return element;
-});
+}));
 
 CascadeSelect.defaultProps = {
     __TYPE: 'CascadeSelect',

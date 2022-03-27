@@ -1,8 +1,8 @@
-import React, { memo } from 'react';
+import React, { forwardRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { classNames } from '../utils/Utils';
 
-export const Skeleton = memo((props) => {
+export const Skeleton = memo(forwardRef((props, ref) => {
 
     const style = props.size ?
         { width: props.size, height: props.size, borderRadius: props.borderRadius } :
@@ -13,7 +13,7 @@ export const Skeleton = memo((props) => {
     }, props.className);
 
     return <div style={style} className={className}></div>
-});
+}));
 
 Skeleton.defaultProps = {
     __TYPE: 'Skeleton',

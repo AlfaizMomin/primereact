@@ -1,8 +1,8 @@
-import React, { memo } from 'react';
+import React, { forwardRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { classNames } from '../utils/Utils';
 
-export const ProgressSpinner = memo((props) => {
+export const ProgressSpinner = memo(forwardRef((props, ref) => {
     const className = classNames('p-progress-spinner', props.className);
 
     return (
@@ -12,7 +12,7 @@ export const ProgressSpinner = memo((props) => {
             </svg>
         </div>
     )
-})
+}));
 
 ProgressSpinner.defaultProps = {
     __TYPE: 'ProgressSpinner',

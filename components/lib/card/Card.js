@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, classNames } from '../utils/Utils';
 
-export const Card = (props) => {
+export const Card = forwardRef((props, ref) => {
 
     const createHeader = () => {
         if (props.header) {
@@ -38,7 +38,7 @@ export const Card = (props) => {
             {body}
         </div>
     )
-}
+});
 
 Card.defaultProps = {
     __TYPE: 'Card',

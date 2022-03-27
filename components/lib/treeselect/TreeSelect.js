@@ -1,4 +1,4 @@
-import React, { memo, useRef, useState } from 'react';
+import React, { forwardRef, memo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import PrimeReact, { localeOption } from '../api/Api';
 import { TreeSelectPanel } from './TreeSelectPanel';
@@ -8,7 +8,7 @@ import { OverlayService } from '../overlayservice/OverlayService';
 import { DomHandler, ObjectUtils, classNames, ZIndexUtils } from '../utils/Utils';
 import { useUpdateEffect, useUnmountEffect, useOverlayListener, useMountEffect } from '../hooks/Hooks';
 
-export const TreeSelect = memo((props) => {
+export const TreeSelect = memo(forwardRef((props, ref) => {
     const [focusedState, setFocusedState] = useState(false);
     const [overlayVisibleState, setOverlayVisibleState] = useState(false);
     const [expandedKeysState, setExpandedKeysState] = useState({});
@@ -479,7 +479,7 @@ export const TreeSelect = memo((props) => {
             </TreeSelectPanel>
         </div>
     )
-});
+}));
 
 TreeSelect.defaultProps = {
     __TYPE: 'TreeSelect',

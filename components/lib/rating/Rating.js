@@ -1,10 +1,10 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { forwardRef, memo, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { tip } from '../tooltip/Tooltip';
 import { classNames } from '../utils/Utils';
 import { useUnmountEffect } from '../hooks/Hooks';
 
-export const Rating = memo((props) => {
+export const Rating = memo(forwardRef((props, ref) => {
     const elementRef = useRef(null);
     const tooltipRef = useRef(null);
     const enabled = !props.disabled && !props.readOnly;
@@ -112,7 +112,7 @@ export const Rating = memo((props) => {
             {stars}
         </div>
     )
-});
+}));
 
 Rating.defaultProps = {
     __TYPE: 'Rating',

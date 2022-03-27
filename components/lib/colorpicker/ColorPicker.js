@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import PrimeReact from '../api/Api';
 import { ColorPickerPanel } from './ColorPickerPanel';
@@ -7,7 +7,7 @@ import { OverlayService } from '../overlayservice/OverlayService';
 import { DomHandler, ObjectUtils, classNames, ZIndexUtils } from '../utils/Utils';
 import { useUnmountEffect, useEventListener, useOverlayListener, useUpdateEffect, useMountEffect } from '../hooks/Hooks';
 
-export const ColorPicker = memo((props) => {
+export const ColorPicker = memo(forwardRef((props, ref) => {
     const [overlayVisibleState, setOverlayVisibleState] = useState(false);
     const elementRef = useRef(null);
     const overlayRef = useRef(null);
@@ -545,7 +545,7 @@ export const ColorPicker = memo((props) => {
             </ColorPickerPanel>
         </div>
     )
-});
+}));
 
 ColorPicker.defaultProps = {
     __TYPE: 'ColorPicker',

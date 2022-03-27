@@ -1,9 +1,9 @@
-import React, { memo, useState } from 'react';
+import React, { forwardRef, memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { classNames, ObjectUtils } from '../utils/Utils';
 import { Ripple } from '../ripple/Ripple';
 
-export const Dock = memo((props) => {
+export const Dock = memo(forwardRef((props, ref) => {
     const [currentIndexState, setCurrentIndexState] = useState(-3);
 
     const onListMouseLeave = () => {
@@ -118,7 +118,7 @@ export const Dock = memo((props) => {
             </div>
         </div>
     )
-});
+}));
 
 Dock.defaultProps = {
     __TYPE: 'Dock',

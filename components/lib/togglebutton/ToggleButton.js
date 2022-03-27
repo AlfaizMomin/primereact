@@ -1,11 +1,11 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { forwardRef, memo, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { tip } from '../tooltip/Tooltip';
 import { Ripple } from '../ripple/Ripple';
 import { classNames, IconUtils } from '../utils/Utils';
 import { useUnmountEffect } from '../hooks/Hooks';
 
-export const ToggleButton = memo((props) => {
+export const ToggleButton = memo(forwardRef((props, ref) => {
     const elementRef = useRef(null);
     const tooltipRef = useRef(null);
     const hasLabel = props.onLabel && props.onLabel.length > 0 && props.offLabel && props.offLabel.length > 0;
@@ -86,7 +86,7 @@ export const ToggleButton = memo((props) => {
             <Ripple />
         </div>
     )
-});
+}));
 
 ToggleButton.defaultProps = {
     __TYPE: 'ToggleButton',

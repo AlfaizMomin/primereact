@@ -1,8 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { forwardRef, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useMountEffect, useEventListener } from '../hooks/Hooks';
 
-export const DeferredContent = (props) => {
+export const DeferredContent = forwardRef((props, ref) => {
     const [loadedState, setLoadedState] = useState(false);
     const elementRef = useRef(null);
 
@@ -43,7 +43,7 @@ export const DeferredContent = (props) => {
             {loadedState && props.children}
         </div>
     )
-}
+});
 
 DeferredContent.defaultProps = {
     __TYPE: 'DeferredContent',

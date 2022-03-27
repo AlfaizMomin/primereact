@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { forwardRef, memo, useState } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { localeOption } from '../api/Api';
@@ -44,7 +44,7 @@ export const confirmDialog = (props) => {
     }
 }
 
-export const ConfirmDialog = memo((props) => {
+export const ConfirmDialog = memo(forwardRef((props, ref) => {
     const [visibleState, setVisibleState] = useState(props.visible);
     const acceptLabel = props.acceptLabel || localeOption('accept');
     const rejectLabel = props.rejectLabel || localeOption('reject');
@@ -120,7 +120,7 @@ export const ConfirmDialog = memo((props) => {
     const element = createElement();
 
     return <Portal element={element} appendTo={props.appendTo} />
-});
+}));
 
 ConfirmDialog.defaultProps = {
     __TYPE: 'ConfirmDialog',

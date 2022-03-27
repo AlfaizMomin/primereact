@@ -1,8 +1,8 @@
-import React, { memo } from 'react';
+import React, { forwardRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, classNames } from '../utils/Utils';
 
-export const BreadCrumb = memo((props) => {
+export const BreadCrumb = memo(forwardRef((props, ref) => {
 
     const itemClick = (event, item) => {
         if (item.disabled) {
@@ -109,7 +109,7 @@ export const BreadCrumb = memo((props) => {
             </ul>
         </nav>
     )
-});
+}));
 
 BreadCrumb.defaultProps = {
     __TYPE: 'BreadCrumb',

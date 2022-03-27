@@ -1,4 +1,4 @@
-import React, { memo, useRef, useState } from 'react';
+import React, { forwardRef, memo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import PrimeReact from '../api/Api';
 import { Ripple } from '../ripple/Ripple';
@@ -20,7 +20,7 @@ const CarouselItem = memo((props) => {
     )
 });
 
-export const Carousel = memo((props) => {
+export const Carousel = memo(forwardRef((props, ref) => {
     const [numVisibleState, setNumVisibleState] = useState(props.numVisible);
     const [numScrollState, setNumScrollState] = useState(props.numScroll);
     const [totalShiftedItemsState, setTotalShiftedItemsState] = useState((props.page * props.numScroll) * -1);
@@ -563,7 +563,7 @@ export const Carousel = memo((props) => {
             {footer}
         </div>
     )
-});
+}));
 
 Carousel.defaultProps = {
     __TYPE: 'Carousel',

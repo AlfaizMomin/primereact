@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { OrganizationChartNode } from './OrganizationChartNode';
 import { classNames, DomHandler } from '../utils/Utils';
 
-export const OrganizationChart = memo((props) => {
+export const OrganizationChart = memo(forwardRef((props, ref) => {
     const root = props.value && props.value.length ? props.value[0] : null;
 
     const onNodeClick = (event, node) => {
@@ -69,7 +69,7 @@ export const OrganizationChart = memo((props) => {
             <OrganizationChartNode node={root} nodeTemplate={props.nodeTemplate} selectionMode={props.selectionMode} onNodeClick={onNodeClick} isSelected={isSelected} />
         </div>
     )
-});
+}));
 
 OrganizationChart.defaultProps = {
     __TYPE: 'OrganizationChart',

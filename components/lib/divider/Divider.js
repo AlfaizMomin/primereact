@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { classNames } from '../utils/Utils';
 
-export const Divider = (props) => {
+export const Divider = forwardRef((props, ref) => {
     const horizontal = props.layout === 'horizontal';
     const vertical = props.layout === 'vertical';
     const className = classNames(`p-divider p-component p-divider-${props.layout} p-divider-${props.type}`, {
@@ -20,7 +20,7 @@ export const Divider = (props) => {
             </div>
         </div>
     )
-}
+});
 
 Divider.defaultProps = {
     __TYPE: 'Divider',

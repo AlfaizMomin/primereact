@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import PrimeReact, { localeOption, localeOptions } from '../api/Api';
 import { CalendarPanel } from './CalendarPanel';
@@ -10,7 +10,7 @@ import { OverlayService } from '../overlayservice/OverlayService';
 import { DomHandler, ObjectUtils, classNames, mask, ZIndexUtils } from '../utils/Utils';
 import { useMountEffect, useUnmountEffect, useUpdateEffect, useOverlayListener, usePrevious } from '../hooks/Hooks';
 
-export const Calendar = memo((props) => {
+export const Calendar = memo(forwardRef((props, ref) => {
     const [focusedState, setFocusedState] = useState(false);
     const [overlayVisibleState, setOverlayVisibleState] = useState(false);
     const [viewDateState, setViewDateState] = useState(null);
@@ -2840,7 +2840,7 @@ export const Calendar = memo((props) => {
             </CalendarPanel>
         </span>
     )
-});
+}));
 
 Calendar.defaultProps = {
     __TYPE: 'Calendar',

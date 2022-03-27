@@ -1,4 +1,4 @@
-import React, { memo, useRef } from 'react';
+import React, { forwardRef, memo, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { classNames } from '../utils/Utils';
 import { useEventListener } from '../hooks/Hooks';
@@ -9,7 +9,7 @@ const midY = 50;
 const minRadians = 4 * Math.PI / 3;
 const maxRadians = -Math.PI / 3;
 
-export const Knob = memo((props) => {
+export const Knob = memo(forwardRef((props, ref) => {
     const elementRef = useRef(null);
     const enabled = !props.disabled && !props.readOnly;
 
@@ -146,7 +146,7 @@ export const Knob = memo((props) => {
             </svg>
         </div>
     )
-});
+}));
 
 Knob.defaultProps = {
     __TYPE: 'Knob',

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import PrimeReact from '../api/Api';
 import { Ripple } from '../ripple/Ripple';
@@ -7,7 +7,7 @@ import { CSSTransition } from '../csstransition/CSSTransition';
 import { DomHandler, ObjectUtils, ZIndexUtils, classNames } from '../utils/Utils';
 import { useMountEffect, useUpdateEffect, useUnmountEffect, useEventListener } from '../hooks/Hooks';
 
-export const Sidebar = (props) => {
+export const Sidebar = forwardRef((props, ref) => {
     const [maskVisibleState, setMaskVisibleState] = useState(false);
     const [visibleState, setVisibleState] = useState(false);
     const sidebarRef = useRef(null);
@@ -173,7 +173,7 @@ export const Sidebar = (props) => {
     }
 
     return maskVisibleState && createSidebar();
-}
+});
 
 Sidebar.defaultProps = {
     __TYPE: 'Sidebar',

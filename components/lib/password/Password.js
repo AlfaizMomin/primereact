@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, memo, useEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import PrimeReact, { localeOption } from '../api/Api';
 import { tip } from '../tooltip/Tooltip';
@@ -9,7 +9,7 @@ import { Portal } from '../portal/Portal';
 import { DomHandler, ObjectUtils, ZIndexUtils, classNames } from '../utils/Utils';
 import { useUnmountEffect, useOverlayListener } from '../hooks/Hooks';
 
-export const Password = memo((props) => {
+export const Password = memo(forwardRef((props, ref) => {
     const promptLabel = props.promptLabel || localeOption('passwordPrompt');
     const weakLabel = props.weakLabel || localeOption('weak');
     const mediumLabel = props.mediumLabel || localeOption('medium');
@@ -321,7 +321,7 @@ export const Password = memo((props) => {
             {panel}
         </div>
     )
-});
+}));
 
 Password.defaultProps = {
     __TYPE: 'Password',

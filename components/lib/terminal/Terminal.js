@@ -1,9 +1,9 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { TerminalService } from '../terminalservice/TerminalService';
 import { classNames } from '../utils/Utils';
 
-export const Terminal = memo((props) => {
+export const Terminal = memo(forwardRef((props, ref) => {
     const [commandTextState, setCommandTextState] = useState('');
     const [commandsState, setCommandsState] = useState([]);
     const [indexState, setIndexState] = useState(0);
@@ -141,7 +141,7 @@ export const Terminal = memo((props) => {
             {prompt}
         </div>
     )
-});
+}));
 
 Terminal.defaultProps = {
     __TYPE: 'Terminal',

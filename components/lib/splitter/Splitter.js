@@ -1,11 +1,11 @@
-import React, { useRef } from 'react';
+import React, { forwardRef, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { DomHandler, classNames, ObjectUtils } from '../utils/Utils';
 import { useMountEffect, useEventListener } from '../hooks/Hooks';
 
 export const SplitterPanel = () => { }
 
-export const Splitter = memo((props) => {
+export const Splitter = memo(forwardRef((props, ref) => {
     const elementRef = useRef(null);
     const gutterRef = useRef(null);
     const size = useRef(null);
@@ -232,7 +232,7 @@ export const Splitter = memo((props) => {
             {panels}
         </div>
     )
-});
+}));
 
 SplitterPanel.defaultProps = {
     __TYPE: 'SplitterPanel',

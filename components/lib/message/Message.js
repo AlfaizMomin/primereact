@@ -1,8 +1,8 @@
-import React, { memo } from 'react';
+import React, { forwardRef, memo } from 'react';
 import PropTypes from 'prop-types';
 import { ObjectUtils, classNames } from '../utils/Utils';
 
-export const Message = memo((props) => {
+export const Message = memo(forwardRef((props, ref) => {
 
     const createContent = () => {
         if (props.content) {
@@ -39,7 +39,7 @@ export const Message = memo((props) => {
             {content}
         </div>
     )
-});
+}));
 
 Message.defaultProps = {
     __TYPE: 'Message',

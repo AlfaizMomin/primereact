@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, memo, useEffect, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import PrimeReact from '../api/Api';
 import { Ripple } from '../ripple/Ripple';
@@ -9,7 +9,7 @@ import { InputTextarea } from '../inputtextarea/InputTextarea';
 import { classNames, DomHandler, ObjectUtils, ZIndexUtils } from '../utils/Utils';
 import { useUpdateEffect, useUnmountEffect, useOverlayListener } from '../hooks/Hooks';
 
-export const Mention = memo((props) => {
+export const Mention = memo(forwardRef((props, ref) => {
     const [overlayVisibleState, setOverlayVisibleState] = useState(false);
     const [focusedState, setFocusedState] = useState(false);
     const [searchingState, setSearchingState] = useState(false);
@@ -399,7 +399,7 @@ export const Mention = memo((props) => {
             {panel}
         </div>
     )
-});
+}));
 
 Mention.defaultProps = {
     __TYPE: 'Mention',

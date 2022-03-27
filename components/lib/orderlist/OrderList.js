@@ -1,11 +1,11 @@
-import React, { useRef, useState } from 'react';
+import React, { forwardRef, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { OrderListControls } from './OrderListControls';
 import { OrderListSubList } from './OrderListSubList';
 import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
 import { useUpdateEffect } from '../hooks/Hooks';
 
-export const OrderList = memo((props) => {
+export const OrderList = memo(forwardRef((props, ref) => {
     const [selectionState, setSelectionState] = useState([]);
     const elementRef = useRef(null);
     const sublistRef = useRef(null);
@@ -121,7 +121,7 @@ export const OrderList = memo((props) => {
                 dragdrop={props.dragdrop} onChange={props.onChange} tabIndex={props.tabIndex} />
         </div>
     )
-});
+}));
 
 OrderList.defaultProps = {
     __TYPE: 'OrderList',

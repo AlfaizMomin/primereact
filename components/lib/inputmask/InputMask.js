@@ -1,11 +1,11 @@
-import React, { memo, useCallback, useEffect, useRef } from 'react';
+import React, { forwardRef, memo, useCallback, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { InputText } from '../inputtext/InputText';
 import { tip } from '../tooltip/Tooltip';
 import { DomHandler, classNames, ObjectUtils } from '../utils/Utils';
 import { useMountEffect, useUnmountEffect, useUpdateEffect } from '../hooks/Hooks';
 
-export const InputMask = memo((props) => {
+export const InputMask = memo(forwardRef((props, ref) => {
     const elementRef = useRef(null);
     const tooltipRef = useRef(null);
     const firstNonMaskPos = useRef(null);
@@ -556,7 +556,7 @@ export const InputMask = memo((props) => {
             onFocus={onFocus} onBlur={onBlur} onKeyDown={onKeyDown} onKeyPress={onKeyPress}
             onInput={onInput} onPaste={handleInputChange} required={props.required} aria-labelledby={props.ariaLabelledBy} />
     )
-});
+}));
 
 InputMask.defaultProps = {
     __TYPE: 'InputMask',

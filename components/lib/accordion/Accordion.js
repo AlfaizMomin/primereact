@@ -1,4 +1,4 @@
-import React, { createRef, useState } from 'react';
+import React, { createRef, forwardRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { CSSTransition } from '../csstransition/CSSTransition';
 import { classNames, ObjectUtils, IconUtils, UniqueComponentId } from '../utils/Utils';
@@ -6,7 +6,7 @@ import { useMountEffect } from '../hooks/Hooks';
 
 export const AccordionTab = () => { }
 
-export const Accordion = (props) => {
+export const Accordion = forwardRef((props, ref) => {
     const [idState, setIdState] = useState(props.id);
     const [activeIndexState, setActiveIndexState] = useState(null);
     const activeIndex = props.onTabChange ? props.activeIndex : activeIndexState;
@@ -126,7 +126,7 @@ export const Accordion = (props) => {
             {tabs}
         </div>
     )
-}
+});
 
 AccordionTab.defaultProps = {
     __TYPE: 'AccordionTab',

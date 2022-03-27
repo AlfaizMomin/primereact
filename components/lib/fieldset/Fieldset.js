@@ -1,11 +1,11 @@
-import React, { useRef, useState } from 'react';
+import React, { forwardRef, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Ripple } from '../ripple/Ripple';
 import { CSSTransition } from '../csstransition/CSSTransition';
 import { classNames, UniqueComponentId } from '../utils/Utils';
 import { useMountEffect } from '../hooks/Hooks';
 
-export const Fieldset = (props) => {
+export const Fieldset = forwardRef((props, ref) => {
     const [idState, setIdState] = useState(props.id);
     const [collapsedState, setCollapsedState] = useState(props.collapsed);
     const collapsed = props.toggleable ? (props.onToggle ? props.collapsed : collapsedState) : false;
@@ -115,7 +115,7 @@ export const Fieldset = (props) => {
             {content}
         </fieldset>
     )
-}
+});
 
 Fieldset.defaultProps = {
     __TYPE: 'Fieldset',

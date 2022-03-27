@@ -1,4 +1,4 @@
-import React, { memo, useRef, useState } from 'react';
+import React, { forwardRef, memo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import PrimeReact from '../api/Api';
 import { Ripple } from '../ripple/Ripple';
@@ -6,7 +6,7 @@ import { CSSTransition } from '../csstransition/CSSTransition';
 import { DomHandler, classNames, ZIndexUtils, IconUtils } from '../utils/Utils';
 import { useMountEffect, useUnmountEffect, useEventListener } from '../hooks/Hooks';
 
-export const ScrollTop = memo((props) => {
+export const ScrollTop = memo(forwardRef((props, ref) => {
     const [visibleState, setVisibleState] = useState(false);
     const scrollElementRef = useRef(null);
     const helperRef = useRef(null);
@@ -77,7 +77,7 @@ export const ScrollTop = memo((props) => {
             {isTargetParent && <span ref={helperRef} className="p-scrolltop-helper"></span>}
         </>
     )
-});
+}));
 
 ScrollTop.defaultProps = {
     __TYPE: 'ScrollTop',

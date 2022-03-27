@@ -1,8 +1,8 @@
-import React, { memo, useState } from 'react';
+import React, { forwardRef, memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { classNames, ObjectUtils, IconUtils } from '../utils/Utils';
 
-export const Chip = memo((props) => {
+export const Chip = memo(forwardRef((props, ref) => {
     const [visibleState, setVisibleState] = useState(true);
 
     const onKeyDown = (event) => {
@@ -55,7 +55,7 @@ export const Chip = memo((props) => {
     }
 
     return visibleState && createElement();
-});
+}));
 
 Chip.defaultProps = {
     __TYPE: 'Chip',
