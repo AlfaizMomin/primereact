@@ -588,7 +588,7 @@ Carousel.defaultProps = {
     onPageChange: null
 }
 
-Carousel.propTypes = {
+Carousel.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.any,

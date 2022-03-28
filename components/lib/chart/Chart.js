@@ -67,7 +67,7 @@ Chart.defaultProps = {
     className: null
 }
 
-Chart.propTypes = {
+Chart.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     type: PropTypes.string,

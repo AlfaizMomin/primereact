@@ -92,7 +92,7 @@ ScrollTop.defaultProps = {
     onHide: null
 }
 
-ScrollTop.propTypes = {
+ScrollTop.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     target: PropTypes.string,
     threshold: PropTypes.number,

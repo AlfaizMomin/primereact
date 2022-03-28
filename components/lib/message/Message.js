@@ -51,7 +51,7 @@ Message.defaultProps = {
     content: null
 }
 
-Message.propTypes = {
+Message.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     className: PropTypes.string,

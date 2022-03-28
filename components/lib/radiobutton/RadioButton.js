@@ -121,7 +121,7 @@ RadioButton.defaultProps = {
     onChange: null
 }
 
-RadioButton.propTypes = {
+RadioButton.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputRef: PropTypes.any,

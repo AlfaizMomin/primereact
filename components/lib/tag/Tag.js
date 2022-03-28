@@ -29,7 +29,7 @@ Tag.defaultProps = {
     className: null
 }
 
-Tag.propTypes = {
+Tag.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     value: PropTypes.any,
     severity: PropTypes.string,

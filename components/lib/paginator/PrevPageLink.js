@@ -36,7 +36,7 @@ PrevPageLink.defaultProps = {
     template: null
 }
 
-PrevPageLink.propTypes = {
+PrevPageLink.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     disabled: PropTypes.bool,
     onClick: PropTypes.func,

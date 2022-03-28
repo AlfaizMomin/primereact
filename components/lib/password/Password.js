@@ -355,7 +355,7 @@ Password.defaultProps = {
     onHide: null
 }
 
-Password.propTypes = {
+Password.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputId: PropTypes.string,

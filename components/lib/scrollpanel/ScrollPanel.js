@@ -175,7 +175,7 @@ ScrollPanel.defaultProps = {
     className: null
 }
 
-ScrollPanel.propTypes = {
+ScrollPanel.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     style: PropTypes.object,

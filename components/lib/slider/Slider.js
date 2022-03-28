@@ -275,7 +275,7 @@ Slider.defaultProps = {
     onSlideEnd: null
 }
 
-Slider.propTypes = {
+Slider.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.any,

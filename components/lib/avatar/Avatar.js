@@ -51,7 +51,7 @@ Avatar.defaultProps = {
     onClick: null
 }
 
-Avatar.propTypes = {
+Avatar.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     label: PropTypes.string,
     icon: PropTypes.any,

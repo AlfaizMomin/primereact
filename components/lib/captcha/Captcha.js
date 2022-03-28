@@ -95,7 +95,7 @@ Captcha.defaultProps = {
     onExpire: null
 }
 
-Captcha.propTypes = {
+Captcha.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     sitekey: PropTypes.string,

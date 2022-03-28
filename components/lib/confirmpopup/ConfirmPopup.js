@@ -250,7 +250,7 @@ ConfirmPopup.defaultProps = {
     transitionOptions: null
 }
 
-ConfirmPopup.propTypes = {
+ConfirmPopup.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     target: PropTypes.any,
     visible: PropTypes.bool,

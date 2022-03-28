@@ -237,7 +237,7 @@ Galleria.defaultProps = {
     onItemChange: null
 }
 
-Galleria.propTypes = {
+Galleria.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.any,

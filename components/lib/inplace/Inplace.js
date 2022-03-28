@@ -112,7 +112,7 @@ InplaceDisplay.defaultProps = {
     __TYPE: 'InplaceDisplay'
 }
 
-InplaceDisplay.propTypes = {
+InplaceDisplay.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string
 }
 
@@ -120,7 +120,7 @@ InplaceContent.defaultProps = {
     __TYPE: 'InplaceContent'
 }
 
-InplaceContent.propTypes = {
+InplaceContent.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string
 }
 
@@ -138,7 +138,7 @@ Inplace.defaultProps = {
     onToggle: null
 }
 
-Inplace.propTypes = {
+Inplace.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     style: PropTypes.object,
     className: PropTypes.string,

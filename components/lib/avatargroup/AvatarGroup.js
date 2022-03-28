@@ -18,7 +18,7 @@ AvatarGroup.defaultProps = {
     className: null
 }
 
-AvatarGroup.propTypes = {
+AvatarGroup.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     style: PropTypes.object,
     className: PropTypes.string

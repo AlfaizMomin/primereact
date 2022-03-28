@@ -28,7 +28,7 @@ Toolbar.defaultProps = {
     right: null
 }
 
-Toolbar.propTypes = {
+Toolbar.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     style: PropTypes.object,

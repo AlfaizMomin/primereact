@@ -75,6 +75,6 @@ CSSTransition.defaultProps = {
     __TYPE: 'CSSTransition'
 }
 
-CSSTransition.propTypes = {
+CSSTransition.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string
 }

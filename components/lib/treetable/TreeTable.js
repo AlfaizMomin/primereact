@@ -1022,7 +1022,7 @@ TreeTable.defaultProps = {
     onContextMenu: null
 }
 
-TreeTable.propTypes = {
+TreeTable.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.any,

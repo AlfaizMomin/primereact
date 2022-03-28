@@ -242,7 +242,7 @@ SplitterPanel.defaultProps = {
     className: null
 }
 
-SplitterPanel.propTypes = {
+SplitterPanel.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     header: PropTypes.number,
     minSize: PropTypes.number,
@@ -262,7 +262,7 @@ Splitter.defaultProps = {
     onResizeEnd: null
 }
 
-Splitter.propTypes = {
+Splitter.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     className: PropTypes.string,

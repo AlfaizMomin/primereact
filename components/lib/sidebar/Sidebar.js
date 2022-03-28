@@ -199,7 +199,7 @@ Sidebar.defaultProps = {
     onHide: null
 }
 
-Sidebar.propTypes = {
+Sidebar.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     style: PropTypes.object,

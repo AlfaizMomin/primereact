@@ -1076,7 +1076,7 @@ echo '<p>Fake Upload Process</p>'; ?>
                 {
                     useLiveEditorTabs({
                         name: 'DataTableExportDemo', sources: sources, service: 'ProductService', data: 'products-small',
-                        dependencies: { 'jspdf': '^1.5.3', 'jspdf-autotable': '^3.2.5', 'xlsx': '^0.15.1', 'file-saver': '^2.0.5' },
+                        dependencies: { 'jspdf': '2.5.1', 'jspdf-autotable': '3.5.23', 'xlsx': '0.18.5', 'file-saver': '2.0.5' },
                         extFiles: extFiles
                     })
                 }

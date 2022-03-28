@@ -48,7 +48,7 @@ CurrentPageReport.defaultProps = {
     template: null
 }
 
-CurrentPageReport.propTypes = {
+CurrentPageReport.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     pageCount: PropTypes.number,
     page: PropTypes.number,

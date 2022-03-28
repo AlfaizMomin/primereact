@@ -126,7 +126,7 @@ TabMenu.defaultProps = {
     onTabChange: null
 }
 
-TabMenu.propTypes = {
+TabMenu.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     model: PropTypes.array,

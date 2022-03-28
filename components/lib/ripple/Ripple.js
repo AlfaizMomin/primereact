@@ -77,6 +77,6 @@ Ripple.defaultProps = {
     __TYPE: 'Ripple'
 }
 
-Ripple.propTypes = {
+Ripple.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string
 }

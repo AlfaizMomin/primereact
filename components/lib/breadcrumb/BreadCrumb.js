@@ -120,7 +120,7 @@ BreadCrumb.defaultProps = {
     className: null
 }
 
-BreadCrumb.propTypes = {
+BreadCrumb.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     model: PropTypes.array,

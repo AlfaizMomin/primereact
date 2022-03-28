@@ -41,7 +41,7 @@ Portal.defaultProps = {
     onUnmounted: null
 }
 
-Portal.propTypes = {
+Portal.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     element: PropTypes.any,
     appendTo: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),

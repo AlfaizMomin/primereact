@@ -202,7 +202,7 @@ ContextMenu.defaultProps = {
     onHide: null
 }
 
-ContextMenu.propTypes = {
+ContextMenu.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     model: PropTypes.array,

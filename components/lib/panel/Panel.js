@@ -153,7 +153,7 @@ Panel.defaultProps = {
     onToggle: null
 }
 
-Panel.propTypes = {
+Panel.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     header: PropTypes.any,

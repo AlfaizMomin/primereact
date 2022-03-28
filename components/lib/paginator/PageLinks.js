@@ -75,7 +75,7 @@ PageLinks.defaultProps = {
     template: null
 }
 
-PageLinks.propTypes = {
+PageLinks.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     value: PropTypes.array,
     page: PropTypes.number,

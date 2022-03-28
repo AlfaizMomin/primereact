@@ -178,7 +178,7 @@ Image.defaultProps = {
     height: null
 }
 
-Image.propTypes = {
+Image.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     preview: PropTypes.bool,
     className: PropTypes.string,

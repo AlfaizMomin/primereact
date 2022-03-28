@@ -152,7 +152,7 @@ Terminal.defaultProps = {
     prompt: null
 }
 
-Terminal.propTypes = {
+Terminal.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     style: PropTypes.object,

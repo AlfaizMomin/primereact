@@ -142,7 +142,7 @@ ConfirmDialog.defaultProps = {
     reject: null
 }
 
-ConfirmDialog.propTypes = {
+ConfirmDialog.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     visible: PropTypes.bool,
     message: PropTypes.any,

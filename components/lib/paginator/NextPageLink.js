@@ -36,7 +36,7 @@ NextPageLink.defaultProps = {
     template: null
 }
 
-NextPageLink.propTypes = {
+NextPageLink.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     disabled: PropTypes.bool,
     onClick: PropTypes.func,

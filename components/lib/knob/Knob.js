@@ -170,7 +170,7 @@ Knob.defaultProps = {
     onChange: null
 }
 
-Knob.propTypes = {
+Knob.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     style: PropTypes.object,

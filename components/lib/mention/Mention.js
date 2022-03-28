@@ -432,7 +432,7 @@ Mention.defaultProps = {
     onHide: null
 }
 
-Mention.propTypes = {
+Mention.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputId: PropTypes.string,

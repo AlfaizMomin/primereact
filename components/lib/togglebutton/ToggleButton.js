@@ -108,7 +108,7 @@ ToggleButton.defaultProps = {
     onBlur: null
 }
 
-ToggleButton.propTypes = {
+ToggleButton.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     onIcon: PropTypes.any,

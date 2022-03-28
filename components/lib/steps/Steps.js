@@ -108,7 +108,7 @@ Steps.defaultProps = {
     onSelect: null
 }
 
-Steps.propTypes = {
+Steps.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     model: PropTypes.array.isRequired,

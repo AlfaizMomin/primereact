@@ -379,7 +379,7 @@ MegaMenu.defaultProps = {
     orientation: 'horizontal'
 }
 
-MegaMenu.propTypes = {
+MegaMenu.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     model: PropTypes.array,

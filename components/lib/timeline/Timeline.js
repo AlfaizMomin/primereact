@@ -60,7 +60,7 @@ Timeline.defaultProps = {
     content: null
 }
 
-Timeline.propTypes = {
+Timeline.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.array,

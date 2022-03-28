@@ -587,7 +587,7 @@ InputMask.defaultProps = {
     onBlur: null
 }
 
-InputMask.propTypes = {
+InputMask.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputRef: PropTypes.any,

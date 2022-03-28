@@ -113,7 +113,7 @@ TriStateCheckbox.defaultProps = {
     onChange: null
 }
 
-TriStateCheckbox.propTypes = {
+TriStateCheckbox.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputRef: PropTypes.any,

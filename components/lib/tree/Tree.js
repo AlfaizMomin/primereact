@@ -467,7 +467,7 @@ Tree.defaultProps = {
     onNodeDoubleClick: null
 }
 
-Tree.propTypes = {
+Tree.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.any,

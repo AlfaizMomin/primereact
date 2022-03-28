@@ -78,7 +78,7 @@ FullCalendar.defaultProps = {
     options: null
 }
 
-FullCalendar.propTypes = {
+FullCalendar.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     events: PropTypes.array,

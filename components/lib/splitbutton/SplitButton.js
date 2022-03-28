@@ -161,7 +161,7 @@ SplitButton.defaultProps = {
     onHide: null
 }
 
-SplitButton.propTypes = {
+SplitButton.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     label: PropTypes.string,

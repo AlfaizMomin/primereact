@@ -535,7 +535,7 @@ FileUpload.defaultProps = {
     onRemove: null
 }
 
-FileUpload.propTypes = {
+FileUpload.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     name: PropTypes.string,

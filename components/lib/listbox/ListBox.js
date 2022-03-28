@@ -373,7 +373,7 @@ ListBox.defaultProps = {
     onFilterValueChange: null
 }
 
-ListBox.propTypes = {
+ListBox.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.any,

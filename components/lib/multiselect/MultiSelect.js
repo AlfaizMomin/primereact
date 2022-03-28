@@ -650,7 +650,7 @@ MultiSelect.defaultProps = {
     onSelectAll: null
 }
 
-MultiSelect.propTypes = {
+MultiSelect.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputRef: PropTypes.any,

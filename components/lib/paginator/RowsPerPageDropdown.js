@@ -41,7 +41,7 @@ RowsPerPageDropdown.defaultProps = {
     disabled: false
 }
 
-RowsPerPageDropdown.propTypes = {
+RowsPerPageDropdown.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     options: PropTypes.array,
     value: PropTypes.number,

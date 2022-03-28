@@ -27,7 +27,7 @@ Skeleton.defaultProps = {
     className: null
 }
 
-Skeleton.propTypes = {
+Skeleton.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     shape: PropTypes.string,
     size: PropTypes.string,

@@ -72,7 +72,7 @@ Chip.defaultProps = {
     onRemove: null
 }
 
-Chip.propTypes = {
+Chip.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     label: PropTypes.string,
     icon: PropTypes.any,

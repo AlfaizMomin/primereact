@@ -141,7 +141,7 @@ AccordionTab.defaultProps = {
     contentClassName: null
 }
 
-AccordionTab.propTypes = {
+AccordionTab.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     header: PropTypes.any,
     disabled: PropTypes.bool,
@@ -169,7 +169,7 @@ Accordion.defaultProps = {
     onTabChange: null
 }
 
-Accordion.propTypes = {
+Accordion.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     activeIndex: PropTypes.any,

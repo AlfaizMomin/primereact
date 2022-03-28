@@ -135,7 +135,7 @@ Checkbox.defaultProps = {
     onContextMenu: null
 }
 
-Checkbox.propTypes = {
+Checkbox.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputRef: PropTypes.any,

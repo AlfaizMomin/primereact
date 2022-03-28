@@ -27,7 +27,7 @@ Badge.defaultProps = {
     className: null
 }
 
-Badge.propTypes = {
+Badge.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     value: PropTypes.any,
     severity: PropTypes.string,

@@ -269,7 +269,7 @@ Chips.defaultProps = {
     onBlur: null
 }
 
-Chips.propTypes = {
+Chips.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputRef: PropTypes.any,

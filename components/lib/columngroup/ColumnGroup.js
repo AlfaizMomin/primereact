@@ -6,6 +6,6 @@ ColumnGroup.defaultProps = {
     __TYPE: 'ColumnGroup'
 }
 
-ColumnGroup.propTypes = {
+ColumnGroup.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string
 }

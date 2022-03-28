@@ -58,7 +58,7 @@ ProgressBar.defaultProps = {
     color: null
 }
 
-ProgressBar.propTypes = {
+ProgressBar.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),

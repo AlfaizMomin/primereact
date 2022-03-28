@@ -232,7 +232,7 @@ OverlayPanel.defaultProps = {
     onHide: null
 }
 
-OverlayPanel.propTypes = {
+OverlayPanel.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     dismissable: PropTypes.bool,

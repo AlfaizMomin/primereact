@@ -501,7 +501,7 @@ Tooltip.defaultProps = {
     onHide: null
 }
 
-Tooltip.propTypes = {
+Tooltip.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     target: PropTypes.oneOfType([PropTypes.object, PropTypes.string, PropTypes.array]),

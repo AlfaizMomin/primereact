@@ -36,7 +36,7 @@ LastPageLink.defaultProps = {
     template: null
 }
 
-LastPageLink.propTypes = {
+LastPageLink.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     disabled: PropTypes.bool,
     onClick: PropTypes.func,

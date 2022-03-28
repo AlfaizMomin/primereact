@@ -251,7 +251,7 @@ DataView.defaultProps = {
     onPage: null
 }
 
-DataView.propTypes = {
+DataView.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     header: PropTypes.any,
@@ -294,7 +294,7 @@ DataViewLayoutOptions.defaultProps = {
     onChange: null
 }
 
-DataViewLayoutOptions.propTypes = {
+DataViewLayoutOptions.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     style: PropTypes.object,

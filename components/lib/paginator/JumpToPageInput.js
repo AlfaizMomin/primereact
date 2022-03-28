@@ -40,7 +40,7 @@ JumpToPageInput.defaultProps = {
     onChange: null
 }
 
-JumpToPageInput.propTypes = {
+JumpToPageInput.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     page: PropTypes.number,
     rows: PropTypes.number,

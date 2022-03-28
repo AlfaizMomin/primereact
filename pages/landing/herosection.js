@@ -1,6 +1,6 @@
 import getConfig from 'next/config';
 import Link from 'next/link';
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 import GetStartedSection from './getstartedsection';
 
@@ -10,7 +10,8 @@ const HeroSection = () => {
 
     useEffect(() => {
         setAnimationClass("hero-animation");
-    } ,[]); // eslint-disable-line react-hooks/exhaustive-deps
+        document.body.classList.remove('blocked-scroll');
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <section className={`landing-hero ${animationClass} flex align-items-center flex-column justify-content-center relative`}>

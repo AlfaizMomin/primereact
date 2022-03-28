@@ -121,7 +121,7 @@ InputSwitch.defaultProps = {
     onBlur: null
 }
 
-InputSwitch.propTypes = {
+InputSwitch.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputRef: PropTypes.any,

@@ -85,7 +85,7 @@ OrganizationChart.defaultProps = {
     onNodeUnselect: null
 }
 
-OrganizationChart.propTypes = {
+OrganizationChart.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.any,

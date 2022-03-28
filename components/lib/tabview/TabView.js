@@ -309,7 +309,7 @@ TabPanel.defaultProps = {
     contentClassName: null
 }
 
-TabPanel.propTypes = {
+TabPanel.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     header: PropTypes.any,
     headerTemplate: PropTypes.any,
@@ -337,7 +337,7 @@ TabView.defaultProps = {
     scrollable: false
 }
 
-TabView.propTypes = {
+TabView.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     activeIndex: PropTypes.number,

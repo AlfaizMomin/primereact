@@ -50,7 +50,7 @@ DeferredContent.defaultProps = {
     onload: null
 }
 
-DeferredContent.propTypes = {
+DeferredContent.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     onLoad: PropTypes.func
 }

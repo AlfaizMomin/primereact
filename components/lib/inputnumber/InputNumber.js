@@ -1086,7 +1086,7 @@ InputNumber.defaultProps = {
     onKeyDown: null
 }
 
-InputNumber.propTypes = {
+InputNumber.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     value: PropTypes.number,
     inputRef: PropTypes.any,

@@ -227,7 +227,7 @@ DataScroller.defaultProps = {
     lazy: false
 }
 
-DataScroller.propTypes = {
+DataScroller.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.array,

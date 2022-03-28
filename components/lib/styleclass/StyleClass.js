@@ -187,7 +187,7 @@ StyleClass.defaultProps = {
     toggleClassName: null
 }
 
-StyleClass.propTypes = {
+StyleClass.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     nodeRef: PropTypes.any,
     selector: PropTypes.string,

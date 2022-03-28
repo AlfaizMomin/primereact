@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { localeOption } from '../api/Api';
 import { TreeTableRow } from './TreeTableRow';
-import DomHandler from '../utils/DomHandler';
+import { DomHandler } from '../utils/Utils';
 
 export const TreeTableBody = memo((props) => {
     const isSingleSelectionMode = props.selectionMode === 'single';

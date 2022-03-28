@@ -132,7 +132,7 @@ Dock.defaultProps = {
     footer: null
 }
 
-Dock.propTypes = {
+Dock.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     style: PropTypes.object,

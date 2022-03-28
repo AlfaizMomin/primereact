@@ -78,7 +78,7 @@ InputText.defaultProps = {
     onKeyPress: null
 }
 
-InputText.propTypes = {
+InputText.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     keyfilter: PropTypes.any,
     validateOnly: PropTypes.bool,

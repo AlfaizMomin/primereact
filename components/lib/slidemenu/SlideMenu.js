@@ -153,7 +153,7 @@ SlideMenu.defaultProps = {
     onHide: null
 }
 
-SlideMenu.propTypes = {
+SlideMenu.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     model: PropTypes.array,

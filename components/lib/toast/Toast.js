@@ -108,7 +108,7 @@ Toast.defaultProps = {
     onHide: null
 }
 
-Toast.propTypes = {
+Toast.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     className: PropTypes.string,

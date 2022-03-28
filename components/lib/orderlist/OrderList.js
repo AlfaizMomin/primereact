@@ -138,7 +138,7 @@ OrderList.defaultProps = {
     itemTemplate: null
 }
 
-OrderList.propTypes = {
+OrderList.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.array,

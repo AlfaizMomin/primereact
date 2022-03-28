@@ -2926,7 +2926,7 @@ Calendar.defaultProps = {
     onHide: null
 }
 
-Calendar.propTypes = {
+Calendar.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputRef: PropTypes.any,

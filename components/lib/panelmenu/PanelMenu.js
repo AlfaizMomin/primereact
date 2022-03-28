@@ -157,7 +157,7 @@ PanelMenu.defaultProps = {
     transitionOptions: null
 }
 
-PanelMenu.propTypes = {
+PanelMenu.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     model: PropTypes.array,

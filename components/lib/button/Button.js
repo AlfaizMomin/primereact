@@ -101,7 +101,7 @@ Button.defaultProps = {
     loadingIcon: 'pi pi-spinner pi-spin'
 }
 
-Button.propTypes = {
+Button.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     label: PropTypes.string,
     icon: PropTypes.any,

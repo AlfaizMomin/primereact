@@ -124,7 +124,7 @@ InputTextarea.defaultProps = {
     onInput: null
 }
 
-InputTextarea.propTypes = {
+InputTextarea.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     autoResize: PropTypes.bool,
     tooltip: PropTypes.string,

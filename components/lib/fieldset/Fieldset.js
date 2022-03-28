@@ -132,7 +132,7 @@ Fieldset.defaultProps = {
     onClick: null
 };
 
-Fieldset.propTypes = {
+Fieldset.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     legend: PropTypes.any,

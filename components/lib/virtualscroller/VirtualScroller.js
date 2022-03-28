@@ -619,7 +619,7 @@ VirtualScroller.defaultProps = {
     onLazyLoad: null
 }
 
-VirtualScroller.propTypes = {
+VirtualScroller.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     style: PropTypes.object,

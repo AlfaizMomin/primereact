@@ -31,7 +31,7 @@ Divider.defaultProps = {
     className: null
 }
 
-Divider.propTypes = {
+Divider.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     align: PropTypes.string,
     layout: PropTypes.string,

@@ -764,7 +764,7 @@ Dropdown.defaultProps = {
     onFilter: null
 }
 
-Dropdown.propTypes = {
+Dropdown.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputRef: PropTypes.any,

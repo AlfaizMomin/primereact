@@ -24,7 +24,7 @@ ProgressSpinner.defaultProps = {
     animationDuration: "2s"
 }
 
-ProgressSpinner.propTypes = {
+ProgressSpinner.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     style: PropTypes.object,

@@ -577,7 +577,7 @@ Dialog.defaultProps = {
     onMaskClick: null
 }
 
-Dialog.propTypes = {
+Dialog.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     header: PropTypes.any,

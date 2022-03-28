@@ -218,7 +218,7 @@ Paginator.defaultProps = {
     currentPageReportTemplate: '({currentPage} of {totalPages})'
 }
 
-Paginator.propTypes = {
+Paginator.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     totalRecords: PropTypes.number,
     rows: PropTypes.number,

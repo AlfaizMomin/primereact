@@ -7,6 +7,6 @@ Row.defaultProps = {
     __TYPE: 'Row'
 }
 
-Row.propTypes = {
+Row.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string
 }

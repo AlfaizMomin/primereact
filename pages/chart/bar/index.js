@@ -1001,30 +1001,30 @@ const BarChartDemo = () => {
 
     const { basicOptions, horizontalOptions, multiAxisOptions, stackedOptions } = getLightTheme();
 
-        return (
-            <div>
-                <div className="card">
-                    <h5>Vertical</h5>
-                    <Chart type="bar" data={basicData} options={basicOptions} />
-                </div>
-
-                <div className="card">
-                    <h5>Horizontal</h5>
-                    <Chart type="bar" data={basicData} options={horizontalOptions} />
-                </div>
-
-                <div className="card">
-                    <h5>Multi Axis</h5>
-                    <Chart type="bar" data={multiAxisData} options={multiAxisOptions} />
-                </div>
-
-                <div className="card">
-                    <h5>Stacked</h5>
-                    <Chart type="bar" data={stackedData} options={stackedOptions} />
-                </div>
+    return (
+        <div>
+            <div className="card">
+                <h5>Vertical</h5>
+                <Chart type="bar" data={basicData} options={basicOptions} />
             </div>
-        )
-    }
+
+            <div className="card">
+                <h5>Horizontal</h5>
+                <Chart type="bar" data={basicData} options={horizontalOptions} />
+            </div>
+
+            <div className="card">
+                <h5>Multi Axis</h5>
+                <Chart type="bar" data={multiAxisData} options={multiAxisOptions} />
+            </div>
+
+            <div className="card">
+                <h5>Stacked</h5>
+                <Chart type="bar" data={stackedData} options={stackedOptions} />
+            </div>
+        </div>
+    )
+}
                 `
         },
         'ts': {
@@ -1278,30 +1278,29 @@ const BarChartDemo = () => {
 
     const { basicOptions, horizontalOptions, multiAxisOptions, stackedOptions } = getLightTheme();
 
-        return (
-            <div>
-                <div className="card">
-                    <h5>Vertical</h5>
-                    <Chart type="bar" data={basicData} options={basicOptions} />
-                </div>
-
-                <div className="card">
-                    <h5>Horizontal</h5>
-                    <Chart type="bar" data={basicData} options={horizontalOptions} />
-                </div>
-
-                <div className="card">
-                    <h5>Multi Axis</h5>
-                    <Chart type="bar" data={multiAxisData} options={multiAxisOptions} />
-                </div>
-
-                <div className="card">
-                    <h5>Stacked</h5>
-                    <Chart type="bar" data={stackedData} options={stackedOptions} />
-                </div>
+    return (
+        <div>
+            <div className="card">
+                <h5>Vertical</h5>
+                <Chart type="bar" data={basicData} options={basicOptions} />
             </div>
-        )
-    }
+
+            <div className="card">
+                <h5>Horizontal</h5>
+                <Chart type="bar" data={basicData} options={horizontalOptions} />
+            </div>
+
+            <div className="card">
+                <h5>Multi Axis</h5>
+                <Chart type="bar" data={multiAxisData} options={multiAxisOptions} />
+            </div>
+
+            <div className="card">
+                <h5>Stacked</h5>
+                <Chart type="bar" data={stackedData} options={stackedOptions} />
+            </div>
+        </div>
+    )
 }
                 `
         }

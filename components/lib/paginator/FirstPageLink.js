@@ -36,7 +36,7 @@ FirstPageLink.defaultProps = {
     template: null
 }
 
-FirstPageLink.propTypes = {
+FirstPageLink.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     disabled: PropTypes.bool,
     onClick: PropTypes.func,

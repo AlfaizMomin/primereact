@@ -129,7 +129,7 @@ Rating.defaultProps = {
     onChange: null
 }
 
-Rating.propTypes = {
+Rating.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.number,

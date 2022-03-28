@@ -164,7 +164,7 @@ Editor.defaultProps = {
     onLoad: null
 }
 
-Editor.propTypes = {
+Editor.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.string,

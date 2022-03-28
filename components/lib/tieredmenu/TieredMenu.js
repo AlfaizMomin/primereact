@@ -112,7 +112,7 @@ TieredMenu.defaultProps = {
     onHide: null
 }
 
-TieredMenu.propTypes = {
+TieredMenu.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     model: PropTypes.array,

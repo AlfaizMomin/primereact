@@ -79,7 +79,7 @@ Column.defaultProps = {
     reorderable: true
 }
 
-Column.propTypes = {
+Column.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     columnKey: PropTypes.string,
     field: PropTypes.string,

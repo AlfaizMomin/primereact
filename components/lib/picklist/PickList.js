@@ -197,7 +197,7 @@ PickList.defaultProps = {
     onTargetSelectionChange: null
 }
 
-PickList.propTypes = {
+PickList.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     source: PropTypes.array,

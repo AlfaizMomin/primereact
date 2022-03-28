@@ -163,7 +163,7 @@ MultiStateCheckbox.defaultProps = {
     onChange: null
 }
 
-MultiStateCheckbox.propTypes = {
+MultiStateCheckbox.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputRef: PropTypes.any,

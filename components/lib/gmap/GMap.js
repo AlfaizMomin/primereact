@@ -117,7 +117,7 @@ GMap.defaultProps = {
     onOverlayClick: null
 }
 
-GMap.propTypes = {
+GMap.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     options: PropTypes.object,
     overlays: PropTypes.array,

@@ -111,7 +111,7 @@ BlockUI.defaultProps = {
     onUnblocked: null
 }
 
-BlockUI.propTypes = {
+BlockUI.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     blocked: PropTypes.bool,

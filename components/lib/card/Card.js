@@ -51,7 +51,7 @@ Card.defaultProps = {
     className: null
 }
 
-Card.propTypes = {
+Card.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     header: PropTypes.any,

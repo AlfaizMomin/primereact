@@ -302,7 +302,7 @@ CascadeSelect.defaultProps = {
     onHide: null
 }
 
-CascadeSelect.propTypes = {
+CascadeSelect.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     inputRef: PropTypes.any,

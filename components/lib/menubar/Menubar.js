@@ -133,7 +133,7 @@ Menubar.defaultProps = {
     end: null
 }
 
-Menubar.propTypes = {
+Menubar.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     model: PropTypes.array,

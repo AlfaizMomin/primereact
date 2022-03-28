@@ -526,7 +526,7 @@ TreeSelect.defaultProps = {
     onFilterValueChange: null
 }
 
-TreeSelect.propTypes = {
+TreeSelect.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.any,

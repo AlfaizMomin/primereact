@@ -145,7 +145,7 @@ SelectButton.defaultProps = {
     onChange: null
 }
 
-SelectButton.propTypes = {
+SelectButton.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     value: PropTypes.any,

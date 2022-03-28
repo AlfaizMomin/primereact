@@ -76,7 +76,7 @@ Messages.defaultProps = {
     onClick: null
 }
 
-Messages.propTypes = {
+Messages.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     className: PropTypes.string,

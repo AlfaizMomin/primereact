@@ -236,7 +236,7 @@ Menu.defaultProps = {
     onHide: null
 }
 
-Menu.propTypes = {
+Menu.propTypes /* remove-proptypes */ = {
     __TYPE: PropTypes.string,
     id: PropTypes.string,
     model: PropTypes.array,
