@@ -22,17 +22,18 @@ const SetupPage = () => {
 
             <div className="content-section documentation">
                 <h3>Module Loader</h3>
-                <p>PrimeReact is available at <a href="https://www.npmjs.com/package/primereact">npm</a>, if you have an existing application run the following commands to download PrimeReact and PrimeIcons to your project.</p>
+                <p>PrimeReact is available at <a href="https://www.npmjs.com/package/primereact">npm</a>, if you have an existing application run the following commands to download it to your project.</p>
 
 <CodeHighlight lang="js">
 {`
 // with npm
-npm install primereact primeicons
+npm install primereact
 
 // with yarn
-yarn add primereact primeicons
+yarn add primereact
 `}
 </CodeHighlight>
+                <p>Please note that <i>{`react >= 17.0.0`}</i> and <i>{`react-dom >= 17.0.0`}</i> are peer dependencies and some components have <Link href="#setup-configuration" scroll={false}><a>optional dependencies</a></Link>.</p>
 
                 <p>Import path is available in the documentation of the corresponding component.</p>
 
@@ -44,7 +45,7 @@ import { Button } from 'primereact/button';
 `}
 </CodeHighlight>
 
-                <p>Finally you'll be able to utilize the component in your application. See the <b>Styles</b> section to apply styling.</p>
+                <p>Finally you'll be able to utilize the component in your application. See the <Link href="#setup-styles" scroll={false}><a>Styles</a></Link> section to apply styling.</p>
 <CodeHighlight>
 {`
 <Dialog visible={state} onHide={() => setState(false)}>
@@ -125,7 +126,7 @@ import { Button } from 'primereact/button';
 `}
 </CodeHighlight>
 
-                <h3>Styles</h3>
+                <h3 id="setup-styles">Styles</h3>
                 <p>The css dependencies are as follows, note that you may change the theme with another one of your choice. If you are using a bundler such as webpack with a css loader you
                 may import them to your main application component.</p>
 
@@ -193,19 +194,18 @@ primereact/resources/themes/rhea/theme.css
                 <p>PrimeFlex is a CSS utility library featuring various helpers such as a grid system, flexbox, spacing, elevation and more. Although it is not required, it is highly
                 recommended to add PrimeFlex as it is likely to need such utilities when developing applications. View the <Link href="/primeflex">PrimeFlex</Link> section for the installation.</p>
 
-                <h3>Configuration</h3>
+                <h3 id="setup-configuration">Configuration</h3>
                 <h5>Dependencies</h5>
                 <p>Majority of PrimeReact components (95%) are native and there are some exceptions having 3rd party dependencies such as Google Maps for GMap.</p>
-                <p>In addition, components require PrimeIcons library for icons and
-                        <a href="https://www.npmjs.com/package/react-transition-group" className="layout-content-link"> react-transition-group</a> for animations.</p>
+                <p>In addition, components require <Link href="/icons">PrimeIcons</Link> library for icons and
+                        <a href="https://www.npmjs.com/package/react-transition-group" className="layout-content-link"> react-transition-group</a> for animations.
+                        They are available as dependencies in the npm package of PrimeReact.</p>
 
 <CodeHighlight lang="js">
 {`
 dependencies: {
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
-    "react-transition-group": "^4.4.1",
-    "primeicons": "^5.0.0"
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0"
 }
 `}
 </CodeHighlight>
