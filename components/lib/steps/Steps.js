@@ -33,9 +33,9 @@ export const Steps = memo(forwardRef((props, ref) => {
 
     const createItem = (item, index) => {
         const key = item.label + '_' + index;
-        const tabIndex = disabled ? -1 : '';
         const active = index === props.activeIndex;
-        const disabled = (item.disabled || (index !== props.activeIndex && props.readOnly))
+        const disabled = (item.disabled || (index !== props.activeIndex && props.readOnly));
+        const tabIndex = disabled ? -1 : '';
         const className = classNames('p-steps-item', item.className, {
             'p-highlight p-steps-current': active,
             'p-disabled': disabled
