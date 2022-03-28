@@ -132,18 +132,18 @@ const DialogDemo = () => {
                     <h5>Position</h5>
                     <div className="grid flex-column">
                         <div className="col">
-                            <Button label="Left" icon="pi pi-arrow-right" onClick={() => onClick('displayPosition', 'left')} className="p-button-warning" />
-                            <Button label="Right" icon="pi pi-arrow-left" onClick={() => onClick('displayPosition', 'right')} className="p-button-warning" />
+                            <Button label="Left" icon="pi pi-arrow-right" onClick={() => onClick('displayPosition', 'left')} className="p-button-help" />
+                            <Button label="Right" icon="pi pi-arrow-left" onClick={() => onClick('displayPosition', 'right')} className="p-button-help" />
                         </div>
                         <div className="col">
+                            <Button label="TopLeft" icon="pi pi-arrow-down-right" onClick={() => onClick('displayPosition', 'top-left')} className="p-button-warning" />
                             <Button label="Top" icon="pi pi-arrow-down" onClick={() => onClick('displayPosition', 'top')} className="p-button-warning" />
-                            <Button label="TopLeft" icon="pi pi-arrow-down" onClick={() => onClick('displayPosition', 'top-left')} className="p-button-warning" />
-                            <Button label="TopRight" icon="pi pi-arrow-down" onClick={() => onClick('displayPosition', 'top-right')} className="p-button-warning" />
+                            <Button label="TopRight" icon="pi pi-arrow-down-left" onClick={() => onClick('displayPosition', 'top-right')} className="p-button-warning" />
                         </div>
                         <div className="col">
-                            <Button label="Bottom" icon="pi pi-arrow-up" onClick={() => onClick('displayPosition', 'bottom')} className="p-button-warning" />
-                            <Button label="BottomLeft" icon="pi pi-arrow-up" onClick={() => onClick('displayPosition', 'bottom-left')} className="p-button-warning" />
-                            <Button label="BottomRight" icon="pi pi-arrow-up" onClick={() => onClick('displayPosition', 'bottom-right')} className="p-button-warning" />
+                            <Button label="BottomLeft" icon="pi pi-arrow-up-right" onClick={() => onClick('displayPosition', 'bottom-left')} className="p-button-success" />
+                            <Button label="Bottom" icon="pi pi-arrow-up" onClick={() => onClick('displayPosition', 'bottom')} className="p-button-success" />
+                            <Button label="BottomRight" icon="pi pi-arrow-up-left" onClick={() => onClick('displayPosition', 'bottom-right')} className="p-button-success" />
                         </div>
                     </div>
 

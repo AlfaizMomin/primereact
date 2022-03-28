@@ -45,7 +45,7 @@ export const Panel = forwardRef((props, ref) => {
     }
 
     useMountEffect(() => {
-        if (!props.id) {
+        if (!idState) {
             setIdState(UniqueComponentId());
         }
     });
@@ -57,7 +57,7 @@ export const Panel = forwardRef((props, ref) => {
 
             return (
                 <button className="p-panel-header-icon p-panel-toggler p-link" onClick={toggle} id={buttonId} aria-controls={contentId} aria-expanded={!collapsed} role="tab">
-                    {IconUtils.getJSXIcon(toggleIcon, { props, collapsed })}
+                    {IconUtils.getJSXIcon(toggleIcon, undefined, { props, collapsed })}
                     <Ripple />
                 </button>
             )
@@ -124,8 +124,8 @@ export const Panel = forwardRef((props, ref) => {
     const className = classNames('p-panel p-component', {
         'p-panel-toggleable': props.toggleable
     }, props.className);
-    const header = useHeader();
-    const content = useContent();
+    const header = createHeader();
+    const content = createContent();
 
     return (
         <div id={props.id} className={className} style={props.style}>

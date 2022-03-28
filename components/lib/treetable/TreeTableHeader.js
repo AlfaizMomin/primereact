@@ -1,8 +1,9 @@
-import React, { memo } from 'react';
+import React, { memo, useRef } from 'react';
 import { InputText } from '../inputtext/InputText';
 import { DomHandler, classNames } from '../utils/Utils';
 
 export const TreeTableHeader = memo((props) => {
+    const filterTimeout = useRef(null);
 
     const onHeaderClick = (event, column) => {
         if (column.props.sortable) {
@@ -98,18 +99,18 @@ export const TreeTableHeader = memo((props) => {
 
     const onFilterInput = (e, column) => {
         if (column.props.filter && props.onFilter) {
-            if (filterTimeout) {
-                clearTimeout(filterTimeout);
+            if (filterTimeout.current) {
+                clearTimeout(filterTimeout.current);
             }
 
             let filterValue = e.target.value;
-            filterTimeout = setTimeout(() => {
+            filterTimeout.current = setTimeout(() => {
                 props.onFilter({
                     value: filterValue,
                     field: column.props.field,
                     matchMode: column.props.filterMatchMode || 'startsWith'
                 });
-                filterTimeout = null;
+                filterTimeout.current = null;
             }, props.filterDelay);
         }
     }

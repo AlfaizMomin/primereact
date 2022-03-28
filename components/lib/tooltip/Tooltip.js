@@ -36,7 +36,7 @@ export const tip = (props) => {
     }
 }
 
-export const Tooltip = memo(forwardRef((props, ref) => {
+export const Tooltip = forwardRef((props, ref) => {
     const [visibleState, setVisibleState] = useState(false);
     const [positionState, setPositionState] = useState(props.position);
     const elementRef = useRef(null);
@@ -468,7 +468,7 @@ export const Tooltip = memo(forwardRef((props, ref) => {
     }
 
     return null;
-}));
+});
 
 Tooltip.defaultProps = {
     __TYPE: 'Tooltip',

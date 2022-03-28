@@ -91,7 +91,7 @@ export const FileUpload = memo(forwardRef((props, ref) => {
         setFilesState(currentFiles);
 
         if (ObjectUtils.isNotEmpty(currentFiles) && props.auto) {
-            upload();
+            upload(currentFiles);
         }
 
         if (props.onSelect) {
@@ -139,15 +139,17 @@ export const FileUpload = memo(forwardRef((props, ref) => {
         return true;
     }
 
-    const upload = () => {
+    const upload = (files) => {
+        files = files || filesState;
+
         if (props.customUpload) {
             if (props.fileLimit) {
-                uploadedFileCount += filesState.length;
+                uploadedFileCount += files.length;
             }
 
             if (props.uploadHandler) {
                 props.uploadHandler({
-                    files: filesState,
+                    files,
                     options: {
                         clear,
                         props
@@ -166,7 +168,7 @@ export const FileUpload = memo(forwardRef((props, ref) => {
                 });
             }
 
-            for (let file of filesState) {
+            for (let file of files) {
                 formData.append(props.name, file, file.name);
             }
 
@@ -190,13 +192,13 @@ export const FileUpload = memo(forwardRef((props, ref) => {
 
                     if (xhr.status >= 200 && xhr.status < 300) {
                         if (props.fileLimit) {
-                            uploadedFileCount += filesState.length;
+                            uploadedFileCount += files.length;
                         }
 
                         if (props.onUpload) {
                             props.onUpload({
                                 xhr,
-                                files: filesState
+                                files
                             });
                         }
                     }
@@ -204,7 +206,7 @@ export const FileUpload = memo(forwardRef((props, ref) => {
                         if (props.onError) {
                             props.onError({
                                 xhr,
-                                files: filesState
+                                files
                             });
                         }
                     }

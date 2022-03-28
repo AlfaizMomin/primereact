@@ -36,7 +36,7 @@ export class ConfirmDialogDemo extends Component {
     }
 
     reject() {
-        this.toast.show({ severity: 'info', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+        this.toast.show({ severity: 'warn', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
     }
 
     confirm1() {
@@ -88,14 +88,14 @@ export class ConfirmDialogDemo extends Component {
                             <Button onClick={() => this.confirmPosition('right')} icon="pi pi-arrow-left" label="Right" className="p-button-help"></Button>
                         </div>
                         <div className="col-12">
-                            <Button onClick={() => this.confirmPosition('top-left')} icon="pi pi-arrow-down" label="TopLeft" className="p-button-warning mr-2"></Button>
+                            <Button onClick={() => this.confirmPosition('top-left')} icon="pi pi-arrow-down-right" label="TopLeft" className="p-button-warning mr-2"></Button>
                             <Button onClick={() => this.confirmPosition('top')} icon="pi pi-arrow-down" label="Top" className="p-button-warning mr-2"></Button>
-                            <Button onClick={() => this.confirmPosition('top-right')} icon="pi pi-arrow-down" label="TopRight" className="p-button-warning"></Button>
+                            <Button onClick={() => this.confirmPosition('top-right')} icon="pi pi-arrow-down-left" label="TopRight" className="p-button-warning"></Button>
                         </div>
                         <div className="col-12">
-                            <Button onClick={() => this.confirmPosition('bottom-left')} icon="pi pi-arrow-up" label="BottomLeft" className="p-button-success mr-2"></Button>
+                            <Button onClick={() => this.confirmPosition('bottom-left')} icon="pi pi-arrow-up-right" label="BottomLeft" className="p-button-success mr-2"></Button>
                             <Button onClick={() => this.confirmPosition('bottom')} icon="pi pi-arrow-up" label="Bottom" className="p-button-success mr-2"></Button>
-                            <Button onClick={() => this.confirmPosition('bottom-right')} icon="pi pi-arrow-up" label="BottomRight" className="p-button-success"></Button>
+                            <Button onClick={() => this.confirmPosition('bottom-right')} icon="pi pi-arrow-up-left" label="BottomRight" className="p-button-success"></Button>
                         </div>
                     </div>
 
@@ -127,7 +127,7 @@ const ConfirmDialogDemo = () => {
     }
 
     const reject = () => {
-        toast.current.show({ severity: 'info', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+        toast.current.show({ severity: 'warn', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
     }
 
     const confirm1 = () => {
@@ -178,14 +178,14 @@ const ConfirmDialogDemo = () => {
                         <Button onClick={() => confirmPosition('right')} icon="pi pi-arrow-left" label="Right" className="p-button-help"></Button>
                     </div>
                     <div className="col-12">
-                        <Button onClick={() => confirmPosition('top-left')} icon="pi pi-arrow-down" label="TopLeft" className="p-button-warning mr-2"></Button>
+                        <Button onClick={() => confirmPosition('top-left')} icon="pi pi-arrow-down-right" label="TopLeft" className="p-button-warning mr-2"></Button>
                         <Button onClick={() => confirmPosition('top')} icon="pi pi-arrow-down" label="Top" className="p-button-warning mr-2"></Button>
-                        <Button onClick={() => confirmPosition('top-right')} icon="pi pi-arrow-down" label="TopRight" className="p-button-warning"></Button>
+                        <Button onClick={() => confirmPosition('top-right')} icon="pi pi-arrow-down-left" label="TopRight" className="p-button-warning"></Button>
                     </div>
                     <div className="col-12">
-                        <Button onClick={() => confirmPosition('bottom-left')} icon="pi pi-arrow-up" label="BottomLeft" className="p-button-success mr-2"></Button>
+                        <Button onClick={() => confirmPosition('bottom-left')} icon="pi pi-arrow-up-right" label="BottomLeft" className="p-button-success mr-2"></Button>
                         <Button onClick={() => confirmPosition('bottom')} icon="pi pi-arrow-up" label="Bottom" className="p-button-success mr-2"></Button>
-                        <Button onClick={() => confirmPosition('bottom-right')} icon="pi pi-arrow-up" label="BottomRight" className="p-button-success"></Button>
+                        <Button onClick={() => confirmPosition('bottom-right')} icon="pi pi-arrow-up-left" label="BottomRight" className="p-button-success"></Button>
                     </div>
                 </div>
 
@@ -216,7 +216,7 @@ const ConfirmDialogDemo = () => {
     }
 
     const reject = () => {
-        toast.current.show({ severity: 'info', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+        toast.current.show({ severity: 'warn', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
     }
 
     const confirm1 = () => {
@@ -267,14 +267,14 @@ const ConfirmDialogDemo = () => {
                         <Button onClick={() => confirmPosition('right')} icon="pi pi-arrow-left" label="Right" className="p-button-help"></Button>
                     </div>
                     <div className="col-12">
-                        <Button onClick={() => confirmPosition('top-left')} icon="pi pi-arrow-down" label="TopLeft" className="p-button-warning mr-2"></Button>
+                        <Button onClick={() => confirmPosition('top-left')} icon="pi pi-arrow-down-right" label="TopLeft" className="p-button-warning mr-2"></Button>
                         <Button onClick={() => confirmPosition('top')} icon="pi pi-arrow-down" label="Top" className="p-button-warning mr-2"></Button>
-                        <Button onClick={() => confirmPosition('top-right')} icon="pi pi-arrow-down" label="TopRight" className="p-button-warning"></Button>
+                        <Button onClick={() => confirmPosition('top-right')} icon="pi pi-arrow-down-left" label="TopRight" className="p-button-warning"></Button>
                     </div>
                     <div className="col-12">
-                        <Button onClick={() => confirmPosition('bottom-left')} icon="pi pi-arrow-up" label="BottomLeft" className="p-button-success mr-2"></Button>
+                        <Button onClick={() => confirmPosition('bottom-left')} icon="pi pi-arrow-up-right" label="BottomLeft" className="p-button-success mr-2"></Button>
                         <Button onClick={() => confirmPosition('bottom')} icon="pi pi-arrow-up" label="Bottom" className="p-button-success mr-2"></Button>
-                        <Button onClick={() => confirmPosition('bottom-right')} icon="pi pi-arrow-up" label="BottomRight" className="p-button-success"></Button>
+                        <Button onClick={() => confirmPosition('bottom-right')} icon="pi pi-arrow-up-left" label="BottomRight" className="p-button-success"></Button>
                     </div>
                 </div>
 
@@ -309,7 +309,7 @@ const ConfirmDialogDemo = () => {
     }
 
     const reject = () => {
-        toast.current.show({ severity: 'info', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+        toast.current.show({ severity: 'warn', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
     }
 
     const confirm1 = () => {
@@ -360,14 +360,14 @@ const ConfirmDialogDemo = () => {
                         <Button onClick={() => confirmPosition('right')} icon="pi pi-arrow-left" label="Right" className="p-button-help"></Button>
                     </div>
                     <div className="col-12">
-                        <Button onClick={() => confirmPosition('top-left')} icon="pi pi-arrow-down" label="TopLeft" className="p-button-warning mr-2"></Button>
+                        <Button onClick={() => confirmPosition('top-left')} icon="pi pi-arrow-down-right" label="TopLeft" className="p-button-warning mr-2"></Button>
                         <Button onClick={() => confirmPosition('top')} icon="pi pi-arrow-down" label="Top" className="p-button-warning mr-2"></Button>
-                        <Button onClick={() => confirmPosition('top-right')} icon="pi pi-arrow-down" label="TopRight" className="p-button-warning"></Button>
+                        <Button onClick={() => confirmPosition('top-right')} icon="pi pi-arrow-down-left" label="TopRight" className="p-button-warning"></Button>
                     </div>
                     <div className="col-12">
-                        <Button onClick={() => confirmPosition('bottom-left')} icon="pi pi-arrow-up" label="BottomLeft" className="p-button-success mr-2"></Button>
+                        <Button onClick={() => confirmPosition('bottom-left')} icon="pi pi-arrow-up-right" label="BottomLeft" className="p-button-success mr-2"></Button>
                         <Button onClick={() => confirmPosition('bottom')} icon="pi pi-arrow-up" label="Bottom" className="p-button-success mr-2"></Button>
-                        <Button onClick={() => confirmPosition('bottom-right')} icon="pi pi-arrow-up" label="BottomRight" className="p-button-success"></Button>
+                        <Button onClick={() => confirmPosition('bottom-right')} icon="pi pi-arrow-up-left" label="BottomRight" className="p-button-success"></Button>
                     </div>
                 </div>
 

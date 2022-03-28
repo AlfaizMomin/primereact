@@ -10,8 +10,8 @@ export const Fieldset = forwardRef((props, ref) => {
     const [collapsedState, setCollapsedState] = useState(props.collapsed);
     const collapsed = props.toggleable ? (props.onToggle ? props.collapsed : collapsedState) : false;
     const contentRef = useRef(null);
-    const headerId = id + '_header';
-    const contentId = id + '_content';
+    const headerId = idState + '_header';
+    const contentId = idState + '_content';
 
     const toggle = (event) => {
         if (props.toggleable) {

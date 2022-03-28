@@ -21,7 +21,7 @@ const TreeTableContextMenuDemo = () => {
             label: 'View Key',
             icon: 'pi pi-search',
             command: () => {
-                toast.current.show({ severity: 'success', summary: 'Node Key', detail: this.state.selectedNodeKey });
+                toast.current.show({ severity: 'success', summary: 'Node Key', detail: selectedNodeKey });
             }
         },
         {
@@ -181,7 +181,7 @@ const TreeTableContextMenuDemo = () => {
             label: 'View Key',
             icon: 'pi pi-search',
             command: () => {
-                toast.current.show({ severity: 'success', summary: 'Node Key', detail: this.state.selectedNodeKey });
+                toast.current.show({ severity: 'success', summary: 'Node Key', detail: selectedNodeKey });
             }
         },
         {
@@ -246,7 +246,7 @@ const TreeTableContextMenuDemo = () => {
             label: 'View Key',
             icon: 'pi pi-search',
             command: () => {
-                toast.current.show({ severity: 'success', summary: 'Node Key', detail: this.state.selectedNodeKey });
+                toast.current.show({ severity: 'success', summary: 'Node Key', detail: selectedNodeKey });
             }
         },
         {
@@ -319,7 +319,7 @@ const TreeTableContextMenuDemo = () => {
             label: 'View Key',
             icon: 'pi pi-search',
             command: () => {
-                toast.current.show({ severity: 'success', summary: 'Node Key', detail: this.state.selectedNodeKey });
+                toast.current.show({ severity: 'success', summary: 'Node Key', detail: selectedNodeKey });
             }
         },
         {
