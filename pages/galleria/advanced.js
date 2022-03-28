@@ -10,47 +10,44 @@ import Head from 'next/head';
 import getConfig from 'next/config';
 
 const GalleriaAdvancedDemo = () => {
-        const [images, setImages] = useState(null);
-        const [activeIndex, setActiveIndex] = useState(0);
-        const [showThumbnails, setShowThumbnails] = useState(false);
-        const [isAutoPlayActive, setAutoPlayActive] = useState(true);
-        const [isFullScreen, setFullScreen] = useState(false);
-        const galleriaService = new PhotoService();
-        const contextPath = getConfig().publicRuntimeConfig.contextPath;
-        const galleria = useRef(null)
+    const [images, setImages] = useState(null);
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [showThumbnails, setShowThumbnails] = useState(false);
+    const [isAutoPlayActive, setAutoPlayActive] = useState(true);
+    const [isFullScreen, setFullScreen] = useState(false);
+    const galleriaService = new PhotoService();
+    const contextPath = getConfig().publicRuntimeConfig.contextPath;
+    const galleria = useRef(null)
 
-        const responsiveOptions = [
-            {
-                breakpoint: '1024px',
-                numVisible: 5
-            },
-            {
-                breakpoint: '960px',
-                numVisible: 4
-            },
-            {
-                breakpoint: '768px',
-                numVisible: 3
-            },
-            {
-                breakpoint: '560px',
-                numVisible: 1
-            }
-        ];
+    const responsiveOptions = [
+        {
+            breakpoint: '1024px',
+            numVisible: 5
+        },
+        {
+            breakpoint: '960px',
+            numVisible: 4
+        },
+        {
+            breakpoint: '768px',
+            numVisible: 3
+        },
+        {
+            breakpoint: '560px',
+            numVisible: 1
+        }
+    ];
 
+    useEffect(() => {
+        galleriaService.getImages().then(data => setImages(data));
+        bindDocumentListeners();
 
-        useEffect(() => {
-            galleriaService.getImages().then(data => setImages(data));
-            bindDocumentListeners();
+        return () => unbindDocumentListeners();
+    },[]) // eslint-disable-line react-hooks/exhaustive-deps
 
-            return () => unbindDocumentListeners();
-        },[]) // eslint-disable-line react-hooks/exhaustive-deps
-
-        useEffect(() => {
-            setAutoPlayActive(galleria.current.isAutoPlayActive())
-        },[isAutoPlayActive])
-
-
+    useEffect(() => {
+        setAutoPlayActive(galleria.current.isAutoPlayActive())
+    },[isAutoPlayActive]);
 
     const onThumbnailChange = (event) => {
         setActiveIndex(event.index)

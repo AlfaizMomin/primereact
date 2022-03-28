@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import PrimeReact from '../api/Api';
 import { DomHandler } from '../utils/Utils';
-import { useMountEffect, useUnmountEffect } from '../hooks/Hooks';
+import { useMountEffect, useUnmountEffect, useUpdateEffect } from '../hooks/Hooks';
 
 export const Portal = memo((props) => {
     const [mountedState, setMountedState] = useState(props.visible && DomHandler.hasDOM());
@@ -14,6 +14,10 @@ export const Portal = memo((props) => {
             props.onMounted && props.onMounted();
         }
     });
+
+    useUpdateEffect(() => {
+        props.onMounted && props.onMounted();
+    }, [mountedState]);
 
     useUnmountEffect(() => {
         props.onUnmounted && props.onUnmounted();

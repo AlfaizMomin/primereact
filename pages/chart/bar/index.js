@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useContext, useState } from 'react';
 import { TabView } from '../../../components/lib/tabview/TabView';
 import { Chart } from '../../../components/lib/chart/Chart';
 import { useLiveEditorTabs } from '../../../components/doc/common/liveeditor';
@@ -8,7 +8,9 @@ import Head from 'next/head';
 
 const BarChartDemo = () => {
 
-    const basicData = {
+    const context = useContext(AppContentContext);
+
+    const [basicData] = useState({
         labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
         datasets: [
             {
@@ -22,9 +24,9 @@ const BarChartDemo = () => {
                 data: [28, 48, 40, 19, 86, 27, 90]
             }
         ]
-    };
+    });
 
-    const multiAxisData = {
+    const [multiAxisData] = useState({
         labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
         datasets: [{
             label: 'Dataset 1',
@@ -45,9 +47,9 @@ const BarChartDemo = () => {
             yAxisID: 'y1',
             data: [28, 48, 40, 19, 86, 27, 90]
         }]
-    };
+    });
 
-    const stackedData = {
+    const [stackedData] = useState({
         labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
         datasets: [{
             type: 'bar',
@@ -89,7 +91,7 @@ const BarChartDemo = () => {
                 32
             ]
         }]
-    };
+    });
 
     const getLightTheme = () => {
         let basicOptions = {
@@ -250,7 +252,171 @@ const BarChartDemo = () => {
         }
     }
 
-    const { basicOptions, horizontalOptions, multiAxisOptions, stackedOptions } = getLightTheme();
+    const getDarkTheme = () => {
+        let basicOptions = {
+            maintainAspectRatio: false,
+            aspectRatio: .8,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#ebedef'
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: '#ebedef'
+                    },
+                    grid: {
+                        color: 'rgba(255,255,255,0.2)'
+                    }
+                },
+                y: {
+                    ticks: {
+                        color: '#ebedef'
+                    },
+                    grid: {
+                        color: 'rgba(255,255,255,0.2)'
+                    }
+                }
+            }
+        };
+
+        let horizontalOptions = {
+            indexAxis: 'y',
+            maintainAspectRatio: false,
+            aspectRatio: .8,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#ebedef'
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: '#ebedef'
+                    },
+                    grid: {
+                        color: 'rgba(255,255,255,0.2)'
+                    }
+                },
+                y: {
+                    ticks: {
+                        color: '#ebedef'
+                    },
+                    grid: {
+                        color: 'rgba(255,255,255,0.2)'
+                    }
+                }
+            }
+        };
+
+        let stackedOptions = {
+            maintainAspectRatio: false,
+            aspectRatio: .8,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#ebedef'
+                    }
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false
+                }
+            },
+            scales: {
+                x: {
+                    stacked: true,
+                    ticks: {
+                        color: '#ebedef'
+                    },
+                    grid: {
+                        color: 'rgba(255,255,255,0.2)'
+                    }
+                },
+                y: {
+                    stacked: true,
+                    ticks: {
+                        color: '#ebedef'
+                    },
+                    grid: {
+                        color: 'rgba(255,255,255,0.2)'
+                    }
+                }
+            }
+        };
+
+        let multiAxisOptions = {
+            maintainAspectRatio: false,
+            aspectRatio: .8,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#ebedef'
+                    }
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: true
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: '#ebedef'
+                    },
+                    grid: {
+                        color: 'rgba(255,255,255,0.2)'
+                    }
+                },
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    ticks: {
+                        min: 0,
+                        max: 100,
+                        color: '#ebedef'
+                    },
+                    grid: {
+                        color: 'rgba(255,255,255,0.2)'
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    grid: {
+                        drawOnChartArea: false,
+                        color: 'rgba(255,255,255,0.2)'
+                    },
+                    ticks: {
+                        min: 0,
+                        max: 100,
+                        color: '#ebedef'
+                    }
+                }
+            }
+        };
+
+        return {
+            basicOptions,
+            horizontalOptions,
+            stackedOptions,
+            multiAxisOptions
+        }
+    }
+
+    const [options] = useState({
+        'light': getLightTheme(),
+        'dark': getDarkTheme()
+    });
+
+    const { basicOptions, horizontalOptions, multiAxisOptions, stackedOptions } = options[`${context.darkTheme ? 'dark' : 'light'}`];
 
     return (
         <div>
@@ -267,43 +433,33 @@ const BarChartDemo = () => {
             </div>
 
             <div className="content-section implementation">
-                <AppContentContext.Consumer>
-                    {
-                        context => {
-                            const { basicOptions, horizontalOptions, multiAxisOptions, stackedOptions } = options[`${context.darkTheme ? 'dark' : 'light'}`];
+                <div className="card">
+                    <h5>Vertical</h5>
+                    <Chart type="bar" data={basicData} options={basicOptions} />
+                </div>
 
-                            return (
-                                <>
-                                    <div className="card">
-                                        <h5>Vertical</h5>
-                                        <Chart type="bar" data={basicData} options={basicOptions} />
-                                    </div>
+                <div className="card">
+                    <h5>Horizontal</h5>
+                    <Chart type="bar" data={basicData} options={horizontalOptions} />
+                </div>
 
-                                    <div className="card">
-                                        <h5>Horizontal</h5>
-                                        <Chart type="bar" data={basicData} options={horizontalOptions} />
-                                    </div>
+                <div className="card">
+                    <h5>Multi Axis</h5>
+                    <Chart type="bar" data={multiAxisData} options={multiAxisOptions} />
+                </div>
 
-                                    <div className="card">
-                                        <h5>Multi Axis</h5>
-                                        <Chart type="bar" data={multiAxisData} options={multiAxisOptions} />
-                                    </div>
-
-                                    <div className="card">
-                                        <h5>Stacked</h5>
-                                        <Chart type="bar" data={stackedData} options={stackedOptions} />
-                                    </div>
-                                </>
-                            )
-                        }
-                    }
-                </AppContentContext.Consumer>
+                <div className="card">
+                    <h5>Stacked</h5>
+                    <Chart type="bar" data={stackedData} options={stackedOptions} />
+                </div>
             </div>
 
             <BarChartDemoDoc />
         </div>
     )
 }
+
+export default BarChartDemo;
 
 const BarChartDemoDoc = memo(() => {
 
@@ -1160,4 +1316,4 @@ const BarChartDemo = () => {
             </TabView>
         </div>
     )
-})
+});

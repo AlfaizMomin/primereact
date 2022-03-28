@@ -105,7 +105,7 @@ export const Image = memo(forwardRef((props, ref) => {
 
     const createElement = () => {
         const { downloadable } = props;
-        const imagePreviewStyle = { transform: 'rotate(' + rotateState + 'deg) scale(' + scale + ')' };
+        const imagePreviewStyle = { transform: 'rotate(' + rotateState + 'deg) scale(' + scaleState + ')' };
         const zoomDisabled = scaleState <= 0.5 || scaleState >= 1.5;
         // const rotateClassName = 'p-image-preview-rotate-' + rotateScale;
 
@@ -145,6 +145,7 @@ export const Image = memo(forwardRef((props, ref) => {
         )
     }
 
+    const { src, alt, width, height } = props;
     const containerClassName = classNames('p-image p-component', props.className, {
         'p-image-preview-container': props.preview
     });
@@ -152,7 +153,6 @@ export const Image = memo(forwardRef((props, ref) => {
     const content = props.template ? ObjectUtils.getJSXElement(props.template, props) : <i className="p-image-preview-icon pi pi-eye"></i>;
     const preview = createPreview();
     const image = <img src={src} className={props.imageClassName} width={width} height={height} style={props.imageStyle} alt={alt} />;
-    const { src, alt, width, height } = props;
 
     return (
         <span ref={elementRef} className={containerClassName} style={props.style}>

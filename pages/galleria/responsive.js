@@ -35,7 +35,7 @@ const GalleriaResponsiveDemo = () => {
 
     useEffect(() => {
         galleriaService.getImages().then(data => setImages(data));
-    }) // eslint-disable-line react-hooks/exhaustive-deps
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const itemTemplate = (item) => {
         return <img src={`${contextPath}/${item.itemImageSrc}`} alt={item.alt} style={{ width: '100%', display: 'block' }} />

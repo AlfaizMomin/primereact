@@ -76,8 +76,9 @@ const InplaceDemo = () => {
                         </InplaceContent>
                     </Inplace>
                 </div>
-                <InplaceDoc></InplaceDoc>
             </div>
+
+            <InplaceDoc></InplaceDoc>
         </div>
     )
 }
