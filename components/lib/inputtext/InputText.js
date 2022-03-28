@@ -1,4 +1,4 @@
-import { forwardRef, memo, useEffect, useMemo, useRef } from 'react';
+import React, { forwardRef, memo, useEffect, useMemo, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { KeyFilter } from '../keyfilter/KeyFilter';
 import { tip } from '../tooltip/Tooltip';

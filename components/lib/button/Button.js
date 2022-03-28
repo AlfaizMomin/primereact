@@ -1,4 +1,4 @@
-import { forwardRef, memo, useEffect, useRef } from 'react';
+import React, { forwardRef, memo, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { tip } from '../tooltip/Tooltip';
 import { Ripple } from '../ripple/Ripple';

@@ -878,7 +878,7 @@ export const TreeTable = forwardRef((props, ref) => {
 
         return (
             <div className="p-treetable-wrapper">
-                <table style={props.tableStyle} className={props.tableClassName} ref={el => table = el}>
+                <table style={props.tableStyle} className={props.tableClassName}>
                     {header}
                     {footer}
                     {body}
