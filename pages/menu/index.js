@@ -20,14 +20,14 @@ const MenuDemo = () => {
                     label: 'Update',
                     icon: 'pi pi-refresh',
                     command: () => {
-                        this.toast.current.show({ severity: 'success', summary: 'Updated', detail: 'Data Updated', life: 3000 });
+                        toast.current.show({ severity: 'success', summary: 'Updated', detail: 'Data Updated', life: 3000 });
                     }
                 },
                 {
                     label: 'Delete',
                     icon: 'pi pi-times',
                     command: () => {
-                        this.toast.current.show({ severity: 'warn', summary: 'Delete', detail: 'Data Deleted', life: 3000 });
+                        toast.current.show({ severity: 'warn', summary: 'Delete', detail: 'Data Deleted', life: 3000 });
                     }
                 }
             ]
@@ -85,7 +85,7 @@ const MenuDemo = () => {
             </div>
 
             <MenuDoc />
-        </div >
+        </div>
     )
 }
 

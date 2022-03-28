@@ -25,7 +25,7 @@ export const Menubar = memo(forwardRef((props, ref) => {
     }
 
     const onLeafClick = () => {
-        setMobileActive(false);
+        setMobileActiveState(false);
     }
 
     const isOutsideClicked = (event) => {

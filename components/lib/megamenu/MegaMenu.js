@@ -1,8 +1,9 @@
 import React, { useState, useRef, memo, forwardRef } from 'react';
 import PropTypes from 'prop-types';
+import PrimeReact from '../api/Api';
 import { Ripple } from '../ripple/Ripple';
-import { DomHandler, ObjectUtils, classNames } from '../utils/Utils';
-import { useMountEffect, useEventListener } from '../hooks/Hooks';
+import { DomHandler, ObjectUtils, classNames, ZIndexUtils } from '../utils/Utils';
+import { useMountEffect, useEventListener, useUpdateEffect } from '../hooks/Hooks';
 
 export const MegaMenu = memo(forwardRef((props, ref) => {
     const [activeItemState, setActiveItemState] = useState(null);
@@ -170,6 +171,18 @@ export const MegaMenu = memo(forwardRef((props, ref) => {
     useMountEffect(() => {
         bindDocumentClickListener();
     });
+
+    useUpdateEffect(() => {
+        const currentPanel = DomHandler.findSingle(elementRef.current, '.p-menuitem-active > .p-megamenu-panel');
+
+        if (activeItemState) {
+            ZIndexUtils.set('menu', currentPanel, PrimeReact.autoZIndex, PrimeReact.zIndex['menu']);
+        }
+
+        return () => {
+            ZIndexUtils.clear(currentPanel);
+        }
+    }, [activeItemState]);
 
     const createSeparator = (index) => {
         const key = 'separator_' + index;
