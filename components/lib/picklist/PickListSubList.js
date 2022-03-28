@@ -73,7 +73,7 @@ export const PickListSubList = memo(forwardRef((props, ref) => {
 
     const findNextItem = (item) => {
         const nextItem = item.nextElementSibling;
-        return nextItem ? (!DomHandler.hasClass(nextItem, 'p-picklist-item') ? this.findNextItem(nextItem) : nextItem) : null;
+        return nextItem ? (!DomHandler.hasClass(nextItem, 'p-picklist-item') ? findNextItem(nextItem) : nextItem) : null;
     }
 
     const findPrevItem = (item) => {
