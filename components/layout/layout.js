@@ -129,7 +129,9 @@ export default function Layout(props) {
                 <meta property="og:ttl" content="604800"></meta>
                 <link rel="icon" href={`${contextPath}/images/favicon.ico`} type="image/x-icon"></link>
                 <link rel="stylesheet" href={`${contextPath}/styles/flags.css`}></link>
+                {/* eslint-disable */}
                 <script src={`${contextPath}/scripts/prism/prism.js`} data-manual></script>
+                {/* eslint-enable */}
             </Head>
             <News active={newsActive} onHide={onNewsHide}/>
             <Topbar onMenuButtonClick={onMenuButtonClick} onThemeChange={onThemeChange} theme={props.theme} darkTheme={props.dark} versions={[]} />

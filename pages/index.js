@@ -60,7 +60,9 @@ export default function Home(props) {
                 <link href={`${contextPath}/images/favicon.ico`} rel="icon" type="image/x-icon"></link>
                 <link href={`${contextPath}/styles/landing/themes/${tableTheme}/theme.css`} rel="stylesheet"></link>
                 <link rel="stylesheet" href={`${contextPath}/styles/flags.css`}></link>
+                {/* eslint-disable */}
                 <script src={`${contextPath}/scripts/prism/prism.js`} data-manual></script>
+                {/* eslint-enable */}
             </Head>
             <div className="landing-intro">
                 <HeaderSection dark={props.dark} onToggleColorScheme={toggleColorScheme} />
