@@ -40,6 +40,12 @@ const HeaderSection = (props) => {
         }
     }, []);
 
+    useEffect(() => {
+        if (scrollListener.current) {
+            scrollListener.current();
+        }
+     });
+
     return (
         <section ref={containerElement} className={headerClassName}>
             <span>
